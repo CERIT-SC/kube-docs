@@ -88,7 +88,7 @@ CMD /usr/bin/pfetch
 ```
 
 In the same directory that you have your Dockerfile, run the following
-command: `docker build . -t cerit.io/$USER/tutorial:v0.1` (replace `$USER`
+command: `docker build -t cerit.io/$USER/tutorial:v0.1` (replace `$USER`
 with your Harbor username) (choose `cerit.io` or `hub.cerit.io` at the
 start of the image name based on which name you used in `docker login`
 step)
