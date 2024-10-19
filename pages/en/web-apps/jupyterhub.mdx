@@ -234,7 +234,7 @@ You can easily base our minimal notebook image with the name: `cerit.io/hubs/min
 
 Put the following configuration into `/etc/ssh/sshd_config.d/sshd.conf` or if your base distribution does not use `/etc/ssh/sshd_config.d` then just to `/etc/ssh/sshd_config`:
 
-``` filename="sshd.conf" copy
+```ini filename="sshd.conf" copy
 Port 2222
 AddressFamily any
 ListenAddress 0.0.0.0
