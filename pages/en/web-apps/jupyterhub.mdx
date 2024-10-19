@@ -205,3 +205,82 @@ Your data will be sent to the third party service -- OpenAI. If you do not agree
 ### Currently Integrated Notebooks
 
 * Minimal NB AI -- see [https://jupyter-ai.readthedocs.io/en/latest/](https://jupyter-ai.readthedocs.io/en/latest/) for documentation.
+
+## Notebook SSH Access
+
+<Callout type="warning">
+SSH access works only from IPv6 enabled networks. It will not work from IPv4 only network -- most home networks, you usually will need to use VPN service such as Edu VPN.
+</Callout>
+
+It is possible to enable SSH access at notebook startup, you need to use an image that contains `sshd` with correct settings, currently `Minimal NB with SSH access` image is available.
+
+As shown below, ssh enpoint address will be displayed, `jovyan@jupyter-xhejtman---54est.dyn.cloud.e-infra.cz` in this example. Write this address because Jupyterhub UI will not display this address again. It can be obtained by `kubectl get svc -n jupyterhub-[yourlogin]-prod-ns -o yaml | grep external-dns.alpha.kubernetes.io/hostname`, if the `kubectl` tool is installed in the notebook.
+
+![ssh]((/img/ceritsc/apps/jupyterhub/ssh.png)
+
+### SSH Keys
+
+Additionally, you need to add your *public* ssh key into home `.ssh/authorized_keys` file. If the directory `.ssh` does not exist, just create it using `mkdir .ssh`. Do not omit the dot at the beginning of the name. Also note, `ls` does not display doted files, to see `.ssh` directory, you need to use `ls -a`. 
+
+After adding the public ssh key, you should be able to connect with ssh similarly to `ssh jovyan@jupyter-xhejtman---54est.dyn.cloud.e-infra.cz`.
+
+<Callout type="info">
+The ssh will print warning about changed ssh key sometimes (mainly after restarting the notebook), this is ok, using the SSH key.<br/>DO NOT IGNORE THIS WARNING WHEN ENTERING A PASSWORD.
+</Callout>
+
+### Creating Own SSH Enabled Image
+
+You can easily base our minimal notebook image with the name: `cerit.io/hubs/minimalnb:26-09-2024-ssh`. Or you can create your own from scratch. Follow the guidelines above, how to create own notebook image and additionally install `openssh-server` package.
+
+Put the following configuration into `/etc/ssh/sshd_config.d/sshd.conf` or if your base distribution does not use `/etc/ssh/sshd_config.d` then just to `/etc/ssh/sshd_config`:
+
+```ini filename=sshd.conf copy
+Port 2222
+AddressFamily any
+ListenAddress 0.0.0.0
+ListenAddress ::
+StrictModes no
+PubkeyAuthentication yes
+UsePAM yes
+X11Forwarding no
+PrintMotd no
+TCPKeepAlive yes
+PubkeyAcceptedKeyTypes=+ssh-rsa
+```
+
+Also remove all `/etc/ssh/ssh_host_*` files in the image.
+
+<Callout type="warning">
+It is crucial to remove the `ssh_host_*` files from the image and create new files during image start. Otherwise the ssh connection is not secure!
+</Callout>
+
+The last step is to edit original `start-notebook.sh` file located in the image in `/usr/local/bin/start-notebook.sh` and add lines:
+
+```bash copy
+(export LD_LIBRARY_PATH=''; 
+ rm -f /etc/ssh/ssh_host_*; 
+ for i in rsa dsa ecdsa ed25519; do 
+   ssh-keygen -q -f /etc/ssh/ssh_host_${i}_key -N '' -t $i; 
+   ssh-keygen -f /etc/ssh/ssh_host_${i}_key.pub; 
+ done)
+
+LD_LIBRARY_PATH='' /usr/sbin/sshd
+```
+
+the whole file should look like this:
+```bash filename=start-notebook.sh copy
+#!/bin/bash
+# Shim to emit warning and call start-notebook.py
+echo "WARNING: Use start-notebook.py instead"
+
+(export LD_LIBRARY_PATH=''; 
+ rm -f /etc/ssh/ssh_host_*; 
+ for i in rsa dsa ecdsa ed25519; do 
+   ssh-keygen -q -f /etc/ssh/ssh_host_${i}_key -N '' -t $i; 
+   ssh-keygen -f /etc/ssh/ssh_host_${i}_key.pub; 
+ done)
+
+LD_LIBRARY_PATH='' /usr/sbin/sshd
+
+exec /usr/local/bin/start-notebook.py "$@"
+```
