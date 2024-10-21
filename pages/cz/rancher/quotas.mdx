@@ -68,7 +68,7 @@ Pokud běžící kontejner překročí limity, výsledek závisí na typu zdroje
 ```
 Pods "master-685f855ff-gg9sr" is forbidden: failed quota: default-w2qv7: must specify limits.cpu,limits.memory,requests.cpu,requests.memory:Deployment does not have minimum availability.
 ```
- Nicméně, to by se uživateli nemělo stát, protože jsme nastavili výchozí zdroje kontejneru na 1 CPU a 512MB Paměti pro jak *požadavky*, tak *limity*. Tento výchozí stav se aplikuje pouze v případě, že uživatel nezadal zdroje.
+ Nicméně, to by se uživateli nemělo stát, protože jsme nastavili výchozí zdroje kontejneru na 1 CPU a 512MB Paměti pro *požadavky* i *limity*. Tento výchozí stav se aplikuje pouze v případě, že uživatel nezadal zdroje.
 
 * Kvóty nelze překročit, takže součet kvót pro všechny namespaces v rámci projektu nesmí být větší než kvóta projektu. Jak jsme nastavili počáteční kvótu *namespace* na rovnou *Projektu*, není prostor pro další namespaces. Uživatelé mohou vytvářet další namespace, ale musí nejprve snížit kvóty na počátečním *namespace* nebo požádat o rozšíření kvót *projektu*.
 
