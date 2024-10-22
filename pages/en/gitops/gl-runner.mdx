@@ -1,0 +1,106 @@
+# GitLab Runner in Kubernetes
+
+GitLab runner is used to run jobs listed in `.gitlab-ci.yaml` in the GitLab repositories. GitLab runner is different from GitLab Kubernetes agent which is utilized to deploy containers into Kubernetes clusters for e.g., e2e tests, CI/CD etc. 
+
+The following tutorial describes how to set up GitLab runner in our Kubernetes cluster for your project or group. This tutorial was created with the help of our colleagues Pavel Břoušek, Štěpán Řihák, and Adrián Rošinec. 
+
+## Prerequisites
+- GitLab repository
+- Namespace where you want to run the runners
+- `kubectl` installed on your laptop
+- `helm` installed in your laptop
+- `kubeseal` for securly storing secrets
+
+
+## Getting the Namespace
+
+Throught these instructions, you need to replace `<YOUR NAMESPACE>` with the name of your personal or group namespace. You can chcek what namespaces are available to you via [Rancher GUI](https://docs.cerit.io/en/kubernetes/ns).
+
+## Kubectl --- Interaction with the Cluster
+
+To interact with the cluster, you need to install `kubectl` tool and dowload your `kubeconfig` file. Follow the instructions on how obtain the file [here](https://docs.cerit.io/en/kubernetes/kubectl).
+
+## Helm --- Package Manager for Kubernetes
+
+GitLab runner is distributed as a Helm package. Helm is a package manager for Kubernetes and to be able to use Helm packages, you need to install `helm` cmdl tool. See official instructions [here](https://helm.sh/docs/intro/install/)
+
+## Kubeseal --- Storing Encrypted Secrets
+
+To safely store GitLab tokens, use Sealed Secrets. Install `kubeseal`, the instructions can be found in the offical [github](https://github.com/bitnami-labs/sealed-secrets). More resources about `kubeseal` can be in the git secrets section in [our documentation](https://docs.cerit.io/en/gitops/gitsecrets).
+
+## Prepare GitLab Token for usage in Kubernetes
+
+1. Get the token for either your [GitLab project](https://docs.gitlab.com/ee/ci/runners/runners_scope.html#create-a-project-runner-with-a-runner-authentication-token) or [GitLab group](https://docs.gitlab.com/ee/ci/runners/runners_scope.html#create-a-group-runner-with-a-runner-authentication-token). After following the steps for a given runner type, you will see a page where in *Step 1*, you will get your runner token (prefixed `glrt-`).
+
+2. Create a sealed secret. Firstly, get `base64` encoded runner token (`echo <RUNNER TOKEN> | base64`). Secondly, create a sealed secret yaml file. You can use an example below where you need to change `<YOUR NAMESPACE>, <BASE64 ENCODED RUNNER TOKEN>` and save the file as `tokenSecret.yaml`. Create the sealed secret by issuing command `kubeseal --controller-namespace sealed-secrets-operator tokenSecret.yaml sealed-secret.json` 
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitlab-runner-secret
+  namespace: <YOUR NAMESPACE>
+type: Opaque
+data:
+  runner-registration-token:"" # leave as empty string for compatibility reasons!
+  runner-token: <BASE64 ENCODED RUNNER TOKEN>
+```
+
+3. Create a secret in the cluster from the sealed secret by issuing command `kubectl apply -f sealed-secret.json -n <YOUR NAMESPACE>`. When the runner is created, it will automatically get the runner token from this secret.
+
+
+## Setup GitLab Runner
+
+1. Optional: prepare **storage for shared cache** by creating PVC. You can use example below where you need to put the desired amount into the `<DESIRED-STORAGE-SIZE>` and save the file as `pvc.yaml`. Then create the PVC in the cluster by issuing command `kubectl create -f pvc.yaml -n <YOUR NAMESPACE>`.
+
+```yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: gitlab-runner-cache
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: <DESIRED-STORAGE-SIZE>Gi
+  storageClassName: nfs-csi
+```
+
+If you do not set up a shared cache, there will be no caching at all because each job runs in a new pod which is destroyed after completion. To make cache work and speed up job execution, you need to set up either [a distributed cache](https://docs.gitlab.com/runner/configuration/speed_up_job_execution.html#use-a-distributed-cache) (e.g. [CESNET S3](https://du.cesnet.cz/cs/navody/object_storage/cesnet_s3/start)) or [a shared volume](https://docs.gitlab.com/runner/executors/kubernetes.html#using-the-cache-with-the-kubernetes-executor). Then modify `values.yaml` (step 3) accordingly.
+
+2. On your local machine, run `helm repo add gitlab https://charts.gitlab.io` to obtain GitLab package from helm. You can check available chart versions with `helm search repo -l gitlab/gitlab-runner`.
+
+3. Download [values.yaml](/examples/ceritsc/values/values.yaml) which is used as a configuration file for helm package. This file has been already tailored to run in our cluster and should run out of the box. The [official documentation](https://docs.gitlab.com/runner/install/kubernetes.html#configure-gitlab-runner-with-the-helm-chart) explains the fields and we recommend checking it out.
+
+You should update the GitLab runner version to the newest available or to the version matching the version of the GitLab instance. It might happen that an image is not available for the latest version. In that case, installation will run, but the gitlab-runner in Rancher will be in the state `Imagepullbackoff`, which means that the image does not exist. You may need to adjust values for CPU, memory and concurrent troughout the file in order to fit into your project's quotas.
+
+4. Start your runner. Once you have configured `values.yaml`, you are ready to start your runner by issuing `helm install -n <YOUR NAMESPACE> gitlab-runner -f values.yaml gitlab/gitlab-runner`. If you created a *group runner*, you should see it as active in *Build → Runners*. If you created a *project runner*, you should see it in *Settings* → *CI/CD* → *Project Runners*.
+
+## Upgrade runner
+
+To update the runner to a new version:
+
+1. Pause the runner in GitLab and ensure any jobs have completed. Pausing the runner prevents problems arising with the jobs, such as authorization errors when they [complete](https://docs.gitlab.com/runner/faq/index.html#helm-chart-error--unauthorized).
+
+2. Run `helm upgrade --namespace <YOUR NAMESPACE> -f values.yaml gitlab-runner gitlab/gitlab-runner`
+
+
+## Known Limitations
+This section describes some problems and solutions you might experience when filling out `values.yaml`. Our Kubernetes clusters are set up in a specific way which might require additional configuration so first check this documentation if you experience problems.
+
+### Fixed number of services
+
+The helm chart does not directly support setting the required security parameters of our clusters ([security context, non-root user](https://docs.cerit.io/en/kubernetes/securitycontext)) directly, they need to be overriden using a beta feature called [pod_spec](https://docs.gitlab.com/runner/executors/kubernetes/index.html#overwrite-generated-pod-specifications). The downside is that each container needs to be patched individually, so there needs to be a fixed number of containers.
+
+Unless you are using [services](https://docs.gitlab.com/ee/ci/services/) in your CI, the number of containers is constant and you can use the default `values.yaml`.
+
+If you are using services, you need to create a new runner for each number of services that you use, and execute jobs on different runners using [tags](https://docs.gitlab.com/ee/ci/yaml/#tags), e.g., if you have jobs with 0 services and jobs with 3 services you will need 2 runners. [values-3s.yaml](/examples/ceritsc/values/values-3s.yaml) is an example for a runner with exactly 3 services.
+
+## Further reading
+
+* https://docs.gitlab.com/runner/install/kubernetes.html
+* https://docs.gitlab.com/runner/executors/kubernetes.html
+* https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests/3907#note_1362921762
+
+
