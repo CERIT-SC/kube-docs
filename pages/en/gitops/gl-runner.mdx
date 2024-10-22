@@ -16,15 +16,15 @@ The following tutorial describes how to set up GitLab runner in our Kubernetes c
 
 Throught these instructions, you need to replace `<YOUR NAMESPACE>` with the name of your personal or group namespace. You can chcek what namespaces are available to you via [Rancher GUI](https://docs.cerit.io/en/kubernetes/ns).
 
-## Kubectl --- Interaction with the Cluster
+## Kubectl - Interaction with the Cluster
 
 To interact with the cluster, you need to install `kubectl` tool and dowload your `kubeconfig` file. Follow the instructions on how obtain the file [here](https://docs.cerit.io/en/kubernetes/kubectl).
 
-## Helm --- Package Manager for Kubernetes
+## Helm - Package Manager for Kubernetes
 
 GitLab runner is distributed as a Helm package. Helm is a package manager for Kubernetes and to be able to use Helm packages, you need to install `helm` cmdl tool. See official instructions [here](https://helm.sh/docs/intro/install/)
 
-## Kubeseal --- Storing Encrypted Secrets
+## Kubeseal - Storing Encrypted Secrets
 
 To safely store GitLab tokens, use Sealed Secrets. Install `kubeseal`, the instructions can be found in the offical [github](https://github.com/bitnami-labs/sealed-secrets). More resources about `kubeseal` can be in the git secrets section in [our documentation](https://docs.cerit.io/en/gitops/gitsecrets).
 
@@ -42,7 +42,7 @@ metadata:
   namespace: <YOUR NAMESPACE>
 type: Opaque
 data:
-  runner-registration-token:"" # leave as empty string for compatibility reasons!
+  runner-registration-token: "" # leave as empty string for compatibility reasons!
   runner-token: <BASE64 ENCODED RUNNER TOKEN>
 ```
 
@@ -51,7 +51,7 @@ data:
 
 ## Setup GitLab Runner
 
-1. Optional: prepare **storage for shared cache** by creating PVC. You can use example below where you need to put the desired amount into the `<DESIRED-STORAGE-SIZE>` and save the file as `pvc.yaml`. Then create the PVC in the cluster by issuing command `kubectl create -f pvc.yaml -n <YOUR NAMESPACE>`.
+1. **Optional:** prepare storage for *shared cache* by creating PVC. You can use example below where you need to put the desired amount into the `<DESIRED-STORAGE-SIZE>` and save the file as `pvc.yaml`. Then create the PVC in the cluster by issuing command `kubectl create -f pvc.yaml -n <YOUR NAMESPACE>`.
 
 ```yaml
 kind: PersistentVolumeClaim
