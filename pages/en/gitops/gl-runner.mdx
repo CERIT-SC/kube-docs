@@ -32,7 +32,7 @@ To safely store GitLab tokens, use Sealed Secrets. Install `kubeseal`, the instr
 
 1. Get the token for either your [GitLab project](https://docs.gitlab.com/ee/ci/runners/runners_scope.html#create-a-project-runner-with-a-runner-authentication-token) or [GitLab group](https://docs.gitlab.com/ee/ci/runners/runners_scope.html#create-a-group-runner-with-a-runner-authentication-token). After following the steps for a given runner type, you will see a page where in *Step 1*, you will get your runner token (prefixed `glrt-`).
 
-2. Create a sealed secret. Firstly, get `base64` encoded runner token (`echo <RUNNER TOKEN> | base64`). Secondly, create a sealed secret yaml file. You can use an example below where you need to change `<YOUR NAMESPACE>, <BASE64 ENCODED RUNNER TOKEN>` and save the file as `tokenSecret.yaml`. Create the sealed secret by issuing command `kubeseal --controller-namespace sealed-secrets-operator tokenSecret.yaml sealed-secret.json` 
+2. Create a sealed secret. Firstly, get `base64` encoded runner token (`echo <RUNNER TOKEN> | base64`). Secondly, create a sealed secret yaml file. You can use an example below where you need to change `<YOUR NAMESPACE>, <BASE64 ENCODED RUNNER TOKEN>` and save the file as `tokenSecret.yaml`. Create the sealed secret by issuing command `kubeseal --controller-namespace sealed-secrets-operator <tokenSecret.yaml> sealed-secret.json` 
 
 ```yaml
 apiVersion: v1
