@@ -73,9 +73,14 @@ If you do not set up a shared cache, there will be no caching at all because eac
 
 3. Download [values.yaml](/examples/ceritsc/values/values.yaml) which is used as a configuration file for helm package. This file has been already tailored to run in our cluster and should run out of the box. The [official documentation](https://docs.gitlab.com/runner/install/kubernetes.html#configure-gitlab-runner-with-the-helm-chart) explains the fields and we recommend checking it out.
 
+
 You should update the GitLab runner version to the newest available or to the version matching the version of the GitLab instance. It might happen that an image is not available for the latest version. In that case, installation will run, but the gitlab-runner in Rancher will be in the state `Imagepullbackoff`, which means that the image does not exist. You may need to adjust values for CPU, memory and concurrent troughout the file in order to fit into your project's quotas.
 
-4. Start your runner. Once you have configured `values.yaml`, you are ready to start your runner by issuing `helm install -n <YOUR NAMESPACE> gitlab-runner -f values.yaml gitlab/gitlab-runner`. If you created a *group runner*, you should see it as active in *Build → Runners*. If you created a *project runner*, you should see it in *Settings* → *CI/CD* → *Project Runners*.
+4. Start your runner. Once you have configured `values.yaml`, you are ready to start your runner by issuing `helm install -n <YOUR NAMESPACE> gitlab-runner -f values.yaml gitlab/gitlab-runner`. You can check if the deployment has been successful by issuing command `kubectl get pods -n <YOUR NAMESPACE>` where there should be a pod in a Running state (Ready 1/1).
+
+If there a Pod is in `ImagePullbackOff` state, it means that the image either has wrong name, tag, is not pushed to the registry or genereally doesn't exist. The image is specified in `values.yaml`, section `image:` so you can check the tag and verify on the [official site](https://gitlab.com/gitlab-org/ci-cd/gitlab-runner-ubi-images/container_registry/1766421?after=MjAyNC0xMC0yMlQyMDoxMjowOS45NTU1MThafGFtZDY0LXYxNy4yLjM%3D) that the tag exists. If not choose, some tag. 
+
+5. If you created a *group runner*, you should see it as active in *Build → Runners*. If you created a *project runner*, you should see it in *Settings* → *CI/CD* → *Project Runners*.
 
 ## Upgrade runner
 
