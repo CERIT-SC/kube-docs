@@ -21,9 +21,9 @@ Zde jsou nejběžnější příkazy Dockerfile:
 1. `FROM image` -- definuje název obrazu, ze kterého začnete vytvářet svůj docker image, např. `ubuntu`.
 2. `RUN cmd` -- spustí příkaz, který změní počáteční obraz, může být použito více než jeden `RUN` příkaz.
 3. `COPY localfile containerfile` -- zkopíruje místní soubory do docker image, můžete použít volitelný `--chown=user:group` pro změnu vlastnictví během kopírování. Kopírování a změna vlastnictví později pomocí `RUN chown` se nedoporučuje, protože výsledný obraz bude dvakrát větší.
-4. `USER uid` -- změní uživatele na `uid` (nebo jméno), od tohoto řádku budou všechny ostatní příkazy spuštěny jako specifikovaný uživatel, pokud tento příkaz není použit, vše bude provedeno jako uživatel `root`. Poslední direktiva `USER uid` také specifikuje, jako který uživatel bude kontejner běžet jako výchozí.
+4. `USER uid` -- změní uživatele na `uid` (nebo jméno), od tohoto řádku budou všechny ostatní příkazy spuštěny jako specifikovaný uživatel, pokud tento příkaz není použit, vše bude provedeno jako uživatel `root`. Poslední direktiva `USER uid` také určuje, pod jakým uživatelem bude kontejner ve výchozím nastavení spuštěn.
 5. `CMD command` -- spustí `command` jako výchozí příkaz při spuštění kontejneru.
-6. `WORKDIR dir` -- specifikuje aktuální pracovní adresář, poslední pracovní adresář bude použit jako počáteční adresář v běžícím kontejneru.
+6. `WORKDIR dir` -- specifikuje aktuální pracovní adresář, poslední pracovní adresář bude použit jako výchozí adresář ve spuštěném kontejneru.
 
 Příklad pro Dockerfile:
 ```docker filename="Dockerfile" copy
