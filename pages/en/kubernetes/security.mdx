@@ -23,10 +23,10 @@ kind: Ingress
 metadata:
   name: ingress-name
   annotations:
-    kubernetes.io/ingress.class: "nginx"
     kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
+  ingressClassName: nginx
   tls:
     - hosts:
         - "hostname.dyn.cloud.e-infra.cz"
@@ -46,18 +46,18 @@ spec:
 
 Firstly, we must add a few annotations to the ingress itself:
 
-```yaml {9,10}
+```yaml {8,9}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress-name
   annotations:
-    kubernetes.io/ingress.class: "nginx"
     kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 +   nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth?allowed_emails=email1@ics.muni.cz, email2@ics.muni.cz, email3@ics.muni.cz"
 +   nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$scheme%3A%2F%2F$host$escaped_request_uri"
 spec:
+  ingressClassName: nginx
   tls:
     - hosts:
         - "hostname.dyn.cloud.e-infra.cz"
@@ -106,9 +106,10 @@ kind: Ingress
 metadata:
   name: ingress-name-oauth
   annotations:
-    kubernetes.io/ingress.class: "nginx"
     kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
+  kubernetes.io/ingress.class: "nginx"
   tls:
     - hosts:
         - "hostname.dyn.cloud.e-infra.cz"

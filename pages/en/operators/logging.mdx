@@ -18,6 +18,7 @@ metadata:
   name: syslog-flow
   namespace: [your_namespace]
 spec:
+  loggingRef: cerit-logging-root
   match:
     regexp:
       value: json.kubernetes.labels.app.kubernetes.io/instance
@@ -27,11 +28,7 @@ spec:
     - [output_resource_name]
 ```
 
-If a related Logging resource specifies the `loggingRef` value, add this to the `SyslogNGFlow` specification.
-```yaml
-spec:
-  loggingRef: [value]
-```
+The part `loggingRef: cerit-logging-root` is important and must be set to this exact value.
 
 To see all routing options, see [official documentation](https://kube-logging.dev/docs/configuration/log-routing-syslog-ng/).
 
@@ -49,16 +46,13 @@ metadata:
   name: [output_resource_name]
   namespace: [your_namespace]
 spec:
+  loggingRef: cerit-logging-root
   syslog:
       host: [ip_address]
       port: [port]
 ```
 
-If a related Logging resource specifies the `loggingRef` value, add this to the `SyslogNGFlow` specification.
-```yaml
-spec:
-  loggingRef: [value]
-```
+The part `loggingRef: cerit-logging-root` is important and must be set to this exact value.
 
 To see a complete list of available output plugins, see [official documentation](https://kube-logging.dev/docs/configuration/plugins/syslog-ng-outputs/).
 

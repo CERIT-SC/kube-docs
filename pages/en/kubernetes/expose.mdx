@@ -39,10 +39,10 @@ kind: Ingress
 metadata:
   name: application-ingress
   annotations:
-    kubernetes.io/ingress.class: "nginx"
     kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
+  ingressClassName: nginx
   tls:
     - hosts:
         - "application.dyn.cloud.e-infra.cz"
@@ -84,10 +84,10 @@ kind: Ingress
 metadata:
   name: application-ingress
   annotations:
-    kubernetes.io/ingress.class: "nginx"
     kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
+  ingressClassName: nginx
   tls:
     - hosts:
         - "my-name"
@@ -162,11 +162,11 @@ kind: Ingress
 metadata:
   name: application-ingress
   annotations:
-    kubernetes.io/ingress.class: "nginx"
     kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     nginx.ingress.kubernetes.io/whitelist-source-range: 147.251.0.0/16
 spec:
+  ingressClassName: nginx
   tls:
     - hosts:
         - "my-name"

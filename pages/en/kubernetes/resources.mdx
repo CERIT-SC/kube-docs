@@ -1,3 +1,5 @@
+import { Callout } from 'nextra/components'
+
 # GPU and other Resources
 
 ## Requests and Limits
@@ -50,6 +52,103 @@ volumeMounts:
 ## GPU
 
 GPU resource can be requested in two distinct ways. User can request GPU(s) exclusively using `nvidia.com/gpu: x` where `x` is a number denoting number of requested GPUs. User can request also only a fraction of GPU using `nvidia.com/mig-1g.10gb: x` where `x` is a number of such GPU parts, or `nvidia.com/mig-2g.20gb: x`. The `nvidia.com/mig-1g.10gb` requests GPU part with 10GB memory size, the `nvidia.com/mig-2g.20gb` requests GPU part with 20GB memory size. More information about the GPU fractions (MIG) can be found [here](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/index.html). 
+
+### Requesting Specific GPU Type
+
+It is possible to request a specific GPU type when deploying a Pod. This can be done using [node selector](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector) labels. Each node equipped with a GPU has a label `nvidia.com/gpu.product`, which can currently have values: `NVIDIA-A10`, `NVIDIA-A100-80GB-PCIe`, `NVIDIA-A40`, `NVIDIA-H100-PCIe`, and `NVIDIA-L4`. 
+
+For example, to directly request the NVIDIA A40 GPU type, use the following Pod definition:
+
+```yaml filename="pod.yaml" copy
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test
+spec:
+  nodeSelector:
+    nvidia.com/gpu.product: 'NVIDIA-A40'
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+       type: RuntimeDefault
+  containers:
+  - name: test
+    image: ubuntu
+    command:
+    - "sleep"
+    - "infinity"
+    resources:
+      limits:
+        cpu: 1
+        memory: 1Gi
+        nvidia.com/gpu: 1
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+```
+
+<Callout type="info">
+This is just an example Pod definition to make it shorter. In a real use case, `Deployment` or `Job` should be used, their inner `spec` is exactly the same as the above `spec`.
+</Callout>
+
+<Callout type="info">
+Requesting a specific GPU type reduces the chances of the Pod running. All GPUs of a particular type may be in use, e.g. we only have one NVIDIA L4 GPU.
+</Callout>
+
+### Requesting GPU Properties
+
+It is also possible to request some GPU properties, such as GPU memory. This is similar to requesting a specific GPU type, but the different node selector is used: `nvidia.com/gpu.memory`. However, in this case, more complicated `affinity` description must be used, because the node selector can only match an exact value, it cannot compare the value to less or greater.
+
+The following example will allocate any GPU type with at least 80000MB of GPU memory:
+
+```yaml filename="pod.yaml" copy
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test
+spec:
+  affinity:
+    nodeAffinity:
+       requiredDuringSchedulingIgnoredDuringExecution:
+         nodeSelectorTerms:
+         - matchExpressions:
+           - key: nvidia.com/gpu.memory
+             operator: Gt
+             values:
+             - '80000'
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+       type: RuntimeDefault
+  containers:
+  - name: test
+    image: ubuntu
+    command:
+    - "sleep"
+    - "infinity"
+    resources:
+      limits:
+        cpu: 1
+        memory: 1Gi
+        nvidia.com/gpu: 1
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+```
+
+For more about operators (`Gt`) see [operators](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#operators) description.
+
+<Callout type="warning">
+Although the amount of GPU memory is a number, it must be defined as a string, i.e., '80000' and not 80000.
+</Callout>
 
 ## Storage
 

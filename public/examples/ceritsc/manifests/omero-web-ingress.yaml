@@ -3,10 +3,10 @@ kind: Ingress
 metadata:
   name: omero
   annotations:
-    kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
+  ingressClassName: nginx
   tls:
    - hosts:
        - "[omero-test].dyn.cloud.e-infra.cz"
