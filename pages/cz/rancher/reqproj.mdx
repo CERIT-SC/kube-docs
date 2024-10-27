@@ -6,7 +6,7 @@ V Kubernetes clusteru rozlišujeme mezi 2 typy projektů:
 - individuální projekt
 - skupinový projekt
 
-Každý, kdo se přihlásí do [Rancher instance](rancher.cloud.e-infra.cz), je přiřazen svému výchozímu individuálnímu projektu (více informací [zde](rancher)) s výchozími kvótami popsanými [zde](quotas.html).
+Každý, kdo se přihlásí do [Rancher instance](rancher.cloud.e-infra.cz), má přiřazen svůj výchozí individuální projekt (více informací [zde](rancher)) s výchozími kvótami popsanými [zde](quotas.html).
 
 Pro přístup k projektům v Rancheru musíte být platným členem MetaCentra. Pokud nejste členem MetaCentra, registrační formulář je k dispozici [zde](https://metavo.metacentrum.cz/en/application/index.html).
 
@@ -14,22 +14,22 @@ Pro přístup k projektům v Rancheru musíte být platným členem MetaCentra. 
 Připravujeme pohodlný formulář pro žádost, bude k dispozici na této stránce, jakmile bude připraven. Mezitím, pokud potřebujete skupinový projekt, musíte nás kontaktovat na k8s@ics.muni.cz. Ve výchozím nastavení je skupinovému projektu přiřazeno (a tedy i jeho namespace) 12 CPU *request* 64 CPU *limit* a 40GB RAM *request* 256GB RAM *limit*.
 
 ### Použití existující skupiny pro řízení přístupu
-Pokud již máte skupinu v **perun.e-infra.cz**, prosím zahrňte VO skupiny do e-mailu. Pokud je skupina v VO e-infra.cz, zahrňte také ID skupiny.
+Pokud již máte skupinu v **perun.e-infra.cz**, uveďte prosím v e-mailu VO skupiny. Pokud je skupina ve VO e-infra.cz, uveďte také ID skupiny.
 
 Další požadované informace:
 - název nového projektu
 - požadovaná kvóta zdrojů (není nutné, pokud je výchozí dostatečná)
-- osoba odpovědná za projekt (jméno + UCO)
+- osoba odpovědná za projekt (jméno + UČO)
 
-<TipWarning>**Řízení přístupu = přiřazení skupiny** je odpovědností žadatele - vás - podle [návodu níže](#access-control)</TipWarning>
+<TipWarning>**Řízení přístupu = přiřazení skupiny** je odpovědností žadatele - vás - podle [návodu níže](#řízení-přístupu)</TipWarning>
 
-### Žádná skupina zatím pro řízení přístupu
-Pokud nemáte skupinu, vytvoříme ji pro vás. Prosím zahrňte informaci "vytvořit novou skupinu pro projekt Rancher".
+### Zatím nemáte žádnou skupinu pro řízení přístupu
+Pokud nemáte skupinu, vytvoříme ji pro vás. Prosím uveďte informaci "vytvořit novou skupinu pro projekt Rancher".
 
 Další požadované informace:
 - název nového projektu
 - požadovaná kvóta zdrojů (není nutné, pokud je výchozí dostatečná)
-- osoba odpovědná za projekt (jméno + UCO)
+- osoba odpovědná za projekt (jméno + UČO)
 
 ## Řízení přístupu
 Potřebujeme jméno odpovědné osoby pro řízení přístupu k projektu. Je na vás (nebo vybrané osobě z vaší skupiny), abyste spravovali osoby, které mají přístup k projektu. I když znáte název existující skupiny, kterou byste chtěli použít z Perunu, musíte ji přiřadit sami. Jakmile je zdroj Perun připraven, odpovědné osobě je přiřazena role administrátora na tomto zdroji, což znamená, že tato osoba může přidávat další osoby jako administrátory, přiřazovat povolené skupiny na zdroj nebo přidávat členy.
