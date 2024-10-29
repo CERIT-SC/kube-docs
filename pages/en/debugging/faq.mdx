@@ -21,13 +21,20 @@ resources:
 
 **Question:** Deployment returns message simmilar to:
 ```log
-pods cz-iocb-nextprot-loader-loaderspark-1649322652207-driver" is forbidden: 
-exceeded quota: default-sq5kt, requested: limits.cpu=1,limits.memory=2432Mi,requests.cpu=1,requests.memory=2432Mi, 
-used: limits.cpu=0,limits.memory=0,requests.cpu=0,requests.memory=0,
-limited:limits.cpu=0,limits.memory=0,requests.cpu=0,requests.memory=0.
+Error creating: pods "app-cronjob-28837272-7k594" is forbidden: exceeded quota: default-kcq58, requested: limits.memory=8Gi, used: limits.memory=41872Mi, limited: limits.memory=45000Mi
 ```
 
-**Answer:** The deployment is being made to a *Namespace* that is running out of quota or even has quota set to zero. You need to increase the *Namespace* quota, which may require decreasing the quotas of your other *Namespaces* or requesting an explicit *Project*. See [Projects, Namespaces, and Quotas](../rancher/quotas).
+**Answer:** This error means the Pod you're trying to create requests more memory (limits.memory=8Gi) than the available quota allows. Here, the namespace has a memory limit of 45,000 Mi (about 43.95 Gi)defined in the resource quota object (`default-kcq58`, see `kubectl get resourcequota -n [your-namespace] default-kcq58`), and your Pod creation would exceed this because the quota is nearly fully used (used: limits.memory=41872Mi).
+
+Options for Resolving:
+
+* Reduce the Memory Request of the Pod:
+
+  Adjust the limits.memory in the Pod spec to request less memory, ideally fitting within the remaining quota (about 3128 Mi, or around 3 Gi).
+
+* Request an Increase in Quota (if you have control over the cluster settings):
+
+  Contact us at `k8s@ics.muni.cz` to increase the memory quota for the namespace or create explicit project namespace with higher quotas then the personal namespace..
 
 ---
 
