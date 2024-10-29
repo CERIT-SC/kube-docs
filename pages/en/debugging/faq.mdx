@@ -79,3 +79,50 @@ The `runAsUser` and `runAsGroup` lines are important.
 **Question:** Helm deployment returns error code 413
 
 **Answer:** HTML code 413 means entity too larger. Helm stores whole deployment (including all the local files in the chart no matter if they have `.yaml` suffix) and values into a `Secret` object. Limit of the Secret size is about 1.5MB. Verify, if there is no big file in the whole chart.
+
+---
+**Question:** How can I fix the following type of error:
+
+```log
+Error creating: pods "gmx-18dafd65-49d5-4263-8da2-e7d574b69930-nrtb9" is forbidden: violates PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "gmx-18dafd65-49d5-4263-8da2-e7d574b69930" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "gmx-18dafd65-49d5-4263-8da2-e7d574b69930" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "gmx-18dafd65-49d5-4263-8da2-e7d574b69930" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "gmx-18dafd65-49d5-4263-8da2-e7d574b69930" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+```
+
+**Answer:** The error message is due to the Pod not meeting the requirements of the `restricted` PodSecurity standard in Kubernetes. To fix this, you need to add a `securityContext` to the Pod and container specification. Here’s how you can address each issue:
+
+* allowPrivilegeEscalation: Set this to `false`.
+* Capabilities: Drop all capabilities to meet the restricted policy.
+* runAsNonRoot: Ensure the Pod or container is set to run as a non-root user.
+* seccompProfile: Set the `seccompProfile.type` to `"RuntimeDefault"` or `"Localhost"`.
+
+Example Pod spec:
+
+```yaml copy
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gmx-pod
+spec:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: gmx-container
+    image: your-image
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - "ALL"
+```
+
+Explanation of the Changes:
+
+* `allowPrivilegeEscalation: false`: Prevents the container from gaining additional privileges.
+* `capabilities.drop: ["ALL"]`: Drops all Linux capabilities, which is required under the restricted policy.
+* `runAsNonRoot: true`: Ensures the container doesn’t run as the root user.
+* `seccompProfile.type: "RuntimeDefault"`: Enforces the default seccomp profile for additional security.
+
+Applying the Updated Spec:
+
+Replace `your-image` with the appropriate container image name, and apply the updated configuration. This should resolve the error and allow the Pod to pass the `restricted` PodSecurity admission.
