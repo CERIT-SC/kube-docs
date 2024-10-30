@@ -70,6 +70,7 @@ k8s {
    namespace = '[your_namespace]'
    runAsUser = 1000
    computeResourceType = 'Job'
+   cpuLimits = true
    storageClaimName = '[name_of_created_pvc]'
    storageMountPath = '[mountpath]'
    launchDir = '[mountpath_from_storageMountPath]/[some_launchDir_path]'
@@ -146,6 +147,7 @@ k8s {
    namespace = 'nf-ns'
    runAsUser = 1000
    computeResourceType = 'Job'
+   cpuLimits = true
    storageClaimName = 'pvc-nf'
    storageMountPath = '/mnt'
    launchDir = '/mnt/data1'
