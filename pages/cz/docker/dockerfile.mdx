@@ -53,7 +53,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y curl
 ```
 Nezapomeňte přidat `-y` k většině nástrojů pro balení.
 
-* Systémy rodiny Debian obvykle defaultně instalují doporučené balíčky, což zde není žádoucí, zakázat to:
+* Systémy rodiny Debian obvykle defaultně instalují doporučené balíčky, což zde není žádoucí, je třeba to zakázat:
 ```docker
 RUN apt-get install -y --no-install-recommends curl
 ```
