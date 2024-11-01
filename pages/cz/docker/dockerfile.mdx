@@ -75,7 +75,7 @@ RUN conda install package && conda clean --all -f -y && rm -rf "~/.cache
 
 * Spuštění `chown` nebo `chmod` zdvojnásobí velikost změněných souborů v docker souboru, tj. `chown` na všechny soubory v docker souboru zdvojnásobí velikost docker souboru.
 
-* Při řetězení příkazů vždy řetězte pomocí `&&` a nikdy pouze pomocí `;`. Pokud jeden z příkazů selže, řetězení pomocí `&&` zastaví sestavení celého obrazu, což je obvykle to, co chcete. Řetězení pomocí `;` může skrýt některé selhávající příkazy a ztížit ladění, proč obraz není takový, jaký by měl být.
+* Při řetězení příkazů vždy řetězte pomocí `&&` a nikdy pouze pomocí `;`. Pokud jeden z příkazů selže, řetězení pomocí `&&` zastaví sestavení celého obrazu, což je obvykle to, co chcete. Řetězení příkazů pomocí `;` může skrýt selhávající příkazy a ztížit zjišťování toho, proč image nedělá to, co má.
 
 ## Sestavení Docker Image
 
