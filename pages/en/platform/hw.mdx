@@ -19,56 +19,24 @@ Kuba-cluster consists of 39 nodes (currently 31 available) and features 22 NVIDI
   </thead>
   <tbody>
     <tr>
-      <td>CPU:</td><td>2x AMD EPYC 7543 32-Core Processor<br/>(in total 64CPU per node) </td>
+      <td>CPU:</td><td>2x AMD EPYC 7543 32-Core Processor<br/>(in total 64CPU per node):<br/>2x AMD EPYC 9454 48-Core Processor<br/>(in total 96CPU per node):</td><td>All nodes apart from *kub-c*<br/>8 HPC *kub-c* nodes</td>
     </tr>
     <tr>
-      <td>Memory:</td><td>1024GB:<br/>&nbsp;&nbsp;&nbsp;512GB:</td><td>kub-b15, kub-b16<br/>All remaining nodes</td>
+      <td>Memory:</td><td>1024GB:<br/>512GB:<br/>1.5TB:</td><td>kub-b15, kub-b16<br/>All remaining nodes apart from *kub-c*<br/>8 HPC *kub-c* nodes</td>
     </tr>
     <tr>
-      <td>Disk:</td><td>2x 3.5TB SSD SATA:<br/>8x 8TB NVME SSD:</td><td>kub-a5 -- kub-a25<br/>kub-b1 -- kub-b18</td>
+      <td>Disk:</td><td>2x 3.5TB SSD SATA:<br/>8x 8TB NVME SSD:<br/>60TB NVME SSD:</td><td>kub-a5 -- kub-a25<br/>kub-b1 -- kub-b18<br/>8 HPC *kub-c* nodes</td>
     </tr>
     <tr>
-      <td>GPU:</td><td>None:<br/>2x NVIDIA A40 per node:<br/>1x NVIDIA A40 per node:<br/> 2x NVIDIA A10 per node:<br/>2x NVIDIA A100 (80GB) per node:<br/>1x NVIDIA H100 (PCIE/80GB):<br/>1x NVIDIA L4:</td>
-                   <td>kub-a5 -- kub-a9, kub-b3, kub-b9, kub-b14, kub-b15, kub-b17<br/>kub-a10 -- kub-a14, kub-b12<br/>kub-a15 -- kub-a20, kub-a22 -- kub-a24<br/>kub-b1 -- kub-b2, kub-b16<br/>kub-b4 -- kub-b8<br/>kub-b10 -- kub-b11<br/>kub-b13</td>
+      <td>GPU:</td><td>None:<br/>2x NVIDIA A40 per node:<br/>1x NVIDIA A40 per node:<br/> 2x NVIDIA A10 per node:<br/>2x NVIDIA A100 (80GB) per node:<br/>1x NVIDIA H100 (PCIE/80GB):<br/>1x NVIDIA L4:<br/>1x NVIDIA H100 NVL (PCIE/94GB) per node:</td>
+                   <td>kub-a5 -- kub-a9, kub-b3, kub-b9, kub-b14, kub-b15, kub-b17<br/>kub-a10 -- kub-a14, kub-b12<br/>kub-a15 -- kub-a20, kub-a22 -- kub-a24<br/>kub-b1 -- kub-b2, kub-b16<br/>kub-b4 -- kub-b8<br/>kub-b10 -- kub-b11<br/>kub-b13<br/>8 HPC *kub-c* nodes</td>
     </tr>
     <tr>
-      <td>Network:</td><td>2x 10Gbps Ethernet:<br/>1x 100Gbps Infiniband:</td><td>All nodes<br/>kub-b1 -- kub-b18</td>
+      <td>Network:</td><td>2x 10Gbps Ethernet:<br/>1x 100Gbps Infiniband:<br/>1x 100Gbps Ethernet and 1x 200Gbps Infiniband:</td><td>All nodes<br/>kub-b1 -- kub-b18<br/>8 HPC *kub-c* nodes</td>
     </tr>
   </tbody>
 </table>
 
-<Callout type="info" emoji="🆒">
-kub-c nodes (upcoming)
-
-8 HPC *kub-c* nodes, each featuring NVIDIA H100 GPU accelerator, will join *kuba-cluster*. 
-
-<table>
-  <thead>
-    <tr>
-      <th>8x</th>
-      <th></th>
-      <th>Nodes</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>CPU:</td><td>2x AMD EPYC 9454 48-Core Processor<br/>(in total 96CPU per node)</td>
-    </tr>
-    <tr>
-      <td>Memory:</td><td>1.5TB:</td><td>All nodes</td>
-    </tr>
-    <tr>
-      <td>Disk:</td><td>60TB NVME SSD:</td><td>All nodes</td>
-    </tr>
-    <tr>
-      <td>GPU:</td><td>1x NVIDIA H100 NVL (PCIE/94GB) per node:</td><td>All nodes</td>
-    </tr>
-    <tr>
-      <td>Network:</td><td>1x 100Gbps Ethernet:<br/>1x 200Gbps Infiniband:</td><td>All nodes<br/>All nodes</td>
-    </tr>
-  </tbody>
-</table>
-</Callout>
 
 #### Storage
 
