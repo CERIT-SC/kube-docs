@@ -2,7 +2,7 @@
 
 Our container platform is based on [Kubernetes orchestrator](https://kubernetes.io/) and [docker](https://hub.docker.com/) container images. We have adopted [rancher](https://rancher.com) Kubernetes distribution, so our platform UI is available through [Rancher dashboard](https://rancher.cloud.e-infra.cz). Currently, the platform is built on Linux and x86\_64 binary architecture (no Arm or Microsoft Windows is possible), we provide GPU accelerators (currently only NVIDIA), and SSD storage. We also provide InfiniBand 100Gbps and 200Gbps interconnect networks between selected nodes.
 
-In general, this platform can be used for almost anything, starting with a simple web application, see the [hello world](../examples/helloworld) example, to running a full remote desktop, see the [ansys](../rancher-applications/ansys) application, or running a complex workflow pipeline, see the [nextflow](../workflows/nextflow) example.
+In general, this platform can be used for almost anything, starting with a simple web application, see the [hello world](../examples/helloworld) example, to running a full remote desktop, see the [ansys](../rancher-apps/ansys) application, or running a complex workflow pipeline, see the [nextflow](../workflows/nextflow) example.
 
 This platform offers users to focus solely on their applications, so that required knowledge comprises of using the application or containerizing the application only. In the latter case, knowledge of creating dockerfiles is required (see [dockerfile](../docker/dockerfile) section). However, almost no knowledge of infrastructure is needed such as mounting `NFS` and so on.
 
