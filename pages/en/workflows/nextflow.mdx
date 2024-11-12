@@ -67,7 +67,7 @@ Running a Nextflow pipeline in Kubernetes requires local configuration with some
 
 ```js filename="nextflow.config" copy
 k8s {
-   namespace = '[your_namespace]'
+   namespace = '[]your-ns'
    runAsUser = 1000
    computeResourceType = 'Job'
    cpuLimits = true
@@ -83,8 +83,9 @@ executor {
 
 process {
    executor = 'k8s'
-   pod = [[securityContext:[fsGroupChangePolicy:'OnRootMismatch', runAsUser:1000, runAsGroup:1, fsGroup:1]], [automountServiceAccountToken:false]]
+   pod = [[securityContext:[fsGroupChangePolicy:'OnRootMismatch', runAsUser:1000, runAsGroup:1, fsGroup:1, seccompProfile:[type:'RuntimeDefault']]], [automountServiceAccountToken:false]]
 }
+
 ```
 
 You must set the `namespace` to correct value (namespace you can access). Set the name of PVC you created as `storageClaimName`, it will serve as shared working space for nextflow. Set `storageMountPath` to any path, where you would like to connect this PVC (we advise `/mnt`). Set `launchDir` and `workDir` to point somewhere on the PVC. Take care, if running Nextflow in parallel, always use different `launchDir` and `workDir` for the parallel runs.
