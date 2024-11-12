@@ -350,7 +350,7 @@ rclone sync --dry-run --progress --fast-list /home/user/source-dir cesnet_s3cl2:
 ```
 
 <Callout type="info" emoji="ℹ️">
-**Syncing process**
+**Syncing process** <br/>
 The command above always syncs the content of the source directory. It does not matter if you **DO NOT** use the slash at the end of the source directory. **Behavior of rclone is in this perspective different than rsync behavior**.
 </Callout>
 
@@ -383,7 +383,7 @@ Option interactive allows interactively deciding which change (on the target dat
 ### Data integrity checks
 
 <Callout type="info" emoji="ℹ️">
-**Enhancing the speed of checking**
+**Enhancing the speed of checking** <br/>
 All commands related to data integrity check should contain `--fast-list` option, see above. Using the `--fast-list` option will enhance the speed of the integrity checks.
 </Callout>
 
@@ -539,7 +539,7 @@ Indeed we can see that our three pictures **(1)** have been encrypted.
 ![s3client](/img/data-care/rclone/rclone-gui-encrypted8.png)
 
 <Callout type="info" emoji="ℹ️">
-**Configuration files for encrypted volumes**
+**Configuration files for encrypted volumes** <br/>
 Configuration file for encrypted volumes can be found in the [previous section](#configuration-file).
 </Callout>
 
@@ -555,7 +555,7 @@ To check encrypted data integrity it is necessary to use the command **cryptchec
 ```
 
 <Callout type="info" emoji="ℹ️">
-**Enhancing the speed of checking**
+**Enhancing the speed of checking** <br/>
 While using option cryptcheck we recommend to use option `--fast-list`. It allows cache info about more than 1000 objects within one request, so it rapidly accelerates the checks.
 </Callout>
 

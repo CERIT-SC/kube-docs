@@ -10,7 +10,7 @@ Access to the service is controlled by virtual organizations and coresponding gr
 S3 Bucket is storage container for objects stored in simple storage service (S3). S3 buckets can be likened to file folders and object storage. Each object stored by buckets has three main components: the object’s content (data), the object’s metadata (which includes object size, name, last modified date, and URL), and the object’s unique identifier.
 
 <Callout type="info" emoji="ℹ️">
-**How to get S3 service?**
+**How to get S3 service?** <br/>
 To connect to S3 service you have to contact support at: `support@cesnet.cz`
 </Callout>
 
@@ -48,7 +48,7 @@ In the section below are described additional aproaches for data redundancy appl
 Your data is stored in three copies in the data center. In case one copy is corrupted, the original data is still readable in an undamaged form, and the damaged data is restored in the background. Using a service with the replicated flag also allows for faster reads, as it is possible to read from all replicas at the same time. Using a service with the replicated flag reduces write speed because the write operation waits for write confirmation from all three replicas.
 
 <Callout type="info" emoji="ℹ️">
-**Suitable for?**
+**Suitable for?** <br/>
 Suitable for smaller volumes of live data with a preference for reading speed (not very suitable for large data volumes).
 </Callout>
 
@@ -56,6 +56,6 @@ Suitable for smaller volumes of live data with a preference for reading speed (n
 Erasure coding (EC) is a data protection method. It is similar to the dynamic RAID known from disk arrays. Erasure coding (EC) is a method where data is divided into individual fragments, which are then stored with some redundancy across the data storage. Therefore, if some disks (or the entire storage server) fail, the data is still accessible and will be restored in the background. So it is not possible for your data to be on one disk that gets damaged and you lose your data.
 
 <Callout type="info" emoji="ℹ️">
-**Suitable for?**
+**Suitable for?** <br/>
 Suitable, for example, for storing large data volumes and datasets.
 </Callout>
