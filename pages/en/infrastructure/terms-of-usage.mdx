@@ -1,2 +1,103 @@
-# Terms of Usage 
-Object Storage Terms of Usage.
+# Data Storage CESNET - Terms of Service 
+## 1. General declarations
+
+a. CESNET Data Storage (DS) is administered and operated by CESNET, association of legal entities, http://www.ces.net/.
+    
+b. User (service consumer) of CESNET DS facilities may be a legal entity (organisation) having contract relationship with CESNET or person having valid working contract (employee) or having valid study relationship (student) with legal entity (organisation) that meets the “Terms and conditions for the access to the CESNET e-infrastructure”, see https://www.cesnet.cz/conditions/?lang=en.
+
+c. DS can only be used for transferring and storing data associated with activities in science, research, development, dissemination of education, culture and prosperity. For details, see “Acceptable Use Policy of the Infrastructure (Acceptable Use Policy, AUP)”, https://www.cesnet.cz/conditions/?lang=en.
+
+d. DS administrators are obliged to follow the [[https://www.cesnet.cz/cesnet/documents/statement-of-ethical-and-responsible-data-handling/?lang=en|Statement of ethical and responsible data handling]]. \\ \\
+
+## 2. Virtual organisations
+
+a. Users of DS services are organised in so-called Virtual Organisation (VO). VOs have managers and members. VO manager negotiates conditions of service usage and technical means for user access to DS with DS administrators. Portfolio and the level of services provided to a specific user depends on user's membership in VO. A user can be a member of multiple VOs. User's VO membership is decided and granted by the VO manager; the VO manager must follow these Terms of Service.
+   
+b. For purposes of these Terms of Service, users of services that are accessible primarily with federated identities (i.e. particularly FileSender and ownCloud) are considered to be members of distinguished VOs administered by the DS administrator.
+
+c. Level and properties of provided DS services are described in the technical documentation on the website http://du.cesnet.cz. This site thus serves as a Service Level Declaration (SLD).
+   
+d. The requirements of VO manager for VO services configuration are handled by DS administrator. Such requirements may include providing specific access protocols, special handling of stored data (e.g. increasing data security level by adding replicas in one or more geographical locations) etc. The DS administrator expects the VO manager to explain why such configuration is necessary and useful. The DS administrator decides about providing such a service based on the purpose of requested storage space, required capacity, available capacity in the infrastructure, type of data access and required quality of data protection. {{anchor:backup:}}\\ \\
+
+## 3. Data types, archives and backups
+
+a. VO manager negotiates with DS administrator whether stored data is of archival or backup type. Data of both types can be stored in a single VO. Nature of the data is recognised by technical means of DS (e.g. the data is located in different folders in the file system).
+
+b. Archival data has long-term character. The DS administrator will dedicate space limited by quotas for data capacity and file/object count. 
+   
+c. Backup data has short-term character. Its storing on DS is limited by a predetermined storing period of time. Storing period is computed for every single file on file system or object in case of object DS. Accepted storing period for file/object is 365 calendar days. The DS administrator is entitled to delete all files/objects of backup type which have exceeded the storing period. The VO manager will be asked by the DS administrator to provide estimates of expected amounts of data for planning purposes.
+   
+d. For operational or technical reasons, the DS administrator reserves the right to declare additional limits for storing data based on other data properties in addition to capacity and time characteristics.
+
+e. Storing data from automated backups system into DS space dedicated for archival data is considered to be a severe violation of this Terms of Service.
+   
+f. Configuration of capacity and time quotas and level of their usage is tracked by the system of accounting (https://accounting.du.cesnet.cz/). Accounting data is available to DS users, VO managers of the particular VO where the data is stored, and to the DS administrators.
+   
+g. DS users and VO managers note that authoritative systems for quota settings are the user management system and the accounting system. (Due to properties of large DS systems and data access protocols can various tools interpret in quota or drive size some values set up purely from technical reasons, in some case totally incorrect values.) 
+    
+h. Should capacity quota or acceptable storage period of data of backup type be exceeded, users will be notified by the accounting system. The accounting system notifies users also at least two weeks before exceeding storing period for backup data.
+   
+i. Assigning the capacity quota does not imply that the capacity is actually available on the storage equipment. Reservations and guarantees of available space are not provided.
+
+## 4. End of life cycle
+
+a. DS administrator is entitled to require a proof that the user is entitled to access data storage facilities with respect to Section 1 of these Terms of Service. The proof is usually requested once a year by means of extending membership in the VO. A short report about the purpose of using the storage is requested during the process. Contents of such reports may be used in project reports and in advertising. The user is (repeatedly) asked to extend the VO membership by the user management system via e-mail notification sent to user's administrative mail contact. The notification contains instructions how to extend the VO membership. Accessing with the eduID.cz federated account is a typical way. 
+
+b. Should user's VO membership expire, the DS administrator usually makes user's data inaccessible by means of access permissions setting. Six months after membership expiration the DS administrator is entitled to delete all data of the DS user in the particular VO. The data is typically deleted after longer periods of time if feasible with respect to the operational status of the storage equipment. The VO manager can establish other data handling procedures for data owned by an expired member, usually earlier deletion of the data or transferring the data to another user in the VO. Such data handling must follow the purpose of particular VO. 
+
+c. Should the VO have no active members nor active VO manager (active VO manager is a VO manager actively communicating with the DS administrator when contacted), the DS administrator is entitled to delete all the data of the VO, but not earlier than 6 months after the VO becomes inactive.
+   
+d. When the DS administrator intends to decommission a service facility due to technology renewal, the DS administrator will notify the users in advance so that data could be moved into other facilities. The DS administrator usually prepares storage space for the affected VOs on other facilities during the process.
+   
+e. If necessary and with respect to technical availability, the DS administrator will provide one-time access to data of a user whose membership has expired. The DS administrator will require sufficient documentation or proof that the person is the original creator of the data (e.g. by means of showing an ID and demonstrating the person used to be employed by the organisation listed in the user management system or similar). \\ \\
+
+## 5. Security
+
+a. User is obliged to use DS services with respect to other DS users. Transferring of non-trivial amounts of data or performing operations that cause excessive load to storage systems are advised to be first discussed with DS administrators.
+
+b. Access methods to the storage as well as authentication mechanisms are described in the manuals available on https://du.cesnet.cz/.
+
+c. DS user is obliged to protect user account access with a non-trivial password. Non-trivial password is such that it is impossible to derive from known information about the user, especially is not a person, animal or thing name or a simple combination of those.
+   
+d. DS administrators are entitled to perform testing for trivial passwords. In case of a positive result, the user will be securely notified (user's access can be suspended until the password has been changed), and the user is asked to change the password.
+   
+e. DS user may not provide access of other persons by means of sharing account credentials (password, private keys, etc.). DS user is obliged to keep his/her credentials secret. To access DS from automated systems (e.g. backup robots) it is strongly advised to use service user account, which can be created in user management system.
+   
+f. DS user may not use DS in any unlawful way (in particular, copyright law and protection of personal data law). The user may not bypass and/or attempt to bypass any administrative and/or security measures for access to DS. 
+   
+g. DS user is obliged, without any overdue, to notify via e-mail address [[support@cesnet.cz| support(at)cesnet.cz]] if the is aware or suspecting that the infrastructure has been compromised, misused, access passwords have been disclosed, or in any case of other events which can indicate a security incident, such as strange account behaviour, appearance or disappearance of files and so on.
+   
+h. DS user is responsible for correctness and functionality of his/her e-mail address kept in the user management system as well as identity federation. DS administrators use this address to send messages regarding operation and security of the DS and messages necessary to protect user's data DS administrator is not responsible for any losses caused by the user not responding to those messages. The users are advised to fill in a telephone contact into the user management system so that DS administrator can use it in urgent cases.
+   
+i. DS administrator is entitled to regulate or deny user access due to administrative, operational, and/or security reasons. In case of severe violations of these Terms of Service and/or security rules, the DS administrator entitled deny access of such user to the infrastructure permanently.
+   
+j. DS users note that (unless stated otherwise in specialised documentation of a particular storage facility) DS is not designed for personal and/or medical documentation in an open (unencrypted) form. DS administrators suggest that such data can be stored in DS facilities only strongly encrypted at users' side. Consulting law department in users' organisation is strongly advisable in such cases.
+   
+k. Principles of handling and protecting personal data are described in the document [[https://www.cesnet.cz/cesnet/documents/privacy/?lang=en|about personal data protection]].
+   
+l. User data in DS facilities is handled as bit-streams. Neither content nor meaning of the data is interpreted in any way by the DS facility or DS administrators. Specifically, no personal data processing (in the sense of data protection laws) is performed by DS. \\ \\
+
+## 6. Hierarchical DS and its properties
+
+a. DS users using hierarchical DS (Hierarchical Storage Management, HSM) take due note of its following properties. HSM comprise of a tier of fast disk array and a slower tape library or MAID (Massive Array of Idle HDD). Data is automatically transferred (migrated) between hard disks , MAID and tapes by using predefined rules. The transfers seem to be transparent, all data appears to be placed on the hard disks . When data which has been migrated onto a slower DS tier is accessed, it has to be recalled back onto hard disks . This operation may be slow. Reasons for this technical solution are economical as storing data on the tapes or MAID allows for cutting operational costs.
+   
+b. Data migration policies between the tiers are configured based on DS administrator's and VO manager's agreement, taking user needs into account as well as technical and economical aspects of DS operation. DS users are advised to keep in mind that recall time of data which has not been used recently can be longer.
+   
+c. DS user should not enforce migrating data from tape to hard disks  if this data is not intended to be used immediately. \\ \\
+
+## 7. Assurance and responsibility
+
+a. DS is operated in “best effort” mode. DS administrators put the best effort to guarantee security and availability of data services and to safe data storing and keeping in the infrastructure. DS administrators for that purpose guarantee that the protection of stored data and access to it correspond to the state of the art of data technologies deployed in similar infrastructures. Provider of DS also guarantee high technological and moral standards of the technicians maintaining the DS systems. High availability and security of the data services is supported by hardware component redundancy, security policies of hierarchical systems, backups of required user data and also by means of technical and system support that is held by the technology supplier in 24x7 mode. The storage system architecture was designed for top level data retention (up to 99.99999999 %). The DS provider do not declare other formal guarantees except the “best effort” described above, unless stated otherwise.
+
+## 8. Other declarations
+
+a. The DS administrator declares that the devices deployed/operated in the infrastructure are located in the Czech Republic.
+
+b. DS administrator is authorised to change these Terms of Service. A new version of the Terms is published on the web of CESNET association at least one month before the Terms of Service become valid.
+
+c. These Terms of Service are published in Czech and English versions. In case of different interpretations of language versions, the Czech version is binding and obligatory. 
+
+## 9. Temporary declaration
+a. Recognition of archive data and backup data is not applied on the data stored in hierarchical facilities du1.cesnet.cz (Pilsen), du2.cesnet.cz (Jihlava), and du3.cesnet.cz (Brno). DS administrators handle all data stored in those facilities to be of archival type.
+
+The Terms of Service were published on 7th June 2018. They came into effect on 9th July 2018, replacing any [[en:predchozi_provozni_pravidla:start|previous versions]].
