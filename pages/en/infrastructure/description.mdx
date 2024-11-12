@@ -1,2 +1,28 @@
 # Description of Data Storage Infrastructure
-Object Storage Data Center are CL1, CL2, CL3, CL4, CL5.
+Data Centers operated by CESNET are based on object storage technology utilizing Ceph, see below. Data Centers are located only within Czech Republic so all your data lies thereto. Distributed model of Data Centers allows us to increase data redundancy due to usage of geographical replicas. That model brings the advantage that your data are resistant to the data media failure, nature disaster or user mistake. Another advatage is that you can use the Data Center which is the closest to your location.
+
+![infrastructure](/img/data-care/infrastructure/mapacr-trans3.gif)
+
+**CEPH** - Ceph is the software solution for providing object storage solution. Object storage differs from common file-oriented data storages. Object storage stores data as an objects not like data blocks. Metadata is associated directly to the particular object. This system eliminates hierarchical structure utilized within common data storages. All data are then stored in flat name space which is easy scalable. Ceph is opensource system. It consists of object store, block store and distributed file system. Ceph supports object access (RADOS), exported block device and file access. Data stored within Ceph are replicated to multiple nodes, based on defined replication policy.
+
+|  Data Center | Type   | Loacation     | Raw capacity PB | In operation since | Status        |
+| :-----       | :----- | :-----        | :-----          | :-----             | :-----        |
+| DU1          | HSM    | Plzeň         | 3.6             | 2011               | decomissioned |
+| DU2          | HSM    | Jihlava       | 7.209           | 2013               | decomissioned |
+| DU3          | HSM    | Brno          | 3.52            | 2013               | decomissioned |
+| DU4          | HSM    | Ostrava       | 23.341          | 2017               | online        |
+| DU5          | RAID   | Jihlava       | 9.36            | 2019               | online        |
+| CL1          | CEPH   | Jihlava       | 10.56           | 2019               | online        |
+| CL2          | CEPH   | Plzeň         | 25.433          | 2020               | online        |
+| CL3          | CEPH   | Ostrava       | 33.673          | 2021               | online        |
+| CL4          | CEPH   | Brno          | 26.607          | 2022               | online        |
+| CL5          | CEPH   | Dolní Břežany | 25.536          | 2023               | online        |
+
+## Datacenters
+Below you can find details about each datacenter.
+
+### CL1
+
+---
+
+### CL2
