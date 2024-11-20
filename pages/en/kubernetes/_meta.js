@@ -1,6 +1,7 @@
 export default {
 	"kubectl": "Kubectl",
 	"ns": "Namespaces",
+	"job": "Jobs",
 	"certificates": "Certificates",
 	"expose": "Exposing applications",
 	"pvc": "Storage",
