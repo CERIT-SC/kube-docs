@@ -2,9 +2,8 @@ import { Callout } from 'nextra/components'
 
 # Jobs
 
-Jobs in the cluster do not have any special configuration apart from necessary secucity context. We provide sample configuration for you convenience.
+Jobs in the cluster do not have any special configuration apart from necessary security context. We provide sample configuration for you convenience. If you will start from example below, don't forget to change the following according to your needs:
 
-If you are starting from this example, don't forget to change the following according to your needs:
 - Job name in section `metadata.name`
 - Labels (Optional)
   - Sections `metadata.labels` and  `spec.template.metadata.labels` (possible to have multiple key:value pairs in both)
@@ -35,6 +34,7 @@ If you are starting from this example, don't forget to change the following acco
     - <Callout type="default">
       Name of the volume in section `spec.template.spec.volumes[]` is the same as `name` when specifying a volumeMount.
       </Callout> 
+
 
 ```yaml
 apiVersion: batch/v1
