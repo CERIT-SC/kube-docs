@@ -285,3 +285,114 @@ LD_LIBRARY_PATH='' /usr/sbin/sshd
 
 exec /usr/local/bin/start-notebook.py "$@"
 ```
+
+## Run Job From Notebook
+
+Jupyter Notebooks are great tool for interactive computing but sometimes your scripts can include a portion that is more resource-intensive. In this case, it is preferred to run this portion as a `Job` rather than inside the Notebook. Some of the reasons are:
+1. You have to allocate a lot of resources for notebook even though most of the time, you don't need them. 
+2. If the computation is too demanding, you might not be able to interact with the notebook environment because allocated reosurces are consumed by the computation &rarr; you can't interactively analyse the data from the notebook
+
+### Neccesary Tools
+
+<Callout type="info" emoji="ℹ️">
+  We are actively working on reducing the amount of steps that must be taken. 
+</Callout>
+
+To run a job, you need to install a tool `kubectl` inside your notebook.
+For RStudio-based images:
+-  Open terminal and run 
+```curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"```
+  - If you get error `curl: command not found` then perform 
+  ```
+  fakeroot apt-get update
+  ```
+  wait till update finishes
+  ```
+  fakeroot apt-get install curl
+  ```
+  and execute above-mentioned curl again
+- Execute
+  ```
+  fakeroot install -o rstudio -m 0755 kubectl /usr/local/bin/kubectl
+  ```
+- Execute
+  ```
+  export KUBERNETES_PORT=tcp://10.43.0.1:443 KUBERNETES_PORT_443_TCP=tcp://10.43.0.1:443 KUBERNETES_PORT_443_TCP_ADDR=10.43.0.1 KUBERNETES_PORT_443_TCP_PORT=443 KUBERNETES_PORT_443_TCP_PROTO=tcp KUBERNETES_SERVICE_HOST=10.43.0.1 KUBERNETES_SERVICE_PORT=443 KUBERNETES_SERVICE_PORT_HTTPS=443
+  ```
+- Now you can use `kubectl` to interact with resources in your namespace. Verify with:
+  ```
+  kubectl get pods
+  ```
+  which will return list of your running notebooks.
+
+### Sharing The Data From Notebook To Job
+It is probable that you would like to reuse the data (or script) located in your Jupyter Notebook instance in the `Job`. As `Job` is a new object, you must attach the data to it. 
+
+Your notebook can mount two different so-called `volumes` that are shareable:
+1. Your notebook has a persistent volume mounted to `/home/jovyan` (or `/home/rstudio`) which is internally realized by an object called `PersistentVolumeClaim`. This object has a nice feature - it can be reused and mounted to any other Notebook or Job to any path.
+2. If you chose to mount your metacentrum home (mounted to `/home/meta/[your_meta_username]`), another `PersistentVolumeClaim` object has been created for the home. This object can be reused and mounted to any other Notebook or Job to any path too.
+
+
+To later use these two objects (`PersistentVolumeClaims` = PVCs) , you need to know their names:
+1. Find out the name of PVC mounted to `/home/jovyan` (or `/home/rstudio`) by issuing command
+```
+kubectl get pvc | awk -v volume=$(df -h | awk '$1 ~ /^147\.251\.6\.218:/ {split($1, a, "/"); print a[length(a)]}') '$3 == volume {print $1}'
+```
+e.g.
+```
+rstudio@jupyter-testuser--pipemaster2:~$ kubectl get pvc | awk -v volume=$(df -h | awk '$1 ~ /^147\.251\.6\.218:/ {split($1, a, "/"); print a[length(a)]}') '$3 == volume {print $1}'
+testuser-home-pipemaster <---- NAME OF THE PVC MOUNTED TO /home/rstudio
+```
+
+2. Find out the name of PVC mounted to `/home/meta/[your_username]` by issuing two commands:
+  2.1 First, see what storage you mounted. If you didn't mount any meta storage, the output will be empty.
+  ```
+  df -h | awk '$NF ~ /^\/home\/meta/ {match($1, /@([^:]+):/, m); print m[1]}'
+  ```
+  e.g., 
+  ```
+  rstudio@jupyter-testuser--pipemaster2:~$ df -h | awk '$NF ~ /^\/home\/meta/ {match($1, /@([^:]+):/, m); 
+  print m[1]}'
+  storage-brno2.metacentrum.cz <---- MOUNTED META STORAGE
+  ```
+  2.2 Secondly, get the PVC name for metacentrum home by issuing command and matching its name with your chosen storage match with the storage name such as `brno2, brno12, plzen1, ...`
+  ```
+  kubectl get pvc | awk '$3 ~ /-data-sshfs$/ {print $1}'
+  ```
+  e.g.
+  ```
+  rstudio@jupyter-testuser--pipemaster2:~$kubectl get pvc | awk '$3 ~ /-data-sshfs$/ {print $1}'
+  testuser-brno12-cerit-claim
+  testuser-brno2-claim <----  THIS IS THE ONE because mounted meta home is storage-brno2.metacentrum.cz
+  ```
+  
+Now you should know the names of the objects that we will use as volume mounts in the next Section on creating the Job itself.
+  
+
+### Creating The Job
+In the `Job`, you will need to provide 4 things:
+1. Image name to run
+2. Script/Command to start
+3. Resources
+4. Volumes to Mount
+
+#### Image
+Job must start with some image. You should create a Docker image that will include all necesarry libraries  your script requires or software you want to run to process the data.
+
+#### Script
+Script can be built into the image or you can run script located in the mounted volumes (so from the PVCs we mentioned above).
+
+If you interacted with the Notebook and you saved a script you would like to run as a Job in a path `/home/rstudio` (`/home/jovyan`) or in you meta home, you will be able to run this script in the Job, if the volume is mounted (more below)
+
+#### Resources
+You will need to specify what memory and CPU resources your Job needs.
+
+#### Volumes to Mount
+You can specify, if you want to mount any of the two PVCs from section above (so persistent home or metahome) to your Job. Generally, it makes sense to mount both (if you use Meta home) because you can directly share the data between Meta home, Notebook and Job. Moreover, the Job can write its outputs to either Meta home or Notebook's home dir which makes it easier for you to work with outputs (does not require any copying)
+
+
+
+
+<Callout >
+  If you are not sure about how to create an image for your `Job` or have any other questions, contact us at **k8s@ics.muni.cz**. 
+</Callout>
