@@ -6,28 +6,25 @@ You need to install Nextflow on your local computer or any computer that you wil
 
 ## Nextflow Installation
 
-To install Nextflow enter this command in your terminal:
+To install Nextflow you need to download and compile our patched version from git:
 
 ```shell
-curl -s https://get.nextflow.io | bash
-```
-You can install specific Nextflow version exporting `NXF_VER` environment
-variable before running the install command, e.g.:
-
-```shell
-export NXF_VER=24.04.4
-curl -s https://get.nextflow.io | bash
-```
-
-Currently, 24.04.4 is highest available version using this method. However, you can also download latest version from github:
-`https://github.com/nextflow-io/nextflow` installable as follows:
-
-```shell
-git clone https://github.com/nextflow-io/nextflow.git
+git clone https://github.com/CERIT-SC/nextflow.git
 cd nextflow
-git checkout v24.04.4
 make compile install
 ```
+
+To run and compile, Java Virtual Machine needs to be installed. On Ubnutu systems, it is package `openjdk-17-jdk:amd64` or newer.
+
+If you want to use *DSL 1* workflows, you need to instal `nextflow` version `22.10.8`:
+
+```shell
+git clone https://github.com/CERIT-SC/nextflow-dsl1.git
+cd nextflow
+make compile install
+```
+
+You can compile and install both version simultaneously, if neede.
 
 ## Architecture of Nextflow 
 
@@ -67,7 +64,7 @@ Running a Nextflow pipeline in Kubernetes requires local configuration with some
 
 ```js filename="nextflow.config" copy
 k8s {
-   namespace = '[]your-ns'
+   namespace = '[your-ns]'
    runAsUser = 1000
    computeResourceType = 'Job'
    cpuLimits = true
@@ -115,7 +112,7 @@ and selectors the following priority rules are applied (from lower to higher):
 
 ### Run ⏱
 
-To start a pipeline, you must use the `kuberun` subcommand of `nextflow`. If you use `nextflow` version 22.06.1 or later, you must add options 
+To start a pipeline, you must use the `kuberun` subcommand of `nextflow`: 
 
 ```shell
 -head-image 'cerit.io/nextflow/nextflow:24.04.4' -head-memory 4096Mi -head-cpus 1
@@ -129,17 +126,12 @@ Example run command:
 nextflow kuberun hello -head-image 'cerit.io/nextflow/nextflow:24.04.4' -head-memory 4096Mi -head-cpus 1 -v PVC:/mnt 
 ```
 
-If you are using `nextflow` version below 22.06.1 or you get an error message informing about `head-image not known`, you must add option
+For *DSL 1* `nextflow`, use image `cerit.io/nextflow/nextflow:22.10.8`:
 
 ```shell
--pod-image 'cerit.io/nextflow/nextflow:22.06.1' 
+nextflow kuberun hello -head-image 'cerit.io/nextflow/nextflow:22.10.8' -head-memory 4096Mi -head-cpus 1 -v PVC:/mnt 
 ```
 
- Example run command:
-
-```bash
-nextflow kuberun hello -pod-image 'cerit.io/nextflow/nextflow:22.06.1'
-```
 
 A configuration file might look as following:
 
@@ -162,7 +154,7 @@ executor {
 process {
    executor = 'k8s'
    memory = '500M' // THIS WILL BE DEFAULTLY APPLIED TO ALL WORKERS IF NOT SPECIFIED IN WORKFLOW SCRIPT
-   pod = [[label: 'hpctransfer', value: 'must'], [securityContext:[fsGroupChangePolicy:'OnRootMismatch', runAsUser:1000, runAsGroup:1, fsGroup:1]], [automountServiceAccountToken:false], [secret: 'keythings', mountPath: '/etc/secrets']] // THIS WILL BE APPLIED TO ALL WORKERS
+   pod = [[label: 'hpctransfer', value: 'must'], [automountServiceAccountToken:false], [secret: 'keythings', mountPath: '/etc/secrets']] // THIS WILL BE APPLIED TO ALL WORKERS
    
    withLabel:VEP { // THIS WILL BE APPLIED ONLY TO PROCESS WITH LABEL VEP EVEN IF SPECIFIED IN WORKFLOW SCRIPT
        memory = {check_resource(14.GB * task.attempt)}
@@ -208,23 +200,17 @@ To instruct the Nextflow to run the `hello` pipeline in Kubernetes, run the
 following command:
 
 ```shell
-nextflow kuberun hello -pod-image 'cerit.io/nextflow/nextflow:22.06.1' -v PVC:/mnt 
+nextflow kuberun hello -head-image 'cerit.io/nextflow/nextflow:24.04.4' -v PVC:/mnt 
 ```
 
 where PVC is name of the PVC as discussed above. It will be mounted as /mnt.
 You should use this mount point as some pipelines expect this location.
 
-If using `nextflow` version 22.06.1 or later as mentioned above, use instead:
-
-```shell
-nextflow kuberun hello -pod-image 'cerit.io/nextflow/nextflow:22.06.1' -head-memory 4096Mi -head-cpus 1 -v PVC:/mnt 
-```
-
 If everything was correct then you should see output like this:
 
 ```
  Pod started: naughty-williams
- N E X T F L O W  ~  version 22.06.1-SNAPSHOT
+ N E X T F L O W  ~  version 24.04.4
  Launching `nextflow-io/hello` [naughty-williams] - revision: e6d9427e5b [master]
  [f0/ce818c] Submitted process > sayHello (2)
  [8a/8b278f] Submitted process > sayHello (1)
@@ -290,7 +276,7 @@ Now, if you have prepared your data on the PVC, you can start the Sarek
 pipeline with the following command:
 
 ```shell
-nextflow kuberun nf-core/sarek -head-memory 4096Mi -head-cpus 1 -head-prescript /mnt/nextflow-cfg.sh -pod-image 'cerit.io/nextflow/nextflow:22.06.1' -v PVC:/mnt --input /mnt/test.tsv --genome GRCh38 --tools HaplotypeCaller,VEP,Manta
+nextflow kuberun nf-core/sarek -head-memory 4096Mi -head-cpus 1 -head-prescript /mnt/nextflow-cfg.sh -head-image 'cerit.io/nextflow/nextflow:24.04.4' -v PVC:/mnt --input /mnt/test.tsv --genome GRCh38 --tools HaplotypeCaller,VEP,Manta
 ```
 
 where `PVC` is the mentioned PVC and `test.tsv` contains input data located on
@@ -324,7 +310,7 @@ Consult [documentation](https://vsn-pipelines.readthedocs.io/en/latest/index.htm
 You can run the pipeline with the following command:
 
 ```shell
-nextflow -C nextflow.config kuberun vib-singlecell-nf/vsn-pipelines -pod-image 'cerit.io/nextflow/nextflow:22.06.1' -head-cpus 1 -head-memory 4096Mi -v PVC:/mnt -entry scenic
+nextflow -C nextflow.config kuberun vib-singlecell-nf/vsn-pipelines -head-image 'cerit.io/nextflow/nextflow:24.04.4' -head-cpus 1 -head-memory 4096Mi -v PVC:/mnt -entry scenic
 ```
 
 where `PVC` is the mentioned PVC, `scenic` is pipeline entry point, and `nextflow.config` is the downloaded `nextflow.config`.
