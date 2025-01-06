@@ -1,4 +1,5 @@
 export default {
+        "foldify": "Foldify",
         "alphafold": "Alphafold",
         "binderhub": "BinderHub",
         "jupyterhub": "JupyterHub",
