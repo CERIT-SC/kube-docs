@@ -1,16 +1,27 @@
 # RStudio
 
-## Running RStudio
-We offer two ways of running RStudio:
+## Option 1: Running RStudio via JupyterHub (Recommended)
 
-1. Run RStudio in web JupyterHub - this option ❗️**requires a valid MetaCentrum account**❗️. JupyterHub provides easy way of creating RStudio and straightforward integration with MetaCentrum home. Only R 4.2.1 is supported. 
+  *  Ease of Use: JupyterHub offers a straightforward way to launch RStudio directly from your Jupyter Notebook environment.
 
-2. Run RStudio as a Rancher application - this option is ❗️**for anyone, who does not have MetaCentrum account**❗️. It offers multiple R versions but is slighly more complicated to set up.  
+  *  Integration: This method provides seamless integration with MetaCentrum home, making it convenient for users already working within this ecosystem.
 
-## JupyterHub RStudio
-JupyterHub is a web application that has a simple input form where you choose various settings of your deployment. To learn more, see [JupyterHub introduction](../webapps/jupyterhub) where you can find other necessary information.
+  * Supported Version: Currently, only R 4.2.1 is supported through this option.
+This is our preferred method due to its simplicity and straightforward setup. 
+To learn more, see [JupyterHub introduction](../webapps/jupyterhub) where you can find other necessary information.
 
-## Rancher RStudio
+
+## Option 2: Running RStudio as a Rancher Application
+
+  *  Flexibility in R Versions: This approach allows you to choose from multiple R versions, providing greater flexibility depending on your project requirements.
+
+  *  Customization: Offers more customization options, enabling you to tailor the environment to specific needs.
+
+  *  Data Integration: Can be set up to use data from other sources, making it versatile for various data management scenarios.
+
+Setup Complexity: This method is more involved and requires a more complex setup compared to the JupyterHub option.
+
+### Running Rancher RStudio
 If not already logged, log to [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz), see [Rancher](../rancher/rancher) section.
 
 Following the steps below, you can install RStudio web application. This application has persistent home directory, it means, that if you delete the application and later install the application again with the same name, content of home directory will be preserved.
@@ -79,6 +90,6 @@ If you feel you do not need the application anymore, you can delete it. Just nav
 
 ## Install Additional Packages
 
-As of chart version **1.4**, it is possible to use `conda` or `mamba` tool to install additional packages. They are instaled into `/opt/conda` directory. E.g., in `rstudio` `terminal` (1), type: `mamba install mc` (3) to install the `mc` package. If you see `(base)` (2) in the beginning of prompt, all paths are set correctly to use `conda` installed packages. If you do not see the `(base)`, type: `/opt/conda/bin/conda init`, close the `terminal` and run  a new one. This action is required once only.
+As of chart version **1.4**, it is possible to use `conda` or `mamba` tool to install additional packages usually used in MetaCentrum. They are instaled into `/opt/conda` directory. E.g., in `rstudio` `terminal` (1), type: `mamba install mc` (3) to install the `mc` package. If you see `(base)` (2) in the beginning of prompt, all paths are set correctly to use `conda` installed packages. If you do not see the `(base)`, type: `/opt/conda/bin/conda init`, close the `terminal` and run  a new one. This action is required once only.
 
 ![terminal](/img/ceritsc/apps/rstudio/terminal.png)
