@@ -20,7 +20,7 @@ If you prefer to create a custom JupyterLab with a personalized name, follow the
 * Choose short, unique and descriptive name for your server to ensure easy identification. 
 * Click on "Add new server" to proceed with the creation of your customized JupyterLab environment.
 
-## Choosing image
+## Choosing Image
 
 We provide a range of pre-configured Docker images to accommodate various computational requirements:
 
@@ -80,6 +80,7 @@ If you choose RStudio, you will be redirected to jupyter lab. It is then necessa
 ![rstudio](/img/ceritsc/apps/jupyterhub/rstudio-click.png)
 
 ![rstudio](/img/ceritsc/apps/jupyterhub/rstudio.png)
+
 ### Using Matlab
 Similarly, if you select Matlab image, click the OpenMatlab icon to access Matlab environment.
 
@@ -87,13 +88,6 @@ Similarly, if you select Matlab image, click the OpenMatlab icon to access Matla
 Other images are redirected to the `/lab` version of JupyterHub. 
 ![lab](/img/ceritsc/apps/jupyterhub/lab.png)
 
-# Deleting JupyterNotebook Instance
-
-In the top left corner, go to `File ` &rarr; `Hub Control Panel`. If you have multiple instances, click on `Stop` next to the instance name you want to delete. Wait till blue button `Delete` appears and click on it. If you have only one server, there will be big `Stop My Server` button in the upper part of the page. Click on it. In a couple of seconds, your container notebook instance will be deleted (stop button disapperas). If you need to spin notebook instance again, fill in the `Server name` and click on `Add new server`, you will be presented with input form page. 
-
-All of your named server are accessible under `Hub Control panel` where you can manipulate with them (create, delete, log in to).
-
-Alternatively, you can manage running instances at [https://hub.cloud.e-infra.cz/hub/home](https://hub.cloud.e-infra.cz/hub/home).
 
 
 # Resource utilization and Shutdown Mechanism
@@ -122,10 +116,18 @@ If the notebook is marked for deletion, you will receive an e-mail informing abo
 
 # Managing JupyterHub
 
+All of your named server are accessible under `Hub Control panel` where you can manipulate with them (create, delete, log in to).
+
 Whenever you need to manage your notebooks from JupyterLab environmnent, start JupyterHub environment accessing   `File &rarr; Hub Control Panel` in the top left corner.
 Here you can add new notebooks, stop, or delete them.
 
-## Add Named servers
+Alternatively, you can manage running instances at [https://hub.cloud.e-infra.cz/hub/home](https://hub.cloud.e-infra.cz/hub/home).
+
+## Deleting JupyterNotebook Instance
+
+In the top left corner, go to `File ` &rarr; `Hub Control Panel`. If you have multiple instances, click on `Stop` next to the instance name you want to delete. Wait till blue button `Delete` appears and click on it. If you have only one server, there will be big `Stop My Server` button in the upper part of the page. Click on it. In a couple of seconds, your container notebook instance will be deleted (stop button disapperas). If you need to spin notebook instance again, fill in the `Server name` and click on `Add new server`, you will be presented with input form page. 
+
+## Add Servers
 
 JupyterHub allows spawning more than one notebook instance; actually you can run multiple instances of various images at the same time. To do so, in the top left corner, go to `File &rarr; Hub Control Panel`. Fill in the `Server name` and click on `Add new server`, you will be presented with input form page. 
 
