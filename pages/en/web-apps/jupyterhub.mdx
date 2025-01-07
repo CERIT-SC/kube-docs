@@ -219,7 +219,7 @@ Open new notebook and change the kernel in tab `Kernel` → `Change Kernel...` �
 
 
 
-### Building Own Image
+## Building Own Image
 
 The best and easiest way for building custom image is to base minimal notebook from jupyterhub `jupyter/minimal-notebook:hub-4.0.2` and do necessary changes. Source for our Minimal notebook can be found [here](/examples/ceritsc/jupyterhub/Dockerfile-minimal).
 
@@ -244,7 +244,7 @@ As shown below, ssh enpoint address will be displayed, `jovyan@jupyter-xhejtman-
 
 ![ssh](/img/ceritsc/apps/jupyterhub/ssh.png)
 
-#### SSH Keys
+### SSH Keys
 
 Additionally, you need to add your *public* ssh key into home `.ssh/authorized_keys` file. If the directory `.ssh` does not exist, just create it using `mkdir .ssh`. Do not omit the dot at the beginning of the name. Also note, `ls` does not display doted files, to see `.ssh` directory, you need to use `ls -a`. 
 
@@ -254,7 +254,7 @@ After adding the public ssh key, you should be able to connect with ssh similarl
 The ssh will print warning about changed ssh key sometimes (mainly after restarting the notebook), this is ok, using the SSH key.<br/>DO NOT IGNORE THIS WARNING WHEN ENTERING A PASSWORD.
 </Callout>
 
-#### Creating Own SSH Enabled Image
+### Creating Own SSH Enabled Image
 
 You can easily base our minimal notebook image with the name: `cerit.io/hubs/minimalnb:26-09-2024-ssh`. Or you can create your own from scratch. Follow the guidelines above, how to create own notebook image and additionally install `openssh-server` package.
 
@@ -311,13 +311,13 @@ LD_LIBRARY_PATH='' /usr/sbin/sshd
 exec /usr/local/bin/start-notebook.py "$@"
 ```
 
-### Run Job From Notebook
+## Run Job From Notebook
 
 Jupyter Notebooks are great tool for interactive computing but sometimes your scripts can include a portion that is more resource-intensive. In this case, it is preferred to run this portion as a `Job` rather than inside the Notebook. Some of the reasons are:
 1. You have to allocate a lot of resources for notebook even though most of the time, you don't need them. 
 2. If the computation is too demanding, you might not be able to interact with the notebook environment because allocated reosurces are consumed by the computation &rarr; you can't interactively analyse the data from the notebook
 
-#### Neccesary Tools
+### Neccesary Tools
 
 <Callout type="info" emoji="ℹ️">
   We are actively working on reducing the amount of steps that must be taken. 
@@ -350,7 +350,7 @@ For RStudio-based images:
   ```
   which will return list of your running notebooks.
 
-#### Sharing The Data From Notebook To Job
+### Sharing The Data From Notebook To Job
 It is probable that you would like to reuse the data (or script) located in your Jupyter Notebook instance in the `Job`. As `Job` is a new object, you must attach the data to it. 
 
 Your notebook can mount two different so-called `volumes` that are shareable:
@@ -394,25 +394,25 @@ testuser-home-pipemaster <---- NAME OF THE PVC MOUNTED TO /home/rstudio
 Now you should know the names of the objects that we will use as volume mounts in the next Section on creating the Job itself.
   
 
-#### Creating The Job
+### Creating The Job
 In the `Job`, you will need to provide 4 things:
 1. Image name to run
 2. Script/Command to start
 3. Resources
 4. Volumes to Mount
 
-##### Image
+#### Image
 Job must start with some image. You should create a Docker image that will include all necesarry libraries  your script requires or software you want to run to process the data.
 
-##### Script
+#### Script
 Script can be built into the image or you can run script located in the mounted volumes (so from the PVCs we mentioned above).
 
 If you interacted with the Notebook and you saved a script you would like to run as a Job in a path `/home/rstudio` (`/home/jovyan`) or in you meta home, you will be able to run this script in the Job, if the volume is mounted (more below)
 
-##### Resources
+#### Resources
 You will need to specify what memory and CPU resources your Job needs.
 
-##### Volumes to Mount
+#### Volumes to Mount
 You can specify, if you want to mount any of the two PVCs from section above (so persistent home or metahome) to your Job. Generally, it makes sense to mount both (if you use Meta home) because you can directly share the data between Meta home, Notebook and Job. Moreover, the Job can write its outputs to either Meta home or Notebook's home dir which makes it easier for you to work with outputs (does not require any copying)
 
 
