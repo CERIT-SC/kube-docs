@@ -2,60 +2,57 @@ import { Callout } from 'nextra/components'
 
 # JupyterHub 
 
-It is necessary to be a **valid** member of MetaCentrum to access JupyterHub on [hub.cloud.e-infra.cz](https://hub.cloud.e-infra.cz/).
+**JupyterHub** is an open-source platform designed to provide multi-user access to Jupyter Notebook environments. 
+It allows to manage and scale the deployment of interactive computational environments for multiple users, making it ideal for educational institutions, research labs, and enterprises that need to support collaborative data science and scientific computing.
 
-## MetaCentrum Membership
-If you are already a member of MetaCentrum, you can check your membership status in [user profile](https://profile.e-infra.cz/profile/organizations), row `MetaCentrum`. If the account is expired, ask for renewal by clicking on button in the same row.
+**JupyterLab / Jupyter Notebooks** are web applications that enable you to create and share documents containing live code, equations, visualizations, and narrative text. They are widely used in data analysis, machine learning, and other computational tasks due to their interactive nature and ability to combine code execution with rich text explanations.
 
-If you are not a member, you can [apply](https://metavo.metacentrum.cz/en/application/index.html) for a MetaCentrum account.
+# Accessing JupyterHub 
+To access JupyterHub on the [hub.cloud.e-infra.cz](https://hub.cloud.e-infra.cz/) platform, you must be a valid member of MetaCentrum.
+
+
+# Starting JupyterLab / Jupyter Notebook
+
+## Starting Server
+
+To launch a default JupyterLab environment, simply click on the "My Server" button.
+If you prefer to create a custom JupyterLab with a personalized name, follow these steps: 
+* Choose short, unique and descriptive name for your server to ensure easy identification. 
+* Click on "Add new server" to proceed with the creation of your customized JupyterLab environment.
 
 ## Choosing image
 
-We pre-prepared the following images:
-- minimal-notebook ([spec](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-minimal-notebook))
-- datascience-notebook ([spec](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook))
-- scipy-notebook ([spec](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-scipy-notebook))
-- tensorflow-notebook ([spec](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-tensorflow-notebook))
-- tensorflow-notebook with GPU support ([spec](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-tensorflow-notebook) but TF v. 2.7.0 and TensorBoard installed)
-- RStudio with R 4.2.1, 4.3.1, or 4.4.1
-- Jupyter environment with Python 3.11 and R 4.3.1 kernels
-- MATLAB R2022b
-- MATLAB R2023a
-- Alphapose
+We provide a range of pre-configured Docker images to accommodate various computational requirements:
+
+*	**Simple Jupyter Images**, including versions that support AI-powered chat assistance to aid with coding tasks 
+*	**R Images**, which enable you to use different versions of RStudio, also featuring AI capabilities
+*	**TensorFlow Images**, optimized for machine learning and deep learning applications
+*	**Matlab Images**, allowing you to access a graphical, interactive instance of Matlab
+*	**Folding images**, specifically designed for special use cases involving Colabfold or ESM Fold
+*	Alternatively, you can also use your own **custom image** 
+
 
 You can choose to build your own image with all dependencies and sotware you need. However, don't forget to include whole jupyter stack, otherwise the the deployment will not work. We recommend building from [existing image](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html) which already incorporates all nexessary software. If you choose custom image, you have to provide image name together with its repo and optional tag --- input text in format `repo/imagename:tag`. If you build your own image, you have to make sure repository is public. If you don't know what repository to choose, we maintain our own docker registry which you can freely use and does not require any further configuration. More information on registry is available [at a harbor site](https://docs.cerit.io/docs/harbor.html).
 
-### Working environment
+## Choosing Storage 
+### Default Persistent Storage
 
-If you choose RStudio, you will be redirected to jupyter lab. It is then necessary to click on RStudio icon to be redirected to the RStudio environment. 
-
-![rstudio](/img/ceritsc/apps/jupyterhub/rstudio-click.png)
-
-![rstudio](/img/ceritsc/apps/jupyterhub/rstudio.png)
-
-Other images are redirected to the `/lab` version of JupyterHub. 
-![lab](/img/ceritsc/apps/jupyterhub/lab.png)
-
-## Storage
 By default, every notebook runs with persistent storage mounted to `/home/jovyan`. Therefore, we recommend to save the data to `/home/jovyan` directory to have them accessible every time notebook is spawned. 
 
-If you create a new named notebook, new persistent storage is mounted to it. If you have ever created a notebook with the same name, new persistent storage is not created but old one is mounted. However, you can choose to delete existing storage which will result in losing all the data from it. Furthermore, you can choose to mount any already existing storage (to `/home/jovyan`) instead of creating a new one which enables sharing data across spawns and instances.
+You can create a new one or choose to mount any already existing storage (to /home/jovyan) instead of creating a new one which enables sharing data across spawns and instances.
+However, you can choose to delete existing storage which will result in losing all the data from it. 
 
-### MetaCentrum home
-You can mount your MetaCentrum home --- check the options and select the desired home. Currently, it is possible to mount only one home per notebook. In hub, your home is located in `/home/meta/{meta-username}`.
 
-Possibilities:
+### MetaCentrum Home Integration
+You can mount your MetaCentrum home directory or project directory to access your files. Please select the desired home from the available options. Note that currently, only one home directory can be mounted per notebook. In the hub, your home directory is located in `/home/meta/{meta-username}`.
+     
 
-brno11-elixir | brno12-cerit | brno14-ceitec 
---- | --- | --- |
-brno1-cerit | brno2 | praha1
-budejovice1 | du-cesnet | praha2-natur
-liberec3-tul | pruhonice1-ibot | praha5-elixir
-plzen1 | plzen4-ntis | vestec1-elixir        
+❗️ If you choose storage where you do NOT have a home directory, the spawn process
+ will fail. Please, make sure you are choosing storage where your home exists. If you are not sure about home location, contact <a href="mailto:k8s@ics.muni.cz">IT Service desk</a> who will help.
 
-❗️ If you choose storage where you do NOT have a home, spawn will fail. Please, make sure you are choosing storage where your home exists. If you are not sure about home location, contact <a href="mailto:k8s@ics.muni.cz">IT Service desk</a> who will help.
 
-## Resources
+
+## Resource Allocation
 Each Jupyter notebook can request 3 types of resources --- CPU, memory, GPU --- up to the set limit. Because we want to support effective computing, we have implemented a simple shutdown mechanism that applies to each notebook instance. Please, read the mechanism description below.
 
 #### CPU
@@ -71,9 +68,35 @@ Each Jupyter notebook can request 3 types of resources --- CPU, memory, GPU --- 
 
 - For MIG GPU, see [NVIDIA MIG](https://www.nvidia.com/en-us/technologies/multi-instance-gpu/) documentation about MIG technology. It is possible to request up to 4 parts of 10GB MIG of NVIDIA A100/80GB card using `10GB part A100` option and up to 4 parts of 20GB MIG of NVIDIA A100/80GB card using `120GB part A100` optino. GPU memory is HW limited so there is no problem that someone else could overutilize requested amount of the resource. Individual MIG parts (up to 4) act as isolated GPUs so to utilize more than one MIG part, multi-GPU computation has to be setup in an application.
 
+- Actually free GPU resources are shown for information.
 
-### Resource utilization
-After providing JupyterHub for more than a year, we have collected enough data to safely state that most of the notebook instances request unreasonably high resource amounts that remain unused but blocked. We believe fine resource utilization is a key factor in effective computing and therefore we have implemented a simple mechanism that decides if your notebook instance will be deleted. It performs evaluations once a day.
+
+
+## Working in JupyterLab environment
+### Using RStudio
+If you choose RStudio, you will be redirected to jupyter lab. It is then necessary to click on RStudio icon to be redirected to the RStudio environment. 
+
+![rstudio](/img/ceritsc/apps/jupyterhub/rstudio-click.png)
+
+![rstudio](/img/ceritsc/apps/jupyterhub/rstudio.png)
+### Using Matlab
+Similarly, if you select Matlab image, click the OpenMatlab icon to access Matlab environment.
+
+### Other Images
+Other images are redirected to the `/lab` version of JupyterHub. 
+![lab](/img/ceritsc/apps/jupyterhub/lab.png)
+
+# Deleting JupyterNotebook Instance
+
+In the top left corner, go to `File ` &rarr; `Hub Control Panel`. If you have multiple instances, click on `Stop` next to the instance name you want to delete. Wait till blue button `Delete` appears and click on it. If you have only one server, there will be big `Stop My Server` button in the upper part of the page. Click on it. In a couple of seconds, your container notebook instance will be deleted (stop button disapperas). If you need to spin notebook instance again, fill in the `Server name` and click on `Add new server`, you will be presented with input form page. 
+
+All of your named server are accessible under `Hub Control panel` where you can manipulate with them (create, delete, log in to).
+
+Alternatively, you can manage running instances at [https://hub.cloud.e-infra.cz/hub/home](https://hub.cloud.e-infra.cz/hub/home).
+
+
+# Resource utilization and Shutdown Mechanism
+To promote effective computing, unused notebooks may be deleted based on resource usage. We have implemented a simple mechanism that decides if your notebook instance will be deleted. It performs evaluations once a day.
 
 If **at least 1 GPU** was requested, the mechanism checks GPU usage and does not care about CPU usage (GPU is a *more expensive* resource). After 2 days of &lt;0.005 GPU usage, the notebook instance is deleted. The threshold `0.005` was chosen because this number is truly insignificant and means no usage. 
 
@@ -91,68 +114,21 @@ The mechanism works for both ways as following:
 >  - is over the threshold, nothing happens.
 
 
-#### Low usage notification
+## Low usage notification
 
 If the notebook is marked for deletion, you will receive an e-mail informing about the situation for every warning until instance is truly removed. You will get an e-mail informing about deletion as well. You are not forced to do anything about instance if you receive an email --- if the usage does not go up, it will be deleted. We recommend saving the results or copying them elsewhere if you receive a warning. The email is sent to the address configured in your MetaCentrum account as a preferred address.
 
-## Named servers
+# Managing JupyterHub
+Whenever you need to manage your notebooks from JupyterLab environmnent, start JupyterHub environment accessing   `File &rarr; Hub Control Panel` in the top left corner.
+Here you can add new notebooks, stop, or delete them.
+
+## Add Named servers
 JupyterHub allows spawning more than one notebook instance; actually you can run multiple instances of various images at the same time. To do so, in the top left corner, go to `File &rarr; Hub Control Panel`. Fill in the `Server name` and click on `Add new server`, you will be presented with input form page. 
 
 ![add1](/img/ceritsc/apps/jupyterhub/add1.png)
 ![add2](/img/ceritsc/apps/jupyterhub/add2.png)
 
-## Conda environment
-Conda is supported in all provided images and is activate using `conda init`. New conda environment terminal is created in notebook's terminal with command `conda create -n tenv --yes python=3.8 ipykernel nb_conda_kernels` (`ipykernel nb_conda_kernels` part is required, alternatively irkernel). 
-
-![moveenv](/img/ceritsc/apps/jupyterhub/move_env.png)
-
-Check if environment is installed with `conda env list`. You can use the environment right away, either by creating new notebook or changing the kernel of existing one (tab `Kernel` → `Change Kernel...` and choose the one you want to use).
-
-![checkenv](/img/ceritsc/apps/jupyterhub/check_env.png)
-![selenv](/img/ceritsc/apps/jupyterhub/select_env.png)
-
-## Install Conda packages
-To install conda packages you have to create new conda environment (as described above). Then, install new packages in terminal into newly created environment e.g. `conda install keyring -n myenv`. 
-
-Open new notebook and change the kernel in tab `Kernel` → `Change Kernel...` → `myenv` (or the nemae of kernel you installed packages into).
-
-
-## Error handling
-You receive _HTTP 500:Internal Server Error_ when accessing the URL `/user/your_name`. Most likely, this error is caused by:
-1. You chose MetaCentrum home you haven't used before - The red 500 Error is followed by `Error in Authenticator.pre_spawn_start`
-2. You chose MetaCentrum home you don't have access to - The red 500 Error is followed by `Error in Authenticator.pre_spawn_start`
-3. While spawning, `Error: ImagePullBackOff` appears
-
-Solutions:
-1. Log out and log in back
-2. You can not access the home even after logging out and back in - you are not permitted to use this particular home
-3. Clicking on small arrow `Event log` provides more information. Most certainly, a message tagged `[Warning]` is somewhere among all of them and it provides more description. It is highly possible the repo and/or image name is misspelled. 
- - please wait for 10 minutes
- - The service has a timeout of 10 minutes and during this time, it is trying to create all necessary resources. Due to error, creation won't succeed and after 10 minutes you will see red progress bars with message `Spawn failed: pod/jupyter-[username] did not start in 600 seconds!`. At this point, it is sufficient to reload the page and click on `Relaunch server`.
-
-## Deleting Notebook Instance
-
-In the top left corner, go to `File ` &rarr; `Hub Control Panel`. If you have multiple instances, click on red `Stop` next to the instance name you want to delete. Wait till blue button `Delete` appears and click on it. If you have only one server, there will be big `Stop My Server` button in the upper part of the page. Click on it. In a couple of seconds, your container notebook instance will be deleted (stop button disapperas). If you need to spin notebook instance again, fill in the `Server name` and click on `Add new server`, you will be presented with input form page. 
-
-All of your named server are accessible under `Hub Control panel` where you can manipulate with them (create, delete, log in to).
-
-Alternatively, you can manage running instances at [https://hub.cloud.e-infra.cz/hub/home](https://hub.cloud.e-infra.cz/hub/home).
-
-## Feature requests
-Any tips for features or new notebook types are welcomed at <a href="mailto:k8s@ics.muni.cz">IT Service desk</a>.
-
-## Building Own Image
-
-The best and easiest way for building custom image is to base minimal notebook from jupyterhub `jupyter/minimal-notebook:hub-4.0.2` and do necessary changes. Source for our Minimal notebook can be found [here](/examples/ceritsc/jupyterhub/Dockerfile-minimal).
-
-If for any reason, it is not desired to source this minimal notebook, you can create a new one from any base, but make it sure it is ready to run as notebook:
-
-* Install `jupyterlab` package
-* Add [start-notebook.py](/examples/ceritsc/jupyterhub/start-notebook.py), [start-notebook.sh](/examples/ceritsc/jupyterhub/start-notebook.sh), [start-singleuser.py](/examples/ceritsc/jupyterhub/start-singleuser.py), [start-singleuser.sh](/examples/ceritsc/jupyterhub/start-singleuser.sh), [start.sh](/examples/ceritsc/jupyterhub/start.sh) files to `/usr/local/bin` and make them executable `chown a+rx start*`
-* Make sure, that these `start` files are not eddited on Windows and having Windows new lines. Google for solution by requesting: windows vs unix newline.
-
-
-## Notebook sharing
+## Notebook Sharing
 
 If you want to share a notebook with another user or use it from another browser session, you need to open `Hub Control Panel` as can be seen below:
 
@@ -188,7 +164,12 @@ The token is valid for all your running notebooks, not just for a particular not
 The user who wants to use the share link with the token must not be logged in, e.g., must use an incognito browser window.
 </Callout>
 
-## AI GPT Support
+
+# Special Features
+## New Feature Requests
+Any tips for features or new notebook types are welcomed at <a href="mailto:k8s@ics.muni.cz">IT Service desk</a>.
+
+## AI GPT Chat Support
 
 Some of the notebooks (marked with `AI`) are integrated with GPT, in particular the gpt-4o-mini model. Each user has access to prepaid the model with the following restrictions:
 
@@ -209,7 +190,39 @@ Your data will be sent to the third party service -- OpenAI. If you do not agree
 * Minimal NB AI -- see [https://jupyter-ai.readthedocs.io/en/latest/](https://jupyter-ai.readthedocs.io/en/latest/) for documentation.
 * RStudio with R 4.4.1 and AI -- see [https://www.youtube.com/watch?v=rZB0_53Cm1w](video) for features. Note: the `gptstudio` package is already installed in the image.
 
-## Notebook SSH Access
+
+## Conda Environment
+Conda is supported in all provided images and is activate using `conda init`. New conda environment terminal is created in notebook's terminal with command `conda create -n tenv --yes python=3.8 ipykernel nb_conda_kernels` (`ipykernel nb_conda_kernels` part is required, alternatively irkernel). 
+
+![moveenv](/img/ceritsc/apps/jupyterhub/move_env.png)
+
+Check if environment is installed with `conda env list`. You can use the environment right away, either by creating new notebook or changing the kernel of existing one (tab `Kernel` → `Change Kernel...` and choose the one you want to use).
+
+![checkenv](/img/ceritsc/apps/jupyterhub/check_env.png)
+![selenv](/img/ceritsc/apps/jupyterhub/select_env.png)
+
+### Install Conda packages
+To install conda packages you have to create new conda environment (as described above). Then, install new packages in terminal into newly created environment e.g. `conda install keyring -n myenv`. 
+
+Open new notebook and change the kernel in tab `Kernel` → `Change Kernel...` → `myenv` (or the nemae of kernel you installed packages into).
+
+
+
+
+## Building Own Image
+
+The best and easiest way for building custom image is to base minimal notebook from jupyterhub `jupyter/minimal-notebook:hub-4.0.2` and do necessary changes. Source for our Minimal notebook can be found [here](/examples/ceritsc/jupyterhub/Dockerfile-minimal).
+
+If for any reason, it is not desired to source this minimal notebook, you can create a new one from any base, but make it sure it is ready to run as notebook:
+
+* Install `jupyterlab` package
+* Add [start-notebook.py](/examples/ceritsc/jupyterhub/start-notebook.py), [start-notebook.sh](/examples/ceritsc/jupyterhub/start-notebook.sh), [start-singleuser.py](/examples/ceritsc/jupyterhub/start-singleuser.py), [start-singleuser.sh](/examples/ceritsc/jupyterhub/start-singleuser.sh), [start.sh](/examples/ceritsc/jupyterhub/start.sh) files to `/usr/local/bin` and make them executable `chown a+rx start*`
+* Make sure, that these `start` files are not eddited on Windows and having Windows new lines. Google for solution by requesting: windows vs unix newline.
+
+
+
+
+## SSH Access to JupyterNotebook
 
 <Callout type="warning">
 SSH access works only from IPv6 enabled networks. It will not work from IPv4 only network -- most home networks, you usually will need to use VPN service such as Edu VPN.
@@ -392,6 +405,20 @@ You will need to specify what memory and CPU resources your Job needs.
 #### Volumes to Mount
 You can specify, if you want to mount any of the two PVCs from section above (so persistent home or metahome) to your Job. Generally, it makes sense to mount both (if you use Meta home) because you can directly share the data between Meta home, Notebook and Job. Moreover, the Job can write its outputs to either Meta home or Notebook's home dir which makes it easier for you to work with outputs (does not require any copying)
 
+
+
+# Error handling
+You receive _HTTP 500:Internal Server Error_ when accessing the URL `/user/your_name`. Most likely, this error is caused by:
+1. You chose MetaCentrum home you haven't used before - The red 500 Error is followed by `Error in Authenticator.pre_spawn_start`
+2. You chose MetaCentrum home you don't have access to - The red 500 Error is followed by `Error in Authenticator.pre_spawn_start`
+3. While spawning, `Error: ImagePullBackOff` appears
+
+Solutions:
+1. Log out and log in back
+2. You can not access the home even after logging out and back in - you are not permitted to use this particular home
+3. Clicking on small arrow `Event log` provides more information. Most certainly, a message tagged `[Warning]` is somewhere among all of them and it provides more description. It is highly possible the repo and/or image name is misspelled. 
+ - please wait for 10 minutes
+ - The service has a timeout of 10 minutes and during this time, it is trying to create all necessary resources. Due to error, creation won't succeed and after 10 minutes you will see red progress bars with message `Spawn failed: pod/jupyter-[username] did not start in 600 seconds!`. At this point, it is sufficient to reload the page and click on `Relaunch server`.
 
 
 
