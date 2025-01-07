@@ -73,6 +73,7 @@ Each Jupyter notebook can request 3 types of resources --- CPU, memory, GPU --- 
 
 
 ## Working in JupyterLab environment
+
 ### Using RStudio
 If you choose RStudio, you will be redirected to jupyter lab. It is then necessary to click on RStudio icon to be redirected to the RStudio environment. 
 
@@ -96,6 +97,7 @@ Alternatively, you can manage running instances at [https://hub.cloud.e-infra.cz
 
 
 # Resource utilization and Shutdown Mechanism
+
 To promote effective computing, unused notebooks may be deleted based on resource usage. We have implemented a simple mechanism that decides if your notebook instance will be deleted. It performs evaluations once a day.
 
 If **at least 1 GPU** was requested, the mechanism checks GPU usage and does not care about CPU usage (GPU is a *more expensive* resource). After 2 days of &lt;0.005 GPU usage, the notebook instance is deleted. The threshold `0.005` was chosen because this number is truly insignificant and means no usage. 
@@ -119,10 +121,12 @@ The mechanism works for both ways as following:
 If the notebook is marked for deletion, you will receive an e-mail informing about the situation for every warning until instance is truly removed. You will get an e-mail informing about deletion as well. You are not forced to do anything about instance if you receive an email --- if the usage does not go up, it will be deleted. We recommend saving the results or copying them elsewhere if you receive a warning. The email is sent to the address configured in your MetaCentrum account as a preferred address.
 
 # Managing JupyterHub
+
 Whenever you need to manage your notebooks from JupyterLab environmnent, start JupyterHub environment accessing   `File &rarr; Hub Control Panel` in the top left corner.
 Here you can add new notebooks, stop, or delete them.
 
 ## Add Named servers
+
 JupyterHub allows spawning more than one notebook instance; actually you can run multiple instances of various images at the same time. To do so, in the top left corner, go to `File &rarr; Hub Control Panel`. Fill in the `Server name` and click on `Add new server`, you will be presented with input form page. 
 
 ![add1](/img/ceritsc/apps/jupyterhub/add1.png)
@@ -166,7 +170,9 @@ The user who wants to use the share link with the token must not be logged in, e
 
 
 # Special Features
+
 ## New Feature Requests
+
 Any tips for features or new notebook types are welcomed at <a href="mailto:k8s@ics.muni.cz">IT Service desk</a>.
 
 ## AI GPT Chat Support
@@ -192,6 +198,7 @@ Your data will be sent to the third party service -- OpenAI. If you do not agree
 
 
 ## Conda Environment
+
 Conda is supported in all provided images and is activate using `conda init`. New conda environment terminal is created in notebook's terminal with command `conda create -n tenv --yes python=3.8 ipykernel nb_conda_kernels` (`ipykernel nb_conda_kernels` part is required, alternatively irkernel). 
 
 ![moveenv](/img/ceritsc/apps/jupyterhub/move_env.png)
@@ -202,6 +209,7 @@ Check if environment is installed with `conda env list`. You can use the environ
 ![selenv](/img/ceritsc/apps/jupyterhub/select_env.png)
 
 ### Install Conda packages
+
 To install conda packages you have to create new conda environment (as described above). Then, install new packages in terminal into newly created environment e.g. `conda install keyring -n myenv`. 
 
 Open new notebook and change the kernel in tab `Kernel` → `Change Kernel...` → `myenv` (or the nemae of kernel you installed packages into).
