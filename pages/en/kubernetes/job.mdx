@@ -13,20 +13,20 @@ Jobs in the cluster do not have any special configuration apart from necessary s
   - Can be defined to `"Never"` or `"OnFailure"`, both have their specific meaning and we strongly recommend to check the [official documentation](https://kubernetes.io/docs/concepts/workloads/controllers/job/#completion-mode) 
 - Container image
   - Section `spec.template.spec.containers[].image` (an array, there can be multiple containers)
-  - If you don't have a pre-prepared image, you can create your own according to our [documentation](https://docs.cerit.io/en/docker/dockerfile) which lists tips on how to create functional image
-  - If you are unsure about the container image creation, [contact us](https://docs.cerit.io/en/platform/contacts) with questions
+  - If you don't have a pre-prepared image, you can create your own according to our [documentation](../docker/dockerfile) which lists tips on how to create functional image
+  - If you are unsure about the container image creation, [contact us](../platform/contacts) with questions
 - User
   - Section `spec.template.spec.containers[].securityContext.runAsUser` (set for every container)
   - Your container image might define different user than `1000`
 - Resource requests
   - Section `spec.template.spec.containers[].resources`
   - Define requests and limits for both CPU, memory
-  - Optionally, you can request a GPU according to [GPU documentation section](https://docs.cerit.io/en/kubernetes/resources#gpu)
+  - Optionally, you can request a GPU according to [GPU documentation section](../kubernetes/resources#gpu)
 - Volumes and volumeMounts
   - Volumes
     - Section `spec.template.spec.volumes[]` (an array, there can be multiple volumes)
     - An array of **ALL** volumes that can be mounted to the containers of `Job`
-    - Volumes can be of [many types](https://kubernetes.io/docs/concepts/storage/volumes/#volume-types), the most frequently used ones are `PersistentVolumeClaim, ConfigMap, Secret`
+    - Volumes can be of [many types](../concepts/storage/volumes/#volume-types), the most frequently used ones are `PersistentVolumeClaim, ConfigMap, Secret`
   - VolumeMounts
     - Section `spec.template.spec.containers[].volumeMounts[]` (an array, there can be multiple volumeMounts)
     - An array of volumes to be mounted in a particular container (it is defined for every container individually)
