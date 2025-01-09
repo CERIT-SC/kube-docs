@@ -100,12 +100,12 @@ If **no GPU** was requested, the mechanism checks only CPU usage. After 4 days o
 
 The mechanism works for both ways as following: 
 
-> Notebook's CPU usage is measured over 24h and is calculated as the average of notebook CPU usage (in CPU seconds) over 5-minute-long segments. The final maximum is chosen from all segments. If the resulting maximum *equals to zero/under 0.01*, the notebook instance is internally marked with "1" as the first warning. If usage is above 0.01, nothing happens.
+> Notebook's CPU usage is measured over 24h and is calculated as the average of notebook CPU usage (in CPU seconds) over 5-minute-long segments. The final maximum is chosen from all segments. If the resulting maximum *equals to zero/under 0.1*, the notebook instance is internally marked with "1" as the first warning. If usage is above 0.1, nothing happens.
 >
 > Notebook's GPU usage is measured over 24h and is calculated as the average portion of time graphics engine was active over 5-minute-long segments. The final maximum is chosen from all segments. If the resulting maximum *equals to zero/under 0.005*, the notebook instance is internally marked with "1" as the first warning. If usage is above 0.005, nothing happens.
 > 
 >  Next run performs the same but if maximum:
->  - is still less than 0.01 for CPU (0.005 for GPU), counter is increased by one. If counter reaches `threshold+1` (e.g. for CPU, 8 as 7 days have already passed), instance is deleted.
+>  - is still less than 0.1 for CPU (0.005 for GPU), counter is increased by one. If counter reaches `threshold+1` (e.g. for CPU, 8 as 7 days have already passed), instance is deleted.
 >  - changes from under the threshold above it, the mark is completely removed (you apparently started using notebook again).
 >  - is over the threshold, nothing happens.
 
