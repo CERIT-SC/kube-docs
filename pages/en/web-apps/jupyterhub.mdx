@@ -96,7 +96,7 @@ To promote effective computing, unused notebooks may be deleted based on resourc
 
 If **at least 1 GPU** was requested, the mechanism checks GPU usage and does not care about CPU usage (GPU is a *more expensive* resource). After 2 days of &lt;0.005 GPU usage, the notebook instance is deleted. The threshold `0.005` was chosen because this number is truly insignificant and means no usage. 
 
-If **no GPU** was requested, the mechanism checks only CPU usage. After 4 days of &lt;0.01 CPU usage, the notebook instance is deleted. The threshold was chosen based on data collected by monitoring --- CPU usage below 0.01 suggests that the notebook just exists and no computation is performed.
+If **no GPU** was requested, the mechanism checks only CPU usage. After 4 days of &lt;0.1 CPU usage, the notebook instance is deleted. The threshold was chosen based on data collected by monitoring --- CPU usage below 0.01 suggests that the notebook just exists and no computation is performed.
 
 The mechanism works for both ways as following: 
 
