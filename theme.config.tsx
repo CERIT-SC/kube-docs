@@ -26,7 +26,9 @@ const config: DocsThemeConfig = {
     )
   },
   darkMode: false,
-
+  nextThemes: {
+    defaultTheme: 'light'
+  },
   i18n: [
     { locale: 'en', name: 'English' },
     { locale: 'cz', name: 'Česky' },
