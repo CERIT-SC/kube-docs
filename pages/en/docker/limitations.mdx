@@ -5,7 +5,7 @@
 
 While it is not common feature, in our container platform, user cannot run docker image with escalated privileges, i.e., as `root` user or using risen `capability`. Privilege escalation is not possible even when running the docker image, so `sudo` or `su` commands cannot be used. It is also not possible to use more than one user in the container, there is no mechanism left how to switch between two users. 
 
-To meet his requirement, either docker image has to specify user that to image run as, or specifying `runAsUser: UID` in corresponding YAML file. E.g., `USER 1000` in the Dockerfile. Specifying `UID` and **not a name** is hard requirement. If you try to run image that does not have numeric `UID`, you receive the following error replacing `taskmaster` with actually used name.
+To meet this requirement, either docker image has to specify user that to image run as, or specifying `runAsUser: UID` in corresponding YAML file. E.g., `USER 1000` in the Dockerfile. Specifying `UID` and **not a name** is hard requirement. If you try to run image that does not have numeric `UID`, you receive the following error replacing `taskmaster` with actually used name.
 ```
 Error: container has runAsNonRoot and image has non-numeric user (taskmaster), cannot verify user is non-root 
 ```
