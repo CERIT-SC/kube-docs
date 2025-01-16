@@ -100,7 +100,7 @@ docker push repo/name:tag
 
 ### Automatizované sestavení
 
-Automatizované sestavení může být provedeno pomocí CI/CD pipeline. Sestavení se provádí pomocí komponenty *runner*, která je součástí mnoha instalací github/gitlab. Můžete použít [gitlab.ics.muni.cz](https://gitlab.ics.muni.cz), viz [GitLab Containers](../gitops/containers_build) jak to udělat. Tento gitlab také poskytuje docker registry, takže jednou sestavený obraz může být uložen zde pro použití z Kubernetes. Registr je veřejný nebo soukromý v závislosti na nastavení projektu, viz [GitLab Containers](../gitops/containers_build#how-to-use-images-from-gitlab-registry).
+Automatizované sestavení může být provedeno pomocí CI/CD pipeline. Sestavení se provádí pomocí komponenty *runner*, která je součástí mnoha instalací github/gitlab. Můžete použít [gitlab.ics.muni.cz](https://gitlab.ics.muni.cz), viz [GitLab Containers](../gitops/building_containers) jak to udělat. Tento gitlab také poskytuje docker registry, takže jednou sestavený obraz může být uložen zde pro použití z Kubernetes. Registr je veřejný nebo soukromý v závislosti na nastavení projektu, viz [GitLab Containers](../gitops/containers_build#how-to-use-images-from-gitlab-registry).
 
 Automatizované sestavení může být pomalé, takže to není nejlepší volba pro ladění procesu sestavení.
 
