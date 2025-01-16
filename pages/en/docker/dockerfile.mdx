@@ -71,7 +71,7 @@ RUN conda install package && conda clean --all -f -y && rm -rf "~/.cache
 
 * Each `RUN` command creates a new Docker image layer. It is recommended to merge related commands into a single `RUN` command, for example, install all required packages at once, not one at a time.
 
-* For Kubernetes, there is no need to use the `EXPOSE` command to publish network ports. See [Exposing Applications](../kubernetes/kubectl-expose).
+* For Kubernetes, there is no need to use the `EXPOSE` command to publish network ports. See [Exposing Applications](https://docs.cerit.io/cz/kubernetes/expose).
 
 * Running `chown` or `chmod` will double the size of the change files in the docker file, i.e. `chown` on all files in the docker file will double the size of the docker file.
 
