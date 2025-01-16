@@ -71,7 +71,7 @@ RUN conda install package && conda clean --all -f -y && rm -rf "~/.cache
 
 * Každý `RUN` příkaz vytváří novou vrstvu Docker image. Doporučuje se sloučit související příkazy do jednoho `RUN` příkazu, například nainstalovat všechny požadované balíčky najednou, ne jeden po druhém.
 
-* Pro Kubernetes není potřeba používat příkaz `EXPOSE` k publikování síťových portů. Viz [Exposing Applications](https://docs.cerit.io/cz/kubernetes/expose).
+* Pro Kubernetes není potřeba používat příkaz `EXPOSE` k publikování síťových portů. Viz [Exposing Applications](..kubernetes/expose).
 
 * Spuštění `chown` nebo `chmod` zdvojnásobí velikost změněných souborů v docker souboru, tj. `chown` na všechny soubory v docker souboru zdvojnásobí velikost docker souboru.
 
@@ -83,7 +83,7 @@ Docker image může být sestaven buď ručně, nebo pomocí některých automat
 
 ### Ruční sestavení
 
-Jakmile je `Dockerfile` vytvořen, může být sestaven docker obraz. Následující popisuje, jak ručně sestavit docker obraz. Ruční sestavení může být užitečné pro ladění procesu sestavení.
+Jakmile je `Dockerfile` vytvořen, může být sestaven docker obraz. Následující text popisuje, jak ručně sestavit docker obraz. Ruční sestavení může být užitečné pro ladění procesu sestavení.
 
 Pro sestavení docker obrazu lokálně potřebujete stroj běžící na Linuxu s nainstalovaným dockerem. Pro instalaci dockeru postupujte podle pokynů pro vaši distribuci Linuxu, obvykle je správným balíčkem `docker-ce`. Možná budete muset být členem skupiny `docker`, abyste mohli docker používat.
 
