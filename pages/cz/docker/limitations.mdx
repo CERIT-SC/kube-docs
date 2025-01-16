@@ -26,7 +26,7 @@ Na druhou stranu máte plnou root schopnost během budování docker obrazu.
 
   Nicméně, to je anti-vzor používání docker obrazů, měli byste se této metodě vyhnout hlavně proto, že pokud je běžící kontejner restartován, což se může někdy stát, všechny nainstalované balíčky a další úpravy jsou ztraceny.
 
-* Nemůžete svázat port pod 1024. To znamená, že služby musí naslouchat na vyšších portech, např. 8080 a tak dále. To neznamená, že nemůžete vytvořit službu, která naslouchá na portu 443 nebo 80 pro vnější svět. Stačí se řídit [Exposing applications](../kubernetes/kubectl-expose.html). Tento problém se většinou týká webových serverů (jako nginx a apache, pro nginx je připraven neprivilegovaný kontejner: `nginxinc/nginx-unprivileged:latest`), ssh serveru, samba serveru. Všechny tyto servery mohou být přeconfigurovány, aby naslouchaly na vyšších portech.
+* Nelze přiřadit port nižší než 1024. To znamená, že služby musí naslouchat na vyšších portech, např. 8080 a tak dále. To neznamená, že nemůžete vytvořit službu, která naslouchá na portu 443 nebo 80 pro vnější svět. Stačí se řídit [Exposing applications](../kubernetes/kubectl-expose.html). Tento problém se většinou týká webových serverů (jako nginx a apache, pro nginx je připraven neprivilegovaný kontejner: `nginxinc/nginx-unprivileged:latest`), ssh serveru, samba serveru. Všechny tyto servery mohou být přeconfigurovány, aby naslouchaly na vyšších portech.
 
 * Nemůžete zapisovat do např. `/run` nebo `/var/log/` adresářů. V tomto případě není potřeba znovu sestavovat obraz a měnit práva. Existuje workaround, který spočívá v připojení `emptyDir` objemu do těchto adresářů. Stačí sloučit následující dva fragmenty v YAML nasazení:
 
