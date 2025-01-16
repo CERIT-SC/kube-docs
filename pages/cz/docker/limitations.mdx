@@ -4,7 +4,7 @@
 
 I když to není běžná funkce, v naší kontejnerové platformě uživatel nemůže spouštět docker obraz s eskalovanými oprávněními, tj. jako uživatel `root` nebo pomocí zvýšené `capability`. Eskalace oprávnění není možná ani při spuštění docker obrazu, takže příkazy `sudo` nebo `su` nelze použít. Také není možné použít více než jednoho uživatele v kontejneru, neexistuje mechanismus, jak přepínat mezi dvěma uživateli.
 
-Aby bylo splněno toto požadavek, musí docker obraz buď specifikovat uživatele, pod kterým se obraz spouští, nebo specifikovat `runAsUser: UID` v odpovídajícím YAML souboru. Např. `USER 1000` v Dockerfile. Specifikace `UID` a **ne jména** je tvrdý požadavek. Pokud se pokusíte spustit obraz, který nemá číselný `UID`, obdržíte následující chybu, přičemž `taskmaster` nahradíte skutečně používaným jménem.
+Aby byl tento požadavek splněn, musí docker obraz buď specifikovat uživatele, pod kterým se obraz spouští, nebo specifikovat `runAsUser: UID` v odpovídajícím YAML souboru. Např. `USER 1000` v Dockerfile. Specifikace `UID` a **ne jména** je tvrdý požadavek. Pokud se pokusíte spustit obraz, který nemá číselný `UID`, obdržíte následující chybu, přičemž `taskmaster` nahradíte skutečně používaným jménem.
 ```
 Error: container has runAsNonRoot and image has non-numeric user (taskmaster), cannot verify user is non-root 
 ```
