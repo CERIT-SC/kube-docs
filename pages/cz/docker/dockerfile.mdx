@@ -117,6 +117,6 @@ docker run -it --rm registry/name:tag command
 
 Tento příkaz spustí obraz `registry/name:tag` a provede `command` uvnitř něj. Můžete přidat `-u uid`, abyste spustili obraz jako uživatel `uid`.
 
-Pokud použitý obraz má nastavený `ENTRYPOINT`, `command` nebude vykonán, ale bude pouze předán jako argument skriptu `ENTRYPOINT`. Pokud potřebujete zabránit vykonání, můžete předat možnost `--entrypoint /bin/bash` příkazu `docker run`. Nicméně ne všechny obrazy mají k dispozici `/bin/bash` nebo dokonce `/bin/sh`. V takovém případě budete muset obraz znovu sestavit a přidat/nainstalovat `bash` nebo `sh`.
+Pokud použitý obraz má nastavený `ENTRYPOINT`, `command` nebude vykonán, ale bude pouze předán jako argument skriptu `ENTRYPOINT`. Pokud potřebujete zabránit spuštění, můžete při příkazu `docker run` použít možnost `--entrypoint /bin/bash`. Nicméně ne všechny obrazy mají k dispozici `/bin/bash` nebo dokonce `/bin/sh`. V takovém případě budete muset obraz znovu sestavit a přidat/nainstalovat `bash` nebo `sh`.
 
 Stisknutí `ctrl-c` nebo `ctrl-d` zabije běžící Docker obraz. Všechny změny uvnitř kontejneru budou ztraceny, pokud nepoužijete `docker commit`, viz [oficiální dokumentace dockeru](https://docs.docker.com/develop/), v tomto případě nepoužívejte možnost `--rm`, která automaticky odstraňuje ukončené obrazy.
