@@ -52,7 +52,7 @@ RUN apt update && apt install -y wget \
 CMD /usr/bin/pfetch
 ```
 
-Ve stejné složce, kde máte svůj Dockerfile, spusťte následující příkaz: `docker build -t cerit.io/$USER/tutorial:v0.1 .` (nahraďte `$USER` svým uživatelským jménem v Harboru, bez velkých písmen) (vyberte `cerit.io` nebo `hub.cerit.io` na začátku názvu obrazu na základě toho, které jméno jste použili v kroku `docker login`)
+Ve stejné složce, kde máte svůj Dockerfile, spusťte následující příkaz: `docker build -t cerit.io/$USER/tutorial:v0.1 .` (nahraďte `$USER` svým uživatelským jménem v Harboru, bez velkých písmen) (vyberte `cerit.io` nebo `hub.cerit.io` na začátku názvu obrazu na základě toho, který název jste použili v kroku `docker login`)
 
 Nyní máte obraz s názvem `cerit.io/$USER/tutorial:v0.1` na svém počítači a můžete ho nahrát do Harboru pomocí následujícího příkazu: `docker push cerit.io/$USER/tutorial:v0.1`
 
