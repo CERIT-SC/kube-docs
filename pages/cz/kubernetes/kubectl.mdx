@@ -11,7 +11,7 @@ POZNÁMKA: Pokud soubor `$HOME/.kube/config` neexistuje, vytvořte ho a poté zk
 
 Je možné mít více konfigurací clusterů v jednom konfiguračním souboru. 
 
-## Více clusterů
+<!-- ## Více clusterů
 
 Jedna osoba může mít přístupová práva k více clusterům. Pro práci s nimi musí být `config` každého clusteru dostupný buď:
 - `$HOME/.kube/config`
@@ -45,12 +45,12 @@ contexts:
 current-context: "kuba-cluster"
 ```
 
-Chcete-li přidat další cluster, přejděte do jeho `config` souboru v Rancheru a nekopírujte celý soubor, pouze potřebné části, konkrétně:
+Chcete-li přidat další cluster, přejděte do jeho `config` souboru v Rancheru pouze potřebné části a nekopírujte celý soubor, konkrétně:
 - položku pod sekcí `clusters`, která bude umístěna jako nová položka pod `clusters` v existujícím configu
 - položku pod sekcí `contexts`, která bude umístěna jako nová položka pod `contexts` v existujícím configu
 - položku pod sekcí `users`, která bude umístěna jako nová položka pod `users` v existujícím configu
  
-Toto je konfigurace, kterou chcete přidat. Zkopírujte pouze zvýrazněné části.
+Toto je konfigurace, kterou chcete přidat. Zkopírujte pouze zvýrazněné části
 
 ```yaml {4-6,9-11,14-17}filename="config" copy
 apiVersion: v1
@@ -109,3 +109,5 @@ contexts:
 
 current-context: "kuba-cluster"
 ```
+-->
+
