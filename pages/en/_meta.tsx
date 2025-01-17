@@ -8,7 +8,7 @@ export default {
   'data-storage-facility': { 
       title: (
        <>
-        <strong>Data Storage Facility/strong>
+        <strong>Data Storage Facility</strong>
        </>
       )
   },
