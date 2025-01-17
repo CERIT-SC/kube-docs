@@ -5,19 +5,12 @@ export default {
     type: 'separator',
     title: <AskGPTButton />,
   },
-  'infrastructure': { 
+  'data-storage-facility': { 
       title: (
        <>
-        <strong>Data Storage Infrastructure</strong>
+        <strong>Data Storage Facility/strong>
        </>
       )
-  },
-  'repositories': {
-     title: (
-      <>
-       <strong>Data Repositories</strong>
-      </>
-    )
   },
   'object-storage-s3': {
      title: (
