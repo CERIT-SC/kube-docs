@@ -246,9 +246,25 @@ As shown below, ssh enpoint address will be displayed, `jovyan@jupyter-xhejtman-
 
 ### SSH Keys
 
-Additionally, you need to add your *public* ssh key into home `.ssh/authorized_keys` file. If the directory `.ssh` does not exist, just create it using `mkdir .ssh`. Do not omit the dot at the beginning of the name. Also note, `ls` does not display doted files, to see `.ssh` directory, you need to use `ls -a`. 
+Additionally, you need to add your (from your laptop) *public* ssh key into the Jupyter Notebbok, into the file `/home/jovyan/.ssh/authorized_keys` file. If the directory `.ssh` does not exist in the jovyan home, create it using `mkdir .ssh`. Do not omit the dot at the beginning of the name. Also note, `ls` does not display doted files, to see `.ssh` directory, you need to use `ls -a`. 
 
-After adding the public ssh key, you should be able to connect with ssh similarly to `ssh jovyan@jupyter-xhejtman---54est.dyn.cloud.e-infra.cz`.
+If you don't have ssh key-pair generated on your laptop, you can use command `ssh-keygen -b 4096 -t rsa`. Generated keys will be saved in `[HOME]/.ssh/id_rsa` (private part) and `[HOME]/.ssh/id_rsa.pub` (public part).
+
+After adding the public ssh key into Jupyter Notebook home, check if `sshd` process is running by running `ps -fax`. This command will display currently running processes, similar to
+
+```bash 
+    PID TTY      STAT   TIME COMMAND
+    163 pts/1    Ss     0:00 /bin/sh
+    169 pts/1    R+     0:00  \_ ps -fax
+      1 ?        Ss     0:00 dumb-init start-notebook.sh --ServerApp.default_url=/lab --ServerApp.max_body_size=16291456000
+      7 ?        Ssl    0:04 /opt/conda/bin/python3.11 /opt/conda/bin/jupyterhub-singleuser --ip=0.0.0.0 --ServerApp.default_url=/lab --ServerApp.max_body_size=16291456000
+     96 pts/0    Ss+    0:00  \_ /usr/bin/sh -l
+     25 ?        Ss     0:00 sshd: /usr/sbin/sshd [listener] 0 of 10-100 startups
+```
+
+If you can't see `sshd` process running (last line),  run command `/usr/sbin/sshd` in the Jupyter Notebook terminal. It is possible you will get warning about OpenSSL version mismatch which should not prevent `sshd` from starting. If you get this warning, check output of `ps -fax` and if `sshd` process is running, everything is functional despite the warning.
+
+At this point, you should be able to connect with ssh similarly to `ssh jovyan@jupyter-xhejtman---54est.dyn.cloud.e-infra.cz`.
 
 <Callout type="info">
 The ssh will print warning about changed ssh key sometimes (mainly after restarting the notebook), this is ok, using the SSH key.<br/>DO NOT IGNORE THIS WARNING WHEN ENTERING A PASSWORD.
