@@ -1,4 +1,4 @@
 export default {
 	"owncloud": "ownCloud service",
-	"onlyoffice": "Onlyoffice service"
+	"filesender": "Filesender service"
 }
