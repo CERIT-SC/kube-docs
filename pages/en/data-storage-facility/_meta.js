@@ -1,4 +1,6 @@
 export default {
-	"description": "Description of the Infrastructure",
-	"terms-of-usage": "Terms of Usage"
+	"introduction": "Data Storage in general",
+	"support": "Support and contacts",
+	"terms-of-usage": "Terms of Usage",
+	"description": "Description of the Infrastructure"
 }
