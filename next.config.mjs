@@ -16,7 +16,7 @@ export default {
     return [
       {
         source: '/',
-        destination: '/en/data-storage-facility/introduction',
+        destination: '/en/introduction/introduction',
         permanent: true,
       },
     ];
