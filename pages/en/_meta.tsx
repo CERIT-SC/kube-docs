@@ -5,10 +5,10 @@ export default {
     type: 'separator',
     title: <AskGPTButton />,
   },
-  'data-storage-facility': { 
+  'introduction': { 
       title: (
        <>
-        <strong>Data Storage Facility</strong>
+        <strong>Introduction to Storage Services</strong>
        </>
       )
   },
