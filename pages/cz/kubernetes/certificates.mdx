@@ -31,4 +31,4 @@ spec:
 ```
 Kde `metadata.name`, `spec.secretName` odkazují na název vygenerovaného certifikátu. Položky `spec.dnsNames` jsou cílové dns názvy certifikátu. Vydavatel je specifikován v `spec.issuerRef.name` a měl by být nastaven na `letsencrypt-prod-dns`.
 
-Konfigurace generuje tajemství, specifikované v `spec.secretName`, obsahující certifikát a pár soukromého klíče.
+Konfigurace generuje objekty Secret, specifikované v `spec.secretName`, obsahující certifikát a pár soukromého klíče.
