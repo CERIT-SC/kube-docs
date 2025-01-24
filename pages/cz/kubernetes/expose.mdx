@@ -152,7 +152,7 @@ Nahraďte hodnotu `600m` požadovanou maximální velikostí nahrávání.
 
 Objekt Ingress může vystavit aplikace, které používají protokol HTTPS místo HTTP, tj. komunikace mezi ingress a aplikací je také šifrovaná. V tomto případě je nutné přidat anotaci `nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"` k objektu ingress.
 
-### Omezování Přístupu
+### Omezování přístupu
 
 Je možné omezit přístup k webové aplikaci na úrovni ingress tím, že omezíte přístup z konkrétního rozsahu IP adres. To se provádí pomocí anotace `Ingress` `nginx.ingress.kubernetes.io/whitelist-source-range`, následující příklad omezuje přístup pouze z MUNI sítě.
 
@@ -184,9 +184,9 @@ spec:
 
 ```
 
-### Ladění: Certifikát Nebyl Vydán
+### Ladění: Certifikát nebyl vydán
 
-Pokud jste vše nakonfigurovali podle dokumentace, certifikát by měl být vydán během několika okamžiků. Pokud certifikát nebyl vydán, je možné, že pod, který má sloužit `acme-challenge` (tedy vydat certifikát), nemůže být nasazen ve vaší namespace kvůli plné kvótě zdrojů namespace. Tento nový pod vyžaduje `100MiB` paměti a `100m` CPU, takže pokud je vaše namespace plně rezervována, zkuste zvýšit [kvótu zdrojů namespace](../rancher/quotas#changing-namespace-quotas) (přidejte `100` k rezervaci paměti a limitu paměti; přidejte `100` k rezervaci CPU a limitu CPU) nebo odeberte některé nasazení z namespace.
+Pokud jste vše nakonfigurovali podle dokumentace, certifikát by měl být vydán během okamžiku. Pokud certifikát nebyl vydán, je možné, že pod, který má sloužit `acme-challenge` (tedy vydat certifikát), nemůže být nasazen ve vaší namespace kvůli plné kvótě zdrojů namespace. Tento nový pod vyžaduje `100MiB` paměti a `100m` CPU, takže pokud je vaše namespace plně rezervována, zkuste zvýšit [kvótu zdrojů namespace](../rancher/quotas#changing-namespace-quotas) (přidejte `100` k rezervaci paměti a limitu paměti; přidejte `100` k rezervaci CPU a limitu CPU) nebo odeberte některé nasazení z namespace.
 
 Pokud máte nainstalovaný `kubectl`, můžete zkontrolovat, zda je to problém:
 1. Zkontrolujte, zda je vytvoření Ingressu uvízlé na acme-solver (`kubectl get ingress -n [your_namespace]` vrátí řádek obsahující `cm-acme-http-solver`)
