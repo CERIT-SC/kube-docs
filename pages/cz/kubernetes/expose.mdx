@@ -122,7 +122,7 @@ type: Opaque
 data:
    auth: password
 ```
-Kde `secretref` je libovolný název a heslo je `base64` kódované `htpasswd`. Heslo lze vygenerovat tímto příkazem: `htpasswd -n username | base64 -w0`, kde `username` je požadované uživatelské jméno pro přihlášení. Vrátí text jako `Zm9vOiRhcHIxJGhOZVRzdngvJEkyVk9NbEhHZDE1N1gvYTN2aktYSDEKCg==`, který bude použit místo `password` v tajemství výše.
+Kde `secretref` je libovolný název a heslo je `base64` kódované `htpasswd`. Heslo lze vygenerovat tímto příkazem: `htpasswd -n username | base64 -w0`, kde `username` je požadované uživatelské jméno pro přihlášení. Vrátí text jako `Zm9vOiRhcHIxJGhOZVRzdngvJEkyVk9NbEhHZDE1N1gvYTN2aktYSDEKCg==`, který bude použit místo `password` v secret výše.
 
 Následující dvě anotace jsou vyžadovány v `Ingress`.
 
