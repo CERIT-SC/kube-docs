@@ -1,0 +1,17 @@
+{
+  "pages": [
+    "rancher-applications",
+    "ansys",
+    "desktop",
+    "matlab",
+    "minio",
+    "moodle",
+    "owncloud",
+    "pmon",
+    "phpmyadmin",
+    "rstudio",
+    "scipion",
+    "shinysom",
+    "samba"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "pages": [
+    "binderhub",
+    "jupyterhub",
+    "nbgrader-new-interaction",
+    "title",
+    "display"
+  ]
+}

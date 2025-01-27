@@ -1,0 +1,19 @@
+---
+title: Přehled platformy kontejnerů
+---
+
+Naše platforma kontejnerů je založena na [orchestrátoru Kubernetes](https://kubernetes.io/) a [docker](https://hub.docker.com/) kontejnerových obrazech. Používáme distribuci [rancher](https://rancher.com) Kubernetes, naše uživatelské rozhraní  je dostupné prostřednictvím [Rancher dashboard](https://rancher.cloud.e-infra.cz). V současnosti je platforma postavena na Linuxu a architektuře binárního kódu x86\_64 (Arm nebo Microsoft Windows nejsou možné), poskytujeme GPU akcelerátory (v současnosti pouze NVIDIA) a SSD úložiště. Také poskytujeme InfiniBand 100Gbps a 200Gbps mezinodové sítě mezi vybranými uzly.
+
+Obecně lze tuto platformu použít téměř na cokoliv, počínaje jednoduchou webovou aplikací, viz příklad [hello world](../examples/helloworld), až po provozování plného vzdáleného desktopu, viz aplikace [ansys](../rancher-apps/ansys), nebo provozování složitého pracovního postupu, viz příklad [nextflow](../workflows/nextflow).
+
+Tato platforma umožňuje uživatelům soustředit se výhradně na své aplikace, takže požadované znalosti zahrnují pouze používání aplikace nebo kontejnerizaci aplikace. V druhém případě jsou vyžadovány znalosti o vytváření dockerfile (viz sekce [dockerfile](../docker/dockerfile)). Nicméně téměř žádné znalosti o infrastruktuře nejsou potřebné, jako například připojování `NFS` a tak dále.
+
+Pro používání této platformy je vyžadována akademická afiliace nebo sponzorovaný účet. Uživatelé se mohou přihlásit prostřednictvím CESNET AAI, Elixir AAI nebo EGI AAI. Pro *standardní* projekt s omezenými zdroji není vyžadováno žádné další členství.
+
+Konečný uživatel může tuto platformu využívat třemi následujícími způsoby:
+
+1. Použít předpřipravené aplikace prostřednictvím infrastruktury, viz [Rancher Applications](../rancher-applications/overview) v navigaci vlevo.
+
+2. Využít existující Docker obrazy z celého světa hostované na *registry* jako [hub.docker.com](https://hub.docker.com), v tomto případě viz [omezení](../docker/limitations).
+
+3. Pokročilí uživatelé si mohou také vytvořit vlastní aplikaci, viz sekce [dockerfile](../docker/dockerfile).

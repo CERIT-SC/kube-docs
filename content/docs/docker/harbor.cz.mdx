@@ -1,0 +1,111 @@
+---
+title: Harbor (hub.cerit.io)
+---
+
+
+Harbor je vícerozměrný docker registry s webovým uživatelským rozhraním dostupným na [hub.cerit.io](https://hub.cerit.io). Hlavní výhodou vlastního registru oproti používání např. [hub.docker.com](https://hub.docker.com/) je, že můžeme našim uživatelům nabídnout neomezené soukromé repozitáře, a tím pádem mohou vytvářet tolik docker obrazů, kolik chtějí, aniž by je veřejně vystavovali světu.
+
+Každý uživatel má svůj osobní projekt s limitem 100 GB pro ukládání artefaktů a neomezeným počtem artefaktů. Harbor může být použit k ukládání Docker obrazů a Helm chartů. Webové uživatelské rozhraní umožňuje uživatelům mazat artefakty a repozitáře, aby uvolnili místo (mazání může trvat až 24 hodin).
+
+Pokud je to potřeba, může administrátor vytvořit sdílený projekt pro skupinu uživatelů, kteří potřebují spolupracovat.
+
+<Callout type="warning">I když máte svůj vlastní projekt a nikdo jiný nemůže vidět vaše obrazy, Kubernetes cluster má přístup ke všem obrazům ve všech projektech!<br/><br/>Vaše obrazy jsou tedy přístupné všem uživatelům Kubernetes (pokud znají nebo správně uhodnou název vašeho obrazu). Takže **NEZAHRNUJTE** žádná hesla nebo citlivé informace do vašeho obrazu, stále k nim mohou mít **přístup** **jiní uživatelé**.</Callout>
+
+## Přihlášení
+
+Harbor využívá funkcionalitu jednotného přihlašování e-infra, takže se můžete snadno přihlásit do této služby pomocí svého účtu Masarykovy univerzity pomocí zobrazeného tlačítka pro přihlášení.
+
+![login](/img/ceritsc/harbor/log_in.png)
+
+Jakmile se přihlásíte, uvidíte všechny projekty, kterých jste součástí nebo které jsou veřejné. Ve výchozím nastavení každý uživatel dostane jeden projekt, jehož název je odvozen od uživatelského jména.
+
+![projects](/img/ceritsc/harbor/projects.png)
+
+## Přihlášení přes příkazový řádek
+
+Pro nahrání Docker obrazů (nebo Helm chartů) do Harboru budete potřebovat použít příkazový řádek. Protože jednotné přihlášení nelze provést prostřednictvím terminálu, budete se muset přihlásit pomocí tajného klíče, který byl vygenerován při vašem prvním přihlášení.
+
+Tento tajný klíč najdete ve svém `Uživatelském profilu`, který můžete otevřít kliknutím na své uživatelské jméno v pravém horním rohu.
+
+![profile](/img/ceritsc/harbor/profile.png)
+
+Ve vašem uživatelském profilu uvidíte položku s názvem "CLI secret", což je heslo, které použijete k přihlášení do svého účtu přes příkazový řádek. Toto heslo můžete zkopírovat kliknutím na ikonu kopírování vedle něj.
+
+![profile_opened](/img/ceritsc/harbor/profile_opened.png)
+
+Pokud si přejete, můžete také obnovit své heslo nebo nastavit vlastní kliknutím na tři tečky vedle ikony kopírování.
+
+Nyní, když máte své heslo, se můžete přihlásit do svého účtu. Naše instance Harboru je dostupná prostřednictvím 2 URL - `hub.cerit.io` a `cerit.io`, můžete si vybrat, do které se chcete přihlásit (nebo se můžete přihlásit do obou). Spusťte následující příkaz, zadejte své uživatelské jméno (také viditelné ve vašem Uživatelském profilu) a heslo a to je vše.
+
+```bash
+docker login cerit.io
+```
+
+## Nahrání obrazu do Harboru
+
+Vytváření Docker obrazů je složité téma, které přesahuje rámec tohoto článku. Pro testování funkčnosti nahrávání použijeme velmi jednoduchý obraz, který toho moc nedělá. Pokud nemáte existující obraz, můžete uložit následující text do souboru s názvem `Dockerfile`.
+
+```docker filename="Dockerfile" copy
+FROM ubuntu
+RUN apt update && apt install -y wget \
+    && wget 'https://raw.githubusercontent.com/dylanaraps/pfetch/master/pfetch' \
+    && chmod +x pfetch && mv pfetch /usr/bin
+CMD /usr/bin/pfetch
+```
+
+Ve stejné složce, kde máte svůj Dockerfile, spusťte následující příkaz: `docker build -t cerit.io/$USER/tutorial:v0.1 .` (nahraďte `$USER` svým uživatelským jménem v Harboru, bez velkých písmen) (vyberte `cerit.io` nebo `hub.cerit.io` na začátku názvu obrazu na základě toho, který název jste použili v kroku `docker login`)
+
+Nyní máte obraz s názvem `cerit.io/$USER/tutorial:v0.1` na svém počítači a můžete ho nahrát do Harboru pomocí následujícího příkazu: `docker push cerit.io/$USER/tutorial:v0.1`
+
+Abychom ukázali, jak to vypadá, když má obraz více tagů, mírně upravíme soubor Dockerfile:
+
+```docker filename="Dockerfile" copy
+FROM ubuntu
+RUN apt update && apt install -y wget \
+    && wget 'https://raw.githubusercontent.com/dylanaraps/pfetch/master/pfetch' \
+    && chmod +x pfetch && mv pfetch /usr/bin
+CMD PF_ASCII="opensuse" /usr/bin/pfetch
+```
+
+Nyní sestavte a nahrajte obraz, pouze změňte `:v0.1` na `:v0.2` na konci názvu obrazu.
+
+Pokud jste svůj obraz úspěšně nahráli, měli byste ho vidět ve svém projektu takto:
+
+![pushed](/img/ceritsc/harbor/pushed.png)
+
+## Správa vašeho repozitáře (Docker obraz)
+
+Když kliknete na název svého repozitáře, uvidíte všechny artefakty spojené s repozitářem (tyto představují různé verze vašeho obrazu)
+
+![artifacts](/img/ceritsc/harbor/artifacts.png)
+
+Na této stránce můžete vybrat artefakt a např. zkopírovat ho do jiného repozitáře nebo ho smazat, abyste uvolnili místo (obě tyto operace jsou dostupné prostřednictvím tlačítka `AKCE`).
+
+Vezměte prosím na vědomí, že smazáním artefaktu nemusíte nutně uvolnit veškeré místo, které uvádí v `Velikosti`, artefakty mohou sdílet takzvané `vrstvy`. V našem případě jsme vytvořili 2 verze obrazu, které se liší pouze v posledním příkazu Dockerfile. Všechno, co bylo provedeno před posledním příkazem, je sdíleno mezi 2 artefakty, takže smazáním jednoho nebo druhého uvolníme pouze několik kilobajtů místa.
+
+Také si prosím uvědomte, že smazání artefaktu okamžitě neuvolní místo, určení, zda je `vrstva` odkazována nějakým artefaktem, je nákladná operace a provádí se pouze jednou denně o půlnoci.
+
+Kliknutím na název artefaktu můžeme vidět podrobnější informace
+(například: architektura, konfigurace a historie sestavení). V tomto přehledu můžeme také skenovat zranitelnosti.
+
+![vulnerabilities](/img/ceritsc/harbor/vulnerabilities.png)
+
+Skenování zranitelností určí, zda náš obraz obsahuje nějaké známé
+zranitelnosti a zda je můžeme opravit změnou našeho základního obrazu (obrazu v příkazu `FROM` v Dockerfile). Moje skenování zranitelností vygenerovalo následující výsledky:
+
+![scan](/img/ceritsc/harbor/scan.png)
+
+Můžeme vidět, že v mém obraze jsou některé zranitelnosti s nízkou a
+střední závažností. Také jsem mohl opravit jednu ze zranitelností použitím
+novější verze obrazu ubuntu. Kliknutím na zranitelnosti
+můžeme vidět jejich popis a určit, zda budou mít vliv na náš obraz. Vzhledem k tomu, že náš obraz pouze tiskne nějaké systémové
+informace, zranitelnosti nejsou skutečně problém.
+
+### Informace o repozitáři
+
+
+V přehledu repozitáře můžeme vidět záložku s názvem `Info`, kde můžeme přidat nějaké informace o obrazu. To může být užitečné ve veřejném projektu, aby lidé věděli, co obraz vlastně dělá. Informace jsou formátovány pomocí [markdown jazyka](https://www.markdownguide.org/).
+
+![info_1](/img/ceritsc/harbor/info_1.png)
+
+![info_2](/img/ceritsc/harbor/info_2.png)

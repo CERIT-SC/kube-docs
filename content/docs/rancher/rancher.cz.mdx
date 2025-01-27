@@ -1,0 +1,20 @@
+---
+title: Rancher
+---
+
+Instance _Rancher_ je k dispozici na [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz). Prosím, přihlaste se pomocí CESNET, ELIXIR nebo EGI. 
+Po přihlášení byste měli vidět výchozí řídicí panel a výchozí clustery, jak je znázorněno níže. Pokud se žádný cluster nezobrazuje, prosím, obnovte stránku, může trvat až minutu, než se cluster zobrazí.
+
+Svět Rancheru a Kubernetes je organizován do *clusterů*, *projektů* a *namespaces*. *Clustery* odpovídají skupinám fyzických uzlů. *Projekty* jsou vytvářeny v rámci *clusterů* a *namespaces* jsou vytvářeny v rámci *projektů*. *Projekty* jsou konceptem pouze pro Rancher a nejsou nativním konceptem Kubernetes. [Namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) poskytují mechanismus pro izolaci skupin zdrojů v rámci jednoho clusteru. Názvy zdrojů musí být jedinečné v rámci namespace, ale ne napříč namespaces. Názvy namespace musí být jedinečné v rámci clusteru. To znamená, že obvykle není dobrý nápad vytvářet namespace s názvem *test* a tak dále.
+
+Každému uživateli je přiřazen *Výchozí projekt*, který obsahuje jeho křestní jméno a příjmení, a výchozím *Namespace* nazvaným `surname-ns`. Výchozí projekt a namespace jsou automaticky vytvořeny při prvním přihlášení uživatele do řídicího panelu Rancher. Uživatelé mohou vytvářet další namespaces pomocí GUI Rancher v přehledu namespaces stisknutím tlačítka `Vytvořit namespace` (nepoužívejte `kubectl` k vytvoření namespace). Pro více informací o vytváření namespaces a kvótách viz [kvóty](quotas).
+
+Přiřazené clustery, ke kterým máte přístup, naleznete v levém horním rohu nebo v seznamu na domovské stránce:
+
+![clusters](/img/ceritsc/cluster1.png)
+
+Když vyberete cluster, můžete vidět své *projekty a namespaces*:
+
+![projects and namespaces](/img/ceritsc/projects.png)
+
+S Rancherem je možné pracovat pouze do určité míry. Nicméně, nástroj příkazového řádku kubectl umožňuje více akcí. Můžete používat obě metody, ale nedoporučujeme `kubectl` uživatelům, kteří nejsou zvyklí pracovat v terminálu.

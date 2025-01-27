@@ -1,0 +1,69 @@
+---
+title: Foldify
+---
+
+Foldify is a web application based on [Alphafold](https://deepmind.google/technologies/alphafold/) tools available at [https://foldify.cloud.e-infra.cz](https://foldify.cloud.e-infra.cz), after login via e-INFRA CZ AAI (a valid MetaCenter account is required).
+
+## Dashboard
+
+After successful login you will be redirected to the Dashboard View that consists of two main sections: `New Job` and `Last Computed Jobs`.
+
+### New Job Section
+This section consists of the cards with available Tools - AlphaFold, ColabFold, OmegaFold and ESMFold.
+By pressing the `Run Job` button you can start a new computation with the selected tool. You will be redirected to the form page where you can fill in the parameters for the computation.
+
+### Last Computed Jobs Section
+This section consists of a table listing the last computed jobs. You can find your protein name and click the `View Result` button to display the result in the browser. You can also download the results by clicking the `Download` button.
+Computed jobs table is separated into two parts - `My Jobs` and `Public Jobs`. Public part contains all public results, while My Jobs section contains only your computations.
+
+![dashboard](/img/ceritsc/apps/foldify/dashboard.png)
+
+### Running Jobs Section
+
+If you are currently running a computation, you can see it in the `Running Jobs` table in the Dashboard View. This table only appears when there is an active computation, otherwise it is hidden. Your active computation can be `Queued`, `Running` or `Succeeded`.
+
+![runningjobs](/img/ceritsc/apps/foldify/dashboard-runningjobs.png)
+
+## Running a Computation
+
+After choosing a tool, you will be redirected to the form page where you can fill in the parameters for the computation. 
+
+The only required parameters are the **Protein Sequence** and the **Job Name**, everything else can be left 
+default. You can change the name of the job, but it must be unique (you cannot run multiple computations with the same name), otherwise you will be prompted
+to enter a different name or check the `Force Computation` checkbox.
+
+By default, all calculation results are public, i.e. everyone who is able to log in can see them, but the name of the user who initiated the calculation is not shown. If this is not desired, publication can be disabled (*Make results public* checkbox).
+
+After filling in the parameters, you can start the calculation by clicking the `Run Job` button. When compuatation finishes, you will receive an email notification.
+
+![form](/img/ceritsc/apps/foldify/af-form.png)
+
+## Viewing Results
+
+If you want to preview the computed results, you can do so from the `Last Computed Jobs` table on the dashboard. You can find your protein name and click the `View Result` button to display the result in the browser. The viewer is interactive and allows rotation and panning.
+You can also download the results by clicking the `Download` button. Please note, that the results are in most cases large files and can take some time to download. After closing the dialog window downloading process will be cancelled.
+
+![computedjobs](/img/ceritsc/apps/foldify/last-computed-jobs.png)
+
+### Molstar Viewer
+
+In the `Results` page you can also find the `Mol*` viewer, which is a more complex viewer for the results. You can open it by clicking the `Mol*` logo below the embedded 3D viewer.
+
+![results](/img/ceritsc/apps/foldify/results.png)
+![molstar](/img/ceritsc/apps/foldify/molstar.png)
+
+### Plddt Score
+
+Plddt score is also displayed in the `Results` page, which is a measure of the model confidence. The higher the score, the more confident the model is. Data is displayed for each model as graph.
+
+![plddt](/img/ceritsc/apps/foldify/plddt.png)
+
+### Result Tabs
+
+Further you can explore `Configuration` tab, where you can see the parameters of the computation. And `Technical Output` tab, where you can see the logs of the computation.
+
+![resulttabs](/img/ceritsc/apps/foldify/result-tabs.png)
+
+
+
+

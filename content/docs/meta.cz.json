@@ -1,0 +1,18 @@
+{
+  "pages": [
+    "novinky",
+    "platforma",
+    "rancher",
+    "docker",
+    "kubernetes",
+    "operátory",
+    "příklad",
+    "rancher-aplikace",
+    "webové-aplikace",
+    "workflows",
+    "gitops",
+    "případové-studie",
+    "ladění",
+    "ostatní"
+  ]
+}
