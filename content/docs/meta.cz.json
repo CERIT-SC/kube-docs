@@ -1,18 +1,18 @@
 {
   "pages": [
     "novinky",
-    "platforma",
+    "platform",
     "rancher",
     "docker",
     "kubernetes",
-    "operátory",
-    "příklad",
-    "rancher-aplikace",
-    "webové-aplikace",
+    "operators",
+    "examples",
+    "rancher-apps",
+    "web-apps",
     "workflows",
     "gitops",
-    "případové-studie",
-    "ladění",
-    "ostatní"
+    "case-studies",
+    "debugging",
+    "other"
   ]
 }
