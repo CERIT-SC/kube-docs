@@ -1,6 +1,6 @@
----
+—-
 title: Dostupný hardware
----
+—-
 
 CERIT-SC provozuje běžné clustery a zabezpečený cluster (více informací v nadcházející sekci o zabezpečeném clusteru). Běžné clustery zahrnují *kuba-cluster* (největší) a *kubh-cluster* (HA cluster). V blízké budoucnosti se k kuba-clusteru připojí 8 výkonných *kub-c* uzlů. Zabezpečený cluster zahrnuje *kubas-cluster*.
 
@@ -25,14 +25,14 @@ Kuba-cluster se skládá z 39 uzlů (aktuálně 31 dostupných) a obsahuje 22 NV
       <td>Paměť:</td><td>1024GB:<br/>&nbsp;&nbsp;&nbsp;512GB:</td><td>kub-b15, kub-b16<br/>Všechny zbývající uzly</td>
     </tr>
     <tr>
-      <td>Disk:</td><td>2x 3.5TB SSD SATA:<br/>8x 8TB NVME SSD:</td><td>kub-a5 -- kub-a25<br/>kub-b1 -- kub-b18</td>
+      <td>Disk:</td><td>2x 3.5TB SSD SATA:<br/>8x 8TB NVME SSD:</td><td>kub-a5 — kub-a25<br/>kub-b1 — kub-b18</td>
     </tr>
     <tr>
       <td>GPU:</td><td>Žádné:<br/>2x NVIDIA A40 na uzel:<br/>1x NVIDIA A40 na uzel:<br/> 2x NVIDIA A10 na uzel:<br/>2x NVIDIA A100 (80GB) na uzel:<br/>1x NVIDIA H100 (PCIE/80GB):<br/>1x NVIDIA L4:</td>
-                   <td>kub-a5 -- kub-a9, kub-b3, kub-b9, kub-b14, kub-b15, kub-b17<br/>kub-a10 -- kub-a14, kub-b12<br/>kub-a15 -- kub-a20, kub-a22 -- kub-a24<br/>kub-b1 -- kub-b2, kub-b16<br/>kub-b4 -- kub-b8<br/>kub-b10 -- kub-b11<br/>kub-b13</td>
+                   <td>kub-a5 — kub-a9, kub-b3, kub-b9, kub-b14, kub-b15, kub-b17<br/>kub-a10 — kub-a14, kub-b12<br/>kub-a15 — kub-a20, kub-a22 — kub-a24<br/>kub-b1 — kub-b2, kub-b16<br/>kub-b4 — kub-b8<br/>kub-b10 — kub-b11<br/>kub-b13</td>
     </tr>
     <tr>
-      <td>Síť:</td><td>2x 10Gbps Ethernet:<br/>1x 100Gbps Infiniband:</td><td>Všechny uzly<br/>kub-b1 -- kub-b18</td>
+      <td>Síť:</td><td>2x 10Gbps Ethernet:<br/>1x 100Gbps Infiniband:</td><td>Všechny uzly<br/>kub-b1 — kub-b18</td>
     </tr>
   </tbody>
 </table>
@@ -80,7 +80,7 @@ Primární síťové úložiště se skládá ze čtyř hlavních uzlů, každý
 
 ### kubh-cluster
 
-Kubh-cluster se skládá z 6 uzlů, které jsou rozptýleny na třech různých místech (2 uzly na místech Univerzitní kampus Bohunice -- UKB, Univerzitní počítačové centrum -- CPS -- na Komenského náměstí, Fakulta informatiky na Botanické) a je tedy vhodnou volbou pro HA nastavení (více informací v nadcházející sekci o HA nastavení).
+Kubh-cluster se skládá z 6 uzlů, které jsou rozptýleny na třech různých místech (2 uzly na místech Univerzitní kampus Bohunice — UKB, Univerzitní počítačové centrum — CPS — na Komenského náměstí, Fakulta informatiky na Botanické) a je tedy vhodnou volbou pro HA nastavení (více informací v nadcházející sekci o HA nastavení).
 
 <table>
   <thead>
@@ -98,7 +98,7 @@ Kubh-cluster se skládá z 6 uzlů, které jsou rozptýleny na třech různých 
       <td>Paměť:</td><td>512GB</td>
     </tr>
     <tr>
-      <td>Disk:</td><td>20TB NVME:<br/>7TB NVME SSD:</td><td>kub-h1 -- kub-h2<br/>kub-h3 -- kub-h6</td>
+      <td>Disk:</td><td>20TB NVME:<br/>7TB NVME SSD:</td><td>kub-h1 — kub-h2<br/>kub-h3 — kub-h6</td>
     </tr>
     <tr>
       <td>Síť:</td><td>2x 10Gbps Ethernet:</td><td>Všechny uzly</td>
@@ -129,19 +129,19 @@ Kubas-cluster se skládá z 10 uzlů a obsahuje 5x NVIDIA A40, 2x NVIDIA A100 (8
   </thead>
   <tbody>
     <tr>
-      <td>CPU:</td><td>2x AMD EPYC 7543 32-Core Processor (celkem 64CPU na uzel):<br/>2x AMD EPYC 9454 48-Core Processor (celkem 96CPU na uzel):<br/>1x Intel(R) Xeon(R) CPU E5-2650 v4 @ 2.20GHz 24-Core Processor:<br/>1x AMD EPYC 7662 64-Core Processor (celkem 64CPU na uzel):</td><td>kub-as1 -- kub-as6<br/>kub-cs1, kub-cs2<br/>kblack<br/>kzia</td>
+      <td>CPU:</td><td>2x AMD EPYC 7543 32-Core Processor (celkem 64CPU na uzel):<br/>2x AMD EPYC 9454 48-Core Processor (celkem 96CPU na uzel):<br/>1x Intel(R) Xeon(R) CPU E5-2650 v4 @ 2.20GHz 24-Core Processor:<br/>1x AMD EPYC 7662 64-Core Processor (celkem 64CPU na uzel):</td><td>kub-as1 — kub-as6<br/>kub-cs1, kub-cs2<br/>kblack<br/>kzia</td>
     </tr>
     <tr>
-      <td>Paměť:</td><td>512GB:<br/>1.5 TB:<br/>512GB:<br/>512GB:</td><td>kub-as1 -- kub-as6<br/>kub-cs1, kub-cs2<br/>kblack<br/>kzia</td>
+      <td>Paměť:</td><td>512GB:<br/>1.5 TB:<br/>512GB:<br/>512GB:</td><td>kub-as1 — kub-as6<br/>kub-cs1, kub-cs2<br/>kblack<br/>kzia</td>
     </tr>
     <tr>
-      <td>Disk:</td><td>2x 3.5TB SSD SATA:<br/>60TB NVME SSD:<br/>1x 3.6TB SSD:<br/>1x 1.5TB SSD:</td><td>kub-as1 -- kub-as6<br/>kub-cs1, kub-cs2<br/>kblack<br/>kzia</td>
+      <td>Disk:</td><td>2x 3.5TB SSD SATA:<br/>60TB NVME SSD:<br/>1x 3.6TB SSD:<br/>1x 1.5TB SSD:</td><td>kub-as1 — kub-as6<br/>kub-cs1, kub-cs2<br/>kblack<br/>kzia</td>
     </tr>
     <tr>
-      <td>GPU:</td><td>1x NVIDIA A40 na uzel:<br/>2x NVIDIA A100 (80GB) na uzel:<br/>2x NVIDIA H100 NVL (94GB) na uzel:<br/>4x NVIDIA P100:<br/>na vyžádání 1-4 NVIDIA A100 (40GB):</td><td>kub-as1 -- kub-as5<br/>kub-as6<br/>kub-cs1, kub-cs2<br/>kblack<br/>kzia</td>
+      <td>GPU:</td><td>1x NVIDIA A40 na uzel:<br/>2x NVIDIA A100 (80GB) na uzel:<br/>2x NVIDIA H100 NVL (94GB) na uzel:<br/>4x NVIDIA P100:<br/>na vyžádání 1-4 NVIDIA A100 (40GB):</td><td>kub-as1 — kub-as5<br/>kub-as6<br/>kub-cs1, kub-cs2<br/>kblack<br/>kzia</td>
     </tr>
     <tr>
-      <td>Síť:</td><td>2x 10Gbps Ethernet:<br/>1x 100Gbps Ethernet:<br/>1x 10Gbps Ethernet:<br/>1x 10Gbps Ethernet:</td><td>kub-as1 -- kub-as6<br/>kub-cs1, kub-cs2<br/>kblack<br/>kzia</td>
+      <td>Síť:</td><td>2x 10Gbps Ethernet:<br/>1x 100Gbps Ethernet:<br/>1x 10Gbps Ethernet:<br/>1x 10Gbps Ethernet:</td><td>kub-as1 — kub-as6<br/>kub-cs1, kub-cs2<br/>kblack<br/>kzia</td>
     </tr>
   </tbody>
 </table>
