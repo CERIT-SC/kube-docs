@@ -435,19 +435,19 @@ You can specify, if you want to mount any of the two PVCs from section above (so
 
 ## Error Handling
 You receive _HTTP 500:Internal Server Error_ when accessing the URL `/user/your_name`. Most likely, this error is caused by:
-1. You chose MetaCentrum home you haven't used before - The red 500 Error is followed by `Error in Authenticator.pre_spawn_start`
-2. You chose MetaCentrum home you don't have access to - The red 500 Error is followed by `Error in Authenticator.pre_spawn_start`
+1. You chose MetaCentrum home you haven't used before -- The red 500 Error is followed by `Error in Authenticator.pre_spawn_start`
+2. You chose MetaCentrum home you don't have access to -- The red 500 Error is followed by `Error in Authenticator.pre_spawn_start`
 3. While spawning, `Error: ImagePullBackOff` appears
 
 Solutions:
 1. Log out and log in back
-2. You can not access the home even after logging out and back in - you are not permitted to use this particular home
+2. You can not access the home even after logging out and back in -- you are not permitted to use this particular home
 3. Clicking on small arrow `Event log` provides more information. Most certainly, a message tagged `[Warning]` is somewhere among all of them and it provides more description. It is highly possible the repo and/or image name is misspelled. 
- - please wait for 10 minutes
- - The service has a timeout of 10 minutes and during this time, it is trying to create all necessary resources. Due to error, creation won't succeed and after 10 minutes you will see red progress bars with message `Spawn failed: pod/jupyter-[username] did not start in 600 seconds!`. At this point, it is sufficient to reload the page and click on `Relaunch server`.
+   - please wait for 10 minutes
+   - The service has a timeout of 10 minutes and during this time, it is trying to create all necessary resources. Due to error, creation won't succeed and after 10 minutes you will see red progress bars with message `Spawn failed: pod/jupyter-[username] did not start in 600 seconds!`. At this point, it is sufficient to reload the page and click on `Relaunch server`.
 
 
 
-<Callout >
+<Callout>
   If you are not sure about how to create an image for your `Job` or have any other questions, contact us at **k8s@ics.muni.cz**. 
 </Callout>
