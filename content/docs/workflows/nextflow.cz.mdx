@@ -192,7 +192,7 @@ Pokud se vám to stane, zvažte snížení problematických požadavků na zdroj
 
 ## Spuštění Nextflow Hello pipeline
 
-Stáhněte [nextflow.config](deployments/nextflow.config), který je připraven k použití, stačí změnit `namespace` na správnou hodnotu (namespace, ke kterému máte přístup) a specifikovat `launchDir` a `workDir`, aby ukazovaly někam na PVC. Dávejte pozor, pokud spouštíte Nextflow paralelně, vždy používejte různé `launchDir` a `workDir` pro paralelní běhy.
+Stáhněte [nextflow.config](/examples/ceritsc/nextflow/nextflow.config), který je připraven k použití, stačí změnit `namespace` na správnou hodnotu (namespace, ke kterému máte přístup) a specifikovat `launchDir` a `workDir`, aby ukazovaly někam na PVC. Dávejte pozor, pokud spouštíte Nextflow paralelně, vždy používejte různé `launchDir` a `workDir` pro paralelní běhy.
 
 Musíte soubor uchovávat v aktuálním adresáři, kde je spuštěn příkaz `nextflow`, a musí být pojmenován `nextflow.config`.
 

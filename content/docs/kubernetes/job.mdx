@@ -26,7 +26,7 @@ Jobs in the cluster do not have any special configuration apart from necessary s
   - Volumes
     - Section `spec.template.spec.volumes[]` (an array, there can be multiple volumes)
     - An array of **ALL** volumes that can be mounted to the containers of `Job`
-    - Volumes can be of [many types](../concepts/storage/volumes/#volume-types), the most frequently used ones are `PersistentVolumeClaim, ConfigMap, Secret`
+    - Volumes can be of [many types](https://kubernetes.io/docs/concepts/storage/volumes/#volume-types), the most frequently used ones are `PersistentVolumeClaim, ConfigMap, Secret`
   - VolumeMounts
     - Section `spec.template.spec.containers[].volumeMounts[]` (an array, there can be multiple volumeMounts)
     - An array of volumes to be mounted in a particular container (it is defined for every container individually)

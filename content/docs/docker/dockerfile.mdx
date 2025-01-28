@@ -101,7 +101,7 @@ The `repo/name:tag` must be exactly the same as in the build case.
 
 ### Automated Build
 
-Automated build can be done using a CI/CD pipeline. The build is done using the *runner* component which is part of many github/gitlab installations. You can use [gitlab.ics.muni.cz](https://gitlab.ics.muni.cz), see [GitLab Containers](../gitops/containers_build) how to do it. This gitlab also provides docker registry, so once built image can be stored here for use from Kubernetes. The registry is public or private depending on the project settings, see [GitLab Containers](../gitops/containers_build#how-to-use-images-from-gitlab-registry).
+Automated build can be done using a CI/CD pipeline. The build is done using the *runner* component which is part of many github/gitlab installations. You can use [gitlab.ics.muni.cz](https://gitlab.ics.muni.cz), see [GitLab Containers](../gitops/building_containers) how to do it. This gitlab also provides docker registry, so once built image can be stored here for use from Kubernetes. The registry is public or private depending on the project settings, see [GitLab Containers](../gitops/building_containers#how-to-use-images-from-gitlab-registry).
 
 The automated build can be slow, so it is not the best option for debugging the build process.
 

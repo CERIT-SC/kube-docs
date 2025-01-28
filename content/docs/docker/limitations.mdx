@@ -29,7 +29,7 @@ On the other hand, you have full root capability during docker image building.
  
   However, this is anti-pattern of using docker images, you should avoid this approach mainly because if running container is restarted which can happen sometimes, all installed packages and other modifications are lost.
 
-* You cannot bind port below 1024. It means that services needs to listen on higher ports, e.g., 8080 and so on. This does not mean you cannot create a service, that listens on port 443 or 80 for outside world. Just follow [Exposing applications](../kubernetes/kubectl-expose.html). This issue is mostly related to web servers (like nginx and apache, for nginx there is prepared non-privileged container: `nginxinc/nginx-unprivileged:latest`), ssh server, samba server. All these server can be reconfigured to listen on higher ports.
+* You cannot bind port below 1024. It means that services needs to listen on higher ports, e.g., 8080 and so on. This does not mean you cannot create a service, that listens on port 443 or 80 for outside world. Just follow [Exposing applications](../kubernetes/expose). This issue is mostly related to web servers (like nginx and apache, for nginx there is prepared non-privileged container: `nginxinc/nginx-unprivileged:latest`), ssh server, samba server. All these server can be reconfigured to listen on higher ports.
 
 * You cannot write to e.g., `/run` or `/var/log/` directories. In this case, you do not need to rebuild image and change rights. There is workaround mounting `emptyDir` volume into those directories. Just merge the following two fragments in deployment YAML:
 
