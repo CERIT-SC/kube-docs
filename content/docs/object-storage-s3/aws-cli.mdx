@@ -1,0 +1,172 @@
+---
+title: AWS CLI tool for command line usage
+---
+
+AWS CLI is a common tool allowing to control S3 service. AWS CLI tool is written in python.
+
+## AWS CLI installation
+
+To install AWS CLI we recommend using [official AWS docummentation](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html). There you can find the guide on how to install AWS CLI on Linux and Windows as well.
+
+<Callout type="info" emoji="ℹ️">
+**AWS-CLI in virtual environment** <br/>
+If you need to install AWS CLI in the virtual environment you can use [this guide](https://docs.aws.amazon.com/cli/latest/userguide/install-virtualenv.html).
+</Callout>
+
+## Configuration of AWS CLI
+
+<Callout type="info" emoji="ℹ️">
+**User profile**<br/>
+To configure AWS CLI we recommend using the option `--profile` which allows you to define multiple user profiles with different user credentials. Of course, you can also use the settings without the option `--profile`. All commands will be the same, you will just omit the option `--profile`. AWS will then use the **default** settings.
+</Callout>
+
+<Callout type="warning" emoji="⚠️">
+In the configuration wizard, it is necessary by the option **Default region name** to hit the space bar. If you will not put the space into “Default region name” the config file will not contain **region** parameter. You will then obtain the error related to **InvalidLocationConstraint** during the usage **aws s3**.
+</Callout>
+
+In the following, we will demonstrate the AWS CLI configuration. Following exemplary commands utilize the `--profile` option.
+
+```bash
+aws configure --profile test_user
+```
+
+    AWS Access Key ID [None]: xxxxxxxxxxxxxxxxxxxxxx<br/>
+    AWS Secret Access Key [None]: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx<br/>
+    Default region name [None]: us-east-1<br/>
+    Default output format [None]: text<br/>
+
+_AWS Access Key ID_ - access key, obtained from data storage administrator<br/>
+_Secret Access Key_ - secret key, obtained from data storage administrator<br/>
+_Default region name_ - Here just press the space bar!!! Some software tools can have special requirements, e.g. Veeam, in that case, insert storage<br/>
+_Default output format_ - choose the output format (json, text, table)<br/>
+
+<Callout type="info" emoji="ℹ️">
+**Endpoint URL** <br/>
+For smooth operation is necessary to use option `--endpoint-url` with particular S3 endpoint address provided by CESNET.
+</Callout>
+
+<Callout type="warning" emoji="⚠️">
+**Multipart S3 upload - the maximal size of the file is limited up to 5 GB**. It is a best practice to use aws s3 commands (such as aws s3 cp) for multipart uploads and downloads because these aws s3 commands automatically perform multipart uploading and downloading based on the file size. By comparison, **aws s3api** commands, such as aws s3api create-multipart-upload, should be used only when aws s3 commands do not support a specific upload need, such as when the multipart upload involves multiple servers, a multipart upload is manually stopped and resumed later, or when the aws s3 command doesn't support a required request parameter. More information can be found on the [AWS websites](https://aws.amazon.com/premiumsupport/knowledge-center/s3-multipart-upload-cli/).
+</Callout>
+
+## Controls of AWS CLI - high-level (s3)
+
+To show the help (available commands) you can use help - **aws s3** tool allows you to use several advanced functions, see below.
+
+```bash
+aws s3 help
+```
+
+### Operation with buckets
+
+<Callout type="info" emoji="ℹ️">
+**Unique name of the bucket** <br/>
+The bucket name has to be unique within tenant. It should contain lower letters, numbers, dashes, and dots. The bucket name should begin only with a letter or number and cannot contain dots followed by a dash or dots preceded by a dash or multiple dots. We also recommend not using “slash” in the bucket name. Using the slash will disallow the usage of the bucket via API.
+</Callout>
+
+**Bucket creation**
+
+```bash    
+aws s3 --profile test_user --endpoint-url https://s3.cl2.du.cesnet.cz mb s3://test1
+```
+
+**Bucket listing**
+
+```bash
+aws s3 --profile test_user --endpoint-url https://s3.cl2.du.cesnet.cz ls
+2019-09-18 13:30:17 test1
+```
+**Bucket deletion**
+
+```bash
+aws s3  --profile test_user --endpoint-url https://s3.cl2.du.cesnet.cz rb s3://test1
+```
+
+### Operation with files
+**File upload**
+
+```bash
+aws s3 --profile test_user --endpoint-url https://s3.cl2.du.cesnet.cz cp C:/Users/User/Desktop/test_file.zip s3://test1
+upload: Desktop\test_file.zip to s3://test1/test_file.zip
+```
+
+**File download**
+
+```bash
+aws s3 --profile test_user --endpoint-url https://s3.cl2.du.cesnet.cz cp s3://test1/test_file.zip C:\Users\User\Downloads\
+download: s3://test1/test_file.zip to Downloads\test_file.zip
+```
+
+**File deletion**
+
+```bash
+aws s3 --profile test_user --endpoint-url https://s3.cl2.du.cesnet.cz rm s3://test1/test_file.zip 
+delete: s3://test1/test_file.zip
+```
+
+### Directory/Folder operation
+
+<Callout type="info" emoji="ℹ️">
+The content of the source folder is always copied while using the following command. It does not depend on the slash character at the end of the source path. The behavior of **aws** is in this perspective different than the rsync behavior. If you wish to have the source directory in the destination you can add the name of the source directory to the destination path. **AWS tool will create the directory in the destination while copying the data**, see the exemplary commands below. The same is valid in the case of directory downloads or synchronization via **aws s3 sync**.
+</Callout>
+
+**Upload the directory**
+
+```bash
+aws s3 --profile test_user --endpoint-url https://s3.cl2.du.cesnet.cz cp C:\Users\User\Desktop\test_dir  s3://test1/test_dir/ --recursive
+```
+
+**Download the directory**
+
+```bash
+aws s3 --profile test_user --endpoint-url https://s3.cl2.du.cesnet.cz cp s3://test1/test_dir C:\Users\User\Downloads\test_dir\ --recursive
+```
+
+**Directory deletion**
+
+```bash
+aws s3 --profile test_user --endpoint-url https://s3.cl2.du.cesnet.cz rm s3://test1/test_dir --recursive
+```
+
+**Directory sync -> upload to cloud**
+
+```bash
+aws s3 --profile test_user --endpoint-url https://s3.cl2.du.cesnet.cz sync C:\Users\User\Desktop\test_sync  s3://test1/test_sync/
+```
+
+**Directory sync -> download from cloud**
+```bash
+aws s3 --profile test_user --endpoint-url https://s3.cl2.du.cesnet.cz sync s3://test1/test_sync/ C:\Users\User\Downloads\test_sync
+```
+
+## Controls of AWS CLI - api-level (s3api)
+
+**aws** tool allows the usage of **aws s3api** module. This module provides advanced functions to control S3 service, see below. The configuration of credentials and connections is the same like for **aws** in the beginning of this guide.
+
+The set of available commands can be obtained by the following command with the option **help**. Alternatively is the complete list available in the [AWS website](https://docs.aws.amazon.com/cli/latest/reference/s3api/index.html).
+
+## Exemplary configuration file for AWS-CLI
+After successful configuration, the configuration file should be created. You can find the example below. You can find the credentials file in the same path.
+
+<Callout type="info" emoji="ℹ️">
+**Config file** <br/>
+Windows: C:/Users/User/.aws/config <br/>
+Linux:   /home/user/.aws/config <br/>
+
+[profile test-user] <br/>
+region =us-east-1 <br/>
+output = text <br/>
+</Callout>
+
+## Special functions of AWS-CLI
+There are several advanced functions in AWS-CLI for sharing the data or its versioning.
+
+### Presign URLs
+For object in S3 service you can generate presign URL to allow your colleagues to download the data. You can find more information the the section dedicated to [advanced S3 features](s3-features.mdx)
+
+### Bucket policies
+To share your data you can setup so called bucket policies. You can share specific bucket to a specific group (tenant) or make your bucket publicly readable. You can find more information the the section dedicated to [advanced S3 features](s3-features.mdx)
+
+### Bucket versioning
+You can setup object versioning inside in your buckets. Then you can restore any previous version of the object (file). You can find more information the the section dedicated to [advanced S3 features](s3-features.mdx)
+

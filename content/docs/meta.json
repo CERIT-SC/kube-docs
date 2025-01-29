@@ -1,0 +1,10 @@
+{
+"pages": [
+"introduction",
+"object-storage-s3",
+"object-storage-rbd",
+"collaboration",
+"perun",
+"faq"
+]
+}

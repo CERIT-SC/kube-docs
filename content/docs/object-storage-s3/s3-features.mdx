@@ -1,0 +1,459 @@
+---
+title: Advanced S3 features
+---
+
+In the following sections, you can find a basic description of advanced S3 features that can enhance the effectiveness of your data workflow.
+
+## Sharing S3 object using (presigned) URL
+
+<Callout type="warning" emoji="⚠️">
+To be able to generate the URL links for objects stored on the S3 storage you have to setup **[aws tool first](aws-cli.mdx)**.
+</Callout>
+
+
+All objects and buckets are by default private. The pre-signed URL is a reference to Ceph S3 object, which allows anyone who receives the URL to retrieve the S3 object with an HTTP GET request.
+
+The following presigning command generates a pre-signed URL for a specified bucket and key that is valid for one hour:
+
+```bash
+aws s3 --profile myprofile presign s3://bucket/file
+```
+
+If you want to create a pre-signed URL with a custom lifetime that links to an object in an S3 bucket you have to use:
+
+```bash
+aws s3 --profile myprofile presign s3://bucket/file --expires-in 2419200
+```
+
+This will create URL accessible for a month. Parametr `--expires-in` is in seconds.
+
+When pre-signed URL has been expired, you will see something like following:
+
+```error 
+    This XML file does not appear to have any style information associated with it. The document tree is shown below.
+    <Error>
+    <link type="text/css" rel="stylesheet" id="dark-mode-general-link"/>
+    <link type="text/css" rel="stylesheet" id="dark-mode-custom-link"/>
+    <style lang="en" type="text/css" id="dark-mode-custom-style"/>
+    <Code>AccessDenied</Code>
+    <RequestId>tx0000000000000000f8f26-00sd242d-1a2234a7-storage-cl2</RequestId>
+    <HostId>1aasd67-storage-cl2-storage</HostId>
+    </Error>
+```
+
+<Callout type="info" emoji="ℹ️">
+**Changing the URL lifetime** <br/>
+Once you generate pre-signed URL, you can't change its lifetime, you have to generate a new pre-signed URL. It applies to both, expired and non-expired URLs.
+</Callout>
+
+## S3 Object versioning
+
+Object Versioning is used to store multiple copies of an object within the same bucket. Each of these copies corresponds to the content of the object at a specific moment in the past. This functionality can be used to protect the objects of a bucket against overwriting or accidental deletion.
+
+This functionality, which allows a historical record of the objects in a bucket, requires that it be enabled at the bucket level, thus giving rise to three different states of the bucket:'unversioned', 'versioning enabled' or 'versioning suspended'.
+
+When a bucket is created, it is always in the 'unversioned state'.
+
+When the functionality is enabled, the bucket can switch between the states 'versioning enabled' or 'versioning suspended' but can not return to the state 'unversioned state', that is, you can not disable the versioning of the bucket once it is enabled. It can only be suspended.
+
+Each version of an object is identified through a VersionID. When the bucket is not versioned, the VersionID will be a null value. In a versioned bucket, updating an object through a PUT request will store a new object with an unique VersionID.
+
+Access to a version of an object in a bucket can be done through its name or combination name and VersionID. In the case of accessing by name only, the most recent version of the object will be recovered.
+
+In the case of deleting an object in a versioned bucket, access attempts, through GET requests, will return an error, unless a VersionID is included. To restore a deleted object it is not necessary to download and upload the object. It is sufficient to issue a COPY operation including a specific VersionID. We will show you in this guide.
+
+To test the versioning of objects we can use the AWS CLI, an open source tool that provides commands to interact with AWS services from a terminal program. Specifically we will use the AWS CLI’s API-level commands, contained in the s3api command set.
+
+### Versioning the bucket
+
+For non versioned bucket, if an object with the same key is uploaded it overwrites the object. For versioned bucket, if an object with the same key is uploaded the new uploaded object becomes the current version and the previous object becomes the non current version:
+
+<Callout type="warning" emoji="⚠️">
+For proper functionality, it is necessary to use the --endpoint-url option for all commands for the relevant S3 addresses of the services operated by the CESNET association.
+</Callout>
+
+<Callout type="info" emoji="ℹ️">
+**Bucket name restrictions** <br/>
+The bucket name must be unique within tenant and should contain only uppercase and lowercase letters, numbers, and dashes and periods. The bucket name must only start with a letter or number and must not contain periods next to dashes or multiple periods. We also recommend **NOT using** `/` and `_` in the name, as this would make it impossible to use it via the API.
+</Callout>
+
+First we need to create the bucket, whete we will setup the versionig.
+
+```bash 
+aws s3api create-bucket --bucket "bucket name" --profile "profil name" --endpoint-url=https://s3.cl2.du.cesnet.cz 
+```
+
+Then we can check whether the versionig is enabled.
+
+```bash
+aws s3api get-bucket-versioning --bucket "bucket name" --profile "profil name" --endpoint-url=https://s3.cl2.du.cesnet.cz
+```
+
+Now we will enable the versioning.
+
+```bash
+aws s3api put-bucket-versioning --bucket "bucket name" --versioning-configuration Status=Enabled --profile "profil name" --endpoint-url=https://s3.cl2.du.cesnet.cz
+```
+ 
+If we check the status of versioning again we can see that it is enabled.
+
+```bash
+aws s3api get-bucket-versioning --bucket "bucket name" --profile "profil name" --endpoint-url=https://s3.cl2.du.cesnet.cz
+    
+    {
+    "Status": "Enabled",
+    "MFADelete": "Disabled"
+    }
+```
+### Adding the object
+Now we will put new object into created bucket.
+
+```bash
+aws s3api put-object --key "file name" --body "file path 1" --bucket "bucket name" --profile "profil name" --endpoint-url=https://s3.cl2.du.cesnet.cz 
+    
+    {
+    "ETag": "\"5ec0f1a7fc3a60bf9360a738973f014d\"",
+    "VersionId": "KdS5Yl0d06bBSYriIddtVb0h5gofiNX"
+    }
+```
+
+Now we can change the file via updating the body.
+
+```bash
+aws s3api put-object --key "file name" --body "file path 2" --bucket "bucket name" --profile "profil name" --endpoint-url=https://s3.cl2.du.cesnet.cz
+
+    {
+    "ETag": "\"5ec0f1a7fc3a60bf9360a738973f014d\"",
+    "VersionId": "xNQC4pIgMYx59digj5.gk15WC4efOOa"
+    }
+```
+
+Now we can list the object versinos.
+
+```bash
+aws s3api list-object-versions --bucket "bucket name" --profile "profil name" --endpoint-url=https://s3.cl2.du.cesnet.cz
+
+    {
+    "Versions": [
+        {
+            "ETag": "\"5ec0f1a7fc3a60bf9360a738973f014d\"",
+            "Size": 13,
+            "StorageClass": "STANDARD",
+            "Key": "test-key-1",
+            "VersionId": "xNQC4pIgMYx59digj5.gk15WC4efOOa",
+            "IsLatest": true,
+            "LastModified": "2020-05-18T10:34:05.072Z",
+            "Owner": {
+                "DisplayName": "Testing",
+                "ID": "user$tenant"
+            }
+        },
+        {
+            "ETag": "\"5ec0f1a7fc3a60bf9360a738973f014d\"",
+            "Size": 13,
+            "StorageClass": "STANDARD",
+            "Key": "test-key-1",
+            "VersionId": "KdS5Yl0d06bBSYriIddtVb0h5gofiNX",
+            "IsLatest": false,
+            "LastModified": "2020-05-18T10:33:53.066Z",
+            "Owner": {
+                "DisplayName": "Testing",
+                "ID": "user$tenant"
+            }
+        }
+    ]
+    }
+```
+### Retrieve an object
+For a versionless bucket with object lookup, it always returns a single available object. For a bucket with versioning, the search returns the current object:
+
+```bash
+aws s3api list-object-versions --bucket "bucket name" --profile "profil name" --endpoint-url=https://s3.cl2.du.cesnet.cz 
+
+    {
+    "Versions": [
+        {
+            "ETag": "\"5ec0f1a7fc3a60bf9360a738973f014d\"",
+            "Size": 13,
+            "StorageClass": "STANDARD",
+            "Key": "test-key-1",
+            "VersionId": "xNQC4pIgMYx59digj5.gk15WC4efOOa",
+            "IsLatest": true,
+            "LastModified": "2020-05-18T10:34:05.072Z",
+            "Owner": {
+                "DisplayName": "Testing",
+                "ID": "user$tenant"
+            }
+        },
+        {
+            "ETag": "\"5ec0f1a7fc3a60bf9360a738973f014d\"",
+            "Size": 13,
+            "StorageClass": "STANDARD",
+            "Key": "test-key-1",
+            "VersionId": "KdS5Yl0d06bBSYriIddtVb0h5gofiNX",
+            "IsLatest": false,
+            "LastModified": "2020-05-18T10:33:53.066Z",
+            "Owner": {
+                "DisplayName": "Testing",
+                "ID": "user$tenant"
+            }
+        }
+    ]
+    }
+```
+
+Now we can retrieve desired object.
+
+```bash
+aws s3api get-object --key "file name" "file name.out" --bucket "bucket name" --profile "profil name" --endpoint-url=https://s3.cl2.du.cesnet.cz 
+
+    {
+    "AcceptRanges": "bytes",
+    "LastModified": "Mon, 18 May 2020 10:34:05 GMT",
+    "ContentLength": 13,
+    "ETag": "\"5ec0f1a7fc3a60bf9360a738973f014d\"",
+    "VersionId": "xNQC4pIgMYx59digj5.gk15WC4efOOa",
+    "ContentType": "binary/octet-stream",
+    "Metadata": {}
+    }
+```
+
+For a versioned bucket, inactive objects can be retrieved by specifying the Version ID:
+
+```bash
+aws s3api list-object-versions --bucket "bucket name" --profile "profil name" --endpoint-url=https://s3.cl2.du.cesnet.cz 
+    {
+    "Versions": [
+        {
+            "ETag": "\"5ec0f1a7fc3a60bf9360a738973f014d\"",
+            "Size": 13,
+            "StorageClass": "STANDARD",
+            "Key": "test-key-1",
+            "VersionId": "xNQC4pIgMYx59digj5.gk15WC4efOOa",
+            "IsLatest": true,
+            "LastModified": "2020-05-18T10:34:05.072Z",
+            "Owner": {
+                "DisplayName": "Testing",
+                "ID": "user$tenant"
+            }
+        },
+        {
+            "ETag": "\"5ec0f1a7fc3a60bf9360a738973f014d\"",
+            "Size": 13,
+            "StorageClass": "STANDARD",
+            "Key": "test-key-1",
+            "VersionId": "KdS5Yl0d06bBSYriIddtVb0h5gofiNX",
+            "IsLatest": false,
+            "LastModified": "2020-05-18T10:33:53.066Z",
+            "Owner": {
+                "DisplayName": "Testing",
+                "ID": "user$tenant"
+            }
+        }
+    ]
+    }
+```
+Now we can list the particular versions.
+
+```bash
+aws s3api list-object-versions --bucket "bucket name" --version-id KdS5Yl0d06bBSYriIddtVb0h5gofiNX --bucket "bucket name" --profile "profil name" --endpoint-url=https://s3.cl2.du.cesnet.cz
+
+    {
+    "AcceptRanges": "bytes",
+    "LastModified": "Mon, 18 May 2020 10:33:53 GMT",
+    "ContentLength": 13,
+    "ETag": "\"5ec0f1a7fc3a60bf9360a738973f014d\"",
+    "VersionId": "KdS5Yl0d06bBSYriIddtVb0h5gofiNX",
+    "ContentType": "binary/octet-stream",
+    "Metadata": {}
+    }
+```
+### An object removal
+For a versionless bucket, the object is permanently deleted and cannot be recovered. For a versioned bucket, all versions remain in the bucket and RGW inserts a delete flag that becomes the current version:
+
+```bash
+aws s3api list-object-versions --bucket "bucket name" --profile "profil name" --endpoint-url=https://s3.cl2.du.cesnet.cz
+    
+    {
+    "Versions": [
+        {
+            "ETag": "\"5ec0f1a7fc3a60bf9360a738973f014d\"",
+            "Size": 13,
+            "StorageClass": "STANDARD",
+            "Key": "test-key-1",
+            "VersionId": "xNQC4pIgMYx59digj5.gk15WC4efOOa",
+            "IsLatest": true,
+            "LastModified": "2020-05-18T10:34:05.072Z",
+            "Owner": {
+                "DisplayName": "Testing",
+                "ID": "user$tenant"
+            }
+        },
+```
+Now we can check the object versions again.
+
+```bash
+aws s3api list-object-versions --bucket "bucket name" --profile "profil name" --endpoint-url=https://s3.cl2.du.cesnet.cz 
+
+    {
+    "Versions": [
+        {
+            "ETag": "\"5ec0f1a7fc3a60bf9360a738973f014d\"",
+            "Size": 13,
+            "StorageClass": "STANDARD",
+            "Key": "test-key-1",
+            "VersionId": "xNQC4pIgMYx59digj5.gk15WC4efOOa",
+            "IsLatest": false,
+            "LastModified": "2020-05-18T10:34:05.072Z",
+            "Owner": {
+                "DisplayName": "Testing",
+                "ID": "user$tenant"
+            }
+        }
+    ],
+    "DeleteMarkers": [
+        {
+            "Owner": {
+                "DisplayName": "Testing",
+                "ID": "user$tenant"
+            },
+            "Key": "test-key-1",
+            "VersionId": "hxV8on0vry4Oz0FNcgsz88aDcQoZO.y",
+            "IsLatest": true,
+            "LastModified": "2020-05-18T11:21:57.544Z"
+        }
+    ]
+    }
+```
+
+In the case of a versioned bucket, if an object with a specific VersionID is deleted, it is permanently deleted:
+
+```bash
+aws s3api delete-object --key "file name" --version-id KdS5Yl0d06bBSYriIddtVb0h5gofiNX --bucket "bucket name" --profile "profil name" --endpoint-url=https://s3.cl2.du.cesnet.cz
+
+    {
+    "VersionId": "KdS5Yl0d06bBSYriIddtVb0h5gofiNX"
+    }
+```
+
+Now we can check the object versions again.
+
+```bash
+aws s3api list-object-versions --bucket "bucket name" --profile "profil name" --endpoint-url=https://s3.cl2.du.cesnet.cz 
+    
+    {
+    "DeleteMarkers": [
+        {
+            "Owner": {
+                "DisplayName": "Testing",
+                "ID": "user$tenant"
+            },
+            "Key": "test-key-1",
+            "VersionId": "ZfT16FPCe2xVMjTh-6qqfUzhQnLQMfg",
+            "IsLatest": true,
+            "LastModified": "2020-05-18T11:22:48.482Z"
+        },
+
+    }
+```
+
+### An object restoration
+To restore an object, the recommended approach is to copy the previous version of the object to the same bucket. The copied object becomes the current version of the object and all versions of the object are preserved:
+
+```bash
+aws s3api list-object-versions --bucket "bucket name" --profile "profil name" --endpoint-url=https://s3.cl2.du.cesnet.cz 
+
+    {
+    "Versions": [
+        {
+            "ETag": "\"5ec0f1a7fc3a60bf9360a738973f014d\"",
+            "Size": 13,
+            "StorageClass": "STANDARD",
+            "Key": "test-key-1",
+            "VersionId": "xNQC4pIgMYx59digj5.gk15WC4efOOa",
+            "IsLatest": false,
+            "LastModified": "2020-05-18T10:34:05.072Z",
+            "Owner": {
+                "DisplayName": "Testing",
+                "ID": "user$tenant"
+            }
+        }
+    ],
+    "DeleteMarkers": [
+        {
+            "Owner": {
+                "DisplayName": "Testing",
+                "ID": "user$tenant"
+            },
+            "Key": "test-key-1",
+            "VersionId": "hxV8on0vry4Oz0FNcgsz88aDcQoZO.y",
+            "IsLatest": true,
+            "LastModified": "2020-05-18T11:21:57.544Z"
+        }
+    ]
+    }
+```
+
+Now we can restore the particular version of the object.
+
+```bash
+aws s3api copy-object --bucket "bucket name" --profile "profil name" --endpoint-url=https://s3.cl2.du.cesnet.cz --copy-source "bucket name"/"file name"?versionId=xNQC4pIgMYx59digj5.gk15WC4efOOa --key "file name" 
+
+    {
+    "CopyObjectResult": {
+        "ETag": "5ec0f1a7fc3a60bf9360a738973f014d",
+        "LastModified": "2020-05-18T13:28:52.553Z"
+    }
+    }
+```
+
+And check the object versions.
+
+```bash
+aws s3api list-object-versions --bucket "bucket name" --profile "profil name" --endpoint-url=https://s3.cl2.du.cesnet.cz 
+    {
+    "Versions": [
+           {
+            "ETag": "\"5ec0f1a7fc3a60bf9360a738973f014d\"",
+            "Size": 13,
+            "StorageClass": "STANDARD",
+            "Key": "test-key-1",
+            "VersionId": "EYXgE1z-28VkVS4zTD55SetB7Wdwk1V",
+            "IsLatest": true,
+            "LastModified": "2020-05-18T13:28:52.553Z",
+            "Owner": {
+                "DisplayName": "Testing",
+                "ID": "strnad$strnad"
+            }
+        },
+        {
+            "ETag": "\"5ec0f1a7fc3a60bf9360a738973f014d\"",
+            "Size": 13,
+            "StorageClass": "STANDARD",
+            "Key": "test-key-1",
+            "VersionId": "xNQC4pIgMYx59digj5.gk15WC4efOOa",
+            "IsLatest": false,
+            "LastModified": "2020-05-18T10:34:05.072Z",
+            "Owner": {
+                "DisplayName": "Testing",
+                "ID": "user$tenant"
+            }
+        }
+    ],
+    "DeleteMarkers": [
+        {
+            "Owner": {
+                "DisplayName": "Testing",
+                "ID": "user$tenant"
+            },
+            "Key": "test-key-1",
+            "VersionId": "hxV8on0vry4Oz0FNcgsz88aDcQoZO.y",
+            "IsLatest": false,
+            "LastModified": "2020-05-18T11:21:57.544Z"
+        }
+    ]
+    }
+```
+
+## Setup bucket policies for sharing (AWS-CLI S3 plugin)
+Coming soon...

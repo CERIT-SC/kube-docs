@@ -1,0 +1,300 @@
+---
+title: Connecting and configuring Ceph RBD using a Linux client
+---
+Ceph RBD (RADOS Block Device) provides users with a network block device that looks like a local disk on the system where it is connected. The block device is fully managed by the user. An user can create a file system there and use it according to his needs.
+
+<Callout type="info" emoji="ℹ️">
+  **Advantages of RBD**
+    * Possibility to enlarge the image of the block device.
+    * Import / export block device image.
+    * Stripping and replication within the cluster.
+    * Possibility to create read-only snapshots; restore snapshots (if you need snapshots on the RBD level you must contact us).
+    * Possibility to connect using Linux or QEMU KVM client
+</Callout>
+
+## Setup of RBD client (Linux)
+
+<Callout type="warning" emoji="⚠️">
+ To connect RBD, it is recommended to have a newer kernel version on your system. In lower kernel versions are the appropriate RBD connection modules deprecated. So not all advanced features are supported. Developers even recommend a kernel version at least 5.0 or higher. However developers has backported some functionalities to CentOS 7 core.
+</Callout>
+
+
+<Callout type="info" emoji="ℹ️">
+**Ceph client version**
+For proper functioning it is highly desired to use the same version of Ceph tools as is the current version being operated on our clusters. Currently it is version 16 with the code name Pacific . So we will set up the appropriate repositories, see below.
+</Callout>
+
+### CentOS setup
+First, install the release.asc key for the Ceph repository.
+```bash
+sudo rpm --import 'https://download.ceph.com/keys/release.asc'
+```
+
+In the directory **/etc/yum.repos.d/** create a text file **ceph.repo** and fill in the record for Ceph instruments.
+```conf filename="/etc/yum.repos.d/ceph.repo" copy
+[ceph]
+    name=Ceph packages for $basearch
+    baseurl=https://download.ceph.com/rpm-nautilus/el7/$basearch
+    enabled=1
+    priority=2
+    gpgcheck=1
+    gpgkey=https://download.ceph.com/keys/release.asc
+```
+
+Some packages from the Ceph repository also require third-party libraries for proper functioning, so add the EPEL repository.
+
+CentOS 7
+```bash
+sudo yum install -y epel-release
+```
+
+CentOS 8
+```bash
+sudo dnf install -y epel-release
+```
+
+RedHat 7
+```bash
+sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+```
+
+Finally, install the basic tools for Ceph which also include RBD support.
+
+CentOS 7
+```bash
+sudo yum install ceph-common
+````
+
+On CentOS 8
+```bash
+sudo dnf install ceph-common
+```
+
+### Ubuntu/Debian setup
+Ubuntu/Ceph includes all necessary packages natively. So you can just run following command.
+```bash
+sudo apt install ceph
+```
+
+## RBD configuration and its mapping
+
+Use the credentials which you received from the system administrator to configure and connect the RBD. These are the following:
+
+    * pool name: **rbd_vo_poolname**
+    * image name: **vo_name_username**
+    * keyring: **[client.rbd_user] key = key_hash ==**
+
+In the directory **/etc/ceph/** create the text file **ceph.conf** with the following content. 
+
+**CL1 Data Storage**
+```conf filename="ceph.conf" copy
+[global]
+    fsid = 19f6785a-70e1-45e8-a23a-5cff0c39aa54
+    mon_host = [v2:78.128.244.33:3300,v1:78.128.244.33:6789],[v2:78.128.244.37:3300,v1:78.128.244.37:6789],[v2:78.128.244.41:3300,v1:78.128.244.41:6789]
+    auth_client_required = cephx
+```
+
+**CL2 Data Storage**
+```conf filename="ceph.conf" copy
+[global]
+    fsid = 3ea58563-c8b9-4e63-84b0-a504a5c71f76
+    mon_host = [v2:78.128.244.65:3300/0,v1:78.128.244.65:6789/0],[v2:78.128.244.69:3300/0,v1:78.128.244.69:6789/0],[v2:78.128.244.71:3300/0,v1:78.128.244.71:6789/0]
+    auth_client_required = cephx
+```
+
+**CL3 Data Storage**
+```conf filename="ceph.conf" copy
+[global]
+    fsid = b16aa2d2-fbe7-4f35-bc2f-3de29100e958
+    mon_host = [v2:78.128.244.240:3300/0,v1:78.128.244.240:6789/0],[v2:78.128.244.241:3300/0,v1:78.128.244.241:6789/0],[v2:78.128.244.242:3300/0,v1:78.128.244.242:6789/0]
+    auth_client_required = cephx
+```
+
+**CL4 Data Storage**
+```conf filename="ceph.conf" copy
+[global]
+    fsid = c4ad8c6f-7ef3-4b0e-873c-b16b00b5aac4
+    mon_host = [v2:78.128.245.29:3300/0,v1:78.128.245.29:6789/0] [v2:78.128.245.30:3300/0,v1:78.128.245.30:6789/0] [v2:78.128.245.31:3300/0,v1:78.128.245.31:6789/0]
+    auth_client_required = cephx
+```
+
+Further in the directory **/etc/ceph/** create the text file **ceph.keyring**. Then save in that file the keyring, see the example below.
+```conf filename="ceph.keyring" copy
+[client.rbd_user]
+        key = sdsaetdfrterp+sfsdM3iKY5teisfsdXoZ5==
+```
+
+<Callout type="warning" emoji="⚠️">
+If the location of the files `ceph.conf` and `username.keyring` differs from the default directory **/etc/ceph/**, the corresponding paths must be specified during mapping. See below.
+```bash
+sudo rbd -c /home/username/ceph/ceph.conf -k /home/username/ceph/username.keyring --id rbd_user device map name_pool/name_image
+```
+</Callout>
+
+    If the location of the files `ceph.conf` and `username.keyring` differs from the default directory **/etc/ceph/**, the corresponding paths must be specified during mapping. See below.
+
+```bash
+sudo rbd -c /home/username/ceph/ceph.conf -k /home/username/ceph/username.keyring --id rbd_user device map name_pool/name_image
+```
+
+Then check the connection in kernel messages.
+```bash
+dmesg
+```
+
+Now check the status of RBD.
+```bash
+sudo rbd device list | grep "name_image"
+```
+
+## Encrypting and creating a file system
+
+The next step is to encrypt the mapped image. Use **cryptsetup-luks** for encryption.
+```bash
+sudo yum install cryptsetup-luks
+```
+
+Then it encrypts the device.
+```bash
+sudo cryptsetup -s 512 luksFormat --type luks2 /dev/rbdX
+```
+
+Finally, check the settings.
+```bash
+sudo cryptsetup luksDump /dev/rbdX
+```
+
+In order to perform further actions on an encrypted device, it must be decrypted first.
+```bash
+sudo cryptsetup luksOpen /dev/rbdX luks_rbdX
+```
+
+<Callout type="info" emoji="ℹ️">
+We recommend using XFS instead of EXT4 for larger images or those they will need to be enlarged to more than 200TB over time, because EXT4 has a limit on the number of inodes.
+</Callout>
+
+Now create file system on the device, here is an example xfs.
+```bash
+sudo mkfs.xfs -K /dev/mapper/luks_rbdX
+```
+
+<Callout type="warning" emoji="⚠️">
+If you use XFS, do not use the nobarrier option while mounting, it could cause data loss!
+</Callout>
+
+Once the file system is ready, we can mount the device in a pre-created folder in /mnt/.
+```bash
+sudo mount /dev/mapper/luks_rbdX /mnt/rbd
+```
+
+## Ending work with RBD
+
+Unmount the volume.
+```bash
+sudo umount /mnt/rbd/
+```
+
+Close the encrypted volume.
+```bash
+sudo cryptsetup luksClose /dev/mapper/luks_rbdX
+```
+
+Volume unmapping.
+```bash
+sudo rbd --id rbd_user device unmap /dev/rbdX/
+```
+
+<Callout type="info" emoji="ℹ️">
+To get better performance choose appropriate size of `read_ahead` cache depends on your size of memory.
+Example for 8GB:
+
+```bash
+echo 8388608 > /sys/block/rbd0/queue/read_ahead_kb
+````
+
+Example for 512MB:
+```bash
+echo 524288 > /sys/block/rbd0/queue/read_ahead_kb
+```
+
+To apply changes you have to unmap image and map it again.
+
+The approach described above is not persistent (won't survive reboot). To do it persistent you have to add following line into “/etc/udev/rules.d/50-read-ahead-kb.rules” file.
+</Callout>
+
+You can set specific kernel parameters for a subset of block devices (Ceph RBD)
+```bash
+KERNEL=="rbd[0-9]*", ENV{DEVTYPE}=="disk", ACTION=="add|change", ATTR{bdi/read_ahead_kb}="524288"
+```
+
+## Permanently mapping of RBD
+Settings for automatic RBD connection, including LUKS encryption and mount filesystems. + proper disconnection (in reverse order) when the machine is switched off in a controlled manner.
+
+### RBD image
+Edit configuration file in the path `/etc/ceph/rbdmap` by inserting following lines.
+
+```conf filename="/etc/ceph/rbdmap" copy
+# RbdDevice             Parameters
+#poolname/imagename     id=client,keyring=/etc/ceph/ceph.client.keyring
+pool_name/image_name id=rbd_user,keyring=/etc/ceph/ceph.keyring
+```
+
+### LUKS
+Edit configuration file in the path `/etc/crypttab` by inserting following lines.
+```conf filename="/etc/crypttab" copy
+rbd_luks_pool /dev/rbd/pool_name/image_name  /etc/ceph/luks.keyfile luks,_netdev
+```
+
+where `/etc/ceph/luks.keyfile` is LUKS key.
+
+<Callout type="info" emoji="ℹ️">
+Path to block device `source device` is generally `/dev/rbd/$POOL/$IMAGE`
+</Callout>
+
+### fstab file
+Edit configuration file in the path `/etc/fstab` by inserting following lines.
+```conf filename="/etc/fstab" copy
+/dev/mapper/rbd_luks_pool /mnt/rbd_luks_pool btrfs defaults,noatime,auto,_netdev 0 0
+```
+
+<Callout type="info" emoji="ℹ️">
+path to LUKS container (`file system`) is generally `/dev/mapper/$LUKS_NAME`, where `$LUKS_NAME` is defined in `/etc/crypttab` (like `taget name`)
+</Callout>
+
+
+### systemd unit
+Edit configuration file in the path `/etc/systemd/system/systemd-cryptsetup@rbd_luks_pool.service.d/10-deps.conf` by inserting following lines.
+
+```conf filename="10-deps.conf" copy
+[Unit]
+    After=rbdmap.service
+    Requires=rbdmap.service
+    Before=mnt-rbd_luks_pool.mount
+```
+<Callout type="info" emoji="ℹ️">
+In one case, systemd units were used on Debian 10 for some reason `ceph-rbdmap.service` instead of `rbdmap.service` (must be adjusted to lines `After=` and `Requires=`)
+</Callout>
+----
+
+### Manual connection
+If the dependencies of the systemd units are correct, it performs an RBD map, unlocks LUKS and mounts all the automatic fs dependent on the rbdmap that the specified .mount unit needs (⇒ mounts both images in the described configuration).
+```bash    
+systemctl start mnt-rbd_luks_pool.mount
+```
+### Manual disconnection
+This command should execute if the dependencies are set correctly `umount`, LUKS `close` i RBD unmap.
+```bash
+systemctl stop rbdmap.service
+(alternatively `systemctl stop ceph-rbdmap.service`)
+```
+### Image resize
+When resizing an encrypted image, you need to follow the order and the main one is the line with cryptsetup `--verbose resize image_name`.
+```bash
+rbd resize rbd_pool_name/image_name --size 200T
+
+cryptsetup --verbose resize image_name
+
+mount /storage/rbd/image_name
+
+xfs_growfs /dev/mapper/image_name
+```

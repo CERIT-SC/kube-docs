@@ -1,0 +1,61 @@
+---
+title: S3 Service
+---
+
+S3 service is a general service suited for most of the use cases. S3 service can be used for elementary data storing, automated backups, or various types of data handling applications.
+
+Access to the service is controlled by virtual organizations and coresponding groups. S3 is suitable for sharing data between individual users and groups that may have members from different institutions. Tools for managing groups and users are provided by the e-infrastructure. Users with access to S3 can be people, as well as "service accounts", for example for backup machines (a number of modern backup tools support natively S3 connection). Data is organized into buckets in S3. It is usually appropriate to link individual buckets to the logical structure of your data workflow, for example different stages of data processing. Data can be stored in the service in an open form or in case of sensitive data it is possible to use encrypted buckets on the client side. Where even the storage manager does not have access to the data. Client-side encryption also means that the transmission of data over the network is encrypted, and in case of eavesdropping during transmission, the data cannot be decrypted.
+
+## Basic terms definition
+S3 Bucket is storage container for objects stored in simple storage service (S3). S3 buckets can be likened to file folders and object storage. Each object stored by buckets has three main components: the object’s content (data), the object’s metadata (which includes object size, name, last modified date, and URL), and the object’s unique identifier.
+
+<Callout type="info" emoji="ℹ️">
+**How to get S3 service?** <br/>
+To connect to S3 service you have to contact support at: `support@cesnet.cz`
+</Callout>
+
+----
+## S3 Elementary use cases
+In the following section you can find the description of elementary use cases related to S3 service.
+
+### Automated backup of large datasets using the tools natively supporting S3 service
+If you use specialized automated tools for backup, such as Veeam, bacula, restic..., most of these tools allow native use of S3 service for backup. So you don't have to deal with connecting block devices etc. to your infrastructure. You only need to request an S3 storage setup and reconfigure your backup. Can be combined with the WORM model as protection against unwanted overwriting or ransomware attacks.
+
+![s3client](/img/data-care/s3-service/s3_backup.png)
+
+### Data sharing across you laboratory or over multiple institutions
+If you manage multiple research groups where you need users to share data, such as data collection and its post-processing, you can use S3. The S3 service allows you to share data within a group or between users. This use case assumes that each user has own access to the repository. This use case is also suitable if you need to share sensitive data between organizations and do not have a secure VPN. You can use encrypted buckets (client-side encryption) within the S3 service. Client-side encryption also means that the transmission of data over the network is encrypted, and in case of eavesdropping during transmission, the data cannot be decrypted.
+
+![s3client](/img/data-care/s3-service/s3_distribution.png)
+
+### Life systems handlig the data - Learning Management Systems, Catalogues, Repositories
+You have large data and you operate an application in e-infrastructure that issues data to your users. This use case is particularly relevant to applications that distribute large data (raw scans, large videos, large scientific data sets for computing environments...) to end users. For this use case, it is possible to use the S3 service again. The advantage of using S3 for these applications is that there is no need to upload data to the application server, but the end user can upload/download data directly to/from object storage using S3 presign requests.
+
+![s3client](/img/data-care/s3-service/direct_upload.png)
+
+### Personal space for your data
+This case is similar to the VO storage service. This is a personal space in the S3 service just for your data, which does not allow sharing with a specific user. [Public reading](s3-features.mdx) can be set for buckets, or [presign URL requests](s3-features.mdx) can be used.
+
+### Dedicated S3 endpoint for special applications
+This is a special service for selected customers/users. This dedicated S3 endpoint can be used for critical systems as protection against DDoS attacks. The endpoint would be hidden for other users, only insiders would know about it.
+
+### Any other application
+**If you need a combination of the services listed above, or if you have an idea about some other application of object storage services, do not hesitate to contact us.**
+
+## S3 Data Reliability (Data Redundancy) - replicated vs erasure coding
+In the section below are described additional aproaches for data redundancy applied to the object storage pool. S3 service can be equipped with **replicated** or **erasure code (EC)** redundancy.
+### Replicated
+Your data is stored in three copies in the data center. In case one copy is corrupted, the original data is still readable in an undamaged form, and the damaged data is restored in the background. Using a service with the replicated flag also allows for faster reads, as it is possible to read from all replicas at the same time. Using a service with the replicated flag reduces write speed because the write operation waits for write confirmation from all three replicas.
+
+<Callout type="info" emoji="ℹ️">
+**Suitable for?** <br/>
+Suitable for smaller volumes of live data with a preference for reading speed (not very suitable for large data volumes).
+</Callout>
+
+### Erasure Coding (EC)
+Erasure coding (EC) is a data protection method. It is similar to the dynamic RAID known from disk arrays. Erasure coding (EC) is a method where data is divided into individual fragments, which are then stored with some redundancy across the data storage. Therefore, if some disks (or the entire storage server) fail, the data is still accessible and will be restored in the background. So it is not possible for your data to be on one disk that gets damaged and you lose your data.
+
+<Callout type="info" emoji="ℹ️">
+**Suitable for?** <br/>
+Suitable, for example, for storing large data volumes and datasets.
+</Callout>

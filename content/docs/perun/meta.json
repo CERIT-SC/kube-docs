@@ -1,0 +1,12 @@
+{
+  "title": "User Management System",
+  "pages": [
+    "user-management",
+    "sending-vo-invitation",
+    "user-approval",
+    "extension-of-membership-in-vo",
+    "adding-vo-manager-into-vo",
+    "managing-service-user-account",
+    "creating-group"
+  ]
+}

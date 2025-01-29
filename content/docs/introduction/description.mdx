@@ -1,0 +1,59 @@
+---
+title: Description of the Data Storage Infrastructure
+---
+Data Centers operated by CESNET are based on object storage technology utilizing Ceph, see below. Data Centers are located only within Czech Republic so all your data lies thereto. Distributed model of Data Centers allows us to increase data redundancy due to usage of geographical replicas. That model brings the advantage that your data are resistant to the data media failure, nature disaster or user mistake. Another advatage is that you can use the Data Center which is the closest to your location.
+
+![infrastructure](/img/data-care/infrastructure/mapacr-trans3.gif)
+
+**CEPH** - Ceph is the software solution for providing object storage solution. Object storage differs from common file-oriented data storages. Object storage stores data as an objects not like data blocks. Metadata is associated directly to the particular object. This system eliminates hierarchical structure utilized within common data storages. All data are then stored in flat name space which is easy scalable. Ceph is opensource system. It consists of object store, block store and distributed file system. Ceph supports object access (RADOS), exported block device and file access. Data stored within Ceph are replicated to multiple nodes, based on defined replication policy.
+
+|  Data Center | Type   | Loacation     | Raw capacity PB | In operation since | Status        |
+| :-----       | :----- | :-----        | :-----          | :-----             | :-----        |
+| DU1          | HSM    | Plzeň         | 3.6             | 2011               | decomissioned |
+| DU2          | HSM    | Jihlava       | 7.209           | 2013               | decomissioned |
+| DU3          | HSM    | Brno          | 3.52            | 2013               | decomissioned |
+| DU4          | HSM    | Ostrava       | 23.341          | 2017               | online        |
+| DU5          | RAID   | Jihlava       | 9.36            | 2019               | online        |
+| CL1          | CEPH   | Jihlava       | 10.56           | 2019               | online        |
+| CL2          | CEPH   | Plzeň         | 25.433          | 2020               | online        |
+| CL3          | CEPH   | Ostrava       | 33.673          | 2021               | online        |
+| CL4          | CEPH   | Brno          | 26.607          | 2022               | online        |
+| CL5          | CEPH   | Dolní Břežany | 25.536          | 2023               | online        |
+
+## Datacenters
+Below you can find details about each datacenter.
+
+### CL1 Jihlava
+Object storage CL1 is based on Ceph technology. It is consisting of 17 storage servers, each has 48pcs HDD with total capacity 10.56 PB. The access to the data is served by three front end servers.
+
+Available services: [RBD](../object-storage-rbd/rbd-service.mdx) and [S3](../object-storage-s3/s3-service.mdx)
+
+---
+
+### CL2 Plzeň
+Object storage CL2 is based on Ceph technology. It is consisting of 33 storage servers, each has 48pcs HDD (each 16 TB) with total capacity 25.43 PB. The access to the data is served by five front end servers.
+
+Available services: [RBD](../object-storage-rbd/rbd-service.mdx) and [S3](../object-storage-s3/s3-service.mdx)
+
+---
+
+### CL3 Ostrava
+Object storage CL3 is based on Ceph technology. It is consisting of 74 storage servers, each has 24pcs HDD with total capacity 33.67 PB. The access to the data is served by five front end servers.
+
+Available services: [RBD](../object-storage-rbd/rbd-service.mdx) and [S3](../object-storage-s3/s3-service.mdx)
+
+---
+
+### CL4 Brno
+Object storage CL4 is based on Ceph technology. It is consisting of 57 storage servers, each has 24pcs HDD with total capacity 26.607 PB. The access to the data is served by five front end servers and nine aplications servers.
+
+Available services: [RBD](../object-storage-rbd/rbd-service.mdx) and [S3](../object-storage-s3/s3-service.mdx)
+
+---
+
+### CL5 Dolní Břežany
+Object storage CL5 is based on Ceph technology. It is consisting of 50 storage servers, each has 30pcs HDD with total capacity 25.536 PB. The access to the data is served by five front end servers.
+
+Available services: [RBD](../object-storage-rbd/rbd-service.mdx) and [S3](../object-storage-s3/s3-service.mdx)
+
+---
