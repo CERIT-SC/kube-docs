@@ -18,6 +18,10 @@ def process_mdx(filename):
                 continue
         filtered_lines.append(line)
 
+    # Remove leading empty lines (whitespace only)
+    while filtered_lines and filtered_lines[0].strip() == '':
+        filtered_lines.pop(0)
+
     # Replace first top-level heading with front matter
     found_heading = False
     new_lines = []

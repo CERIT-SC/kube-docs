@@ -9,30 +9,31 @@ def convert_meta(input_file):
     with open(input_file, 'r') as f:
         content = f.read()
 
-    # Extract the object from export default with more flexible matching
-    obj_match = re.search(
-        r'export\s+default\s+(\{.*?\})\s*;?\s*$',
-        content,
-        re.DOTALL | re.MULTILINE
-    )
-    
-    if not obj_match:
-        raise ValueError("Could not find export default object")
+    # Find the first occurrence of '{' to locate the start of the object
+    brace_index = content.find('{')
+    if brace_index == -1:
+        raise ValueError("Could not find opening brace in the exported object")
 
-    # Extract ordered keys using regex
-    keys = []
-    pattern = re.compile(r'''["']([^"']+)["']\s*:''')
-    for match in pattern.finditer(obj_match.group(1)):
-        keys.append(match.group(1))
+    # Extract content from the first '{' onwards and clean trailing semicolon/whitespace
+    json_str = content[brace_index:].strip().rstrip(';').strip()
+
+    # Parse the JSON content
+    try:
+        obj = json.loads(json_str)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Failed to parse JSON: {e}")
+
+    # Extract keys in order (assuming Python 3.7+ where dict preserves insertion order)
+    keys = list(obj.keys())
 
     # Create and write JSON output
     output = {"pages": keys}
     with open(input_file, 'w') as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
 
+    # Rename the file to meta.json
     dir_name = os.path.dirname(input_file)
     new_file = os.path.join(dir_name, 'meta.json')
-    # Remove new_file if it exists to allow rename
     if os.path.exists(new_file):
         os.remove(new_file)
     os.rename(input_file, new_file)
