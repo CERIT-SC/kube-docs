@@ -31,16 +31,10 @@ Create the file `config.json` with the following content:
 
 Replace all three IP adresses and both keys with real content. 
 
-<Callout type="warn">
-Even if the endpoint supports multiple client addresses, current implementation in Kubernetes supports only a single address.
-</Callout>
-
-<Callout type="warn">
-The name of the file must be strictly `config.json`.
-</Callout>
-
-<Callout type="info" icon="&#9757;">
-The `address` and `allowedIPs` must not be from the same network. E.g., `"address": "10.1.2.3/32"` and `"allowedIPs": ["10.1.2.0/24"]` will **not** work.
+<Callout type="info" icon="&#9757;" title="Current limitations">
+- Even if the endpoint supports multiple client addresses, current implementation in Kubernetes supports only a single address.
+- The name of the file must be strictly `config.json`.
+- The `address` and `allowedIPs` must not be from the same network. E.g., `"address": "10.1.2.3/32"` and `"allowedIPs": ["10.1.2.0/24"]` will **not** work.
 </Callout>
 
 Create the secret:
