@@ -8,6 +8,7 @@
     "pvc",
     "resources",
     "security",
-    "securitycontext"
+    "securitycontext",
+    "wireguard"
   ]
 }

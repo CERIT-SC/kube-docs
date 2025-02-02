@@ -1,0 +1,95 @@
+---
+title: Wireguard
+---
+
+## Run a Pod with WireGuard Interface
+
+This guide explains how to securely attach a WireGuard interface to a Pod using a Kubernetes Secret for key management.
+
+**Why Use WireGuard?**  
+WireGuard creates encrypted tunnels between Pods/nodes, enabling secure communication across networks (e.g., cross-cluster connectivity, bypassing NAT, or encrypting traffic).
+
+### Step 1: Create a Secret for WireGuard Private Key  
+
+Create the file `config.json` with the following content:
+```json
+{
+  "address": "1.2.3.4/32",
+  "privateKey": "AAev16ZVYhmCQliIYKXMje1zObRp6TmET0KiUx7MJXc=",
+  "peers": [
+    {
+      "endpoint": "5.6.7.8:51820",
+      "publicKey": "+gXCSfkib2xFMeebKXIYBVZxV/Vh2mbi1dJeHCCjQmg=",
+      "allowedIPs": [
+        "9.10.11.12/24"
+      ],
+      "persistentKeepalive": "25s"
+    }
+  ]
+}
+```
+
+Replace all three IP adresses and both keys with real content. 
+
+<Callout type="warn">
+Even if the endpoint supports multiple client addresses, current implementation in Kubernetes supports only a single address.
+</Callout>
+
+<Callout type="warn">
+The name of the file must be strictly `config.json`.
+</Callout>
+
+Create the secret:
+
+```bash
+kubectl create secret generic wireguard-config --from-file ./config.json
+```
+
+---
+
+### Step 2: Create a Pod with WireGuard Interface  
+Deploy a Pod with:  
+1. The WireGuard interface, it will be `net1` (attached via the `k8s.v1.cni.cncf.io/networks` annotation).  
+2. The private key mounted from the Secret.  
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: wireguard-pod
+  annotations:
+    k8s.v1.cni.cncf.io/networks: default/wgnet    # Attach WireGuard interface `net1`
+    wgcni.schu.io/configsecret: wireguard-config  # references the created secret
+spec:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: main
+      image: your-application-image
+      command:
+      - as-needed
+      securityContext:
+        runAsUser: 1000
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: [ALL]
+```
+
+---
+
+### Verification  
+1. **Check if `net1` interface exists** (requires `ip` command in the Pod):  
+   ```bash
+   kubectl exec wireguard-pod -n [namespace] -- ip a show net1
+   ```
+   Expect output showing the WireGuard interface with an IP.  
+
+2. **Test connectivity** (requires `ping` command in the Pod):  
+   ```bash
+   kubectl exec wireguard-pod -n [namespace] -- ping <PEER_IP>
+   ```
+   Replace `<PEER_IP>` with the peer’s WireGuard IP from the `config.json`.
+
+---
