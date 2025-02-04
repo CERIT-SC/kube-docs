@@ -99,3 +99,28 @@ If you feel you do not need the application anymore, you can delete it. Just nav
 As of chart version **1.4**, it is possible to use `conda` or `mamba` tool to install additional packages usually used in MetaCentrum. They are instaled into `/opt/conda` directory. E.g., in `rstudio` `terminal` (1), type: `mamba install mc` (3) to install the `mc` package. If you see `(base)` (2) in the beginning of prompt, all paths are set correctly to use `conda` installed packages. If you do not see the `(base)`, type: `/opt/conda/bin/conda init`, close the `terminal` and run  a new one. This action is required once only.
 
 ![terminal](/img/ceritsc/apps/rstudio/terminal.png)
+
+### Installing in Sensitive Cloud
+
+If you are running RStudio in the Sensitive Cloud, remember that the R session does not have a direct connection to the Internet. If you need to insta
+ll packages, you will need to set up a proxy:
+
+1. As shown below, click the `New Blank File` button in the lower right panel, select the `Text File` and enter the name `.Renviron` (including the leading dot!).
+
+   ![blanktext](/img/ceritsc/apps/rstudio/blanktext.png)
+   ![renviron](/img/ceritsc/apps/rstudio/renviron.png)
+
+2. Paste the following into the `.Renviron` file:
+
+   ```bash
+   HTTPS_PROXY=http://proxy.ics.muni.cz:3128
+   NO_PROXY='10.0.0.0/8,10.43.0.1,.svc.cluster.local,.cloud.trusted.e-infra.cz' 
+   ```
+
+   ![renviron-content](/img/ceritsc/apps/rstudio/renviron-content.png)
+
+3. Restart the R session:
+   
+   ![restartsession](/img/ceritsc/apps/rstudio/restartsession.png)
+
+
