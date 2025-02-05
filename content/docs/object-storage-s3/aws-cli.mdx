@@ -20,7 +20,7 @@ If you need to install AWS CLI in the virtual environment you can use [this guid
 To configure AWS CLI we recommend using the option `--profile` which allows you to define multiple user profiles with different user credentials. Of course, you can also use the settings without the option `--profile`. All commands will be the same, you will just omit the option `--profile`. AWS will then use the **default** settings.
 </Callout>
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 In the configuration wizard, it is necessary by the option **Default region name** to hit the space bar. If you will not put the space into “Default region name” the config file will not contain **region** parameter. You will then obtain the error related to **InvalidLocationConstraint** during the usage **aws s3**.
 </Callout>
 
@@ -45,7 +45,7 @@ _Default output format_ - choose the output format (json, text, table)<br/>
 For smooth operation is necessary to use option `--endpoint-url` with particular S3 endpoint address provided by CESNET.
 </Callout>
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 **Multipart S3 upload - the maximal size of the file is limited up to 5 GB**. It is a best practice to use aws s3 commands (such as aws s3 cp) for multipart uploads and downloads because these aws s3 commands automatically perform multipart uploading and downloading based on the file size. By comparison, **aws s3api** commands, such as aws s3api create-multipart-upload, should be used only when aws s3 commands do not support a specific upload need, such as when the multipart upload involves multiple servers, a multipart upload is manually stopped and resumed later, or when the aws s3 command doesn't support a required request parameter. More information can be found on the [AWS websites](https://aws.amazon.com/premiumsupport/knowledge-center/s3-multipart-upload-cli/).
 </Callout>
 

@@ -4,7 +4,7 @@ title: RBD Service
 
 The Rados Block Device **RBD** is a block device that you can connect into your infrastructure. The connection must be done using a **Linux machine** (RBD connection to Windows is not yet implemented in reliable manner). Subsequently, you can re-export the connected block device anywhere within your systems (samba remount to your network). RBD is particularly suitable for use in centralized backup systems. RBD is a very specialized service that requires the user to have extensive experience in managing Linux devices. The service is intended for larger volumes of data - hundreds of TB. The block device can also be encrypted on your side (client side) using LUKS. Client-side encryption also means that the transmission of data over the network is encrypted, and in case of eavesdropping during transmission, the data cannot be decrypted. Access to the service is controlled by virtual organizations and coresponding groups.
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 RBD connection is only possible from dedicated IPv4 addresses that are enabled on the firewall in our Data Centers. An RBD image can only be subsequently mounted on **ONE** machine, it is not possible for each of your users to mount the same RBD on their workstation - having said that the RBD is not used as clustered file system. Usage of clustered file systems over RBD must first be consulted with Data Care support.
 </Callout>
 

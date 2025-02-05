@@ -14,7 +14,7 @@ Ceph RBD (RADOS Block Device) provides users with a network block device that lo
 
 ## Setup of RBD client (Linux)
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
  To connect RBD, it is recommended to have a newer kernel version on your system. In lower kernel versions are the appropriate RBD connection modules deprecated. So not all advanced features are supported. Developers even recommend a kernel version at least 5.0 or higher. However developers has backported some functionalities to CentOS 7 core.
 </Callout>
 
@@ -124,7 +124,7 @@ Further in the directory **/etc/ceph/** create the text file **ceph.keyring**. T
         key = sdsaetdfrterp+sfsdM3iKY5teisfsdXoZ5==
 ```
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 If the location of the files `ceph.conf` and `username.keyring` differs from the default directory **/etc/ceph/**, the corresponding paths must be specified during mapping. See below.
 ```bash
 sudo rbd -c /home/username/ceph/ceph.conf -k /home/username/ceph/username.keyring --id rbd_user device map name_pool/name_image
@@ -178,7 +178,7 @@ Now create file system on the device, here is an example xfs.
 sudo mkfs.xfs -K /dev/mapper/luks_rbdX
 ```
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 If you use XFS, do not use the nobarrier option while mounting, it could cause data loss!
 </Callout>
 

@@ -6,7 +6,7 @@ In the following sections, you can find a basic description of advanced S3 featu
 
 ## Sharing S3 object using (presigned) URL
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 To be able to generate the URL links for objects stored on the S3 storage you have to setup **[aws tool first](aws-cli.mdx)**.
 </Callout>
 
@@ -68,7 +68,7 @@ To test the versioning of objects we can use the AWS CLI, an open source tool th
 
 For non versioned bucket, if an object with the same key is uploaded it overwrites the object. For versioned bucket, if an object with the same key is uploaded the new uploaded object becomes the current version and the previous object becomes the non current version:
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 For proper functionality, it is necessary to use the --endpoint-url option for all commands for the relevant S3 addresses of the services operated by the CESNET association.
 </Callout>
 

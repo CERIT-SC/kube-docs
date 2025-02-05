@@ -51,7 +51,7 @@ In the end, we can make a quick check of PATH variable, whether the desired path
 ```bash
 echo $PATH
 ```
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 In case you have installed the rclone using the steps above, you can then use the following command to update rclone:
 
 ```bash
@@ -94,7 +94,7 @@ You can add the new path by clicking on the **New (1)** button and then you have
 
 In the end, you will click **OK** and **Apply**.
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 In case you have installed the rclone using the steps above, you can then use the following command to update rclone:
 
 ```bash
@@ -111,7 +111,7 @@ Below you can find the guide for the elementary configuration of rclone tool. Be
 
 ### Rclone configuration using the command line
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 To be able to configure the rclone tool using this guide **first, you have to download, unzip and install rclone**, the guide can be found in the [first section](#downloading-and-installation-of-rclone-tool).
 </Callout>
     
@@ -179,7 +179,7 @@ In the last step, we check the configuration and we will confirm it by typing **
 
 ### Rclone configuration using graphical user interface
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 To be able to configure the rclone tool using this guide **first, you have to download, unzip and install rclone**, the guide can be found in the [first section](#downloading-and-installation-of-rclone-tool).
 </Callout>
 
@@ -203,7 +203,7 @@ In the next step, we need to insert **credentials (1)** which we obtained from t
 
 ![s3client](/img/data-care/rclone/rclone-gui-s3-2.png)
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 Please be careful during the modification in the **Configs** section. Rclone GUI sometimes **does not save the changes** in the configuration. We strongly recommend to cross-check the **[configuration file](#configuration-file)** after saving.
 </Callout>
 
@@ -216,7 +216,7 @@ In the left menu click on the **Explorer (1)** button. Then select **the name of
 
 ![s3client](/img/data-care/rclone/rclone-gui4.png)
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 Graphical user interface of rclone **DOES NOT SUPPORT** creation of empty buckets and directories. If you copy your data from the local machine you have to copy the directory with data. Alternatively, you can prepare empty buckets using [command line](#rclone-basic-controls).
 </Callout>
 
@@ -228,7 +228,7 @@ If you wish to upload your data then in the displayed window click on **upload i
 
 ### Configuration file
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 Configuration file can be found in the location described below. In the configuration file are saved the credentials and all selected options.
 </Callout>
 
@@ -302,7 +302,7 @@ rclone rmdir cesnet_s3cl2:test-bucket
 
 **Copying the files.**
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 Rclone cannot create empty folders, see the error below.
 </Callout>
 
@@ -335,7 +335,7 @@ To delete a particular file, we can use either command **deletefile** or the com
 rclone deletefile cesnet_s3cl2:test-bucket/new-dir1/new-dir2/test_file1.pdf
 ```
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 In case you delete the only file (object) in the directory resulting in **empty directories structure** the empty directories will be deleted! Directories are in object technology always represented by the name of a particular object (file), deletion of empty directories is thus expected behavior.
 </Callout>
 
@@ -398,7 +398,7 @@ The command checks the checksums on the source side as well as on the target sid
 ```bash
 rclone check --fast-list --size-only C:/Users/Alfred/source-for-sync/my-local-data cesnet_s3cl2:test-sync
 ```
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 To check data integrity on the encrypted buckets please use the option `cryptcheck` which is described [in the guides related to encrypted buckets](#check-of-encrypted-data-integrity). In the case of using the option check on the encrypted volume, there will occur the forced download of all data in the checked path. Forced downloads are unnecessary and can stall your client.
 </Callout>
 
@@ -408,7 +408,7 @@ This section describes the configuration and controls of encrypted buckets using
 
 ### Configuration using the command line
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 To be able to configure the rclone tool using this guide **first, you have to download, unzip and install rclone**, the guide can be found in the [first section](#downloading-and-installation-of-rclone-tool).
 </Callout>
 
@@ -490,7 +490,7 @@ In the end, we can list the encrypted bucket, where we can see three encrypted f
 
 ### Configuration of the encrypted bucket using the graphical user interface
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 To be able to configure the rclone tool using this guide **first, you have to download, unzip and install rclone**, the guide can be found in the [first section](#downloading-and-installation-of-rclone-tool).
 </Callout>
 
@@ -565,7 +565,7 @@ The buckets can be shared within the mutual space called the tenant or between u
 
 Once you configure the encryption in your bucket you just need to share the encryption passwords, you used during the encrypted bucket creation and the bucket name with your colleague. Your colleague can use the guide above to configure corresponding encrypted buckets on his/her machine using the passwords, you shared.
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 Please be aware of the next section describing the need for **change encrypting passwords, or loss of encrypting passwords**.
 </Callout>
 
@@ -583,7 +583,7 @@ rclone copy old_encrypted_drive:dir01 new_encrypted_drive:dir01
 
 **In case of loss of encryption passwords you lost your data as well!**
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warn" icon="⚠️">
 In the case of encrypted buckets, it goes about client-side encrypting. If you lose your encrypting passwords the administrators have **NO POWER** on how to restore your encrypted data.
 </Callout>
 
