@@ -59,7 +59,7 @@ spec:
         pathType: ImplementationSpecific
 ```
 
-Where `service` `name: application-svc` must match the metadata name of the *Service*. This *Ingress* exposes the application to the web URL `application.dyn.cloud.e-infra.cz`. Note: the domain name will be registered automatically if it is in the `dyn.cloud.e-infra.cz` domain. The `tls` section creates Lets Encrypt certificate, no need to maintain it.
+Where `service` `name: application-svc` must match the metadata name of the *Service*. This *Ingress* exposes the application to the web URL `application.dyn.cloud.e-infra.cz`. Note: the domain name will be registered automatically if it is in the `dyn.cloud.e-infra.cz` domain. The `tls` section creates Let's Encrypt certificate, no need to maintain it.
 
 If `tls` section is used, TLS will be terminated at NGINX Ingress. The application must be set to communicate over `HTTP`. Communication between Kubernetes and a user is over `HTTPS`.
 
