@@ -59,7 +59,7 @@ spec:
         pathType: ImplementationSpecific
 ```
 
-Kde `service` `name: application-svc` musí odpovídat názvu metadata *Service*. Tento *Ingress* exponuje aplikaci na webové URL `application.dyn.cloud.e-infra.cz`. Poznámka: doménové jméno bude automaticky registrováno, pokud je v doméně `dyn.cloud.e-infra.cz`. Sekce `tls` vytváří certifikát Lets Encrypt, není potřeba ho spravovat.
+Kde `service` `name: application-svc` musí odpovídat názvu metadata *Service*. Tento *Ingress* exponuje aplikaci na webové URL `application.dyn.cloud.e-infra.cz`. Poznámka: doménové jméno bude automaticky registrováno, pokud je v doméně `dyn.cloud.e-infra.cz`. Sekce `tls` vytváří certifikát Let's Encrypt, není potřeba ho spravovat.
 
 Pokud je použita sekce `tls`, TLS bude ukončeno na NGINX Ingress. Aplikace musí být nastavena na komunikaci přes `HTTP`. Komunikace mezi Kubernetes a uživateli probíhá přes `HTTPS`.
 
