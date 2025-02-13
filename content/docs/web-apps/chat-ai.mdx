@@ -26,7 +26,7 @@ Open-WebUI provides access to various AI models for text generation. To use them
 3. Type your query or request in the input field.
 4. Press Enter or click Submit to receive a response from the selected model.
 
-### Currently available models (as of 02/13/2025).
+### Currently available models (as of 02/13/2025)
 
 |Model         |Description|
 |--------------|-----------|
@@ -57,3 +57,23 @@ To use Open-WebUI's API, you need to generate an API key.
 5. Copy the generated API key and store it securely.
 6. Use this key in API requests to authenticate and access Open-WebUI services.
 7. Endpoint API is: [https://chat.ai.e-infra.cz/api/](https://chat.ai.e-infra.cz/api/).
+
+### Models for API Interface
+
+For API interfaces, you should query exact model names using, e.g., `curl` and `jq` commands, replacing TOKEN with your real token.
+
+```shell
+curl -H "Authorization: Bearer TOKEN" https://chat.ai.e-infra.cz/api/models | jq .data[].id
+```
+
+You will see output similar to:
+
+```
+"llama3.3:latest"
+"llama3.3:70b-instruct-fp16"
+"deepseek-r1:32b-qwen-distill-fp16"
+"qwen2.5-coder:32b-instruct-q8_0"
+"aya-expanse:latest"
+```
+
+Then use, e.g., the `llama3.3:latest` as the model name in the API.
