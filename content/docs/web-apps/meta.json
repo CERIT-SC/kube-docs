@@ -3,8 +3,6 @@
     "foldify",
     "binderhub",
     "jupyterhub",
-    "nbgrader-new-interaction",
-    "title",
-    "display"
+    "chat-ai"
   ]
 }

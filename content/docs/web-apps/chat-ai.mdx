@@ -1,0 +1,63 @@
+---
+title: Chat AI
+---
+
+## Introduction
+
+Open-WebUI is an AI-powered chatbot interface that allows users to interact with various models for text generation and image creation. This guide provides instructions on how to log in, use models, generate images, and create an API key.
+
+## Accessing Open-WebUI
+
+Open-WebUI is accessible at https://chat.ai.e-infra.cz. To use the platform, you need a valid Metacentrum account, see [How to get Access](../platform/access).
+
+## Logging In
+
+1. Open your web browser and navigate to https://chat.ai.e-infra.cz.
+2. Click on the Login button.
+3. Select the option to log in with e-INFRA CZ.
+4. Once logged in, you will be redirected to the Open-WebUI dashboard.
+
+## Using AI Models
+
+Open-WebUI provides access to various AI models for text generation. To use them:
+
+1. After logging in, navigate to the chat interface.
+2. Select a model from the available options in the dropdown menu.
+3. Type your query or request in the input field.
+4. Press Enter or click Submit to receive a response from the selected model.
+
+### Currently available models (as of 02/13/2025).
+
+-------------------
+|Model|Description|
+-------------------
+|LLama 3.3|Language model from Meta, 70B variant, this efficiency makes it suitable for a variety of natural language processing tasks.|
+----------------------------------------------------------------------------------------------------------------------------------------
+|DeepSeek R1|Language model of Chinese Deepseek, 32B Qwen distilled variant. It focuses on reasoning capabilities, excelling in complex tasks such as mathematics and coding.|
+----------------------------------------------------------------------------------------------------------------------------------------
+|Qwen 2.5 Coder|Language model for Code generation, 32B Q8 variant, it specializes in understanding and generating code, making it valuable for developers seeking assistance with programming tasks.|
+----------------------------------------------------------------------------------------------------------------------------------------
+|Aya Expanse|Language model of Cohere, 32B Q8 variant, it is trained to perform well across 23 different languages including Czech.|
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+## Generating Images
+
+Open-WebUI also allows users to generate images using AI.
+
+1. Select text model for prompt generation (such as LLama 3.3).
+2. Click on Image icon (Generate an Image).
+3. Enter the text prompt, e.g, `Four horsemen of apocalypse`. Click send or Enter.
+4. Image will be generated and displayed.
+
+## Creating an API Key
+
+To use Open-WebUI's API, you need to generate an API key.
+
+1. Go to the Settings section of the Open-WebUI interface.
+2. Nagigate to the Account (Účet).
+3. Click on API keys (display).
+4. Ignore JWT token and select API key and either generate new or display existing.
+5. Copy the generated API key and store it securely.
+6. Use this key in API requests to authenticate and access Open-WebUI services.
+7. Endpoint API is: [https://chat.ai.e-infra.cz/api/](https://chat.ai.e-infra.cz/api/).
