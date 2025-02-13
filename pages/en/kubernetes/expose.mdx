@@ -228,7 +228,7 @@ spec:
     app: application
 ```
 
-Where `selector:` `app: application` must match the application name in the deployment and `application-svc` is any name. If annotation `external-dns.alpha.kubernetes.io/hostname` is provided and value i in domain `dyn.cloud.e-infra.cz`, the name will be registered in DNS.
+Where `selector:` `app: application` must match the application name in the deployment and `application-svc` is any name. If annotation `external-dns.alpha.kubernetes.io/hostname` is provided and value is in domain `dyn.cloud.e-infra.cz`, the name will be registered in DNS.
 
 Deploying this *Service* exposes the application on a public IP. You can check the IP with `kubectl get svc -n namespace`, where `namespace` is the namespace of the Service and the application.
 
