@@ -12,9 +12,9 @@ Orchestrátor Kubernetes nabízí několik způsobů, jak využít infrastruktur
 
 Níže uvedená tabulka popisuje výkonnostní charakteristiky každé třídy úložiště, kromě těchto tříd poskytujeme charakteristiky úložiště CIFS, které je dostupné mimo *Storage Class*, viz níže.
 
-|Typ úložiště|Čtení IOPS|Zápis IOPS|Čtení lineárně|Zápis lineárně|
+|Typ úložiště|Read IOPS|Write IOPS|Read Linear|Write Linear|
 |:---|---:|---:|---:|---:|
-|Místní SSD|98800|82800|1000MiB/s|947MiB/s|
+|Local SSD|98800|82800|1000MiB/s|947MiB/s|
 |nfs-csi|30700|22000|755MiB/s|1093MiB/s|
 |csi-ceph-rbd-du|496|814|224MiB/s|188MiB/s|
 |sshfs|13400|41200|171MiB/s|179MiB/s|
