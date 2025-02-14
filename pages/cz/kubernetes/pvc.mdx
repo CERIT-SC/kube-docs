@@ -34,7 +34,7 @@ PVC představuje jakýsi trvalý úložný prostor, který může být připojen
 kubectl create -f pvc.yaml -n namespace
 ```
 
-    kde `namespace` je uživatelský jmenný prostor, jak je vidět v GUI Rancher, obvykle *surname-ns*. Ad-hoc pod neobsahuje žádná data předem, uživatel musí data naplnit sám. Název PVC je přesně stejný jako hodnota, kterou vyplníte do `name`. Uživatel si může vybrat jinou třídu úložiště podle výše uvedeného popisu.
+    kde `namespace` je uživatelský namespace, jak je vidět v GUI Rancher, obvykle *surname-ns*. Ad-hoc pod neobsahuje žádná data předem, uživatel je tedy musí sám naplnit. Název PVC je přesně takový jako hodnota, kterou vyplníte do `name`. Uživatel si může vybrat jinou třídu úložiště podle výše uvedeného popisu.
 
 * Další možností je vytvořit PVC jako CIFS úložiště z CERIT-SC. V takovém případě uživatel musí stáhnout [secret.yaml](/examples/ceritsc/manifests/secret.yaml), vyplnit správné `name` a následující dvě anotace: `cerit.io/storage`, `cerit.io/share`. Tyto hodnoty z příkladu fungují pro *storage-brno12-cerit* tak, jak jsou, umožňují přístup k domovskému adresáři uživatele. Pro sdílené `project` složky musí být `cerit.io/share` nastaveno na: `cerit.io/share: 'export/nfs4/projects/project_name'`. Uživatel také musí vyplnit `mount_flags`. `mount_flags` je base64 kódovaný řetězec, který lze získat pomocí následujícího příkazu:
 ```bash
