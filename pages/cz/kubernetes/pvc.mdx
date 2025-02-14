@@ -52,15 +52,6 @@ Mějte na paměti, že base64 kódovaný řetězec není šifrovaný, takže si 
 Jakmile uživatel vytvoří soubor secret.yaml, musí být nahrán do Kubernetes pomocí následujícího příkazu:
 
 
-
-
-
-    Pokud neznáte heslo CIFS pro úložiště CERIT-SC, jednoduše si o něj požádejte na support@cerit-sc.cz. Není to **stejné** heslo, které používáte pro přihlášení do infrastruktury!
-
-    Mějte na paměti, že base64 kódovaný řetězec není šifrovaný, takže si ho uchovejte v tajnosti!
-
-    Jakmile uživatel vytvoří soubor secret.yaml, musí být nahrán do Kubernetes pomocí následujícího příkazu:
-
 ```bash
 kubectl create -f secret.yaml -n namespace
 ```
