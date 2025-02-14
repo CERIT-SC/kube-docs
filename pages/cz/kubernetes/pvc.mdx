@@ -1,10 +1,10 @@
 # Úložiště
 
-Orchestrátor Kubernetes nabízí několik způsobů, jak využít infrastrukturu úložišť. Existují tři důležité objekty Kubernetes související s úložištěm: *Třída úložiště*, *Fyzické úložiště (PV)*, *Žádost o trvalé úložiště (PVC)*.
+Orchestrátor Kubernetes nabízí několik způsobů, jak využít infrastrukturu úložišť. Existují tři důležité objekty Kubernetes související s úložištěm: *Storage Class*, *Physical Volume (PV)*, *Persistent Volume Claim (PVC)*.
 
-## Třída úložiště
+## Storage Class
 
-[Třída úložiště](https://kubernetes.io/docs/concepts/storage/storage-classes/) poskytuje způsob, jak mohou administrátoři popsat "třídy" úložiště, které nabízejí. Různé třídy mohou odpovídat úrovním kvality služby. Nabízíme následující třídy úložiště:
+[Storage Class](https://kubernetes.io/docs/concepts/storage/storage-classes/) poskytuje způsob, jak mohou administrátoři popsat "třídy" úložiště, které nabízejí. Různé třídy mohou odpovídat úrovním kvality služby. Nabízíme následující třídy úložiště:
 
 1. csi-ceph-rbd-du -- třída úložiště, která je podložena blokovými objemy CEPH RBD z DU CESNET. Blokový objem je formátován např. jako `ext4` místní souborový systém, který může být připojen k jednomu Podu.
 2. nfs-csi -- výchozí dynamická třída, která používá NFS jako protokol připojení. Dynamická třída znamená, že objemy mohou být vytvářeny ad-hoc, jakmile je uživatel požaduje.
