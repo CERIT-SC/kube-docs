@@ -26,7 +26,7 @@ PV představuje fyzické úložiště, které je zodpovědné za připojení úl
 
 ## PVC
 
-PVC představuje jakýsi trvalý úložný prostor, který může být připojen do *podu*. PVC jsou obvykle síťové objemy, např. NFS nebo CIFS/SMB. Tyto typy PVC mohou být připojeny k mnoha podech současně, čímž se stávají sdíleným úložištěm mezi podech.
+PVC představuje jakýsi trvalý úložný prostor, který může být připojen do *podu*. PVC jsou obvykle síťové svazky, např. NFS nebo CIFS/SMB. Tyto typy PVC mohou být připojeny k mnoha podům současně, čímž se stávají sdíleným úložištěm mezi pody.
 
 * Uživatel může vytvořit ad-hoc PVC pomocí [pvc.yaml](/examples/ceritsc/manifests/pvc.yaml) šablony. Stáhněte si ji a vyplňte správné `name` a `storage` velikosti a vydáním příkazu:
 ```bash
