@@ -9,3 +9,71 @@ This guide is suited for developers and advanced users. Boto3 is a Python librar
 [Boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html) library is a Python Software Development Kit for S3 service. It allows developers to create, configure, and manage S3 services. The library provides a simple and intuitive interface for interacting with CESNET S3 resources.
 
 ## Installation of Boto3
+
+In order to use `boto3` library, you need to install it first. You can do it by running the following command inside your Python environment:
+
+```bash
+pip install boto3
+```
+
+<Callout type="warn" icon="⚠️">
+**Issues with uploads within the latest boto3 versions** <br/>
+There have been some issues lately with the latest releases of the `boto3` library and third-party S3 storage providers (like the CESNET S3 storage).<br/> As of now, the issues still persist with versions `1.36.x` (`1.36.12` to be exact). For this reason, we recommend using the `boto3` library with the version `1.35.99` or lower.<br/> For further information, see this [GitHub issue](https://github.com/boto/boto3/issues/4400).
+
+Or you can use the specific version of the library:
+
+```bash
+pip install boto3==1.35.99
+```
+
+## Usage
+
+First, you need to create an instance of the `s3 client` object with your credentials and the endpoint URL:
+
+```python copy
+import boto3
+
+access_key = "********************"
+secret_key = "****************************************"
+endpoint_url = "https://s3.clX.du.cesnet.cz"
+
+s3 = boto3.client("s3", aws_access_key_id=access_key, aws_secret_access_key=secret_key, endpoint_url=endpoint_url)
+```
+
+<Callout type="info" emoji="ℹ️">
+You can use the `~/.aws/credentials` file to store your credentials and use them in your scripts.
+For more information, see the [official boto3 documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
+</Callout>
+
+Then you can use the `s3` object to interact with the S3 storage. Below you can find several examples of usage Boto3 library.
+
+**List all the buckets**
+
+```python
+response = s3.list_buckets()
+for bucket in response["Buckets"]:
+    print(f"{bucket['Name']}")
+```
+**Upload an object**
+
+```python
+s3.upload_file("/local/path/to/file", "bucket-name", "remote/path/to/object")
+```
+
+**Download an object** (be aware of the parameters order!)
+
+```python
+s3.download_file("bucket-name", "remote/path/to/object", "/local/path/to/file")
+```
+
+**Listing the objects within bucket**
+
+```python
+s3.list_objects_v2(Bucket=self.bucket) 
+```
+
+or alternatively,
+
+```python
+s3.list_objects(Bucket=self.bucket)
+```
