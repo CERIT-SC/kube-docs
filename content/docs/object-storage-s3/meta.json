@@ -11,6 +11,7 @@
     "rclone",
     "s3cmd",
     "s5cmd",
+    "boto3",
     "s3-features",
     "veeam-backup"
   ]
