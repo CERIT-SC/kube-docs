@@ -56,30 +56,26 @@ kubectl create -f pvc.yaml -n namespace
 ```bash
 echo -n "username=USER,password=PASS,uid=1000,gid=1000,nosetuids,vers=3.11,noserverino" | base64
 ```
-    where `USER` and `PASS` are username and password accessing
-    *storage-brno12-cerit*, resp. In case the `USER` is UČO, `domain=UCN` needs to
-    be added into the `echo` command as another comma separated value, i.e.,
+
+where `USER` and `PASS` are username and password accessing *storage-brno12-cerit*, resp. In case the `USER` is UČO, `domain=UCN` needs to be added into the `echo` command as another comma separated value, i.e.,
+
 ```bash
 echo -n "username=USER,password=PASS,uid=1000,gid=1000,nosetuids,vers=3.11,noserverino,domain=UCN" | base64
 ```
 
-    In case, you do not know CIFS password for CERIT-SC storage, just ask for one
-    on [support@cerit-sc.cz](mailto: support@cerit-sc.cz). It is **not** the same password you use for logging
-    into infrastructure!
+In case, you do not know CIFS password for CERIT-SC storage, just ask for one on support@cerit-sc.cz. It is **not** the same password you use for logging into infrastructure!
 
-    Be aware that the base64 encoded string is not encrypted, so keep it secret!
+Be aware that the base64 encoded string is not encrypted, so keep it secret!
 
-    Once the user created secret.yaml file, it needs to be uploaded into
-    Kubernetes via the following command:
+Once the user created secret.yaml file, it needs to be uploaded into Kubernetes via the following command: 
+
 ```bash
 kubectl create -f secret.yaml -n namespace
 ```
-    The `namespace` is the same as in the previous case. PVC name is derived
-    from the `name` value and will be: `pvc-name`. In this case, PVC will not
-    be empty, it contains data from your home from storage-brno12-cerit.
+The `namespace` is the same as in the previous case. PVC name is derived from the `name` value and will be: `pvc-name`. In this case, PVC will not be empty, it contains data from your home from storage-brno12-cerit.
 
 * The last option is to request admins to create special PVC for you according
-to your needs. You can request it at [k8s@ics.muni.cz](mailto: k8s@ics.muni.cz).
+to your needs. You can request it at k8s@cerit-sc.cz.
 
 You see your PVCs in Rancher GUI in `Storage` &rarr; `PersistentVolumeClaims` ![Volumes](/img/ceritsc/pvc.jpg)
 
