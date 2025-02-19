@@ -9,6 +9,26 @@ Access to the service is controlled by virtual organizations and coresponding gr
 ## Basic terms definition
 S3 Bucket is storage container for objects stored in simple storage service (S3). S3 buckets can be likened to file folders and object storage. Each object stored by buckets has three main components: the object’s content (data), the object’s metadata (which includes object size, name, last modified date, and URL), and the object’s unique identifier.
 
+
+### S3 Service Overview
+
+S3 service is a versatile solution suitable for a wide range of use cases, including basic data storage, automated backups, and various data handling applications. 
+
+Access to the service is managed through virtual organizations and corresponding groups. S3 is ideal for sharing data between individual users and groups, which may include members from different institutions. Tools for managing users and groups are provided by the e-infrastructure. 
+
+Users with access to S3 can be individuals or "service accounts" (e.g., backup machines, as many modern backup tools natively support S3 connections). Data in S3 is organized into **buckets**, which are typically linked to the logical structure of your data workflow, such as different stages of data processing.
+
+For sensitive data, encrypted buckets can be used on the client side, ensuring that even the storage manager does not have access to the data. Client-side encryption also secures data transmission over the network, protecting it from being decrypted in case of eavesdropping.
+
+### Basic Terms Definition
+
+- **S3 Bucket**: A storage container for objects within the Simple Storage Service (S3). Buckets are similar to file folders in object storage.
+- **Object**: The data stored in a bucket, consisting of:
+  - **Content**: The data itself.
+  - **Metadata**: Information such as size, name, last modified date, and URL.
+  - **Unique Identifier**: A unique ID that distinguishes the object.
+
+
 <Callout type="info" emoji="ℹ️">
 **How to get S3 service?** <br/>
 To connect to S3 service you have to contact support at: `support@cesnet.cz`
