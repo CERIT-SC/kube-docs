@@ -286,8 +286,8 @@ If your configuration is correct but the TLS certificate is not issued, the prob
 
    ```bash
    > kubectl get ingress -n [your_namespace]
-   NAME                        CLASS    HOSTS                                                                             ADDRESS                PORTS     AGE
-   cm-acme-http-solver-972p9   <none>   schema.biodata.ceitec.cz                                                          kuba-pub.cerit-sc.cz   80        12m
+   NAME                        CLASS    HOSTS                     ADDRESS                PORTS     AGE
+   cm-acme-http-solver-972p9   <none>   schema.biodata.ceitec.cz  kuba-pub.cerit-sc.cz   80        12m
    ```
 
 2. Check for quota-related warnings:
