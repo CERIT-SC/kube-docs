@@ -139,9 +139,9 @@ Replace `your-image` with the appropriate container image name, and apply the up
 ---
 
 **Question:** I am getting an "OpenSSL version mismatch. Built against 30000020, you have 30400010" error.  
-**Answer:** This error typically occurs in a Conda environment when the system's OpenSSL version differs from the one used by Conda. The issue occurs because Conda libraries take precedence over system libraries, but certain system binaries (such as ssh) require the system's OpenSSL version to function correctly.
+**Answer:** This error typically occurs in a Conda environment when the system's OpenSSL version differs from the one used by Conda. The issue occurs because Conda libraries take precedence over system libraries, but certain system binaries (such as `ssh` or `git` which is calling `ssh`) require the system's OpenSSL version to function correctly.
 
-As a temporary workaround, you can unset `LD_LIBRARY_PATH` before running the problematic command. For example:  
+As a temporary workaround, you can unset `LD_LIBRARY_PATH` environment variable before running the problematic command. For example:  
 ```shell
 LD_LIBRARY_PATH='' ssh user@host
 ```
