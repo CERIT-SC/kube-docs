@@ -2,6 +2,8 @@
 title: Exposing Applications
 ---
 
+This chapter explains how to set access to your application from the external network (or "outside"). Althought it is possible to access your application using some IP directly, you should avoid it and follow the instructions below, how to expose the application.
+
 Basically, there are two types of exposable applications: *web-based* applications, *other* applications. The difference between these types is the required IP address. The web-based application shares IP address with other web-based applications, while the other applications need new IP address for each service. The number of IP addresses is limited, so use the web-based approach if possible.
 
 In the following documentation there are YAML fragments, they are meant to be deployed using the `kubectl` like this: `kubectl create -f file.yaml -n namespace` where `file.yaml` contains the YAMLs below and `namespace` is the namespace containing the application. Also, this part of the documentation assumes that the application (deployment) already exists. If you are not sure, read [hello example](../examples/helloworld) again.
@@ -77,7 +79,7 @@ Some applications are confused by being configured as `HTTP` but exposed as `HTT
 
 It is also possible to use custom domain name (basically any name).
 
-1. DNS record `CNAME` is required. For `kuba-cluster`, `CNAME` target is `kuba-pub.cerit-sc.cz`.
+1. DNS record `CNAME` is required. For `kuba-cluster`, `CNAME` target is `kuba-pub.cerit-sc.cz`, for `kubh-cluster`, `CNAME` target is `kubh-pub.cerit-sc.cz`.
 2. Ingress object is in the form:
 
 ```yaml filename="ingress.yaml" copy
