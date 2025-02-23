@@ -135,7 +135,9 @@ Explanation of the Changes:
 Applying the Updated Spec:
 
 Replace `your-image` with the appropriate container image name, and apply the updated configuration. This should resolve the error and allow the Pod to pass the `restricted` PodSecurity admission.
+
 ---
+
 **Question:** I am getting an "OpenSSL version mismatch. Built against 30000020, you have 30400010" error.  
 **Answer:** This error typically occurs in a Conda environment when the system's OpenSSL version differs from the one used by Conda. The issue occurs because Conda libraries take precedence over system libraries, but certain system binaries (such as ssh) require the system's OpenSSL version to function correctly.
 
