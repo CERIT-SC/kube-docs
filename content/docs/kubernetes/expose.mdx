@@ -188,7 +188,7 @@ You can secure access to your `Ingress`-exposed application by requiring user au
      htpasswd -n username | base64 -w0
      ```
 
-     This command returns a base64-encoded password string (like `Zm9vOiRhcHIxJGhOZVRzdngvJEkyVk9NbEhHZDE1N1gvYTN2aktYSDEKCg=`), which should replace `password` in the `Secret`.
+     This command returns a base64-encoded password string (like `Zm9vOiRhgvYTN2aktYSDEKCg=`), which should replace `password` in the `Secret`.
 
 2. Add the following annotations to the Ingress:
 
