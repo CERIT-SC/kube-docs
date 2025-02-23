@@ -2,22 +2,41 @@
 title: Exposing Applications
 ---
 
-This chapter explains how to set access to your application from the external network (or "outside"). Althought it is possible to access your application using some IP directly, you should avoid it and follow the instructions below, how to expose the application.
+This chapter explains how to configure external access to your application from an external network (or "outside"). Although it is possible to access your application directly via an IP address, this approach is discouraged. Instead, follow the instructions below to properly expose your application.
 
-Basically, there are two types of exposable applications: *web-based* applications, *other* applications. The difference between these types is the required IP address. The web-based application shares IP address with other web-based applications, while the other applications need new IP address for each service. The number of IP addresses is limited, so use the web-based approach if possible.
+There are two main types of applications that can be exposed: **web-based applications** and **other applications**. The primary distinction between these types is their IP address requirements. Web-based applications share an IP address with other web-based applications, whereas other applications require a dedicated IP address for each service. Since the number of available IP addresses is limited, using the web-based approach is preferred whenever possible.
 
-In the following documentation there are YAML fragments, they are meant to be deployed using the `kubectl` like this: `kubectl create -f file.yaml -n namespace` where `file.yaml` contains the YAMLs below and `namespace` is the namespace containing the application. Also, this part of the documentation assumes that the application (deployment) already exists. If you are not sure, read [hello example](../examples/helloworld) again.
+Throughout this documentation, YAML fragments are provided. These YAML definitions should be deployed using `kubectl`, like so:
+
+```shell
+kubectl create -f file.yaml -n namespace
+```
+
+where `file.yaml` contains the YAML definitions, and `namespace` is the Namespace where the application is running.
+
+<Callout title="Prerequisite" icon="✅"> 
+This guide assumes that your application (`Deployment`) is already deployed. If you are unsure, refer to the [Hello World example](../examples/helloworld).
+</Callout>
+
+---
 
 ## Web-based Applications
 
-Web-based applications are those that communicate using the `HTTP` protocol. These applications are exposed using `Ingress` rules.
+Web-based applications communicate using the `HTTP` protocol and are exposed using `Ingress` resources.
 
-Overal architecture is shown in this Figure:
+### Overview
+
+The overall architecture is illustrated in the following figure:
+
 ![Networking](/img/ceritsc/ingress.png)
 
-This type of application requires a service that binds a port to an application and ingress rules that expose the service to the Internet.
+To expose a web-based application, you need:
 
-Suppose we have an application that is ready to run on port 8080. We create a service:
+1. A `Service` that binds a port to your application.
+2. An `Ingress` resource that exposes the `Service` to the Internet.
+
+Assume we have an application running on port `8080`. First, we define a `Service`:
+
 ```yaml filename="service.yaml" copy
 apiVersion: v1
 kind: Service
@@ -33,9 +52,12 @@ spec:
     app: application
 ```
 
-Where `selector:` `app: application` must match the application name in the deployment and `application-svc` and `application-port` are arbitrary names.
+In this configuration:
 
-Once we have a service, we create an ingress:
+- The `selector: app: application` must match the application label in the `Deployment`.
+- The `application-svc` and `application-port` values are arbitrary names.
+
+After creating the Service, we define an Ingress:
 
 ```yaml filename="ingress.yaml" copy
 apiVersion: networking.k8s.io/v1
@@ -63,102 +85,156 @@ spec:
         pathType: ImplementationSpecific
 ```
 
-Where `service` `name: application-svc` must match the metadata name of the *Service*. This *Ingress* exposes the application to the web URL `application.dyn.cloud.e-infra.cz`. Note: the domain name will be registered automatically if it is in the `dyn.cloud.e-infra.cz` domain. The `tls` section creates Lets Encrypt certificate, no need to maintain it.
+Here:
 
-If `tls` section is used, TLS will be terminated at NGINX Ingress. The application must be set to communicate over `HTTP`. Communication between Kubernetes and a user is over `HTTPS`.
+- The `service.name: application-svc` must match the metadata name of the `Service`.
+- The `Ingress` exposes the application at the URL `application.dyn.cloud.e-infra.cz`, which serves as the accessible endpoint (functioning as the "IP" for reaching your application).
+- If the domain is within `dyn.cloud.e-infra.cz`, it will be registered automatically.
+- The `tls` section enables automatic certificate management via Let's Encrypt.
 
-‼️  *IMPORTANT*
+<Callout title="Note" icon="📌" >
+If the tls section is included, TLS termination occurs at the NGINX Ingress. Your application should serve traffic over HTTP, while external communication is secured via HTTPS.
+</Callout>
 
-TLS is terminated at the cluster boundary when using NGINX Ingress. Communication within the cluster is not encrypted, especially within a single cluster node. If this is a problem, the user must omit the `tls` and `anotations` sections and provide a certificate and key to the Pod itself.
+### Important Considerations
 
-‼️  *IMPORTANT*
+❗ **Security Warning:**
 
-Some applications are confused by being configured as `HTTP` but exposed as `HTTPS`. If an application generates absolute URLs, it must generate `HTTPS` URLs, not `HTTP`. Kubernetes Ingress sets the `HTTP_X_SCHEME` header to `HTTPS` if it is TLS terminated. For example, for *django*, the user must set `SECURE_PROXY_SSL_HEADER = ("HTTP_X_SCHEME", "https")`. A common header used for this situation is `X_FORWARDED_PROTO`, but this is not set by Kubernetes NGINX. It is also possible to expose `HTTPS` configured applications. See *HTTPS target* below.
+TLS is **terminated at the cluster boundary** when using `NGINX Ingress`. Communication within the cluster, especially within a single node, remains unencrypted. If full end-to-end encryption is required, you should:
+
+- Omit the tls and annotations sections.
+- Provide a certificate and key directly within your Pod.
+
+❗ **Handling Mixed HTTP/HTTPS Configurations:**
+
+Some applications may be confused when configured to use `HTTP` internally but exposed as `HTTPS`. If your application generates absolute URLs, ensure they use `HTTPS`.
+
+- `Ingress` sets the `HTTP_X_SCHEME` header to `HTTPS` when TLS is terminated.
+- However, many applications expect `X_FORWARDED_PROTO` instead (which Kubernetes `NGINX` does not set).
+  For example, in Django, you should set:
+
+  ```python
+  SECURE_PROXY_SSL_HEADER = ("HTTP_X_SCHEME", "https")
+  ```
+
+If your application requires HTTPS end-to-end, see the HTTPS Target section below.
+
+---
 
 ### Custom Domain Name (FQDN)
 
-It is also possible to use custom domain name (basically any name).
+It is possible to use a custom domain name instead of `*.dyn.cloud.e-infra.cz`.
 
-1. DNS record `CNAME` is required. For `kuba-cluster`, `CNAME` target is `kuba-pub.cerit-sc.cz`, for `kubh-cluster`, `CNAME` target is `kubh-pub.cerit-sc.cz`.
-2. Ingress object is in the form:
+1. Set up a `CNAME` DNS record.
 
-```yaml filename="ingress.yaml" copy
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: application-ingress
-  annotations:
-    kubernetes.io/tls-acme: "true"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-spec:
-  ingressClassName: nginx
-  tls:
-    - hosts:
-        - "my-name"
-      secretName: my-name-tls
-  rules:
-  - host: "my-name"
-    http:
-      paths:
-      - backend:
-          service:
-            name: application-svc
-            port:
-              number: 80
-        pathType: ImplementationSpecific
-```
+  - For the `kuba-cluster`, set the `CNAME` target to `kuba-pub.cerit-sc.cz`.
+  - For the `kubh-cluster`, set the `CNAME` target to `kubh-pub.cerit-sc.cz`.
 
-#### Note
+2. Define an `Ingress` with the custom domain:
 
-`CNAME` must be pre-set and propagated so that the Let's Encrypt service can verify the domain when TLS is requested. This means that seamless migration from any system to our infrastructure is not easily possible.
+   ```yaml filename="ingress.yaml" copy
+   apiVersion: networking.k8s.io/v1
+   kind: Ingress
+   metadata:
+     name: application-ingress
+     annotations:
+       kubernetes.io/tls-acme: "true"
+       cert-manager.io/cluster-issuer: "letsencrypt-prod"
+   spec:
+     ingressClassName: nginx
+     tls:
+       - hosts:
+           - "my-name"
+         secretName: my-name-tls
+     rules:
+     - host: "my-name"
+       http:
+         paths:
+         - backend:
+             service:
+               name: application-svc
+               port:
+                 number: 80
+           pathType: ImplementationSpecific
+   ```
+
+<Callout title="Note" icon="📌" >
+The `CNAME` must be pre-set and propagated before requesting a TLS certificate. Let's Encrypt requires domain verification, meaning seamless migration from another system to this infrastructure is not easily possible.
+</Callout>
+
+---
 
 ### Authentication
 
-`Ingress` can require user authentication to provide restricted access to the `Service`. Authentication can be set using a `Secret` and annotations.
+You can secure access to your `Ingress`-exposed application by requiring user authentication. This is done using a `Secret` and `annotations`.
 
-First setup a secret:
-```yaml filename="secret.yaml" copy
-apiVersion: v1
-kind: Secret
-metadata:
-  name: secretref
-type: Opaque
-data:
-   auth: password
-```
-Where `secretref` is an arbitrary name and password is a `base64` encoded `htpasswd`. The password can be generated with this command: `htpasswd -n username | base64 -w0` where `username` is the desired login username. It will return text like `Zm9vOiRhcHIxJGhOZVRzdngvJEkyVk9NbEhHZDE1N1gvYTN2aktYSDEKCg==`, which will be used instead of the `password` in the secret above.
+1. Create a Secret:
 
-The following two annotations are required in the `Ingress`.
+   ```yaml filename="secret.yaml" copy
+   apiVersion: v1
+   kind: Secret
+   metadata:
+     name: secretref
+   type: Opaque
+   data:
+      auth: password
+   ```
 
-```yaml copy
-    nginx.ingress.kubernetes.io/auth-type: basic
-    nginx.ingress.kubernetes.io/auth-secret: secretref
-```
+  - secretref is an arbitrary name.
 
-The `secretref' must match the metadata name of the `Secret'.
+  - The password must be base64-encoded. To generate it:
 
+    ```shell copy
+    htpasswd -n username | base64 -w0
+    ```
 
-‼️  *IMPORTANT*
+    This command returns a base64-encoded password string (like `Zm9vOiRhcHIxJGhOZVRzdngvJEkyVk9NbEhHZDE1N1gvYTN2aktYSDEKCg=`), which should replace `password` in the `Secret`.
 
-The password protection is only applied to external traffic, i.e. the user will be prompted for a password. However, traffic from other pods will bypass authentication if it communicates directly with the `Service` IP. This can be mitigated by using `Network Policy`. See [Security](security).
+2. Add the following annotations to the Ingress:
 
-### Large Data Upload
+   ```yaml copy
+   nginx.ingress.kubernetes.io/auth-type: basic
+   nginx.ingress.kubernetes.io/auth-secret: secretref
+   ```
+ 
+   - `secretref` must match the metadata name of the `Secret`.
 
-If a large data upload is expected, the following two `Ingress` annotations may be required to deal with the upload size limit.
+<Callout title="Important" icon="⚠️ ">
+Authentication only applies to external traffic. Traffic from other pods within the cluster bypasses authentication when communicating directly with the `Service` IP. To enforce stricter access control, consider using `NetworkPolicy`. See the [Security section](security).
+</Callout>
+
+---
+
+### Large Data Uploads
+
+If your application expects large file uploads, you may need to modify `Ingress` settings to accommodate higher upload limits:
+
 ```yaml copy
 nginx.ingress.kubernetes.io/proxy-body-size: "600m"
 nginx.org/client-max-body-size: "600m"
 ```
 
-Replace the `600m` value with the desired maximum upload size.
+Replace `600m` with the desired maximum upload size.
+
+---
 
 ### HTTPS Target
 
-The Ingress object can expose applications that use HTTPS protocol instead of HTTP, i.e. the communication between the ingress and the application is also encrypted. In this case, you need to add `nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"` annotation to the ingress object.
+If your application serves `HTTPS` traffic internally and you want to preserve encryption end-to-end, update your `Ingress` definition to include the following annotation:
 
-### Limiting Access
+```yaml copy
+nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+```
 
-It is possible to restrict access to a web application at the ingress level by limiting access from a specific IP range. This is done using the `Ingress` annotation `nginx.ingress.kubernetes.io/whitelist-source-range`, the following example restricts access only from the MUNI network.
+This ensures that traffic between `Ingress` and the application remains encrypted. However, since the NGINX `Ingress` component terminates and re-encrypts the traffic, it does not provide true end-to-end encryption. 
+
+---
+
+### Limiting External Network Access
+
+You can restrict access to your application at the `Ingress` level by limiting access to specific IP ranges using the `whitelist-source-range` annotation.
+
+For example, to restrict access to only the **MUNI network**:
 
 ```yaml filename="ingress.yaml" copy
 apiVersion: networking.k8s.io/v1
@@ -188,33 +264,61 @@ spec:
 
 ```
 
+<Callout title="Note" icon="📌">
+You can mix CIDRs (e.g., `147.251.0.0/16`), individual IP addresses (e.g., `147.251.17.148`), and both **IPv4** and **IPv6** addresses, all separated by commas. As IPv6 adoption continues to grow, be sure to include IPv6 addresses alongside IPv4 to maintain expected functionality.
+</Callout>
+
+---
+
 ### Debugging: Certificate Not Issued
 
-If you configured everything according to the documentation, the certificate should be issued within several moments. If the certificate is not issued, it is possible the pod that is supposed to serve the `acme-challenge` (thus issue the certificate) can't be deployed in your namespace because of the full namespace resource quota. This new pod requires `100MiB` memory and `100m` CPU so if your namespace is fully reserved, try to increase [namespace resource quota](../rancher/quotas#changing-namespace-quotas) (add `100` to memory reservation and memory limit; add `100` to CPU reservation and CPU limit) or remove some deployments from the namespace. 
+If your configuration is correct but the TLS certificate is not issued, the problem may be due to resource quotas preventing the required ACME challenge pod from running.
 
-If you have `kubectl` installed, you can check if this is the issue:
-1. Check if Ingress creation is stuck on acme-solver (`kubectl get ingress -n [your_namespace]` will return a line featuring `cm-acme-http-solver`)
-```bash
-> kubectl get ingress -n [your_namespace]
-NAME                        CLASS    HOSTS                                                                             ADDRESS                PORTS     AGE
-cm-acme-http-solver-972p9   <none>   schema.biodata.ceitec.cz                                                          kuba-pub.cerit-sc.cz   80        12m
-```
-2. List events happening in your namespace and see if there is a warning about quotas (`kubectl get events -n [your_namespace]` will feature some lines along `exceeded quota`)
-```bash
-> kubectl get events -n [your_namespace] | grep cm-acme-http-solver
-...
-79s         Warning   PresentError   challenge/adamant-dyn-cloud-e-infra-cz-6dp4n-152868974-3440702542   (combined from similar events): Error presenting challenge: pods "cm-acme-http-solver-74szl" is forbidden: exceeded quota: default-kn7vq, requested: limits.cpu=100m, used: limits.cpu=1, limited: limits.cpu=1
-...
-```
+#### Steps to Debug
 
-It is possible to check events from Rancher UI as well.
+1. Check if the Ingress is stuck on the ACME solver:
+ 
+   ```shell
+   kubectl get ingress -n [your_namespace]
+   ```
+
+   If the output includes cm-acme-http-solver with an age of more than a few minutes, it likely indicates an issue.
+
+   ```bash
+   > kubectl get ingress -n [your_namespace]
+   NAME                        CLASS    HOSTS                                                                             ADDRESS                PORTS     AGE
+   cm-acme-http-solver-972p9   <none>   schema.biodata.ceitec.cz                                                          kuba-pub.cerit-sc.cz   80        12m
+   ```
+
+2. Check for quota-related warnings:
+
+   ```shell
+   kubectl get events -n [your_namespace]
+   ```
+
+   Look for lines mentioning `exceeded quota`.
+
+   ```bash
+   > kubectl get events -n [your_namespace] | grep cm-acme-http-solver
+   ...
+   79s         Warning   PresentError   challenge/adamant-dyn-cloud-e-infra-cz-6dp4n-152868974-3440702542   (combined from similar events): Error presenting challenge: pods "cm-acme-http-solver-74szl" is forbidden: exceeded quota: default-kn7vq, requested: limits.cpu=100m, used: limits.cpu=1, limited: limits.cpu=1
+   ...
+   ```
+
+If quota restrictions are the issue, you may need to:
+
+- Increase the [namespace resource quota](../rancher/quotas#changing-namespace-quotas). Each acme solver requires 100m CPUs and 100MiB of memory.
+- Remove some existing deployments.
+
+You can also view events in the Rancher UI.
 
 ![acmesolver](/img/ceritsc/acme-solver.png)
 
+---
 
 ## Other Applications
 
-Applications that to not use the `HTTP` protocol are exposed directly via `Service`.
+For applications that do not use the `HTTP` protocol, exposure is done via a `Service` without `Ingress`.
 
 ```yaml filename="service.yaml" copy
 apiVersion: v1
@@ -225,6 +329,7 @@ metadata:
     external-dns.alpha.kubernetes.io/hostname: application.dyn.cloud.e-infra.cz
 spec:
   type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
   ports:
   - port: 22
     targetPort: 2222
@@ -232,11 +337,28 @@ spec:
     app: application
 ```
 
-Where `selector:` `app: application` must match the application name in the deployment and `application-svc` is any name. If annotation `external-dns.alpha.kubernetes.io/hostname` is provided and value i in domain `dyn.cloud.e-infra.cz`, the name will be registered in DNS.
+- The `selector.app: application` must match the `Deployment`.
+- If the annotation `external-dns.alpha.kubernetes.io/hostname` is set within `dyn.cloud.e-infra.cz`, the name is automatically registered in DNS.
 
-Deploying this *Service* exposes the application on a public IP. You can check the IP with `kubectl get svc -n namespace`, where `namespace` is the namespace of the Service and the application.
+### Checking the Assigned Public IP
 
-It is also possible to expose the application on a private MUNI IP. In this case the application will be reachable from MUNI network or using MUNI VPN. This type of exposing is selected using the annotation `metallb.universe.tf/address-pool: privmuni`. This case is preferred because it does not use public IP. Full example is below.
+Run:
+
+```shell copy
+kubectl get svc -n namespace
+```
+
+where `namespace` is the Namespace of the `Service`. The `IP` address will be displayed in the `EXTERNAL-IP` column.
+
+### Private MUNI IP
+
+To expose the application only within the **MUNI network** or **MUNI VPN**, use the following `Service` annotation:
+
+```yaml
+metallb.universe.tf/address-pool: privmuni
+```
+
+This method is preferred as it avoids consuming a public IP.
 
 ```yaml filename="service.yaml" copy
 apiVersion: v1
@@ -248,6 +370,7 @@ metadata:
     external-dns.alpha.kubernetes.io/hostname: application.dyn.cloud.e-infra.cz
 spec:
   type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
   ports:
   - port: 22
     targetPort: 2222
@@ -255,3 +378,4 @@ spec:
     app: application
 ```
 
+---
