@@ -200,7 +200,7 @@ You can secure access to your `Ingress`-exposed application by requiring user au
    - `secretref` must match the metadata name of the `Secret`.
 
 <Callout title="Important" icon="⚠️ ">
-Authentication only applies to external traffic. Traffic from other pods within the cluster bypasses authentication when communicating directly with the `Service` IP. To enforce stricter access control, consider using `NetworkPolicy`. See the [Security section](security).
+Authentication only applies to external traffic. Traffic from other pods within the cluster bypasses authentication when communicating directly with the `Service` IP. To enforce stricter access control, consider using `NetworkPolicy`. See the [Security section](./security).
 </Callout>
 
 ---

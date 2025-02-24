@@ -7,7 +7,7 @@ Kubernetes can issue and manage custom trusted certificates using the ACME proto
 This is especially important for enabling TLS when exposing non-web applications, so without Ingress.
 
 There are currently four issuers available:
-* The `letsencrypt-prod` issuer is web-only and automatically checks the web on the specified domain name during the issuance process. It is automatically used when exposing an application via [ingress](expose#web-based-applications).
+* The `letsencrypt-prod` issuer is web-only and automatically checks the web on the specified domain name during the issuance process. It is automatically used when exposing an application via [ingress](./expose#web-based-applications).
 * The `letsencrypt-prod-dns' issuer is for other applications. The difference is the dns check. However, the dns check is slower because the dns change has to be propagated first.
 * `letsencrypt-stage` is the same as `letsencrypt-prod` but uses staging servers suitable for testing.
 * `letsencrypt-stage-dns' is the same as `letsencrypt-prod-dns', but it uses staging servers suitable for testing.

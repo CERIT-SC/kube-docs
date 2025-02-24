@@ -4,7 +4,7 @@ title: Bezpečnost a síťová politika
 
 ## Autentizace Ingress
 
-Pokud chce uživatel využít základní autentizaci nebo oauth na ingress, může to být provedeno, jak je popsáno v [oficiální dokumentaci](https://kubernetes.github.io/ingress-nginx/examples/auth/basic/) nebo v [naší dokumentaci](expose).
+Pokud chce uživatel využít základní autentizaci nebo oauth na ingress, může to být provedeno, jak je popsáno v [oficiální dokumentaci](https://kubernetes.github.io/ingress-nginx/examples/auth/basic/) nebo v [naší dokumentaci](./expose).
 
 Tento přístup má jednu velkou bezpečnostní chybu. Autentizace je vyžadována pouze při připojení přes ingress, tj. zvenčí Kubernetes clusteru. Uživatel platformy se však může také připojit přímo z vnitřku clusteru k odpovídající službě (musí však uhodnout její IP) a v takovém případě není autentizace vyžadována.
 

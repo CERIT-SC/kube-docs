@@ -138,7 +138,7 @@ that can be mounted inside your pods.
 
 ## Ephemeral Storage
 
-Ephemeral kind of storage is allocated from node's local storage. Allocation is done through resource requests, see [resources](resources) and through volume mounts.
+Ephemeral kind of storage is allocated from node's local storage. Allocation is done through resource requests, see [resources](./resources) and through volume mounts.
 
 Ephemeral storage can be allocated from local disk or local memory. If a Pod is evicted or moved to another node, content of ephemeral storage is lost.
 
@@ -169,4 +169,4 @@ volumeMounts:
   mountPath: /tmp
 ```
 
-In case of local memory, see requirements on [memory resources](resources).
+In case of local memory, see requirements on [memory resources](./resources).
