@@ -1,10 +1,8 @@
-
-
 ### S3 Service Overview
 
-S3 service is a versatile solution suitable for a wide range of use cases, including basic data storage, automated backups, and various data handling applications. 
+S3 service is a versatile solution suitable for a wide range of use cases, including basic data storage, automated backups, and various data handling applications.
 
-Access to the service is managed through virtual organizations and corresponding groups. S3 is ideal for sharing data between individual users and groups, which may include members from different institutions. Tools for managing users and groups are provided by the e-infrastructure. 
+Access to the service is managed through virtual organizations and corresponding groups. S3 is ideal for sharing data between individual users and groups, which may include members from different institutions. Tools for managing users and groups are provided by the e-infrastructure.
 
 Users with access to S3 can be individuals or "service accounts" (e.g., backup machines, as many modern backup tools natively support S3 connections). Data in S3 is organized into **buckets**, which are typically linked to the logical structure of your data workflow, such as different stages of data processing.
 
@@ -20,52 +18,53 @@ For sensitive data, encrypted buckets can be used on the client side, ensuring t
 
 
 <Callout type="info" emoji="ℹ️">
-**How to get S3 service?** <br/>
-To connect to S3 service you have to contact support at: `support@cesnet.cz`
+    **How to get S3 service?** <br />
+    To connect to S3 service you have to contact support at: `support@cesnet.cz`
 </Callout>
 
 ----
-## S3 Elementary use cases
-In the following section you can find the description of elementary use cases related to S3 service.
+# S3 Elementary Use Cases
 
-### Automated backup of large datasets using the tools natively supporting S3 service
-If you use specialized automated tools for backup, such as Veeam, bacula, restic..., most of these tools allow native use of S3 service for backup. So you don't have to deal with connecting block devices etc. to your infrastructure. You only need to request an S3 storage setup and reconfigure your backup. Can be combined with the WORM model as protection against unwanted overwriting or ransomware attacks.
+The following section describes various elementary use cases related to the S3 service.
+
+#### Automated Backup of Large Datasets Using Tools Natively Supporting S3
+If you use specialized automated backup tools like Veeam, Bacula, or Restic, many of these tools offer native integration with the S3 service for backups. This means you don’t need to worry about connecting block devices to your infrastructure. Simply request an S3 storage setup and reconfigure your backup process. You can also combine this with the WORM (Write Once, Read Many) model to protect against unwanted overwriting or ransomware attacks.
 
 ![s3client](/img/data-care/s3-service/s3_backup.png)
 
-### Data sharing across you laboratory or over multiple institutions
-If you manage multiple research groups where you need users to share data, such as data collection and its post-processing, you can use S3. The S3 service allows you to share data within a group or between users. This use case assumes that each user has own access to the repository. This use case is also suitable if you need to share sensitive data between organizations and do not have a secure VPN. You can use encrypted buckets (client-side encryption) within the S3 service. Client-side encryption also means that the transmission of data over the network is encrypted, and in case of eavesdropping during transmission, the data cannot be decrypted.
+### Data Sharing Across Your Laboratory or Multiple Institutions
+For research groups that need to share data, such as data collection and post-processing, S3 can be a powerful solution. The S3 service enables users to share data within a group or between institutions. This use case assumes each user has their own access to the repository. It is also ideal for sharing sensitive data across organizations, especially if you do not have a secure VPN. You can use encrypted S3 buckets (client-side encryption), which ensures that data is encrypted both at rest and during transmission, protecting it from eavesdropping.
 
 ![s3client](/img/data-care/s3-service/s3_distribution.png)
 
-### Life systems handlig the data - Learning Management Systems, Catalogues, Repositories
-You have large data and you operate an application in e-infrastructure that issues data to your users. This use case is particularly relevant to applications that distribute large data (raw scans, large videos, large scientific data sets for computing environments...) to end users. For this use case, it is possible to use the S3 service again. The advantage of using S3 for these applications is that there is no need to upload data to the application server, but the end user can upload/download data directly to/from object storage using S3 presign requests.
+### Data Management for Systems like Learning Management Systems, Catalogs, and Repositories
+If you manage large datasets and operate applications within an e-infrastructure that serves data to your users, S3 can support this use case effectively. This is particularly useful for applications that distribute large datasets (e.g., raw scans, videos, scientific datasets for computational environments) to end users. With S3, there is no need to upload data to the application server itself. Instead, users can directly upload and download data to/from object storage using S3 presigned URLs.
 
 ![s3client](/img/data-care/s3-service/direct_upload.png)
 
-### Personal space for your data
-This case is similar to the VO storage service. This is a personal space in the S3 service just for your data, which does not allow sharing with a specific user. [Public reading](s3-features.mdx) can be set for buckets, or [presign URL requests](s3-features.mdx) can be used.
+### Personal Storage Space for Your Data
+This use case is similar to the VO (Virtual Organization) storage service. It provides a personal space within S3 for your data, which is not shared with any specific user. You can configure public read access for the bucket or use presigned URLs to allow temporary access.
 
-### Dedicated S3 endpoint for special applications
-This is a special service for selected customers/users. This dedicated S3 endpoint can be used for critical systems as protection against DDoS attacks. The endpoint would be hidden for other users, only insiders would know about it.
+### Dedicated S3 Endpoint for Special Applications
+This service is designed for selected customers or users. A dedicated S3 endpoint can be created for critical systems to protect against DDoS (Distributed Denial of Service) attacks. The endpoint will be hidden from external users, and only authorized insiders will have access to it.
 
-### Any other application
-**If you need a combination of the services listed above, or if you have an idea about some other application of object storage services, do not hesitate to contact us.**
+### Any Other Application
+If you need a combination of the services listed above or have an innovative idea for utilizing object storage services, don’t hesitate to reach out to us for further assistance.
 
 ## S3 Data Reliability (Data Redundancy) - replicated vs erasure coding
-In the section below are described additional aproaches for data redundancy applied to the object storage pool. S3 service can be equipped with **replicated** or **erasure code (EC)** redundancy.
+The section below describes additional approaches for data redundancy applied to the object storage pool. The S3 service can be configured with **replicated** or **erasure code (EC)** redundancy.
 ### Replicated
-Your data is stored in three copies in the data center. In case one copy is corrupted, the original data is still readable in an undamaged form, and the damaged data is restored in the background. Using a service with the replicated flag also allows for faster reads, as it is possible to read from all replicas at the same time. Using a service with the replicated flag reduces write speed because the write operation waits for write confirmation from all three replicas.
+With replication, your data is stored in three copies within the data center. If one copy is corrupted, the original data remains intact and readable, while the damaged copy is restored in the background. Using replication also allows for faster read speeds since data can be retrieved from all replicas simultaneously. However, the write speed may be slower because the write operation waits for confirmation from all three replicas.
 
 <Callout type="info" emoji="ℹ️">
-**Suitable for?** <br/>
-Suitable for smaller volumes of live data with a preference for reading speed (not very suitable for large data volumes).
+    **Suitable for?** <br />
+    This method is ideal for smaller volumes of live data where read speed is a priority (though not as well-suited for large data volumes).
 </Callout>
 
 ### Erasure Coding (EC)
-Erasure coding (EC) is a data protection method. It is similar to the dynamic RAID known from disk arrays. Erasure coding (EC) is a method where data is divided into individual fragments, which are then stored with some redundancy across the data storage. Therefore, if some disks (or the entire storage server) fail, the data is still accessible and will be restored in the background. So it is not possible for your data to be on one disk that gets damaged and you lose your data.
+Erasure coding (EC) is a data protection technique similar to dynamic RAID found in disk arrays. In EC, data is split into individual fragments and distributed across storage with built-in redundancy. If a disk or an entire storage server fails, the data remains accessible and is automatically restored in the background. This method ensures that your data isn't stored on a single disk that could fail and result in data loss.
 
 <Callout type="info" emoji="ℹ️">
-**Suitable for?** <br/>
-Suitable, for example, for storing large data volumes and datasets.
+    **Suitable for?** <br />
+    Erasure coding is well-suited for storing large data volumes and datasets.
 </Callout>
