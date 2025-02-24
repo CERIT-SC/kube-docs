@@ -1,13 +1,3 @@
----
-title: S3 Service
----
-
-S3 service is a general service suited for most of the use cases. S3 service can be used for elementary data storing, automated backups, or various types of data handling applications.
-
-Access to the service is controlled by virtual organizations and coresponding groups. S3 is suitable for sharing data between individual users and groups that may have members from different institutions. Tools for managing groups and users are provided by the e-infrastructure. Users with access to S3 can be people, as well as "service accounts", for example for backup machines (a number of modern backup tools support natively S3 connection). Data is organized into buckets in S3. It is usually appropriate to link individual buckets to the logical structure of your data workflow, for example different stages of data processing. Data can be stored in the service in an open form or in case of sensitive data it is possible to use encrypted buckets on the client side. Where even the storage manager does not have access to the data. Client-side encryption also means that the transmission of data over the network is encrypted, and in case of eavesdropping during transmission, the data cannot be decrypted.
-
-## Basic terms definition
-S3 Bucket is storage container for objects stored in simple storage service (S3). S3 buckets can be likened to file folders and object storage. Each object stored by buckets has three main components: the object’s content (data), the object’s metadata (which includes object size, name, last modified date, and URL), and the object’s unique identifier.
 
 
 ### S3 Service Overview
