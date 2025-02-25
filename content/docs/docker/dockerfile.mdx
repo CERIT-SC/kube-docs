@@ -120,4 +120,4 @@ This command will run the `registry/name:tag` image and run the `commend` inside
 
 If the image used has `ENTRYPOINT` set, the `command` will not be executed, but will only be passed as an argument to the `ENTRYPOINT` script. If you need to avoid execution, you can pass the `--entrypoint /bin/bash` option to `docker run`. However, not all images have `/bin/bash` or even `/bin/sh` available. In such a case, you will need to rebuild the image and add/install `bash` or `sh`.
 
-Pressing `ctrl-c` or `ctrl-d` will kill the running Docker image. All changes inside the container will be lost unless you use `docker commit`, see the [official docker documentation](https://docs.docker.com/develop/), in this case do not use the `--rm` option which automatically removes terminated images.
+Pressing `ctrl-c` or `ctrl-d` will kill the running Docker image. All changes inside the container will be lost unless you use `docker commit`, see the [official docker documentation](https://docs.docker.com/build/), in this case do not use the `--rm` option which automatically removes terminated images.

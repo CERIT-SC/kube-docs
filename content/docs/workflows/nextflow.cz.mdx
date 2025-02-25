@@ -290,7 +290,7 @@ kde `PVC` je zmíněný PVC a `test.tsv` obsahuje vstupní data umístěná na P
 
 * Běh pipeline nečistí workDir, je na uživateli, aby jej vyčistil/odstranil.
 
-* Ruční obnovení Sarek je možné pomocí různých specifikací `--input`. Viz [zde](https://nf-co.re/sarek/2.7.1/usage#troubleshooting).
+* Ruční obnovení Sarek je možné pomocí různých specifikací `--input`. Viz [zde](https://nf-co.re/sarek/2.7.1/docs/usage#troubleshooting).
 
 
 ## vib-singlecell-nf/vsn-pipelines pipeline
@@ -299,7 +299,7 @@ kde `PVC` je zmíněný PVC a `test.tsv` obsahuje vstupní data umístěná na P
 
 ### Kubernetes Run
 
-Musíte stáhnout specifický pipeline [nextflow.config](/examples/ceritsc/nextflow-vsn.config) a umístit jej do aktuálního adresáře, odkud spouštíte Nextflow. Tato pipeline používá parametr `-entry` k určení vstupního bodu pracovního postupu. Pokud není vyřešena [tato otázka #2397](https://github.com/nextflow-io/nextflow/issues/2397), je potřeba opravená verze Nextflow. Abyste se vypořádali s touto chybou, potřebujete verzi Nextflow 22.06.1-edge nebo novější.
+Musíte stáhnout specifický pipeline [nextflow.config](/examples/ceritsc/nextflow/nextflow-vsn.config) a umístit jej do aktuálního adresáře, odkud spouštíte Nextflow. Tato pipeline používá parametr `-entry` k určení vstupního bodu pracovního postupu. Pokud není vyřešena [tato otázka #2397](https://github.com/nextflow-io/nextflow/issues/2397), je potřeba opravená verze Nextflow. Abyste se vypořádali s touto chybou, potřebujete verzi Nextflow 22.06.1-edge nebo novější.
 
 Na PVC musíte připravit data do adresářů specifikovaných v `nextflow.config`, podívejte se na všechny výskyty `/mnt/data1` v konfiguraci a změňte je podle potřeby.
 

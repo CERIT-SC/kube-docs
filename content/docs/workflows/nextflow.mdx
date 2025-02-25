@@ -294,7 +294,7 @@ the PVC.
 
 * The pipeline run does not clean workDir, it is up to user to clean/remove it.
 
-* Manual resuming of Sarek is possible using different `--input` spec. See [here](https://nf-co.re/sarek/2.7.1/usage#troubleshooting).
+* Manual resuming of Sarek is possible using different `--input` spec. See [here](https://nf-co.re/sarek/2.7.1/docs/usage#troubleshooting).
 
 
 ## vib-singlecell-nf/vsn-pipelines pipeline
@@ -303,7 +303,7 @@ the PVC.
 
 ### Kubernetes Run
 
-You need to download pipeline specific [nextflow.config](/examples/ceritsc/nextflow-vsn.config) and put it into the current directory where you start Nextflow from. This pipeline uses `-entry` parameter to specify entry point of workflow. Unless this [issue #2397](https://github.com/nextflow-io/nextflow/issues/2397) is resolved, patched version of Nextflow is needed. To deal with this bug, you need Nextflow version 22.06.1-edge or later.
+You need to download pipeline specific [nextflow.config](/examples/ceritsc/nextflow/nextflow-vsn.config) and put it into the current directory where you start Nextflow from. This pipeline uses `-entry` parameter to specify entry point of workflow. Unless this [issue #2397](https://github.com/nextflow-io/nextflow/issues/2397) is resolved, patched version of Nextflow is needed. To deal with this bug, you need Nextflow version 22.06.1-edge or later.
 
 On the PVC you need to prepare data into directories specified in the `nextflow.config` see all occurrences of `/mnt/data1` in the config and change them accordingly.
 
