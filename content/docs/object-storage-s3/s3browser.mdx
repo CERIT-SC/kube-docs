@@ -2,13 +2,13 @@
 title: S3 Browser
 ---
 
-[S3 Browser](https://s3browser.com/) is a freeware powerful and easy-to-use Windows client for S3 storage. You can manage up to two S3 accounts for free.
+[S3 Browser](https://s3browser.com/) is a powerful and user-friendly freeware client for S3 storage on Windows. It allows you to manage up to two S3 accounts at no cost.
 
-For installation please use the official package on the S3 [Browser webpages](https://s3browser.com/download.aspx).
+Please use the official package on S3 for installation. [Browser webpages](https://s3browser.com/download.aspx).
 
 ## Basic configuration
 
-Storage settings are made via the **Accounts** button in the left part of the program window.
+Storage settings can be configured via the **Accounts** button on the left side of the program window.
 
 ![s3client](/img/data-care/s3browser/s3browser1.png)
 
@@ -20,15 +20,15 @@ In the following window, select **S3 Compatible Storage**
 
 ![s3client](/img/data-care/s3browser/s3browser3.png)
 
-Then fill in **Display name** which is your connection name for better orientation, if you have multiple accounts. Then the **server s3.clX.du.cesnet.cz (clX - X according to the provided storage)** And keys: **Access Key ID = acces_key** and **Secret Access Key = secret_key by**. By clicking on **Add new account** the settings will be saved.
+Next, enter a **Display name** for your connection to help with identification if you have multiple accounts. Then, enter the **server s3.clX.du.cesnet.cz (replace clX - X with the appropriate storage identifier)** And keys: **Access Key ID = acces_key** and **Secret Access Key = secret_key by**. Click **Add new account** to save the settings.
 
 ![s3client](/img/data-care/s3browser/s3browser4.png)
 
 ## Multipart upload/download configuration
 
-If you need to upload and download large objects (typically larger than 5GB) you need to configure so-called multipart uploads/downloads. A large object is divided into multiple parts and then uploaded/downloaded. This functionality can also optimize the data throughput. On the data storage system are the objects represented as one object again.
+If you need to upload and download large objects (typically larger than 5GB) you need to configure so-called multipart uploads/downloads. In this process, a large object is divided into multiple parts, which are then uploaded or downloaded separately. This functionality can also optimize the data throughput. On the storage system, the object is represented as a single entity once the process is complete.
 
-Open the tool S3 Browser and then click in the main menu on **1. Tools** and then on **2. Options**.
+Open the S3 Browser tool and then click on **1. Tools** in the main menu, followed by **2. Options**.
 
 ![s3client](/img/data-care/s3browser/s3b-multipart1.png)
 
