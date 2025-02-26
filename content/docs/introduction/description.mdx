@@ -3,7 +3,7 @@ title: Description of the Data Storage Infrastructure
 ---
 Data Centers operated by CESNET are based on object storage technology utilizing Ceph, see below. Data Centers are located only within Czech Republic so all your data lies thereto. Distributed model of Data Centers allows us to increase data redundancy due to usage of geographical replicas. That model brings the advantage that your data are resistant to the data media failure, nature disaster or user mistake. Another advatage is that you can use the Data Center which is the closest to your location.
 
-![infrastructure](/img/data-care/infrastructure/mapacr-trans3.gif)
+![infrastructure](/img/data-care/infrastructure/mapacr-new.pdf)
 
 **CEPH** - Ceph is the software solution for providing object storage solution. Object storage differs from common file-oriented data storages. Object storage stores data as an objects not like data blocks. Metadata is associated directly to the particular object. This system eliminates hierarchical structure utilized within common data storages. All data are then stored in flat name space which is easy scalable. Ceph is opensource system. It consists of object store, block store and distributed file system. Ceph supports object access (RADOS), exported block device and file access. Data stored within Ceph are replicated to multiple nodes, based on defined replication policy.
 
