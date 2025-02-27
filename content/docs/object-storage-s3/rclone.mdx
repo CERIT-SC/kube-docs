@@ -1,58 +1,58 @@
 ---
 title: Rclone
 ---
-This guide serves for rclone tool configuration. Rclone is the swiss knife for connection to multiple types of storage. However, the following guides are limited only to Object Storage namely S3 service. The following guides are suited for Windows users as well as Linux users. Using rclone tool for S3 enables the creation of the buckets, syncing folders, uploading and downloading files, and much more.
+This guide provides instructions for configuring the rclone tool. Rclone is a versatile tool that supports connections to various types of storage, but this guide focuses specifically on Object Storage, namely the S3 service.It is applicable for both Windows and Linux users. Using rclone with S3 allows you to create buckets, sync folders, upload and download files, and much more.
 
-## Downloading and installation of rclone tool
-Firstly you need to download and unzip the desired [rclone](https://rclone.org/downloads/) version according to the system you operate.
+## Downloading and Installation of Rclone Tool
+First, you need to download and unzip the appropriate [rclone](https://rclone.org/downloads/) version according for your operating system.
 
-**We strongly recommend** to use up-to-date versions of rclone tool available at [rclone websites](https://rclone.org/downloads/). Using rclone version from system repositories can cause some errors due to the outdated rclone version. In case of a manual installation into the user profile, see below, you can use for an update following command:
+**We strongly recommend** to use the latest versions of rclone available on [rclone websites](https://rclone.org/downloads/). Using an older version from system repositories may cause errors. If you manually install rclone into your user profile, you can update it using the following command:
 
 ```bash
 rclone selfupdate
 ```
 ----
 
-### Linux - manual installation into the user profile
+### Linux - Manual Installation in User Profile
 
-We need to unzip the [rclone archive](https://rclone.org/downloads/) after download.
+First, unzip the [rclone archive](https://rclone.org/downloads/) after downloading.
 
 ```bash
 unzip rclone-v1.59.1-linux-amd64.zip
 ```
 
-Then we need to copy rclone binary file into the pre-prepared bin folder in the user profile/home.
+Then, copy rclone binary file into the pre-prepared bin folder in the user profile/home.
 
 ```bash
 cp ./rclone-v1.59.1-linux-amd64/rclone /home/user/bin/
 ```
 
-In the last step, we need to put the path to the rclone binary file into PATH environment variable.
+In the final step, add the path to the rclone binary file to the PATH environment variable.
 
 ```bash
 PATH=/home/user/bin:$PATH
 ```
 **Persistent setup**
 
-For **persistent presence** of the rclone binary file path in the PATH variable you can add the following line into **.bashrc file**:
+For **persistent presence** of the rclone binary file path in the PATH variable, add the following line into **.bashrc file**:
 
 ```bash
 echo 'PATH=/home/user/bin:$PATH' >> .bashrc
 ```
     
-Alternatively you can place the rclone binary file into the system path:
+Alternatively, place the rclone binary file in the system path:
 
 ```bash
 /usr/local/bin
 ```
 
-In the end, we can make a quick check of PATH variable, whether the desired path is present.
+Finally, a quick check the PATH variable to ensure the desired path is included.
 
 ```bash
 echo $PATH
 ```
 <Callout type="warn" icon="⚠️">
-In case you have installed the rclone using the steps above, you can then use the following command to update rclone:
+If you installed the rclone using the steps above, you can update it with the following command:
 
 ```bash
 rclone selfupdate
@@ -63,28 +63,28 @@ rclone selfupdate
 
 ----
 
-### Windows - manual installation in to user profile
+### Windows - Manual Installation in User Profile
 
-Firstly you need to prepare `bin` directory in your user profile, where we will place rclone.exe file. Please prepare the directory in your user profile. You can just put the following command into the file browser:
+First, create a `bin` directory in your user profile, where the rclone.exe file will be placed. You can easily create this directory by entering the following command in the file browser:
 
 ```bash
 %USERPROFILE%
 ```
 
-In the displayed directory you can click right mouse button -> **New** –> **Directory/Folder**. The directory should be named **bin**. Then move the **rclone.exe** file into it. The file **rclone.exe** is present in the unzipped rclone archive, which you downloaded from the [rclone websites](https://rclone.org/downloads/).
+In the displayed directory,right-click and select -> **New** –> **Directory/Folder**. Name the folder **bin**. Then, move the **rclone.exe** file into this folder. The **rclone.exe** file can be found in the unzipped rclone archive that you downloaded from the [rclone website](https://rclone.org/downloads/).
 
-In the next step click to **Start (1)** and search for **Edit the system environment variables (2)**.
+In the next step click on **Start (1)** and search for **Edit the system environment variables (2)**.
 
 ![s3client](/img/data-care/rclone/rclone-path-win1.png)
 
-Then click at **Environment variables (1)** in the displayed window.
+Next, click on **Environment variables (1)** in the displayed window.
 ![s3client](/img/data-care/rclone/rclone-path-win2.png)
 
-In the section User variables for **UserXY (1)** you will select the line with variable **Path (2)** and then you will click on the **Edit (3)** button.
+In the User variables for **UserXY (1)** section, select the **Path (2)** variable, and then you click the **Edit (3)** button.
 
 ![s3client](/img/data-care/rclone/rclone-path-win3.png)
 
-You can add the new path by clicking on the **New (1)** button and then you have to insert the path to the pre-prepared **“bin” folder (2)**, see below. The setup is then confirmed by clicking on the **OK (3)** button.
+To add a new path, click the **New (1)** button, then enter the path to the pre-created **“bin” folder (2)**, as shown below. Confirm the setup by clicking the **OK (3)** button.
 
 ```bash
 %USERPROFILE%\bin
@@ -92,10 +92,10 @@ You can add the new path by clicking on the **New (1)** button and then you have
 
 ![s3client](/img/data-care/rclone/rclone-path-win4.png)
 
-In the end, you will click **OK** and **Apply**.
+Finally, click **OK** and **Apply**.
 
 <Callout type="warn" icon="⚠️">
-In case you have installed the rclone using the steps above, you can then use the following command to update rclone:
+If you installed the rclone using the steps above, you can update it with the following command:
 
 ```bash
 rclone selfupdate
@@ -104,18 +104,18 @@ rclone selfupdate
 2022/08/25 11:54:07 NOTICE: Successfully updated rclone from version v1.59.0 to version v1.59.1
 </Callout>
 
-## Basic configuration of rclone
-Below you can find the guide for the elementary configuration of rclone tool. Below are two guides. First describes configuration using the command line and second guide describes configuration using the graphical user interface.
+## Basic Rclone Configuration
+Below is a guide for the basic configuration of rclone tool. There are two guides provided: the first describes configuration using the command line, and the second explains configuration using the graphical user interface.
 
 ----
 
-### Rclone configuration using the command line
+### Rclone Configuration Using the Command Line
 
 <Callout type="warn" icon="⚠️">
-To be able to configure the rclone tool using this guide **first, you have to download, unzip and install rclone**, the guide can be found in the [first section](#downloading-and-installation-of-rclone-tool).
+Before configuring the rclone tool using this guide, you must **first download, unzip, and install rclone**. The installation instructions can be found in the [first section](#downloading-and-installation-of-rclone-tool).
 </Callout>
     
-Rclone has a configuration wizard, which will guide you step-by-step through the configuration of your S3 data storage.
+Rclone offers a configuration wizard that will guide you through the setup of your S3 data storage step by step.
 
 Command line in Windows and Linux:
     **Windows users** need to run **Command Prompt** and then run the command below.
@@ -127,79 +127,79 @@ Command line in Windows and Linux:
 
 ![s3client](/img/data-care/rclone/rclone-cmd1.png)
 
-From the list of options, we will choose **New remote** via inserting **n** letter. Then we need to type the name of our connection/storage, e.g. `cesnet_s3`. Then we will choose the **Option Storage**, here **Amazon S3 Compliant Storage Providers…**
+From the list of options, select **New remote** by typing the letter **n**. Next, enter the name for our connection/storage, such as `cesnet_s3`. Then, choose the **Option Storage** and select **Amazon S3 Compliant Storage Providers.**
 
 ![s3client](/img/data-care/rclone/rclone-cmd2.png)
 
-In the next step, we need to choose **Option provider**, here **Ceph Object Storage**.
+In the next step, choose **Option provider**, in this case **Ceph Object Storage**.
 
 ![s3client](/img/data-care/rclone/rclone-cmd3.png)
 
-Then it is necessary to choose how to enter S3 credentials. **Here we choose Enter AWS credentials in the next step**.
+Then, you will need to choose how to enter your S3 credentials. **In this case, select Enter AWS credentials in the following step**.
 
 ![s3client](/img/data-care/rclone/rclone-cmd4.png)
 
-In the next steps we enter our credentials **access_key_id** and **secret_access_key** which we obtained from the administrator or which we generated.
+In the next steps, enter your **access_key_id** and **secret_access_key**, which you either received from the administrator or generated yourself.
 
 ![s3client](/img/data-care/rclone/rclone-cmd5.png)
 
-Then we need to select **Option region**. We will leave **this option empty** and then continue with **Enter**.
+Next, select the **Option region**. Leave **this field empty** and press **Enter** to continue.
 
 ![s3client](/img/data-care/rclone/rclone-cmd6.png)
 
-Then we need to insert **Option endpoint** according to the data center, where we have generated the credentials, here for example **s3.cl2.du.cesnet.cz**.
+Enter the **Option endpoint**corresponding to the data center where you generated the credentials. For example **s3.cl2.du.cesnet.cz**.
 
 ![s3client](/img/data-care/rclone/rclone-cmd7.png)
 
-Next is **Option location_constraint**. We will **leave this option empty** and then continue with **Enter**.
+Next is **Option location_constraint**. We will **leave this option empty** and proceed by pressing **Enter**.
 
 ![s3client](/img/data-care/rclone/rclone-cmd8.png)
 
-Next point si **Option acl**, here we can either choose **Owner gets FULL_CONTROLL**, or we can leave this option empty and continue with **Enter**.
+In **Option acl**, either select **Owner gets FULL_CONTROLL**, or leave this option empty and proceed by pressing **Enter**.
 
 ![s3client](/img/data-care/rclone/rclone-cmd9.png)
 
-In the next step, we need to choose **Option server_side_encryption**, here we pick the option **None**.
+In the next step, select **Option server_side_encryption**, for example **None**.
 
 ![s3client](/img/data-care/rclone/rclone-cmd10.png)
 
-Then we can choose **Option see_kms_key_id**, here we pick the option **None**.
+Then, you select **Option see_kms_key_id**, for exapmle **None**.
 
 ![s3client](/img/data-care/rclone/rclone-cmd11.png)
 
-In the next step we can choose option **Edit advanced config**, here we choose **No**, option **n**.
+Now, select **Edit advanced config**, here, for instance, **No**, option **n**.
 
 ![s3client](/img/data-care/rclone/rclone-cmd12.png)
 
-In the last step, we check the configuration and we will confirm it by typing **y** letter.
+In the final step, review the configuration and confirm it by typing the letter **y**.
 
 ![s3client](/img/data-care/rclone/rclone-cmd13.png)
 
 ----
 
-### Rclone configuration using graphical user interface
+### Rclone Configuration Using Graphical User Interface
 
 <Callout type="warn" icon="⚠️">
-To be able to configure the rclone tool using this guide **first, you have to download, unzip and install rclone**, the guide can be found in the [first section](#downloading-and-installation-of-rclone-tool).
+Before configuring the rclone tool using this guide, you must **first download, unzip, and install rclone**. The installation instructions can be found in the [first section](#downloading-and-installation-of-rclone-tool).
 </Callout>
 
-Firstly you need to run the GUI. **Windows users** need to open **Command Prompt** and run the command below. **Linux users** need just open the **terminal window** and run the command below.
+First, launch the GUI. **Windows users** should open **Command Prompt** and run the command below while **Linux users** can simply open a **terminal window** and run the command below.
 
 ```bash
 rclone rcd --rc-web-gui
 ```
     
-The next steps are identical for Windows and Linux.
+The following steps are identical for both Windows and Linux.
 
-After starting up the graphical interface we click in the left menu on the **Configs (1)** button and then on the **Create a New Config (2)** button.
+Once the graphical interface starts, click on the **Configs (1)** button in the left menu, then click **Create a New Config (2)**.
 
 ![s3client](/img/data-care/rclone/rclone-gui1.png)
 
-In the displayed window, we insert the **connection name** in our example `cesnet_s3cl2` and then we choose the option **Amazon S3 Compliant Storage Providers**.
+In the displayed window, enter the **connection name** (e.g.`cesnet_s3cl2`) and select **Amazon S3 Compliant Storage Providers**.
 
 ![s3client](/img/data-care/rclone/rclone-gui-s3-1.png)
 
-In the next step, we need to insert **credentials (1)** which we obtained from the administrator or which we generated. You have to insert **Ceph** into the line denoted **Choose your S3 provider**. Then we need to insert the **S3 endpoint address (2)**. Then we can click **Next**.
+Next, you need to input the **credentials (1)** provided by the administrator or generated by you. In the **Choose your S3 provider field, enter **Ceph****. Then, input the**S3 endpoint address (2)**. After that, click **Next**.
 
 ![s3client](/img/data-care/rclone/rclone-gui-s3-2.png)
 
@@ -208,11 +208,11 @@ Please be careful during the modification in the **Configs** section. Rclone GUI
 </Callout>
 
 
-**Uploading the data from your local machine**
+**Uploading Data from Your Local Machine**
 
-After the configuration, we can start to transfer the data.
+Once the configuration is complete, you can start transfering the data.
 
-In the left menu click on the **Explorer (1)** button. Then select **the name of configuration (2)**, for example `cesnet_s3cl2`. Then you click on the **Open (3)** button. Then there should be a window with the buckets and files from the configured data storage.
+In the left menu click on the **Explorer (1)** button. Then, select **the configuration name (2)**, such as `cesnet_s3cl2` and click on the **Open (3)** button. A window will display the buckets and files from the configured data storage.
 
 ![s3client](/img/data-care/rclone/rclone-gui4.png)
 
@@ -220,16 +220,16 @@ In the left menu click on the **Explorer (1)** button. Then select **the name of
 Graphical user interface of rclone **DOES NOT SUPPORT** creation of empty buckets and directories. If you copy your data from the local machine you have to copy the directory with data. Alternatively, you can prepare empty buckets using [command line](#rclone-basic-controls).
 </Callout>
 
-If you wish to upload your data then in the displayed window click on **upload icon (1)**. Then you can select the data from your disk or drag and drop them into the window.
+To upload your data, click on **upload icon (1)** in the dispayed window. Then you can either select the data from your disk or drag and drop the files into the window.
 
 ![s3client](/img/data-care/rclone/rclone-gui_upload.png)
 
 ----
 
-### Configuration file
+### Configuration File
 
 <Callout type="warn" icon="⚠️">
-Configuration file can be found in the location described below. In the configuration file are saved the credentials and all selected options.
+The configuration file can be found at the location described below. It contains the credentials and all the selected options.
 </Callout>
 
 **Windows config file**
@@ -256,17 +256,17 @@ endpoint = s3.cl2.du.cesnet.cz
 acl = private
 ```
 
-## Rclone basic controls
+## Rclone Basic Controls
 
-All available commands for rclone can be listed using the command
+All available rlone commands can be listed using the command
 
 ```bash        
 rclone help
 ```
 
-Alternatively you can find rclone guide on the [rclone websites](https://rclone.org/commands/). Below are described the selected commands to control buckets, directories and files.
+Alternatively, you can find the rclone guide on the [rclone website](https://rclone.org/commands/). Below are some selected commands for managing buckets, directories and files.
 
-### Listing buckets and directories
+### Listing Buckets and Directories
 
 **Listing of the available profiles/connections.**
 
@@ -286,7 +286,7 @@ rclone lsd cesnet_s3cl2:
   -1 2022-07-28 10:03:20        -1 test
 ```
 
-### Creation of the bucket, copying, deletion...
+### Creating, Copying, and Deleting Buckets...
 
 **Creation of the new bucket.**
 
@@ -312,38 +312,38 @@ rclone mkdir cesnet_s3cl2:test-bucket/empty-directory
 2022/08/24 12:18:36 NOTICE: S3 bucket test-bucket path empty-directory: Warning: running mkdir on a remote which can't have empty directories does nothing
 ```
 
-The solution is to use a full path inside the bucket including a non-existing directory during copying. **In case you type non-existing directory rlone will create it**, see the example below.
+The solution is to use full path within the bucket, including a non-existing directory, when copying. **If you specify a non-existing directory, rlone will create it automatically**, see the example below.
 
-Let's copy the files:
+Copy the files:
 
 ```bash
 rclone copy /home/user/test_file1.pdf cesnet_s3cl2:test-bucket/new-dir1/new-dir2/
 ```
 
-Then we can check the files using ls command, where we can see that the folders have been created. Namely new-dir1 a new-dir2:
+Next, check the files using ls command, where you can see that the folders have been created, namely new-dir1 a new-dir2:
 
 ```bash
 rclone ls cesnet_s3cl2:test-bucket
 3955866 new-dir1/new-dir2/test_file1.pdf
 ```
 
-**File deletion.**
+**Deleting a file**
 
-To delete a particular file, we can use either command **deletefile** or the command **delete** to remove all files in the given path.
+To delete a specific file, use **deletefile** command, or use the **delete** command to remove all files in the specified path.
 
 ```bash
 rclone deletefile cesnet_s3cl2:test-bucket/new-dir1/new-dir2/test_file1.pdf
 ```
 
 <Callout type="warn" icon="⚠️">
-In case you delete the only file (object) in the directory resulting in **empty directories structure** the empty directories will be deleted! Directories are in object technology always represented by the name of a particular object (file), deletion of empty directories is thus expected behavior.
+If you delete the only file (object) in a directory, resulting in an **empty directories structure**, the empty directories will also be deleted! In object storage technology, directories are represented by the names of specific objects (files), so the deletion of empty directories is expected behavior.
 </Callout>
 
-### Directory syncing
+### Directory Syncing
 
-To sync the directories you can use the option `sync`. Synchronization is affecting the content only on the target side, no changes are performed on the source side.
+To sync the directories, you can use the `sync` option. Synchronization only affects the content on the target side; no changes are made to the source side.
 
-Below is the exemplary command of rclone sync. The command contains recommended options which are described below.
+Below is an example of rclone sync command, which includes recommended options explained further below.
 
 ```bash
 rclone sync --dry-run --progress --fast-list /home/user/source-dir cesnet_s3cl2:test-bucket/
@@ -351,7 +351,7 @@ rclone sync --dry-run --progress --fast-list /home/user/source-dir cesnet_s3cl2:
 
 <Callout type="info" emoji="ℹ️">
 **Syncing process** <br/>
-The command above always syncs the content of the source directory. It does not matter if you **DO NOT** use the slash at the end of the source directory. **Behavior of rclone is in this perspective different than rsync behavior**.
+The command above always syncs the content of the source directory, regardless of whether **OR NOT** you use a slash at the end of the source directory. **In this regard, rclone behaves differently from rsync**.
 </Callout>
 
 The command above contains several recommended options.
@@ -368,55 +368,55 @@ Option progress allows seeing the continuous progress of the sync.
 --progress
 ```
 
-Option fast-list allows limiting the number of API requests. This option can enhance the transfer of larger datasets. It uses one request to read the information about 1000 objects and store it in the memory.
+The fast-list option helps limit the number of API requests, which can improve the transfer speed for larger datasets. It makes a single request to read information about 1000 objects and stores it in memory.
 
 ```bash
 --fast-list
 ```
 
-Option interactive allows interactively deciding which change (on the target data storage) we want to accept or reject.
+the interactive option allows you to decide interactively which changes to accept or reject on the target data storage.
 
 ```bash
 --interactive
 ```
 
-### Data integrity checks
+### Data Integrity Verification
 
 <Callout type="info" emoji="ℹ️">
-**Enhancing the speed of checking** <br/>
-All commands related to data integrity check should contain `--fast-list` option, see above. Using the `--fast-list` option will enhance the speed of the integrity checks.
+**Improving check speed** <br/>
+All commands related to data integrity checks should include the `--fast-list` option, as mentioned above. Using the `--fast-list` option will accelerate the speed of integrity checks.
 </Callout>
 
-Rclone allows testing the integrity of transferred data.
+Rclone allows testing ntegrity of the transferred data.
 
 ```bash    
 rclone check --fast-list C:/Users/Alfred/source-for-sync/my-local-data cesnet_s3cl2:test-sync
 ```
 
-The command checks the checksums on the source side as well as on the target side. For fast checks you can use the option `--size-only`, where are checked only file sizes.
+The command verifies checksums on both the source and target sides. For quicker checks, you can use the `--size-only`option, which only checks the file sizes.
 
 ```bash
 rclone check --fast-list --size-only C:/Users/Alfred/source-for-sync/my-local-data cesnet_s3cl2:test-sync
 ```
 <Callout type="warn" icon="⚠️">
-To check data integrity on the encrypted buckets please use the option `cryptcheck` which is described [in the guides related to encrypted buckets](#check-of-encrypted-data-integrity). In the case of using the option check on the encrypted volume, there will occur the forced download of all data in the checked path. Forced downloads are unnecessary and can stall your client.
+To verify data integrity on encrypted buckets, use the `cryptcheck` option, which is explained [in the guides related to encrypted buckets](#check-of-encrypted-data-integrity). If you use the check option on an encrypted volume, it will trigger a forced download of all data in the specified path. These unnecessary forced downloads can slow down your client.
 </Callout>
 
-## Configuration and controls of encryted bucket
+## Configuration and Management of Encrypted Buckets
 
-This section describes the configuration and controls of encrypted buckets using rclone tool. It goes about client-side encryption. Below are the guides for setup using the command line and for setup using the graphical user interface.
+This section outlines the configuration and management of encrypted buckets using the rclone tool, focusing on client-side encryption. Below, you will find guides for setup using the command line and the graphical user interface.
 
-### Configuration using the command line
+### Configuration Using the Command Line
 
 <Callout type="warn" icon="⚠️">
-To be able to configure the rclone tool using this guide **first, you have to download, unzip and install rclone**, the guide can be found in the [first section](#downloading-and-installation-of-rclone-tool).
+To configure the rclone tool using this guide, you must **first download, unzip and install rclone**. Instructions for this can be found in the [first section](#downloading-and-installation-of-rclone-tool).
 </Callout>
 
-Rclone has a wizard that eases the setup of an encrypted bucket.
+Rclone features a wizard that simplifies the setup of an encrypted bucket.
 
-**Windows user** needs the **Command Prompt tool**, where he/she can directly start the rclone configuration using the command below.
+**Windows users** need to open the **Command Prompt**, where they can directly start the rclone configuration using the command below.
 
-**Linux user** needs just to open the **Terminal window** and continue with following rclone.
+**Linux users** only need to open the **Terminal window** and proceed with the following rclone command.
 
 ```bash
 rclone config
@@ -424,39 +424,39 @@ rclone config
 
 ![s3client](/img/data-care/rclone/rclone-cmd1.png)
 
-On the displayed list of the options, we will select **New remote** via typing **n**. Then we will insert the name of our data storage, for instance, `cesnet_s3_encrypted`. Then we will select **Option Storage**, and here **Encrypt/Decrypt a remote**.
+ From the displayed list of the options, select **New remote** by typing **n**. Next, enter the name of your data storage, for example, `cesnet_s3_encrypted`. Then, choose **Option Storage**, and select **Encrypt/Decrypt a remote**.
 
 ![s3client](/img/data-care/rclone/rclone-cmd-encrypted1.png)
 
-In the next step, we have to define **Option remote**. Here we need to select **existing S3 profile/connection** and define the name of the bucket where will rclone create the encrypted space. We have to use the format **s3-profile:bucket-name**.
+In the next step, define **Option remote**. Here, you must select **existing S3 profile/connection** and specify the name of the bucket where rclone will create the encrypted space, using the format **s3-profile:bucket-name**.
 
 ![s3client](/img/data-care/rclone/rclone-cmd-encrypted2.png)
 
-Then we need to select **Option filename_encryption**. There we can select **Encrypt the filenames** alternatively, we can keep it empty if we wish to not encrypt the filenames.
+Then, select **Option filename_encryption**. Here, you can choose **Encrypt the filenames**, or leave it empty if you don´t want to encrypt the filenames.
 
 ![s3client](/img/data-care/rclone/rclone-cmd-encrypted3.png)
 
-Then we can select **Option directory_name_encryption**. There we can select **Encrypt directory names** alternatively, we can keep it empty if we wish to not encrypt the directory names.
+Next, choose the directory **Option directory_name_encryption**. You can select **Encrypt directory names** or leave it empty if you prefer not to encrypt the directory names.
 
 ![s3client](/img/data-care/rclone/rclone-cmd-encrypted4.png)
 
-In the next step **Option password** we have to choose an encryption password.
+In the following step, choose an encryption password under the **Option password**.
 
 ![s3client](/img/data-care/rclone/rclone-cmd-encrypted5.png)
 
-Furthermore, we recommend choosing **Option password2**. This password will be used as salt for consequencing encryption.
+We also recommend selecting **Option password2**, which will be used as a salt for the encryption process.
 
 ![s3client](/img/data-care/rclone/rclone-cmd-encrypted6.png)
 
-Option **Edit advanced config** can be skipped, option **n**.
+the **Edit advanced config** option can be skipped by pressing **n**.
 
 ![s3client](/img/data-care/rclone/rclone-cmd-encrypted7.png)
 
-The configuration is completed now. In the next step, we can confirm the option **Keep this encrypted config remote** using option **y**.
+The configuration is now complete. In the next step, confirm the configuration by selecting **y** for the **Keep this encrypted config remote** option .
 
 ![s3client](/img/data-care/rclone/rclone-cmd-encrypted8.png)
 
-The last step is to check the encryption. Firstly we need to list available configurations/connections.
+The final step is to verify the encryption. First, list the available configurations/connections.
 
 ```bash
 rclone listremotes
@@ -464,13 +464,13 @@ cesnet_s3_encrypted:
 cesnet_s3cl2:
 ```
 
-Then we can using [sync command](#directory-syncing) upload three pictures into decrypted bucket.
+Then, using the [sync command](#directory-syncing), upload three pictures into the decrypted bucket.
 
 ```bash
 rclone sync --progress --fast-list /home/user/source-dir cesnet_s3_encrypted:
 ```
 
-Now we can list decrypted bucket, where we have uploaded three pictures.
+Afterward,list the decrypted bucket, where you should see the three uploaded pictures.
 
 ```bash
 rclone ls cesnet_s3_encrypted:
@@ -479,7 +479,7 @@ rclone ls cesnet_s3_encrypted:
   251493 DSC_0005.jpg
 ```
 
-In the end, we can list the encrypted bucket, where we can see three encrypted files.
+Finally, list the encrypted bucket, where the three files will appear as encrypted.
 
 ```bash
   rclone ls cesnet_s3cl2:test-encryption
@@ -488,64 +488,64 @@ In the end, we can list the encrypted bucket, where we can see three encrypted f
     251589 pelqqer8osssa4k8uon95a4o6c
 ```
 
-### Configuration of the encrypted bucket using the graphical user interface
+### Configuring the Encrypted Bucket Using the Graphical User Interface
 
 <Callout type="warn" icon="⚠️">
-To be able to configure the rclone tool using this guide **first, you have to download, unzip and install rclone**, the guide can be found in the [first section](#downloading-and-installation-of-rclone-tool).
+To configure the rclone tool using this guide **first download, unzip and install rclone**. Instructions for this can be found in the [first section](#downloading-and-installation-of-rclone-tool).
 </Callout>
 
-Firstly you need to deploy the graphical user interface. **Windows users** need the **Command Prompt** tool and then run the command below. The command below should open your web browser with rclone GUI. The same process is valid for **Linux users**, who need to open the **Terminal window** and run the command listed below.
+First, launch the graphical user interface. **Windows users** should open the **Command Prompt** and run the the command below. This will open the rclone GUI in your web browser. **Linux users** can follow the same process by opening a Termial window and running the command listed below.
 
 ```bash
 rclone rcd --rc-web-gui
 ```
 
-The following steps are identical for Windows as well as for Linux users.
+The following steps are identical for Windows and Linux users.
 
-After GUI startup we will click in the left menu on the **Configs (1)** button and then on the **Create a New Config (2)** button.
+Once GUI starts, click on the **Configs (1)** button in the left menu, and then click on the **Create a New Config (2)** button.
 
 ![s3client](/img/data-care/rclone/rclone-gui1.png)
 
-Firstly, we need to type **Name of this drive (1)** and then we will select from the menu option **Encrypt/Decrypt a remote (1)**. Then we will click on the **Next** button.
+First, enter a **Name of this drive (1)** and then select the option **Encrypt/Decrypt a remote (1)** from the menu. After that, click on the **Next** button.
 
 ![s3client](/img/data-care/rclone/rclone-gui-encrypted1.png)
 
-In the next step, we need to specify **Remote to encrypt/decrypt (1)**. Here is **important** to define the already existing S3 profile/connection and the bucket name where we wish to create encrypted space. The input must be here in the following format **s3-profile:bucket-name**. If you choose **non-existing bucket** rclone will create it. Then we will choose the **Password for encryption (2)** and also recommended **Password for salt (2)**.
+In the next step, specify the **Remote to encrypt/decrypt (1)**. Here, it is **important** to select the already existing S3 profile/connection and the bucket name where you wish to create the encrypted space. The input format must be **s3-profile:bucket-name**. If you choose **non-existing bucket** rclone will create it. Next, choose a **Password for encryption (2)** and, optionally, **Password for salt (2)**.
 
 ![s3client](/img/data-care/rclone/rclone-gui-encrypted2.png)
 
-Then we need to click on the **Explorer (1)** button. Now we are in browser mode and then via clicking at **+ (2)** we can open a new tab with an encrypted bucket.
+After that, click the **Explorer (1)** button. Now you are in browser mode. By clicking the **+ (2)**, you can open a new tab with the encrypted bucket.
 
 ![s3client](/img/data-care/rclone/rclone-gui-encrypted3.png)
 
-Then we need to click in the field **Type the name of remote you want to open (1)** and select the corresponding name of the encrypted bucket **(1)**. Then we can continue by clicking on the **Open (2)** button.
+In the field **Type the name of remote you want to open (1)**, select he name of the encrypted bucket **(1)**. Then, click the **Open (2)** button.
 
 ![s3client](/img/data-care/rclone/rclone-gui-encrypted4.png)
 
-At this moment we can start to upload the data which we wish to be encrypted. Just click on the **Upload (1)** icon and then you can select the data from the local disk or you can drag-and-drop your data using **interactive window (2)**.
+At this point, you can begin uploading the data you want to be encrypted. Click the **Upload (1)** icon, and you can either select the files from your local disk or drag-and-drop them using the **interactive window (2)**.
 
 ![s3client](/img/data-care/rclone/rclone-gui-encrypted5.png)
 
-In the example below we have uploaded three pictures **(1)** into decrypted volume. We can check the upload in explorer by opening the remote S3 storage in the tab **(2)**.
+In the example below, we uploaded three images **(1)** into the decrypted volume. You can check the upload in the explorer by opening the remote S3 storage tab **(2)**.
 
 ![s3client](/img/data-care/rclone/rclone-gui-encrypted6.png)
 
-Now we can have a look into encrypted bucket **(1)**.
+Finally, take a look at the encrypted bucket **(1)**.
 
 ![s3client](/img/data-care/rclone/rclone-gui-encrypted7.png)
 
-Indeed we can see that our three pictures **(1)** have been encrypted.
+You will see that the three images **(1)** have been encrypted.
 
 ![s3client](/img/data-care/rclone/rclone-gui-encrypted8.png)
 
 <Callout type="info" emoji="ℹ️">
 **Configuration files for encrypted volumes** <br/>
-Configuration file for encrypted volumes can be found in the [previous section](#configuration-file).
+Configuration file for the encrypted volumes can be found in the [previous section](#configuration-file).
 </Callout>
 
-### Check of encrypted data integrity
+### Verifying the Integrity of Encrypted Data
 
-To check encrypted data integrity it is necessary to use the command **cryptcheck**, see below. Using the common workflow for data integrity checks will cause significant difficulties in the encrypted bucket. It can result in forced downloading of all data from the remote site so it can stall your client.
+To verigy the integrity of encrypted data, it is necessary to use the **cryptcheck** command, as desribed below. Using the standard data integrity check workflow on an encrypted bucket may lead to significant issues, such as forced downloading of all data from the remote site, which can cause your client to stall.
 
 ```bash
   rclone cryptcheck --fast-list C:\Users\Albert\Desktop\test_sync shared_encrypted:dir01/
@@ -555,36 +555,36 @@ To check encrypted data integrity it is necessary to use the command **cryptchec
 ```
 
 <Callout type="info" emoji="ℹ️">
-**Enhancing the speed of checking** <br/>
-While using option cryptcheck we recommend to use option `--fast-list`. It allows cache info about more than 1000 objects within one request, so it rapidly accelerates the checks.
+**Improving the chceck speed** <br/>
+Whe using the cryptcheck command, we recommend including the `--fast-list` option. This option caches information about more than 1000 objects in a single request, significantly speeding up the checking process.
 </Callout>
 
-### Sharing of encrypted buckets
+### Sharing of Encrypted Buckets
 
-The buckets can be shared within the mutual space called the tenant or between users using the bucket policy. If you wish to share the buckets equipped with the encrypted volume you need to share the credentials (for encrypted volume in your bucket) with your colleagues. A shared bucket has to have a properly set up [bucket policy](./aws-cli).
+Buckets can be shared within a shared space called a tenant or between users via bucket policies. To share buckets with encrypted volumes, you will need to share the encryption credentials (used for the encrypted volume in your bucket) with your colleagues. A shared bucket has to have a proper set up [bucket policy](./aws-cli).
 
-Once you configure the encryption in your bucket you just need to share the encryption passwords, you used during the encrypted bucket creation and the bucket name with your colleague. Your colleague can use the guide above to configure corresponding encrypted buckets on his/her machine using the passwords, you shared.
+Once the encryption is set up in your bucket, you only need to share the encryption passwords you used during the encrypted bucket creation, along with the bucket name, with your colleague. Your colleague can then use the guide above to configure the corresponding encrypted buckets on their machine using the passwords you provided.
 
 <Callout type="warn" icon="⚠️">
-Please be aware of the next section describing the need for **change encrypting passwords, or loss of encrypting passwords**.
+Please note the next section, which addresss the need to **change encrypting passwords, or loss of encrypting passwords**.
 </Callout>
 
-### Compromitting of encrypting passwords vs. loss of encrypting passwords
+### Compromise of Encryption Passwords vs. Loss of Encryption Passwords
 
-**In case of compromitting or leakage** of your encrypting passwords or in the situation that you need to change the passwords is only possible to create a new encrypted volume with new encrypting passwords. All data has to be transferred to the new encrypted volume and the old one should be deleted.
+**In case of compromising or leaking** your encryption passwords, or if you need to change the passwords, the only solution is to create a new encrypted volume with new encryption passwords. All data must be transferred to the new encrypted volume, and the old one should be deleted.
 
-Here you have two general options. The first option is to upload your data from the local machine to the encrypted volume if you have them locally. Then you can delete the old encrypted volume.
+You have two general options for this process. The first option is to upload your data from the local machine to the new encrypted volume, assuming the data is available locally. Once the data is uploaded, you can delete the old encrypted volume.
 
-The second option is to transfer the data using rclone. You can use rclone to copy the data from the old encrypted volume to the new encrypted volume. The advantage of this method is that you don't have to download all data locally to your machine and then upload it again, see the example below.
+The second option is to use rclone to transfer the data directly from the old encrypted volume to the new one. The advantage of this method is that you don't need to download the data locally to your machine and then upload it again. See the example below.
 
 ```bash
 rclone copy old_encrypted_drive:dir01 new_encrypted_drive:dir01
 ```
 
-**In case of loss of encryption passwords you lost your data as well!**
+**If you lose your encryption passwords, you will also lose access to your data!**
 
 <Callout type="warn" icon="⚠️">
-In the case of encrypted buckets, it goes about client-side encrypting. If you lose your encrypting passwords the administrators have **NO POWER** on how to restore your encrypted data.
+In the case of encrypted buckets, the encryption is client-side. If you lose your encryption passwords, the administrators have **NO POWER** to restore your encrypted data.
 </Callout>
 
-    **Loss of encrypting passwords always means data loss!!!**
+    
