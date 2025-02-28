@@ -2,10 +2,10 @@
 title: WinSCP - S3 usage
 ---
 
-[WinSCP](https://winscp.net/eng/index.php) is the popular SFTP client and FTP client for Microsoft Windows! Transfer files between your local computer and remote servers using FTP, FTPS, SCP, SFTP, WebDAV or S3 file transfer protocols.
+[WinSCP](https://winscp.net/eng/index.php) is a popular SFTP and FTP client for Microsoft Windows. It allows you to transfer files between your local computer and remote servers using FTP, FTPS, SCP, SFTP, WebDAV, or S3 file transfer protocols.
 
 ## WinSCP installation
-Please use the package directly from [WinSCP](https://winscp.net/eng/download.php) for installation. Installation is common and no special settings are required.
+Please use the package directly from the [WinSCP](https://winscp.net/eng/download.php) website for installation. The installation process is straightforward and does not require any special settings.
 
 ## WinSCP configuration
 
@@ -13,7 +13,7 @@ Run the tool.
 
 ![s3client](/img/data-care/winscp/winscp_setup1en.png)
 
-The storage connection is made via **Session** from the main menu and the **New session**.
+To connect to storage, go to the **Session** option in the main menu and select **New session**.
 
 ![s3client](/img/data-care/winscp/winscp_setup2en.png)
 
@@ -21,7 +21,7 @@ In the drop-down menu **File protocol** select **Amazon S3**.
 
 ![s3cleint](/img/data-care/winscp/winscp_setup3en.png)
 
-Then insert **Host name** `s3.clX.du.cesnet.cz` where replace **X** with the number of the cluster associated with your S3 account. Port `443` will be pre-filled automatically. Copy `access_key` into the field Access key ID and `secret_key` into the Secret access key - you received both of these keys encrypted from the administrators.
+Next, enter the **Host name** as `s3.clX.du.cesnet.cz`, replacing **X** with the cluster number associated with your S3 account. Port `443` will be automatically pre-filled. Copy the `access_key` into the Access key ID field and the `secret_key` into the Secret access key field - both of these keys were provided to you in an encrypted format by the administrators.
 
 ![s3client](/img/data-care/winscp/winscp_setup4en.png)
 
@@ -29,8 +29,8 @@ Select **Advanced** settings.
 
 ![s3client](/img/data-care/winscp/winscp_setup5en.png)
 
-The field `Default region` leave blank! A Style URL **Path** and confirm OK. Then click **Connect**.
+Leave the `Default region` field blank! Select URL **Path** Style and click OK. Then, click **Connect**.
 
 ![s3client](/img/data-care/winscp/winscp_setup6en.png)
 
-Then the storage is connected and you will see a list of your buckets on the right side. Or you can start to create own buckets.
+Once the storage is connected, you will see a list of your buckets on the right side. You can also begin creating your own buckets.

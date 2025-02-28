@@ -1,12 +1,12 @@
 ---
-title: AWS CLI tool for command line usage
+title: AWS CLI as a command-line tool
 ---
 
-AWS CLI is a common tool allowing to control S3 service. AWS CLI tool is written in python.
+AWS CLI is a widely used tool for managing the S3 service. It is written in Python.
 
 ## AWS CLI installation
 
-To install AWS CLI we recommend using [official AWS docummentation](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html). There you can find the guide on how to install AWS CLI on Linux and Windows as well.
+We recommend using the [official AWS docummentation](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) for installing AWS CLI. It provides detailed guides for installation on both Linux and Windows.
 
 <Callout type="info" emoji="ℹ️">
 **AWS-CLI in virtual environment** <br/>
@@ -17,14 +17,15 @@ If you need to install AWS CLI in the virtual environment you can use [this guid
 
 <Callout type="info" emoji="ℹ️">
 **User profile**<br/>
-To configure AWS CLI we recommend using the option `--profile` which allows you to define multiple user profiles with different user credentials. Of course, you can also use the settings without the option `--profile`. All commands will be the same, you will just omit the option `--profile`. AWS will then use the **default** settings.
+We recommend using the `--profile` option to configure AWS CLI, as it allows you to define multiple user profiles with different credentials. Alternatively, you can configure it without the `--profile` option; in this case, AWS will use the **default** settings, and all commands will remain the same, simply omitting the `--profile` option.
 </Callout>
 
 <Callout type="warn" icon="⚠️">
-In the configuration wizard, it is necessary by the option **Default region name** to hit the space bar. If you will not put the space into “Default region name” the config file will not contain **region** parameter. You will then obtain the error related to **InvalidLocationConstraint** during the usage **aws s3**.
+In the configuration wizard, make sure to insert the **Default region name** option. You can use `us-east-1` option. If you don't add the “Default region name”, the config file will lack the **region** parameter, leading to an **InvalidLocationConstraint** error when using **aws s3**.
 </Callout>
 
-In the following, we will demonstrate the AWS CLI configuration. Following exemplary commands utilize the `--profile` option.
+
+Below, we will demonstrate the AWS CLI configuration. The example commands provided use the `--profile` option.
 
 ```bash
 aws configure --profile test_user
@@ -37,21 +38,21 @@ aws configure --profile test_user
 
 _AWS Access Key ID_ - access key, obtained from data storage administrator<br/>
 _Secret Access Key_ - secret key, obtained from data storage administrator<br/>
-_Default region name_ - Here just press the space bar!!! Some software tools can have special requirements, e.g. Veeam, in that case, insert storage<br/>
+_Default region name_ - us-east-1 >> Hint: some software tools, such as Veeam, may have specific requirements. In such cases, enter the storage information.<br/>
 _Default output format_ - choose the output format (json, text, table)<br/>
 
 <Callout type="info" emoji="ℹ️">
 **Endpoint URL** <br/>
-For smooth operation is necessary to use option `--endpoint-url` with particular S3 endpoint address provided by CESNET.
+For smooth operation, it is essential to use the `--endpoint-url` option with the specific S3 endpoint address provided by CESNET.
 </Callout>
 
 <Callout type="warn" icon="⚠️">
-**Multipart S3 upload - the maximal size of the file is limited up to 5 GB**. It is a best practice to use aws s3 commands (such as aws s3 cp) for multipart uploads and downloads because these aws s3 commands automatically perform multipart uploading and downloading based on the file size. By comparison, **aws s3api** commands, such as aws s3api create-multipart-upload, should be used only when aws s3 commands do not support a specific upload need, such as when the multipart upload involves multiple servers, a multipart upload is manually stopped and resumed later, or when the aws s3 command doesn't support a required request parameter. More information can be found on the [AWS websites](https://aws.amazon.com/premiumsupport/knowledge-center/s3-multipart-upload-cli/).
+**Multipart S3 upload - the maximum file size is limited to 5 GB**. It is recommended to use aws s3 commands (such as aws s3 cp) for multipart uploads and downloads, as these commands automatically handle multipart uploading and downloading based on the file size. In contrast, **aws s3api** commands, such as aws s3api create-multipart-upload, should only be used when aws s3 commands do not meet specific upload requirements, such as when the multipart upload involves multiple servers, needs to be manually stopped and resumed later, or requires parameters not supported by the aws s3 command. More information can be found on the [AWS website](https://aws.amazon.com/premiumsupport/knowledge-center/s3-multipart-upload-cli/).
 </Callout>
 
-## Controls of AWS CLI - high-level (s3)
+## AWS CLI Controls - Overview (s3)
 
-To show the help (available commands) you can use help - **aws s3** tool allows you to use several advanced functions, see below.
+To view the available commands, use the help option. The **aws s3** tool offers several advanced functions, as described below.
 
 ```bash
 aws s3 help
@@ -61,7 +62,7 @@ aws s3 help
 
 <Callout type="info" emoji="ℹ️">
 **Unique name of the bucket** <br/>
-The bucket name has to be unique within tenant. It should contain lower letters, numbers, dashes, and dots. The bucket name should begin only with a letter or number and cannot contain dots followed by a dash or dots preceded by a dash or multiple dots. We also recommend not using “slash” in the bucket name. Using the slash will disallow the usage of the bucket via API.
+The bucket name must be unique within tenant. It should only contain lowercase letters, numbers, dashes, and dots. The bucket name must begin with a letter or number and cannot contain dots followed by a dash, dots preceded by a dash, or multiple consecutive dots. We also recommend avoiding the use of “slash” in the bucket name, as slashes will prevent the bucket from being accessed via the API.
 </Callout>
 
 **Bucket creation**
@@ -107,7 +108,7 @@ delete: s3://test1/test_file.zip
 ### Directory/Folder operation
 
 <Callout type="info" emoji="ℹ️">
-The content of the source folder is always copied while using the following command. It does not depend on the slash character at the end of the source path. The behavior of **aws** is in this perspective different than the rsync behavior. If you wish to have the source directory in the destination you can add the name of the source directory to the destination path. **AWS tool will create the directory in the destination while copying the data**, see the exemplary commands below. The same is valid in the case of directory downloads or synchronization via **aws s3 sync**.
+The contents of the source folder are always copied when using the following command, regardless of whether there is a slash at the end of the source path. The behavior of **aws** differs from that of rsync. If you want the source directory to appear in the destination, you can add the source directory's name to the destination path. The **AWS tool will create the directory in the destination while copying the data**, as shown in the exemple commands below. This also applies to directory downloads or synchronization using **aws s3 sync**.
 </Callout>
 
 **Upload the directory**
@@ -139,14 +140,14 @@ aws s3 --profile test_user --endpoint-url https://s3.cl2.du.cesnet.cz sync C:\Us
 aws s3 --profile test_user --endpoint-url https://s3.cl2.du.cesnet.cz sync s3://test1/test_sync/ C:\Users\User\Downloads\test_sync
 ```
 
-## Controls of AWS CLI - api-level (s3api)
+## AWS CLI Controls - api-level (s3api)
 
-**aws** tool allows the usage of **aws s3api** module. This module provides advanced functions to control S3 service, see below. The configuration of credentials and connections is the same like for **aws** in the beginning of this guide.
+The **aws** tool supports the use of the **aws s3api** module, which provides advanced functions for managing the S3 service, as detailed below. The configuration of credentials and connections is the same as for the **aws** tool, as outlined at the beginning of this guide.
 
-The set of available commands can be obtained by the following command with the option **help**. Alternatively is the complete list available in the [AWS website](https://docs.aws.amazon.com/cli/latest/reference/s3api/index.html).
+the list of available commands can be viewed by using the **help** option with the following command. Alternatively, the complete list is available on the [AWS website](https://docs.aws.amazon.com/cli/latest/reference/s3api/index.html).
 
-## Exemplary configuration file for AWS-CLI
-After successful configuration, the configuration file should be created. You can find the example below. You can find the credentials file in the same path.
+## Exemple Configuration File for AWS-CLI
+After a successful configuration, the configuration file will be created. An example is shown below. The credentials file can be found in the same path.
 
 <Callout type="info" emoji="ℹ️">
 **Config file** <br/>
@@ -158,15 +159,15 @@ region =us-east-1 <br/>
 output = text <br/>
 </Callout>
 
-## Special functions of AWS-CLI
-There are several advanced functions in AWS-CLI for sharing the data or its versioning.
+## Special Functions of AWS-CLI
+AWS-CLI offers several advanced functions for data sharing and versioning.
 
 ### Presign URLs
-For object in S3 service you can generate presign URL to allow your colleagues to download the data. You can find more information the the section dedicated to [advanced S3 features](./s3-features)
+For objects in the S3 service, you can generate a presign URL to allow your colleagues to download the data. More information can be found in the section dedicated to [advanced S3 features](./s3-features)
 
 ### Bucket policies
-To share your data you can setup so called bucket policies. You can share specific bucket to a specific group (tenant) or make your bucket publicly readable. You can find more information the the section dedicated to [advanced S3 features](./s3-features)
+To share your data, you can setup so called bucket policies. You can share a specific bucket with a particular group (tenant) or make your bucket publicly readable. More information is available in the section dedicated to [advanced S3 features](./s3-features)
 
 ### Bucket versioning
-You can setup object versioning inside in your buckets. Then you can restore any previous version of the object (file). You can find more information the the section dedicated to [advanced S3 features](./s3-features)
+You can enable object versioning within your buckets, allowing you to restore any previous version of an object (file). More information can be found in the section dedicated to  [advanced S3 features](./s3-features)
 
