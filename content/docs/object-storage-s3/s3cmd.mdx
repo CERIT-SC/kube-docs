@@ -1,16 +1,16 @@
 ---
-title: s3cmd command line tool
+title: S3cmd Command Line Tool
 ---
 
-[S3cmd](https://s3tools.org/download) is a free command line tool. It allows you to upload and download your data to the S3 object storage. S3cmd is written in Python. S3cmd is an open-source project available under GNU Public License v2 (GPLv2) and it is free for personal as well as commercial usage.
+[S3cmd](https://s3tools.org/download) is a free command-line tool that enables you to upload and download data to S3 object storage. Written in Python, S3cmd is an open-source project licensed under the GNU Public License v2 (GPLv2), making it free for both personal and commercial use.
 
 <Callout type="warn" icon="⚠️">
-We recommend you **use preferably [AWS CLI](./s3cmd)**. We encountered some issues while using s3cmd. For instance, bucket names cannot begin with numbers or capital letters.
+We recommend using the AWS CLI whenever possible, as we encountered some issues with S3cmd. For example, bucket names cannot start with numbers or uppercase letters.
 </Callout>
 
-## Installation of s3cmd tool
+## Installing the S3cmd Tool
 
-S3cmd is available in the system repositories for CentOS, RHEL and Ubuntu. You can install it via following guide.
+S3cmd is available in the system repositories for CentOS, RHEL, and Ubuntu. You can install it using the following guide.
 
 **On CentOS/RHEL**
 
@@ -24,9 +24,9 @@ sudo yum install s3cmd
 sudo apt install s3cmd 
 ```
 
-## Configuration of s3cmd tool
+## Configuring the S3cmd Tool
 
-Please insert the following lines into the config file located at **/home/user/.s3cfg**.
+Add the following lines to the configuration file located at **/home/user/.s3cfg**.
 
 ```conf filename="/home/user/.s3cfg" copy
 [default]
@@ -37,9 +37,9 @@ Please insert the following lines into the config file located at **/home/user/.
     host_bucket = s3.clX.du.cesnet.cz
 ```
 
-`host_base` and `host_bucket` is S3 endpoint URL, which you received via email together with `access_key` and `secret_key`. You should receive it via email during the S3 account creation.
+the `host_base` and `host_bucket` refer to the S3 endpoint URL, which you received via email along with your `access_key` and `secret_key`. This information is sent to you during the S3 account creation process.
 
-**Config file with GPG encryption**
+**Configuration file with GPG encryption**
 
 ```conf filename="/home/user/.s3cfg" copy
 [default]
@@ -54,15 +54,15 @@ host_base = https://s3.clX.du.cesnet.cz
     gpg_passphrase = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-## Basic s3cmd commands
+## Basic S3cmd Commands
 
-S3cmd commands support elementary operations with buckets - creation, listing, and deletion.
+S3cmd commands support basic bucket operations - creation, listing, and deletion.
 
 ### Bucket operations
 
 <Callout type="info" emoji="ℹ️">
 **Bucket name** <br/>
-The bucket name should be unique within tenant and should contain only small letters, capital letters, numerals, dashes, and dots. The bucket name must begin only with a letter or numeral and it cannot contain dots next to dashes or multiple dots.
+The bucket name must be unique within the tenant and can only contain lowercase letters, uppercase letters, numbers, dashes, and dots. It must start with a letter or number and cannot have dots next to dashes or multiple consecutive dots.
 </Callout>
 
 
@@ -72,13 +72,13 @@ The bucket name should be unique within tenant and should contain only small let
 s3cmd ls
 ```
 
-**Creation of new s3 bucket**
+**Creation of a new s3 bucket**
 
 ```bash
 s3cmd mb s3://newbucket
 ```
 
-**Removing s3 bucket**
+**Removing an s3 bucket**
 
 ```bash
 s3cmd rb s3://newbucket
@@ -86,15 +86,15 @@ s3cmd rb s3://newbucket
 
 _Only emptied bucket can be removed!_
 
-**Listing s3 bucket size**
+**Listing an s3 bucket size**
 
 ```bash
 s3cmd s3://newbucket/ du 
 ```
 
-### Files and directories operation
+### File and directory operations
 
-**Listing of s3 bucket**
+**Listing of an s3 bucket**
 
 ```bash
 s3cmd ls s3://newbucket/ 
@@ -118,15 +118,15 @@ s3cmd put -e file.txt s3://newbucket/
 s3cmd put -r directory s3://newbucket/ 
 ```
 
-_Please make sure, that you didn't forget to remove the trailing slash (e.g. .: directory/), trailing slash denotes uploading only the content of the desired directory._
+_Please ensure that you haven't forgotten to remove the trailing slash (e.g. .: directory/). The trailing slash indicates that only the contents of the specified directory will be uploaded._
 
-**Download file from s3 bucket**
+**Downloading file from an s3 bucket**
 
 ```bash
 s3cmd get s3://newbucket/file.txt
 ```
 
-**Data deletion from s3 bucket**
+**Data deletion from an s3 bucket**
 
 ```bash
 s3cmd del s3://newbucket/file.txt
@@ -134,13 +134,13 @@ s3cmd del s3://newbucket/file.txt
 s3cmd del s3://newbucket/directory 
 ```
 
-**Data sync into s3 bucket from local machine**
+**Data sync to an s3 bucket from a local machine**
 
 ```bash
 s3cmd sync /local/path/ s3://newbucket/backup/ 
 ```
 
-**Data sync from s3 bucket to local machine**
+**Data sync from an s3 bucket to a local machine**
 
 ```bash
 3cmd sync s3://newbucket/backup/ ~/restore/
