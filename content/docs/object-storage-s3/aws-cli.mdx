@@ -21,7 +21,7 @@ We recommend using the `--profile` option to configure AWS CLI, as it allows you
 </Callout>
 
 <Callout type="warn" icon="⚠️">
-In the configuration wizard, make sure to press the space bar when selecting the **Default region name** option. If you don't add a space in the “Default region name” field, the config file will lack the **region** parameter, leading to an **InvalidLocationConstraint** error when using **aws s3**.
+In the configuration wizard, make sure to insert the **Default region name** option. You can use `us-east-1` option. If you don't add the “Default region name”, the config file will lack the **region** parameter, leading to an **InvalidLocationConstraint** error when using **aws s3**.
 </Callout>
 
 Below, we will demonstrate the AWS CLI configuration. The example commands provided use the `--profile` option.
@@ -37,7 +37,7 @@ aws configure --profile test_user
 
 _AWS Access Key ID_ - access key, obtained from data storage administrator<br/>
 _Secret Access Key_ - secret key, obtained from data storage administrator<br/>
-_Default region name_ - simply press the space bar here!!! Some software tools, such as Veeam, may have specific requirements. In such cases, enter the storage information.<br/>
+_Default region name_ - us-east-1 >> Hint: some software tools, such as Veeam, may have specific requirements. In such cases, enter the storage information.<br/>
 _Default output format_ - choose the output format (json, text, table)<br/>
 
 <Callout type="info" emoji="ℹ️">
@@ -154,7 +154,7 @@ Windows: C:/Users/User/.aws/config <br/>
 Linux:   /home/user/.aws/config <br/>
 
 [profile test-user] <br/>
-region =us-east-1 <br/>
+region = us-east-1 <br/>
 output = text <br/>
 </Callout>
 
