@@ -1,10 +1,10 @@
 ---
-title: s5cmd for very fast transfers
+title: S5cmd for Ultra-Fast Transfers
 ---
 
-In case you have a fast connection of about 1-2Gbps and you want to utilize it for data transfers, you can use the s5cmd tool. It allows you to fully optimize the data transfer. The tool is available in form of compiled binaries for Windows, Linux and macOS. It is also available as a source code or docker image. Detailed information can be found on [the project Github page](https://github.com/peak/s5cmd).
+If you have a fast connection of around 1-2 Gbps and want to maximize its potential for data transfers, you can use the s5cmd tool. This tool optimizes data transfers for maximum efficiency. It is available as compiled binaries for Windows, Linux, and macOS, as well as in source code and Docker image formats. For more detailed information, visit [the project Github page](https://github.com/peak/s5cmd).
 
-Please insert into **.aws/credentials** the folowing options.
+Please add the following options to your **.aws/credentials**.
 
 ```conf filename=".aws/credentials" copy
 [default]
@@ -31,7 +31,7 @@ s5cmd --endpoint-url=https://s3.clX.du.cesnet.cz cp myfile s3://bucket
 ```
 <Callout type="info" emoji="ℹ️">
 **How to achieve high transfer speed?** <br/>
-To achieve higher speed for data transfers it is necessary to modify the following parameters, particularly utilize or CPU cores and workers, see below.
+To achieve faster data transfers, it's essential to adjust the following parameters, particularly by utilizing CPU cores and workers. See the details below.
 </Callout>
 
 ```bash
