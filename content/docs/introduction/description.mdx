@@ -1,11 +1,11 @@
 ---
 title: Description of the Data Storage Infrastructure
 ---
-Data Centers operated by CESNET are based on object storage technology utilizing Ceph, see below. Data Centers are located only within Czech Republic so all your data lies thereto. Distributed model of Data Centers allows us to increase data redundancy due to usage of geographical replicas. That model brings the advantage that your data are resistant to the data media failure, nature disaster or user mistake. Another advatage is that you can use the Data Center which is the closest to your location.
+The data centers operated by CESNET are based on object storage technology utilizing Ceph, as described below. These data centers are located exclusively within the Czech Republic, meaning all your data remains within the country. The distributed model of these data centers enhances data redundancy through the use of geographical replicas. This approach ensures that your data is protected against media failures, natural disasters, or user errors. Another advantage is that you can use the data center closest to your location for improved efficiency.
 
 ![infrastructure](/img/data-care/infrastructure/mapcr-new-transparent.png)
 
-**CEPH** - Ceph is the software solution for providing object storage solution. Object storage differs from common file-oriented data storages. Object storage stores data as an objects not like data blocks. Metadata is associated directly to the particular object. This system eliminates hierarchical structure utilized within common data storages. All data are then stored in flat name space which is easy scalable. Ceph is opensource system. It consists of object store, block store and distributed file system. Ceph supports object access (RADOS), exported block device and file access. Data stored within Ceph are replicated to multiple nodes, based on defined replication policy.
+**CEPH** - Ceph is a software solution designed to provide object storage. Unlike traditional file-oriented data storage, object storage stores data as objects rather than data blocks. Metadata is directly associated with each object, eliminating the hierarchical structure used in conventional data storage systems. Instead, all data is stored in a flat namespace, making it highly scalable. Ceph is an open-source system that includes an object store, block store, and distributed file system. It supports object access (RADOS), exported block devices, and file access. Data stored in Ceph is replicated across multiple nodes based on a defined replication policy.
 
 |  Data Center | Type   | Loacation     | Raw capacity PB | In operation since | Status        |
 | :-----       | :----- | :-----        | :-----          | :-----             | :-----        |
@@ -21,38 +21,38 @@ Data Centers operated by CESNET are based on object storage technology utilizing
 | CL5          | CEPH   | Dolní Břežany | 25.536          | 2023               | online        |
 
 ## Datacenters
-Below you can find details about each datacenter.
+Below are the details of each datacenter.
 
 ### CL1 Jihlava
-Object storage CL1 is based on Ceph technology. It is consisting of 17 storage servers, each has 48pcs HDD with total capacity 10.56 PB. The access to the data is served by three front end servers.
+Object storage CL1 is based on Ceph technology and consists of 17 storage servers, each equipped with 48 HDDs, totaling a capacity of 10.56 PB. Data access is provided by three front-end servers.
 
 Available services: [RBD](../object-storage-rbd/rbd-service) and [S3](../object-storage-s3/s3-service)
 
 ---
 
 ### CL2 Plzeň
-Object storage CL2 is based on Ceph technology. It is consisting of 33 storage servers, each has 48pcs HDD (each 16 TB) with total capacity 25.43 PB. The access to the data is served by five front end servers.
+Object storage CL2 is based on Ceph technology and consists of 33 storage servers, each with 48 HDDs (16 TB each), totaling a capacity of 25.43 PB. Data access is provided by five front-end servers.
 
 Available services: [RBD](../object-storage-rbd/rbd-service) and [S3](../object-storage-s3/s3-service)
 
 ---
 
 ### CL3 Ostrava
-Object storage CL3 is based on Ceph technology. It is consisting of 74 storage servers, each has 24pcs HDD with total capacity 33.67 PB. The access to the data is served by five front end servers.
+Object storage CL3 is based on Ceph technology and consists of 74 storage servers, each with 24 HDDs, totaling a capacity of 33.67 PB. Data access is provided by five front-end servers.
 
 Available services: [RBD](../object-storage-rbd/rbd-service) and [S3](../object-storage-s3/s3-service)
 
 ---
 
 ### CL4 Brno
-Object storage CL4 is based on Ceph technology. It is consisting of 57 storage servers, each has 24pcs HDD with total capacity 26.607 PB. The access to the data is served by five front end servers and nine aplications servers.
+Object storage CL4 is based on Ceph technology and consists of 57 storage servers, each with 24 HDDs, totaling a capacity of 26.607 PB. Data access is provided by five front-end servers and nine aplications servers.
 
 Available services: [RBD](../object-storage-rbd/rbd-service) and [S3](../object-storage-s3/s3-service)
 
 ---
 
 ### CL5 Dolní Břežany
-Object storage CL5 is based on Ceph technology. It is consisting of 50 storage servers, each has 30pcs HDD with total capacity 25.536 PB. The access to the data is served by five front end servers.
+Object storage CL5 is based on Ceph technology and consists of 50 storage servers, each with 30 HDDs, totaling a capacity of 25.536 PB. Data access is provided by five front-end servers.
 
 Available services: [RBD](../object-storage-rbd/rbd-service) and [S3](../object-storage-s3/s3-service)
 
