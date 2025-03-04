@@ -169,6 +169,27 @@ The token is valid for all your running notebooks, not just for a particular not
 The user who wants to use the share link with the token must not be logged in, e.g., must use an incognito browser window.
 </Callout>
 
+## Exposing Local Applications  
+
+Flare tunnel allows you to expose your local applications on the domain `flare.cloud.e-infra.cz`.  
+
+Creating a tunnel:  
+
+1. Install the Python package for tunnel management:  
+```bash
+pip install git+https://github.com/CERIT-SC/flare
+```  
+2. Start the application you want to expose.  
+3. Create a tunnel:  
+```bash
+flare tunnel --port {port} --name {name}
+```  
+where `{port}` is the port on which your application is running, and `{name}` defines the URL where the application will be accessible.  
+For example, the following command will expose an application running on port `8888` at the URL `https://myapp.flare.cloud.e-infra.cz`:  
+```bash
+flare tunnel --port 8888 --name myapp
+```
+
 
 ## Special Features
 

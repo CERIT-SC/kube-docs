@@ -184,6 +184,27 @@ Token platí pro všechny vaše běžící notebooky, nejen pro konkrétní note
 Uživatel, který chce použít sdílený odkaz s tokenem, nesmí být přihlášen, tj. musí použít okno inkognito prohlížeče.
 </Callout>
 
+## Zpřístupnění lokálních aplikací
+
+Flare tunnel umožňuje zpřístupnění vašich lokálních aplikací na doméně `flare.cloud.e-infra.cz`.
+
+Vytvoření tunelu:
+
+1. Nainstalujte Python balíček pro správu tunelů:
+```bash
+pip install git+https://github.com/CERIT-SC/flare
+```
+2. Spusťte aplikaci, kterou chcete zpřístupnit.
+3. Vytvořte tunel:
+```bash
+flare tunnel --port {port} --name {name}
+```
+kde `{port}` je port, na kterém běží vaše aplikace, a `{name}` určuje URL, na kterém bude aplikace dostupná.  
+Například následující příkaz zpřístupní aplikaci běžící na portu `8888` na URL `https://myapp.flare.cloud.e-infra.cz`:
+```bash
+flare tunnel --port 8888 --name myapp
+```
+
 ## Podpora AI GPT
 
 Některé notebooky (označené `AI`) jsou integrovány s GPT, konkrétně s modelem gpt-4o-mini. Každý uživatel má přístup k předplacenému modelu s následujícími omezeními:
