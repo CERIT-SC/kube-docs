@@ -45,6 +45,19 @@ spec:
           capabilities:
             drop:
             - ALL
+        env:
+          - name: KUBERNETES_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: KUBERNETES_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: KUBERNETES_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
         ports:
         - containerPort: 8080
 ```
@@ -59,6 +72,7 @@ This example file is composed of fields:
     - `.spec` `Pod's` template specification
       -  `.containers` array defining containers that will run. Each item has to have `name, image`
       -  `.containers.securityContext` defines under what user and optionally group, the container will run. *IMPORTANT* containers must be run under nonRoot user and group because of security. More in part about *PodSecurityPolicy* later
+      -  `.containers.env` set environment variables for a container. They can be taken from other fields of the object or from other object types (e.g., Secret)
 
 Complete reference docs for resources and their allowed fields and subfields is available [online](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.30/). Don't forget right indentation!
 
@@ -179,8 +193,20 @@ spec:
         ports:
         - containerPort: 8080
         env:
+         - name: KUBERNETES_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        - name: KUBERNETES_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+        - name: KUBERNETES_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
         - name: MESSAGE
-          value: Hello from the other side!
+            value: Hello from the other side!
 ```
 
 ![hello2](/img/ceritsc/hello2.png)
