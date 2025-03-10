@@ -2,7 +2,7 @@
 title: RBD Service
 ---
 
-The Rados Block Device **RBD** is a block storage solution that can be integrated into your infrastructure. The connection must be established through a **Linux machine** (RBD connection to Windows is not yet reliably supported). Once connected, you can re-export the block device to other parts of your systems (such as remounting it over a network using Samba). RBD is particularly well-suited for centralized backup systems. It is a specialized service that requires the user to have advanced experience in managing Linux devices. RBD is intended for handling larger volumes of data - hundreds of TB. Additionally, the block device can be encrypted on the client side using LUKS. Client-side encryption ensures that data is encrypted during transmission, making it inaccessible even if intercepted. Access to the service is managed through virtual organizations and coresponding user groups.
+The Rados Block Device **RBD** is a block storage solution that can be connected to your infrastructure. The connection must be established through a **Linux based machine**(preferred) or **Windows based Machine**. Once connected, you can re-export the block device to other parts of your infrastructure (such as remounting it over a network using Samba). RBD is particularly well-suited for centralized backup systems. It is a specialized service that requires the user to have advanced experience in managing Linux devices. RBD is intended for handling larger volumes of data - hundreds of TB. Additionally, the block device can be encrypted on the client side using LUKS. Client-side encryption ensures that data is encrypted during transmission, making it inaccessible even if intercepted. Access to the service is managed through virtual organizations and coresponding user groups.
 
 <Callout type="warn" icon="⚠️">
 RBD connections are only permitted from dedicated IPv4 addresses that are whitelisted in the firewall of our data centers. An RBD image can only be mounted on a **SINGLE** machine at a time; it cannot be mounted simultaneously on multiple workstations. In other words, RBD is not intended for use as a clustered file system. If you wish to use a clustered file system over RBD, please consult with Data Care support first.
@@ -24,13 +24,13 @@ If you have a centralized backup system (such as a script suite, Bacula, BackupP
 ![rbd](/img/data-care/rbd-service/central_backup.png)
 
 ### Centralized Shared Storage for Internal Redistribution
-If you need to store live data and provide storage for individual users, the [RBD](./rbd-setup) service can be integrated into you infrastructure using a Linux machine. You can create a filesystem on the connected block device, enable encryption, and then re-export it within your infrastructure using protocols such as Samba, NFS, FTP, SSH, etc. (or via containers that manage protocol distribution within your internal network).
+If you need to store live data and provide storage for individual users, the [RBD](./rbd-setup) service can be integrated into your infrastructure using a Linux or Windows machine. You can create a filesystem on the connected block device, enable encryption, and then re-export it within your infrastructure using protocols such as Samba, NFS, FTP, SSH, etc. (or via containers that manage protocol distribution within your internal network).
 Client-side encryption ensures that data transmitted over the network is encrypted, making it impossible to decrypt once transmission is complete. The advantage of this setup is that you can create user groups and manage access rights according to your preferences or integrate your local user and group database. Additionally, the RBD block device can be equipped with snapshots at the RBD level. This allows you to restore data from previous snapshots, such as from the previous day, in the event of accidental deletion.
 
 ![rbd](/img/data-care/rbd-service/shared_distribution.png)
 
 ## RBD Data Reliability (Data Redundancy) - Replicated vs Erasure Coding
-The following section describes additional approaches for data redundancy applied to the object storage pool. The RBD service can be configured with either **replicated** or **erasure codeing (EC)** redundancy, as well as **synchronous or asynchronous geographical repliacation**.
+The following section describes additional approaches for data redundancy applied to the object storage pool. The RBD service can be configured with either **replicated** or **erasure code (EC)** redundancy, as well as **synchronous or asynchronous geographical repliacation**.
 
 ### Replicated
 With replicated redundancy, your data is stored in three copies within the data center. If one copy becomes corrupted, the original data remains intact and readable, while the damaged copy is repaired in the background. Using a service with replication flag also improves read speeds, as data can be read from all replicas simultaneously. However, write speeds may be slower, as write operations must wait for confirmation from all three replicas before proceeding.
@@ -49,7 +49,7 @@ Ideal for storing large data volumes, for example.
 </Callout>
 
 ### RBD Snapshots 
-Snapshots can be created at the RBD (replicated/erasure coding) level and are managed from the client side. [RBD snapshotting](rbd-setup.md) serves as an alternative to the `tape_tape`backup policy - snapshots can be mirrored to another geographic location, as described below.
+Snapshots can be created at the RBD (replicated/erasure code) level and are managed from the client side. [RBD snapshotting](rbd-setup.md) serves as an alternative to the `tape_tape` backup policy - snapshots can be mirrored to another geographic location, as described below.
 
 ### Synchronous Geographical Replication
 Synchronous geographical replication provides protection against data center failure. It may reduce write speed, as the system waits for successful write confirmation at both geographical locations. If you believe you need this service, please contact us.
