@@ -1,11 +1,11 @@
 ---
 title: Connecting and Configuring Ceph RBD Using a Linux Client
 ---
-Ceph RBD (RADOS Block Device) offers users a network block device that appears as a local disk on the system where it is connected. The block device is entirely managed by the user, who can create a file system on it and use it according to their needs.
+Ceph RBD (RADOS Block Device) offers users a network block device that appears as a local disk on the system where it is connected. The block device is entirely managed by the user, who can create a file system on it and use it according to his needs.
 
 <Callout type="info" emoji="ℹ️">
   **Advantages of RBD**
-    * Ability to expand the block device image.
+    * Ability to resize the block device image.
     * Import / export of block device images.
     * Stripping and replication within the cluster.
     * Capability to create read-only snapshots and restore them (for RBD level snapshots, please contact us).
@@ -21,7 +21,7 @@ Ceph RBD (RADOS Block Device) offers users a network block device that appears a
 
 <Callout type="info" emoji="ℹ️">
 **Ceph client version**
-For optimal functionality, it is highly recommended to use the same version of Ceph tools as the one currently running on our clusters. Currently, the version in use is 16, codenamed Pacific. We will set up the appropriate repositories, as outlined below.
+For optimal functionality, it is highly recommended to use the same version of Ceph tools as the one currently running on our clusters. Then you can set up the appropriate repositories, as outlined below.
 </Callout>
 
 ### CentOS Setup
@@ -34,7 +34,7 @@ In the directory **/etc/yum.repos.d/** create a text file **ceph.repo** and fill
 ```conf filename="/etc/yum.repos.d/ceph.repo" copy
 [ceph]
     name=Ceph packages for $basearch
-    baseurl=https://download.ceph.com/rpm-nautilus/el7/$basearch
+    baseurl=https://download.ceph.com/<contact-admin-for-current-version>/el7/$basearch
     enabled=1
     priority=2
     gpgcheck=1
@@ -116,6 +116,14 @@ In the directory **/etc/ceph/** create a text file **ceph.conf** with the follow
     fsid = c4ad8c6f-7ef3-4b0e-873c-b16b00b5aac4
     mon_host = [v2:78.128.245.29:3300/0,v1:78.128.245.29:6789/0] [v2:78.128.245.30:3300/0,v1:78.128.245.30:6789/0] [v2:78.128.245.31:3300/0,v1:78.128.245.31:6789/0]
     auth_client_required = cephx
+```
+
+**CL5 Data Storage**
+```
+[global]
+fsid = c581dace-40ff-4519-878b-c0ffeec0ffee
+mon_host = [v2:78.128.245.157:3300/0,v1:78.128.245.157:6789/0] [v2:78.128.245.158:3300/0,v1:78.128.245.158:6789/0] [v2:78.128.245.159:3300/0,v1:78.128.245.159:6789/0]
+auth_client_required = cephx
 ```
 
 Next, in the **/etc/ceph/** directory, create a text file **ceph.keyring**. Then, save the keyring in that file, as shown in the example below.
