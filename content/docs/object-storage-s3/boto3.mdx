@@ -1,24 +1,28 @@
 ---
-title: Boto3 library 
+title: Boto3 Library 
 ---
 
 <Callout type="warn" icon="⚠️">
-This guide is suited for developers and advanced users. Boto3 is a Python library which can be incorporated into your application.
+This guide is intended for developers and advanced users. Boto3 is a Python library that can be integrated into your application.
 </Callout>
 
-[Boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html) library is a Python Software Development Kit for S3 service. It allows developers to create, configure, and manage S3 services. The library provides a simple and intuitive interface for interacting with CESNET S3 resources.
+The [Boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html) library is a Python Software Development Kit for the S3 service. It enables developers to create, configure, and manage S3 services. The library offers a simple and intuitive interface for interacting with CESNET S3 resources.
 
 ## Installation of Boto3
 
-In order to use `boto3` library, you need to install it first. You can do it by running the following command inside your Python environment:
+To use the `boto3` library, you must first install it. You can do so by running the following command in your Python environment:
 
 ```bash
 pip install boto3
 ```
 
 <Callout type="warn" icon="⚠️">
-**Issues with uploads within the latest boto3 versions** <br/>
-There have been some issues lately with the latest releases of the `boto3` library and third-party S3 storage providers (like the CESNET S3 storage).<br/> As of now, the issues still persist with versions `1.36.x` (`1.36.12` to be exact). For this reason, we recommend using the `boto3` library with the version `1.35.99` or lower.<br/> For further information, see this [GitHub issue](https://github.com/boto/boto3/issues/4400).
+**Issues with uploads in the latest boto3 versions** <br/>
+Recent releases of the `boto3` library have encountered issues with third-party S3 storage providers (such as the CESNET S3 storage).<br/> 
+
+These issues are still present in versions `1.36.x` (specifically `1.36.12`). Therefore, we recommend using `boto3` version `1.35.99` or earlier.<br/> 
+
+For more details, refer to this [GitHub issue](https://github.com/boto/boto3/issues/4400).
 </Callout>
 
 Or you can use the specific version of the library:
@@ -29,7 +33,7 @@ pip install boto3==1.35.99
 
 ## Usage
 
-First, you need to create an instance of the `s3 client` object with your credentials and the endpoint URL:
+First, you need to create an instance of the `s3 client` object using your credentials and the endpoint URL:
 
 ```python copy
 import boto3
@@ -46,7 +50,7 @@ You can use the `~/.aws/credentials` file to store your credentials and use them
 For more information, see the [official boto3 documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
 </Callout>
 
-Then you can use the `s3` object to interact with the S3 storage. Below you can find several examples of usage Boto3 library.
+You can then use the `s3` object to interact with the S3 storage. Below are several examples of how to use the Boto3 library.
 
 **List all the buckets**
 

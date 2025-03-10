@@ -3,74 +3,74 @@ title: Service Account Management
 ---
 Service account management.
 
-## Creating service user
+## Creating a Service User
 <Callout type="warn" icon="⚠️">
-For specific needs of Data Care Department please **do NOT** choose your username such, that begins with `VO_`, e.g. service user account backup for `VO_xyz` should have login `xyz_backup`. The rule that all logins should have lower case letters based on US alphabet (i.e. without special characters, which are presented in some special languages) is very important as well.
+For the specific needs of Data Care Department, please **AVOID** choosing a username that starts with `VO_`. For example, a service user account for backing up `VO_xyz` should have the login `xyz_backup`. It is also important to ensure that all usernames are in lowercase letters based on the US alphabet, without special characters (which may apear in some non-English languages).
 </Callout>
 
-First you need to login into Perun system. [Perun system](https://perun.einfra.cesnet.cz).
+First, log in to the Perun system. [Perun system](https://perun.einfra.cesnet.cz).
 
-After logging in you need to choose **Access management (1)** in the left menu. Then you can insert the **name of your VO (2)** or you can straight **click on your VO (3)** in the list below.
+Once loggen in, select **Access management (1)** from the left menu. Then, either enter the **name of your VO (2)** or directly **click on your VO (3)** in the list below.
 
 ![perun](/img/data-care/perun/Creating_group0.png)
 
-In the detail of your VO, you need to click on the **Service accounts (1)** tile.
+In the details of your VO, click on the **Service accounts (1)** tile.
 
 ![perun](/img/data-care/perun/Creating_service_user_account.png)
 
-Then in the following page, you need to click on the **Create... (1)** button.
+On the following page, click the **Create... (1)** button.
 
 ![perun](/img/data-care/perun/Creating_service_user_account1.png)
 
-The next step is to fill in the `Account name` and `Email` field. In the end, you can click on the **Next (1)** button. 
+Next, fill in the `Account name` and `Email` fields. Finally, click the **Next (1)** button. 
 
 ![perun](/img/data-care/perun/Creating_service_user_account2.png)
 
-The next step is to fill in the `Namespace` choose the EINFRA namespace from the drop-down menu and `Login` field. Next, mark `Set password now` and fill in the password in the `Password` field and enter the same value in the `Confirm password`. In the end, you can click on the **Next (1)** button. 
+Next, select the EINFRA `Namespace` from the drop-down menu and enter the login in the `Login` field. Then, check `Set password now` and enter the password in the `Password` field, making sure to confirm it in the `Confirm password` field. Finally, click the **Next (1)** button. 
 
 ![perun](/img/data-care/perun/Creating_service_user_account3.png)
 
-After checking the user with whom the user account of the service will be associated, you can click on the **Next (1)** button.
+After verifying the user with whom the service account will be associated, click the **Next (1)** button.
 
 ![perun](/img/data-care/perun/Creating_service_user_account4.png)
 
 <Callout type="info" emoji="ℹ️">
 **Associated users** <br/>
-If necessary, it is possible to associate another user identity to the service user. Due to technical reasons is this way strongly recommended.
+If needed, you can associate an additional user identity with the service account. For technical reasons, this approach is strongly recommended.
 </Callout>
 
-Please insert the name, surname, email or login of the user with who you wish to associate the created service account and then click on the Search button. Select your user from the search results and select **Add**.
+Please enter the name, surname, email, or login of the user you wish to associate with the created service account, then click on the **Search** button. Select the user from the search results and click **Add**.
 
-In the end, you can click on the **Create (1)** button.
+Finally, click on the **Create (1)** button.
 
 ![perun](/img/data-care/perun/Creating_service_user_account5.png)
 
-## Adding a service user to a group
+## Adding a Service User to a Group
 
-The created service user must join the already created group
+The created service user must be added to an existing group
 
-In the detail of your VO, you need to click on the **Groups (1)** tile.
+In the details of your VO, click on the **Groups (1)** tile.
 
 ![perun](/img/data-care/perun/Creating_group1.png)
 
-The next step is to fill in the `Search by name, id. description` field and after showing the group list, you can select desired one. 
+The next step is to enter the `Search by name, id. description` field. Once the list of groups appears, you can select the desired group. 
 
 ![perun](/img/data-care/perun/Added_service_to_group3.png)
 
-In the detail of your Group, you need to click on the **Members (1)** tile.
+In the group details, click on the **Members (1)** tile.
 
 ![perun](/img/data-care/perun/Added_service_to_group4.png)
 
-Then you can click at the **Add  (1)** button.
+Then, click the **Add  (1)** button.
 
 ![perun](/img/data-care/perun/Added_service_to_group0.png)
 
-The next step is to fill in the `Search user by name login or email` and after showing our service user in the list you can tick it. In the end, you can click on the **Add (1)** button.
+The next step is to enter the `Search user by name login or email`. Once the service user appears in the list, you can select it. Finally, click on the **Add (1)** button.
 
 ![perun](/img/data-care/perun/Added_service_to_group1.png)
 
 <Callout type="info" emoji="ℹ️">
-All changes made in the Perun system will be active in one hour. These executed changes are not immediate!
+All changes made in the Perun system will take effect within one hour. These changes are not applied immediately!
 </Callout>
 
 ## Changing service user password
