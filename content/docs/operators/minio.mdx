@@ -2,9 +2,15 @@
 title: MinIO Operator
 ---
 
-The [MinIO Operator](https://min.io/docs/minio/kubernetes/upstream/index.html) provides easy to run MinIO Tenant on Kubernetes. We have provided cluster-wide MinIO Operator for easy deployment of MinIO S3 object storage servers. The MinIO Operator defines a kind of `Tenant` that ensures the existence of a object storage. Full documentation about its structure is available [here](https://min.io/docs/minio/kubernetes/upstream/index.html). The official manual for creating an example MinIO tenant can be found [here](https://github.com/minio/operator/blob/master/docs/examples.md). For your convenience, we provide some working examples below, divided into sections.
+The [MinIO Operator](https://min.io/docs/minio/kubernetes/upstream/index.html) simplifies the deployment of MinIO Tenants on Kubernetes. It offers a cluster-wide MinIO Operator for seamless provisioning of MinIO S3 object storage servers.
 
-## Deploying a single instance
+The MinIO Operator introduces a custom resource called `Tenant`, which ensures the creation and management of object storage instances. You can find the full documentation on its structure [here](https://min.io/docs/minio/kubernetes/upstream/index.html). Additionally, the official guide for creating a MinIO Tenant is available [here](https://github.com/minio/operator/blob/master/docs/examples.md).
+
+To make things easier, we provide several working examples below, organized into sections.
+
+## Deploying a Single Instance
+
+You can start with a sample instance, ideal for testing purposes. This example creates a `Tenant` resource managed by the installed MinIO Operator. You can download the example [here](/examples/ceritsc/manifests/minio-minimal-tenant.yaml).
 
 You can start with an example instance, which is suitable for testing. This example creates a resource Tenant defined by the installed Minio operator. You can download the example [here](/examples/ceritsc/manifests/minio-minimal-tenant.yaml).
 
@@ -14,20 +20,29 @@ kind: Tenant
 metadata:
   name: myminio
 spec:
+  ## Name of the tenant instance
+  name: myminio
   ## Create users in the Tenant using this field. Make sure to create secrets per user added here.
   ## Secret should follow the format used in `minio-creds-secret`.
   users:
     - name: myminio-user-secret
+  ## Pre create buckets
+  buckets:
+    - name: mybucket
+  certificate:
+    requestAutoCert: true ## if true, Minio uses HTTPS protocol - important for Ingress, if false, HTTP (no encryption) is used
   ## Specification for MinIO Pool(s) in this Tenant.
   pools:
     ## Servers specifies the number of MinIO Tenant Pods / Servers in this pool.
     ## For standalone mode, supply 1. For distributed mode, supply 4 or more.
     ## Note that the operator does not support upgrading from standalone to distributed mode.
-    - servers: 4
+    - servers: 1
       ## custom pool name
       name: pool-0
       ## volumesPerServer specifies the number of volumes attached per MinIO Tenant Pod / Server.
-      volumesPerServer: 2
+      volumesPerServer: 1
+      ## select NFS storage class
+      storageClassName: nfs-csi
       ## This VolumeClaimTemplate is used across all the volumes provisioned for MinIO Tenant in this Pool.
       volumeClaimTemplate:
         metadata:
@@ -58,7 +73,7 @@ spec:
           type: "RuntimeDefault"
 ```
 
-This example also requires to deploy secret for the user. You can download the [secret example](/examples/ceritsc/manifests/minio-minimal-tenant-secret.yaml).
+This example also requires deploying a secret for the user. You can download the [secret example](/examples/ceritsc/manifests/minio-minimal-tenant-secret.yaml).
 ```yaml
 apiVersion: v1
 kind: Secret
@@ -69,7 +84,8 @@ data:
   CONSOLE_ACCESS_KEY: Y29uc29sZQ== # "console", base64 encoding
   CONSOLE_SECRET_KEY: Y29uc29sZTEyMw== # "console123", base64 encoding
 ```
-To specify and encode/decode own `access_key` (*username*) and `secret_key` (*password*), you can use the following commands:
+
+To define your own `access_key` (*username*) and `secret_key` (*password*), you can manually encode or decode values using the following commands:
 ```bash
 # encode
 echo -n "securepassword" | base64
@@ -77,20 +93,154 @@ echo -n "securepassword" | base64
 echo -n "c2VjdXJlcGFzc3dvcmQ=" | base64 -d
 ```
 
-Run `kubectl create -n [namespace] -f example-tenant-secret.yaml -f example-tenant.yaml`, you should see pod named `myminio-pool-0-0` (possibly similar pods depending on the configuration) running in the specified namespace.
+Next, deploy the secret and the MinIO Tenant with the following command:
 
-## S3 Storage Access
+```bash
+kubectl create -n [namespace] -f example-tenant-secret.yaml -f example-tenant.yaml
+```
 
-To access the storage from other Pods, you can use `myminio-console` and `myminio-hl` services that are automatically created. These services work like DNS names, so you can use them as endpoints for another applications within the Kubernetes cluster. If exposure to another namespace is required, use the full name - e.g. `myminio-hl.[namespace].svc.cluster.local`.
+If the deployment is successful, you should see a pod named `myminio-pool-0-0` (or similar, depending on your configuration) running in the specified namespace.
 
-- `myminio-console:9443` provides a HTTP web-based console for managing the MinIO
-- `myminio-hl:9000` provides the S3 server connection
+## Minio Access
+
+To access the MinIO storage from other pods, you can use the `myminio-console` and `myminio-hl` services, which are automatically created. These services act as DNS names, allowing other applications within the Kubernetes cluster to use them as endpoints.
+
+If you need to access MinIO from a different namespace, use the fully qualified domain name (FQDN), e.g., `myminio-hl.[namespace].svc.cluster.local`.
+
+- `myminio-console:9443` -- Provides a web-based interface for managing MinIO.
+- `myminio-hl:9000` or `minio:<PORT>` -- Provides the S3-compatible API endpoint for object storage access. The `<PORT>` is either `443` (if `requestAutoCert=true`) or `80` (if `requestAutoCert=false`).
+
+### Certificates
+
+If `requestAutoCert=true`, self-signed certificates are automatically generated. As a result, applications may report an unknown Certificate Authority (CA). To resolve this, you can either provide the correct CA certificate to the application or configure a custom Issuer to use external certificates for MinIO. If the default `AutoCert` is used, the corresponding CA certificate is available in each namespace within the ConfigMap named `kube-root-ca.crt`, under the `ca.crt` key.
+
+### Exposing MinIO Outside the Kubernetes Cluster via Ingress
+
+To access MinIO from outside the Kubernetes cluster, it is recommended to use the `Tenant` Helm chart and configure the `ingress` section of the `Tenant` resource.
+
+#### Step 1: Add the MinIO Helm Repository
+First, add the MinIO Operator Helm repository and update the local Helm cache:
+
+```bash
+helm repo add minio-operator https://operator.min.io
+helm repo update
+```
+
+#### Step 2: Generate Default Values
+
+Create a default `values.yaml` file:
+
+```bash
+helm show values minio-operator/tenant > values.yaml
+```
+
+#### Step 3: Configure Ingress in `values.yaml`
+
+Edit the `values.yaml` file and configure the `ingress` section as follows:
+
+```yaml
+ingress:
+  api:
+    enabled: true
+    ingressClassName: "nginx"
+    labels: { }
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      kubernetes.io/tls-acme: "true"
+      nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+      nginx.ingress.kubernetes.io/custom-http-errors: "599"
+    tls:
+    - hosts:
+      - myminio-my-namespace.dyn.cloud.e-infra.cz
+      secretName: my-secret-cloud-e-infra-cz
+    host: myminio-my-namespace.dyn.cloud.e-infra.cz
+    path: /
+    pathType: Prefix
+  console:
+    enabled: true
+    ingressClassName: "nginx"
+    labels: { }
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      kubernetes.io/tls-acme: "true"
+      nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+      nginx.ingress.kubernetes.io/custom-http-errors: "599"
+    tls:
+    - hosts:
+      - myminio-ui-my-namespace.dyn.cloud.e-infra.cz
+      secretName: my-secret-ui-cloud-e-infra-cz
+    host: myminio-ui-my-namespace.dyn.cloud.e-infra.cz
+    path: /
+    pathType: Prefix
+```
+
+#### Step 4: Install the Tenant
+
+Install the MinIO Tenant using the customized `values.yaml` file:
+
+```bash
+helm install myminio -n [mynamespace]  minio-operator/tenant -f values.yaml
+```
+#### Step 5: Access MinIO
+
+- MinIO Console: `https://myminio-ui-my-namespace.dyn.cloud.e-infra.cz`
+- S3 API Endpoint: `https://myminio-my-namespace.dyn.cloud.e-infra.cz`
+
+#### ✅ Important Notes:
+
+- **Separate TLS Secrets:** Do not use the same `secretName` for both the API and the Console. Each Ingress resource must have a unique TLS secret.
+- **Backend Protocol Handling:** If `requestAutoCert=true`, ensure the annotation `nginx.ingress.kubernetes.io/backend-protocol: HTTPS` is set.
+- **MinIO Error Handling:** Set `nginx.ingress.kubernetes.io/custom-http-errors: "599"` to prevent custom error handling by NGINX, which could hide MinIO's own error messages.
+
+
+## Deploying MinIO With Proxy Support
+
+When deploying a `Tenant` in a Kubernetes cluster that requires an HTTP(S) proxy, you need to configure the proxy settings via environment variables.
+
+### Step 1: Set the Proxy Environment Variables
+
+- `HTTPS_PROXY`: `http://proxy.ics.muni.cz:3128`
+- `HTTP_PROXY`: `http://proxy.ics.muni.cz:3128`
+- `NO_PROXY`: `.svc.cluster.local,.svc,10.0.0.0/8,147.251.0.0/16,2001:718:801::/48,127.0.0.1,::1,.cloud.trusted.e-infra.cz`
+
+The `NO_PROXY` variable is essential to ensure that MinIO does not route traffic through the proxy for local cluster networks. This is particularly important for communication within the `kubas-cluster`.
+
+### Step 2: Configure the `values.yaml` File
+
+Add the following configuration under the `tenant.env` section:
+
+```yaml
+tenant:
+ env:
+ - name: HTTPS_PROXY
+   value: http://proxy.ics.muni.cz:3128
+ - name: HTTP_PROXY
+   value: http://proxy.ics.muni.cz:3128
+ - name: NO_PROXY
+   value: ".svc.cluster.local,.svc,10.0.0.0/8,147.251.0.0/16,2001:718:801::/48,127.0.01,::1,.cloud.trusted.e-infra.cz"
+```
+
+### ✅ Notes:
+
+- Ensure that the `NO_PROXY` value includes all local networks and internal services to avoid unnecessary proxy usage.
+- Double-check the `NO_PROXY` settings, especially for IPv6 ranges, as incorrect configuration can cause connectivity issues within the cluster.
 
 ## Network Policy
 
-To increase security, a *network policy* can be used to allow network access to the S3 storage only from certain pods. See [Network Policy](../kubernetes/security) for more information. External access, i.e. access from the public Internet, is disabled by default. However, it is possible to expose the S3 via [Load Balancer](../kubernetes/expose#other-applications).
+To enhance security, a **NetworkPolicy** can be used to restrict access to the MinIO S3 storage, allowing connections only from specific pods. For more details, see the [Network Policy documentation.](../kubernetes/security)
 
-This is an example of a NetworkPolicy applied to the Minio tenant. You can download this example [here](/examples/ceritsc/manifests/minio-minimal-tenant-np.yaml)
+By default, external access (e.g., from the public internet) is disabled. However, it is possible to expose MinIO via a [Load Balancer](../kubernetes/expose#other-applications) or Ingress (see above) if needed.
+
+### Example 1: Network Policy for MinIO Tenant
+
+The following example restricts ingress and egress traffic for the MinIO `Tenant`. It allows:
+
+- Egress communication to the local DNS resolver.
+- Egress communication to the MinIO Operator installed within the Kubernetes cluster.
+- Ingress communication from any pod to the MinIO S3 API (`9000`) and web console (`9443`) ports.
+
+You can download this example [here](/examples/ceritsc/manifests/minio-minimal-tenant-np.yaml).
+
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -145,7 +295,12 @@ spec:
       port: 9443
 ```
 
-This is an example of a NetworkPolicy applied to a hypothetical application. You can download this example [here](/examples/ceritsc/manifests/minio-minimal-application-np.yaml)
+### Example 2: Network Policy for Application Accessing MinIO
+
+The following policy allows a specific application (`myapplication`) to access the MinIO S3 API on port `9000`.
+
+You can download this example [here.](/examples/ceritsc/manifests/minio-minimal-application-np.yaml)
+
 ```yaml
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
@@ -168,3 +323,159 @@ spec:
     - protocol: TCP
       port: 9000
 ```
+
+### ✅ Summary:
+
+The **MinIO Tenant NetworkPolicy** secures the MinIO instance by controlling both ingress and egress traffic.
+The **Application NetworkPolicy** allows only specific applications to interact with MinIO S3 API.
+
+## OIDC Authentication for MinIO with e-INFRA CZ SSO
+
+MinIO can be configured to use **e-INFRA CZ Single Sign-On (SSO)** via **OIDC (OpenID Connect)**. This guide assumes that your MinIO service has been registered in [e-INFRA CZ SP Admin Portal](https://spadmin.e-infra.cz/) and you have obtained the **Client ID** and **Client Secret**.
+
+---
+
+### Step 1: Register MinIO in SP Admin
+
+During the registration process in [spadmin.e-infra.cz](https://spadmin.e-infra.cz/), configure the following:
+
+- **Callback URL:** `https://<your-console-url>/oauth_callback`
+- **Scopes:** `eduperson_entitlement, profile, email`
+- **Authorization flow:** `authorization code`
+- **Token endpoint authentication method:** `client_secret_basic`
+- **PKCE Code Challenge Method:** `SHA256 code challenge`
+- **Enable introspection endpoint access**
+
+### Step 2: Configure MinIO Environment Variables
+
+On the MinIO side, set the following environment variables:
+```yaml
+MINIO_IDENTITY_OPENID_CONFIG_URL: https://login.e-infra.cz/oidc/.well-known/openid-configuration
+MINIO_IDENTITY_OPENID_CLIENT_ID: <client id>
+MINIO_IDENTITY_OPENID_CLIENT_SECRET: <client secret>
+MINIO_IDENTITY_OPENID_SCOPES: eduperson_entitlement,profile,email
+MINIO_IDENTITY_OPENID_CLAIM_NAME: eduperson_entitlement
+MINIO_IDENTITY_OPENID_REDIRECT_URI: https://<console url>/oauth_callback
+MINIO_IDENTITY_OPENID_DISPLAY_NAME: "e-INFRA CZ"
+MINIO_IDENTITY_OPENID_CLAIM_USERINFO: on
+```
+
+### Step 3: Store Secrets Securely
+
+It is **not recommended** to store sensitive data, such as `MINIO_IDENTITY_OPENID_CLIENT_SECRET`, directly in the `values.yaml` file. Instead, create a **Kubernetes Secret**:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: <secret-name>
+type: Opaque
+stringData:
+  config.env: |-
+    export MINIO_ROOT_USER="<admin-username>"
+    export MINIO_ROOT_PASSWORD="<admin-password>"
+    export MINIO_IDENTITY_OPENID_CONFIG_URL: https://login.e-infra.cz/oidc/.well-known/openid-configuration
+    export MINIO_IDENTITY_OPENID_CLIENT_ID: <client-id>
+    export MINIO_IDENTITY_OPENID_CLIENT_SECRET: <client-secret>
+    export MINIO_IDENTITY_OPENID_SCOPES: eduperson_entitlement,profile,email
+    export MINIO_IDENTITY_OPENID_CLAIM_NAME: eduperson_entitlement
+    export MINIO_IDENTITY_OPENID_REDIRECT_URI: https://<console url>/oauth_callback
+    export MINIO_IDENTITY_OPENID_DISPLAY_NAME: "e-INFRA CZ"
+    export MINIO_IDENTITY_OPENID_CLAIM_USERINFO: on
+    export HTTPS_PROXY=http://proxy.ics.muni.cz:3128
+    export NO_PROXY=".svc.cluster.local,.svc,10.0.0.0/8,147.251.0.0/16,2001:718:801::/48,127.0.01,::1,.cloud.trusted.e-infra.cz"
+```
+
+Replace:
+
+- `<admin-username>` with your MinIO admin username.
+- `<admin-password>` with your MinIO admin password.
+- `<client-id>` and `<client-secret>` with values from the SP Admin registration.
+- `<your-console-url>` with your MinIO console URL.
+- `<secret-name>` with a custom name for the Secret.
+- (`HTTP_PROXY` and `NO_PROXY` variables are optional)
+
+
+### Step 4: Reference the Secret in `values.yaml`
+
+In your `values.yaml` file, reference the Secret as follows:
+
+```yaml
+tenant:
+  configSecret:
+    name: <secret-name>
+    existingSecret: true
+```
+
+### ✅ Important Notes:
+
+- The **MinIO admin credentials** (`MINIO_ROOT_USER` and `MINIO_ROOT_PASSWORD`) are still required for the initial setup, even when OIDC is enabled.
+- Ensure the Secret name (`<secret-name>`) matches the `configSecret.name` in `values.yaml`.
+- The `HTTP_PROXY` and `NO_PROXY` variables are optional. Add them only if your cluster requires a proxy for external communication.
+
+
+## OIDC Roles Management in MinIO
+
+When logging into MinIO via e-INFRA CZ SSO, you will encounter a consent page similar to this:
+
+![minio-consent](/img/ceritsc/minio-consent.png)
+
+It is **crucial to note the role (group) name**, which will be used for MinIO Access Policy. In this example, the role is `urn:geant:muni:cz:group:MU:kubernetes-admins@idm.ics.muni.cz`, highlighted in the red rectangle above.
+
+### Step 1: Log in as an Administrator
+
+The initial login via SSO will likely **fail** due to missing role-based policies.
+To proceed:
+
+1. Click **Other Authentication Methods** on the initial MinIO console web page..
+2. Select **Use Credentials**.
+3. Log in using the MinIO admin credentials from above:
+   - **Username:** <admin-username>
+   - **Password:** <admin-password>
+
+
+### Step 2: Create a Policy for the Role
+
+Navigate to **Administrator** → **Policies** and create a **new policy with the exact name of the role**, e.g.,
+`urn:geant:muni:cz:group:MU:kubernetes-admins@idm.ics.muni.cz`.
+
+In the policy editor, define the policy similar to the following JSON:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:*"
+            ],
+            "Resource": [
+                "arn:aws:s3:::${jwt:preferred_username}-*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:*"
+            ],
+            "Resource": [
+                "arn:aws:s3:::shared-bucket"
+            ]
+        }
+    ]
+}
+```
+
+#### ✅ Explanation of the Policy:
+- This policy allows users with the specified **OIDC role** to create and manage buckets with the naming pattern `<loginname>-something`.
+
+  For example, a user with the login `xhejtman` can create a bucket called `xhejtman-test`.
+
+- It also grants full access to the `shared-bucket`, which should be pre-created by the MinIO admin.
+
+- However, since this policy allows deleting the bucket as well, **consider restricting the actions** (e.g., `s3:PutObject`, `s3:GetObject`) based on your security needs. See the [MinIO policy documentation](https://min.io/docs/minio/linux/administration/identity-access-management/policy-based-access-control.html) for more details.
+
+### 🎯 Final Notes:
+- The **policy name must exactly match the OIDC role name**, otherwise the access will be denied.
+- You can assign different policies to different roles to manage access control at a more granular level.

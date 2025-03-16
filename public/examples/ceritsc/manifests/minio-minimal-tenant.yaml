@@ -3,20 +3,28 @@ kind: Tenant
 metadata:
   name: myminio
 spec:
+  name: mmyminio
   ## Create users in the Tenant using this field. Make sure to create secrets per user added here.
   ## Secret should follow the format used in `minio-creds-secret`.
   users:
     - name: myminio-user-secret
+  ## Pre create buckets
+  buckets:
+    - name: mybucket
+  certificate:
+    requestAutoCert: true ## if true, Minio uses HTTPS protocol - important for Ingress, if false, HTTP (no encryption) is used
   ## Specification for MinIO Pool(s) in this Tenant.
   pools:
     ## Servers specifies the number of MinIO Tenant Pods / Servers in this pool.
     ## For standalone mode, supply 1. For distributed mode, supply 4 or more.
     ## Note that the operator does not support upgrading from standalone to distributed mode.
-    - servers: 4
+    - servers: 1
       ## custom pool name
       name: pool-0
       ## volumesPerServer specifies the number of volumes attached per MinIO Tenant Pod / Server.
-      volumesPerServer: 2
+      volumesPerServer: 1
+      ## select NFS storage class
+      storageClassName: nfs-csi
       ## This VolumeClaimTemplate is used across all the volumes provisioned for MinIO Tenant in this Pool.
       volumeClaimTemplate:
         metadata:
