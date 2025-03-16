@@ -12,8 +12,6 @@ To make things easier, we provide several working examples below, organized into
 
 You can start with a sample instance, ideal for testing purposes. This example creates a `Tenant` resource managed by the installed MinIO Operator. You can download the example [here](/examples/ceritsc/manifests/minio-minimal-tenant.yaml).
 
-You can start with an example instance, which is suitable for testing. This example creates a resource Tenant defined by the installed Minio operator. You can download the example [here](/examples/ceritsc/manifests/minio-minimal-tenant.yaml).
-
 ```yaml
 apiVersion: minio.min.io/v2
 kind: Tenant
@@ -393,8 +391,6 @@ Replace:
 - `<client-id>` and `<client-secret>` with values from the SP Admin registration.
 - `<your-console-url>` with your MinIO console URL.
 - `<secret-name>` with a custom name for the Secret.
-- (`HTTP_PROXY` and `NO_PROXY` variables are optional)
-
 
 ### Step 4: Reference the Secret in `values.yaml`
 
