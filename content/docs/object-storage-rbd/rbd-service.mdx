@@ -18,16 +18,16 @@ To connect to the RBD service, please contact support at: `support@cesnet.cz`
 ## Basic Use Cases for RBD
 The following section outlines basic use cases for the RBD service.
 
-### Backing Up Large Datasets that Require a Local Filesystem
-If you have a centralized backup system (such as a script suite, Bacula, BackupPC, etc.) that requires a local filesystem, we recommend using the [RBD service](./rbd-setup). As shown in the figure below, the RBD image can be connected directly to the machine running the central backup system as a block device. Additionally, RBD can be configured with snapshots (refer to the service description) to protect against unwanted overwriting or ransomware attacks.
-
-![rbd](/img/data-care/rbd-service/central_backup.png)
-
 ### Centralized Shared Storage for Internal Redistribution
 If you need to store live data and provide storage for individual users, the [RBD](./rbd-setup) service can be integrated into your infrastructure using a Linux or Windows machine. You can create a filesystem on the connected block device, enable encryption, and then re-export it within your infrastructure using protocols such as Samba, NFS, FTP, SSH, etc. (or via containers that manage protocol distribution within your internal network).
 Client-side encryption ensures that data transmitted over the network is encrypted, making it impossible to decrypt once transmission is complete. The advantage of this setup is that you can create user groups and manage access rights according to your preferences or integrate your local user and group database. Additionally, the RBD block device can be equipped with snapshots at the RBD level. This allows you to restore data from previous snapshots, such as from the previous day, in the event of accidental deletion.
 
 ![rbd](/img/data-care/rbd-service/shared_distribution.png)
+
+### Backing Up Large Datasets that Require a Local Filesystem
+If you have a centralized backup system (such as a script suite, Bacula, BackupPC, etc.) that requires a local filesystem, we recommend using the [RBD service](./rbd-setup). As shown in the figure below, the RBD image can be connected directly to the machine running the central backup system as a block device. Additionally, RBD can be configured with snapshots (refer to the service description) to protect against unwanted overwriting or ransomware attacks.
+
+![rbd](/img/data-care/rbd-service/central_backup.png)
 
 ## RBD Data Reliability (Data Redundancy) - Replicated vs Erasure Coding
 The following section describes additional approaches for data redundancy applied to the object storage pool. The RBD service can be configured with either **replicated** or **erasure code (EC)** redundancy, as well as **synchronous or asynchronous geographical repliacation**.
