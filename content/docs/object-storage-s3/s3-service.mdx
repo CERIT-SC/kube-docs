@@ -31,11 +31,6 @@ For sensitive data, encrypted buckets can be used on the client side, ensuring t
 
 The following section describes various elementary use cases related to the S3 service.
 
-#### Automated Backup of Large Datasets Using Tools Natively Supporting S3
-If you use specialized automated backup tools like Veeam, Bacula, or Restic, many of these tools offer native integration with the S3 service for backups. This means you don’t need to worry about connecting block devices to your infrastructure. Simply request an S3 storage setup and reconfigure your backup process. You can also combine this with the WORM (Write Once, Read Many) model to protect against unwanted overwriting or ransomware attacks.
-
-![s3client](/img/data-care/s3-service/s3_backup.png)
-
 ### Data Sharing Across Your Laboratory or Multiple Institutions
 For research groups that need to share data, such as data collection and post-processing, S3 can be a powerful solution. The S3 service enables users to share data within a group or between institutions. This use case assumes each user has their own access to the repository. It is also ideal for sharing sensitive data across organizations, especially if you do not have a secure VPN. You can use encrypted S3 buckets (client-side encryption), which ensures that data is encrypted both at rest and during transmission, protecting it from eavesdropping.
 
@@ -45,6 +40,11 @@ For research groups that need to share data, such as data collection and post-pr
 If you manage large datasets and operate applications within an e-infrastructure that serves data to your users, S3 can support this use case effectively. This is particularly useful for applications that distribute large datasets (e.g., raw scans, videos, scientific datasets for computational environments) to end users. With S3, there is no need to upload data to the application server itself. Instead, users can directly upload and download data to/from object storage using S3 presigned URLs.
 
 ![s3client](/img/data-care/s3-service/direct_upload.png)
+
+#### Automated Backup of Large Datasets Using Tools Natively Supporting S3
+If you use specialized automated backup tools like Veeam, Bacula, or Restic, many of these tools offer native integration with the S3 service for backups. This means you don’t need to worry about connecting block devices to your infrastructure. Simply request an S3 storage setup and reconfigure your backup process. You can also combine this with the WORM (Write Once, Read Many) model to protect against unwanted overwriting or ransomware attacks.
+
+![s3client](/img/data-care/s3-service/s3_backup.png)
 
 ### Personal space for your data
 This case is similar to the VO storage service. This is a personal space in the S3 service just for your data, which does not allow sharing with a specific user. [Public reading](./s3-features) can be set for buckets, or [presign URL requests](./s3-features) can be used.
