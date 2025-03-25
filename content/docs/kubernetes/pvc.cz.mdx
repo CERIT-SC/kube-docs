@@ -6,7 +6,7 @@ Orchestrátor Kubernetes nabízí několik způsobů, jak využít infrastruktur
 
 ## Třída úložiště
 
-[Třída úložiště](https://kubernetes.io/docs/concepts/storage/storage-classes/) poskytuje způsob, jak mohou administrátoři popsat "třídy" úložiště, které nabízejí. Různé třídy mohou odpovídat úrovním kvality služby. Nabízíme následující třídy úložiště:
+[Třída úložiště](https://kubernetes.io/docs/concepts/storage/storage-classes/) poskytuje způsob, jak mohou administrátoři popsat "třídy" úložiště, které nabízejí. Různé třídy mohou odpovídat různým úrovním kvality služby. Nabízíme následující třídy úložiště:
 
 1. csi-ceph-rbd-du -- třída úložiště, která je podložena blokovými objemy CEPH RBD z DU CESNET. Blokový objem je formátován např. jako `ext4` místní souborový systém, který může být připojen k jednomu Podu.
 2. nfs-csi -- výchozí dynamická třída, která používá NFS jako protokol připojení. Dynamická třída znamená, že objemy mohou být vytvářeny ad-hoc, jakmile je uživatel požaduje.
