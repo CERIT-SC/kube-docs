@@ -50,8 +50,11 @@ volumeMounts:
 `Name` of the volume is not important and can be anything valid, the `mountPath` must be `/dev/shm`.
 
 ## GPU
-
-GPU resource can be requested in two distinct ways. User can request GPU(s) exclusively using `nvidia.com/gpu: x` where `x` is a number denoting number of requested GPUs. User can request also only a fraction of GPU using `nvidia.com/mig-1g.10gb: x` where `x` is a number of such GPU parts, or `nvidia.com/mig-2g.20gb: x`. The `nvidia.com/mig-1g.10gb` requests GPU part with 10GB memory size, the `nvidia.com/mig-2g.20gb` requests GPU part with 20GB memory size. More information about the GPU fractions (MIG) can be found [here](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/index.html). 
+ 
+GPU resource can be requested in two distinct ways. 
+User can request GPU(s) exclusively using nvidia.com/gpu: x where x is a number denoting number of requested GPUs. 
+User can request also only a fraction of GPU using nvidia.com/mig-1g.10gb: x or nvidia.com/mig-2g.20gb: x  where x is a number of such GPU parts. 
+The nvidia.com/mig-1g.10gb requests GPU part with 10GB memory size, the nvidia.com/mig-2g.20gb requests GPU part with 20GB memory size. More information about the GPU fractions (MIG) can be found [here](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/index.html). 
 
 ### Requesting Specific GPU Type
 
