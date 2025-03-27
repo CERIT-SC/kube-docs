@@ -56,6 +56,10 @@ Uživatel může požadovat GPU výhradně pomocí nvidia.com/gpu: x, kde x je �
 Uživatel může také požadovat pouze část GPU pomocí nvidia.com/mig-1g.10gb: x, nebo nvidia.com/mig-2g.20gb: x , kde x je číslo takových částí GPU. 
 nvidia.com/mig-1g.10gb požaduje část GPU s velikostí paměti 10GB, nvidia.com/mig-2g.20gb požaduje část GPU s velikostí paměti 20GB. Více informací o frakcích GPU (MIG) lze nalézt [zde](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/index.html).
 
+## Požadování konkrétního typu GPU
+
+Při nasazování Podu je možné požádat o specifický typ GPU. To lze provést pomocí [node selector] (https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector) labels. Každý uzel vybavený GPU má label nvidia.com/gpu.product, který může aktuálně nabývat následujících hodnot:
+
 ## Úložiště
 
 Uživatel by měl také specifikovat požadovaný zdroj `ephemeral-storage`. Jednotky jsou stejné jako pro zdroj `paměť`. Tento zdroj označuje limit na místním úložišti, které zahrnuje velikost běžícího kontejneru a všech místních souborů vytvořených. Tyto soubory zahrnují všechny dočasné soubory v kontejneru, jako jsou soubory v adresářích `/tmp` nebo `/var/tmp`, a také všechny objemy `emptyDir`, které nejsou v paměti.
