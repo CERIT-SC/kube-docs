@@ -51,7 +51,10 @@ volumeMounts:
 
 ## GPU
 
-GPU zdroj může být požadován dvěma odlišnými způsoby. Uživatel může požadovat GPU výhradně pomocí `nvidia.com/gpu: x`, kde `x` je číslo označující počet požadovaných GPU. Uživatel může také požadovat pouze část GPU pomocí `nvidia.com/mig-1g.10gb: x`, kde `x` je číslo takových částí GPU, nebo `nvidia.com/mig-2g.20gb: x`. `nvidia.com/mig-1g.10gb` požaduje část GPU s velikostí paměti 10GB, `nvidia.com/mig-2g.20gb` požaduje část GPU s velikostí paměti 20GB. Více informací o frakcích GPU (MIG) lze nalézt [zde](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/index.html).
+GPU zdroj může být požadován dvěma odlišnými způsoby. 
+Uživatel může požadovat GPU výhradně pomocí nvidia.com/gpu: x, kde x je číslo označující počet požadovaných GPU.
+Uživatel může také požadovat pouze část GPU pomocí nvidia.com/mig-1g.10gb: x, nebo nvidia.com/mig-2g.20gb: x , kde x je číslo takových částí GPU. 
+nvidia.com/mig-1g.10gb požaduje část GPU s velikostí paměti 10GB, nvidia.com/mig-2g.20gb požaduje část GPU s velikostí paměti 20GB. Více informací o frakcích GPU (MIG) lze nalézt [zde](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/index.html).
 
 ## Úložiště
 
