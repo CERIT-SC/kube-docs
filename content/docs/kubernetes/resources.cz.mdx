@@ -60,6 +60,40 @@ nvidia.com/mig-1g.10gb požaduje část GPU s velikostí paměti 10GB, nvidia.co
 
 Při nasazování Podu je možné požádat o specifický typ GPU. To lze provést pomocí [node selector](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector) labels. Každý uzel vybavený GPU má label nvidia.com/gpu.product, který může aktuálně nabývat následujících hodnot: `NVIDIA-A10`, `NVIDIA-A100-80GB-PCIe`, `NVIDIA-A40`, `NVIDIA-H100-PCIe`, and `NVIDIA-L4`.
 
+Například pro přímé požadování GPU typu NVIDIA A40 použijte následující definici Podu:
+
+```yaml filename="pod.yaml" copy
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test
+spec:
+  nodeSelector:
+    nvidia.com/gpu.product: 'NVIDIA-A40'
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+       type: RuntimeDefault
+  containers:
+  - name: test
+    image: ubuntu
+    command:
+    - "sleep"
+    - "infinity"
+    resources:
+      limits:
+        cpu: 1
+        memory: 1Gi
+        nvidia.com/gpu: 1
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+```
+
 ## Úložiště
 
 Uživatel by měl také specifikovat požadovaný zdroj `ephemeral-storage`. Jednotky jsou stejné jako pro zdroj `paměť`. Tento zdroj označuje limit na místním úložišti, které zahrnuje velikost běžícího kontejneru a všech místních souborů vytvořených. Tyto soubory zahrnují všechny dočasné soubory v kontejneru, jako jsou soubory v adresářích `/tmp` nebo `/var/tmp`, a také všechny objemy `emptyDir`, které nejsou v paměti.
