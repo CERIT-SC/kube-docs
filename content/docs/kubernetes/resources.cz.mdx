@@ -58,7 +58,7 @@ nvidia.com/mig-1g.10gb požaduje část GPU s velikostí paměti 10GB, nvidia.co
 
 ## Požadování konkrétního typu GPU
 
-Při nasazování Podu je možné požádat o specifický typ GPU. To lze provést pomocí [node selector] (https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector) labels. Každý uzel vybavený GPU má label nvidia.com/gpu.product, který může aktuálně nabývat následujících hodnot:
+Při nasazování Podu je možné požádat o specifický typ GPU. To lze provést pomocí [node selector](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector) labels. Každý uzel vybavený GPU má label nvidia.com/gpu.product, který může aktuálně nabývat následujících hodnot: `NVIDIA-A10`, `NVIDIA-A100-80GB-PCIe`, `NVIDIA-A40`, `NVIDIA-H100-PCIe`, and `NVIDIA-L4`.
 
 ## Úložiště
 
