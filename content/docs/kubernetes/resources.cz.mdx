@@ -94,6 +94,18 @@ spec:
         - ALL
 ```
 
+<Callout type="info">
+Toto je pouze ukázková definice Podu pro zjednodušení. V reálném použití by měl být použit Deployment nebo Job, jejich vnitřní spec je však stejná jako výše uvedená spec.
+</Callout>
+
+
+
+
+
+
+
+
+
 ## Úložiště
 
 Uživatel by měl také specifikovat požadovaný zdroj `ephemeral-storage`. Jednotky jsou stejné jako pro zdroj `paměť`. Tento zdroj označuje limit na místním úložišti, které zahrnuje velikost běžícího kontejneru a všech místních souborů vytvořených. Tyto soubory zahrnují všechny dočasné soubory v kontejneru, jako jsou soubory v adresářích `/tmp` nebo `/var/tmp`, a také všechny objemy `emptyDir`, které nejsou v paměti.
