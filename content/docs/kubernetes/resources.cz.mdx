@@ -103,7 +103,9 @@ Požadování konkrétního typu GPU snižuje šanci na spuštění Podu. Všech
 </Callout>
 
 
+## Požadování vlastností GPU
 
+Je také možné požadovat určité vlastnosti GPU, například velikost paměti. Tento postup je podobný požadování konkrétního typu GPU, ale používá se jiný node selector: `nvidia.com/gpu.memory`. V tomto případě je však nutné použít složitější popis `afinity`, protože node selector může porovnávat pouze přesné hodnoty a nelze jej použít k porovnání menší nebo větší hodnoty.
 
 
 
