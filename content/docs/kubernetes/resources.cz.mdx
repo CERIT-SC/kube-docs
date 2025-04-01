@@ -158,7 +158,7 @@ Ačkoli je množství GPU paměti číslo, musí být definováno jako řetězec
 
 ## Úložiště
 
-Uživatel by měl také specifikovat požadovaný zdroj `ephemeral-storage`. Jednotky jsou stejné jako pro zdroj `paměť`. Tento zdroj označuje limit na místním úložišti, které zahrnuje velikost běžícího kontejneru a všech místních souborů vytvořených. Tyto soubory zahrnují všechny dočasné soubory v kontejneru, jako jsou soubory v adresářích `/tmp` nebo `/var/tmp`, a také všechny objemy `emptyDir`, které nejsou v paměti.
+Uživatel by měl také specifikovat požadovaný zdroj `ephemeral-storage`. Tento zdroj označuje limit pro místní úložiště, které zahrnuje velikost běžícího kontejneru a všechny lokálně vytvořené soubory. Tyto soubory zahrnují všechny dočasné soubory v kontejneru, jako jsou soubory v adresářích `/tmp` nebo `/var/tmp`, a také všechny  `emptyDir volumes`, které nejsou v paměti.
 
 ## Kompletní příklad zdrojů
 
