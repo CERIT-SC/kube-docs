@@ -8,7 +8,7 @@ Pokud chce uživatel využít základní autentizaci nebo oauth na ingress, mů�
 
 Tento přístup má jednu velkou bezpečnostní chybu. Autentizace je vyžadována pouze při připojení přes ingress, tj. zvenčí Kubernetes clusteru. Uživatel platformy se však může také připojit přímo z vnitřku clusteru k odpovídající službě (musí však uhodnout její IP) a v takovém případě není autentizace vyžadována.
 
-Tato chyba může být zmírněna pomocí [síťové politiky](https://kubernetes.io/docs/concepts/services-networking/network-policies/), která může omezit původ síťového provozu. V tomto případě je užitečné povolit příchozí provoz na server pouze z *kube-system* namespace. Namespace *kube-system* hostí instanci Ingress Nginx, proto je vyžadováno připojení pouze z tohoto a pouze tohoto namespace.
+Tato chyba může být zmírněna pomocí [síťové politiky](https://kubernetes.io/docs/concepts/services-networking/network-policies/), která může omezit původ síťového provozu. V tomto případě je užitečné povolit příchozí provoz na server pouze z *kube-system* namespace.Namespace *kube-system* hostuje instanci Ingress Nginx, proto je vyžadováno připojení pouze z tohoto a žádného jiného namespace.
 
 Příklad síťové politiky lze [stáhnout zde](/examples/ceritsc/manifests/netpolicy.yaml). Tato politika povoluje příchozí provoz z *kube-system* do Podu s názvem `myapp`. Tato politika je aplikována na *namespace*, kde se Pod `myapp` nachází.
 
