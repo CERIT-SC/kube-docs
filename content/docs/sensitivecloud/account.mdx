@@ -1,0 +1,108 @@
+---
+SensitiveCloud Documentation
+---
+[SensitiveCloud]/https://www.cerit-sc.cz/infrastructure-services/sensitivecloud) is a secure computing and storage environment provided by CERIT-SC (part of e-INFRA CZ) for sensitive data processing and research. Primarily tailored to academic research (notably life sciences and medicine), its design complies with security standards such as ISO 27000, C5, ISO 15189, and ECRIN. 
+
+SensitiveCloud leverages modern container technology via Kubernetes (K8s). It provides scalable and dynamic resource management, including GPU-accelerated computing. Users can select pre-configured application containers or deploy their own software solutions. 
+
+
+
+## Getting Started - Requesting a Project 
+
+SensitiveCloud resources must be requested by a Principal Investigator (PI). The PI takes responsibility for data management and resource allocation during the project's lifetime. 
+
+- Contact us at mailto:support@e-infra.cz  with your request.  
+- Include the following in your message:  
+       *  Project name & acronym (for internal identification).  
+       *  Resource requirements: approximate CPU time, RAM, storage capacity, GPU needs.  
+       *  Short project/activity description & intended resource usage.  
+       *  Expected duration of resource allocation.  
+       *  Team members' names and email addresses.
+         
+     
+
+Example request email:   
+```
+Subject: New SensitiveCloud Project Request
+  
+Dear SensitiveCloud support,   
+Our group, "Project XYZ (XYZ2023)", conducts research on ABC and requires a secure platform for data storage and processing. We estimate an initial need of roughly 10TB storage (expected growth of 1TB/year), 20 CPUs, 30GB RAM, and 1 NVIDIA A100 GPU, for approximately 10 months.   
+Our research group includes:   
+* John Wick; john.wick@example.com   
+* Luke Skywalker; luke.skywalker@example.com 
+
+Thank you,
+PI’s Name (Digitally signed) 
+```     
+
+After reviewing your request, we will arrange a brief meeting to confirm that SensitiveCloud meets your project's requirements. Afterwards, your team will receive training covering safe working practices and effective utilization of the SensitiveCloud environment. 
+
+## Connecting to SensitiveCloud 
+
+Access to SensitiveCloud resources is secured via: 
+
+- [Rancher management portal](https://rancher.cloud.trusted.e-infra.cz/)
+- Secure VPN connection (mandatory for resource access).
+- Multi-factor authentication (MFA) set up via the e-INFRA CZ single-sign-on (SSO).
+     
+
+### Access Prerequisite Checklist: 
+
+✔️ Active project membership.   
+
+    - Tutorial for creating a project (PIs).  
+    - Managing project membership permissions (below).
+     
+
+✔️ Activated VPN   
+
+    - VPN setup tutorial .
+     
+
+✔️ Active MFA   
+
+    - Tutorial on setting up MFA .
+     
+
+### Managing Your Project 
+
+Principal Investigators have administrative control over: 
+
+   - User permissions: grant or revoke access to project resources.  
+   - Allocated resource changes: currently this procedure is manual; contact trusted@ics.muni.cz  to adjust your resource allocations.
+     
+
+### Managing User Access 
+
+SensitiveCloud access relies on user groups defined in the Perun Identity Management system. Your group's identifier typically starts with prefix `sc_` (example: `sc_project-acronym`). 
+
+#### Adding Users 
+
+1. Log in to perun.e-infra.cz .
+2. Select your group (prefix: sc_).
+3. Click the Members tile → select Invite.
+4. Enter your colleague’s name and email address, then submit your invitation.
+     - They will receive an email and must complete their registration via their home organization's login.
+              
+
+#### Removing Users 
+
+ 1. Open your group's member management interface in Perun.
+ 2. Select group members to remove.
+ 3. Click Remove. These users immediately lose SensitiveCloud access via your project group.
+     
+
+Next Steps & Further Documentation 
+
+To continue using SensitiveCloud effectively, refer to detailed instructions on: 
+
+     Connecting to the SensitiveCloud   
+     Working within the SensitiveCloud environment   
+     Deploying applications in SensitiveCloud (Coming soon) 
+
+## Technical Documentation
+Documentation on how to use Rancher is common with standard Kubernetes.
+
+     
+
+For more details, visit the SensitiveCloud product page 
