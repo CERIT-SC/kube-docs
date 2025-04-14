@@ -26,32 +26,32 @@ Below is a guide detailing how to configure WireGuard VPN using provided configu
      ```
    - Example configuration file contents (replace placeholders with values provided by our support team):   
    
-```
-[Interface]
-PrivateKey = DESKTOP_CLIENT_PRIVATE_KEY
-Address = 10.0.0.2/24
-
-[Peer]
-PublicKey = SERVER_PUBLIC_KEY
-Endpoint = SERVER_IP_ADDRESS:PORT
-AllowedIPs = 0.0.0.0/0
-```
+   ```
+   [Interface]
+   PrivateKey = DESKTOP_CLIENT_PRIVATE_KEY
+   Address = 10.0.0.2/24
+   
+   [Peer]
+   PublicKey = SERVER_PUBLIC_KEY
+   Endpoint = SERVER_IP_ADDRESS:PORT
+   AllowedIPs = 0.0.0.0/0
+   ```
 3. **Launch WireGuard Application**.
 
 4. **Import VPN Configuration**:
-- From the WireGuard interface, click **"Import tunnel(s) from file"**.
-- Select the previously created `sensitive-vpn.conf`.
+   - From the WireGuard interface, click **"Import tunnel(s) from file"**.
+   - Select the previously created `sensitive-vpn.conf`.
 
  *(Image TBD)*
 
 5. **Connect to VPN**:
-- Select the imported VPN tunnel.
-- Click **"Activate"**.
+   - Select the imported VPN tunnel.
+   - Click **"Activate"**.
 
  *(Image TBD)*
 
 6. **Disconnecting**:
-- To deactivate the VPN, select the active tunnel and click **"Deactivate"**.
+   - To deactivate the VPN, select the active tunnel and click **"Deactivate"**.
 
  *(Image TBD)*
 
@@ -60,49 +60,45 @@ AllowedIPs = 0.0.0.0/0
 ### Linux
 
 1. **Install WireGuard**:
-- Follow official WireGuard installation instructions for your Linux distribution found [here](https://www.wireguard.com/install/).
+   - Follow official WireGuard installation instructions for your Linux distribution found [here](https://www.wireguard.com/install/).
 
 2. **Configure VPN**:
-- Create the file `/etc/wireguard/wg0.conf` with the configuration details provided by our support team.
-- Example configuration file:
+   - Create the file `/etc/wireguard/wg0.conf` with the configuration details provided by our support team.
+   - Example configuration file:
 
- - Install WireGuard, download for Linux here
- - Create configuration file /etc/wireguard/wg0.conf with content that you obtained from our team.
- 
-Example:
-```
-[Interface]
-PrivateKey = DESKTOP_CLIENT_PRIVATE_KEY
-Address = 10.0.0.2/24
-
-[Peer]
-PublicKey = SERVER_PUBLIC_KEY
-Endpoint = SERVER_IP_ADDRESS:PORT
-AllowedIPs = 0.0.0.0/0
-```
+   ```
+   [Interface]
+   PrivateKey = DESKTOP_CLIENT_PRIVATE_KEY
+   Address = 10.0.0.2/24
+   
+   [Peer]
+   PublicKey = SERVER_PUBLIC_KEY
+   Endpoint = SERVER_IP_ADDRESS:PORT
+   AllowedIPs = 0.0.0.0/0
+   ```
 
 3. **Start VPN**:
-- Open your terminal and execute:
+   - Open your terminal and execute:
 
-```bash
-sudo wg-quick up wg0
-```
+   ```bash
+   sudo wg-quick up wg0
+   ```
 
 
 4. Check VPN Status: 
-To verify if the VPN is active, run:
+   To verify if the VPN is active, run:
      
-```bash
-wg-quick show
-```
+   ```bash
+   wg-quick show
+   ```
 
 5. Disconnect VPN: 
 
-To deactivate the VPN tunnel, execute:
+   To deactivate the VPN tunnel, execute:
      
-```bash
-wg-quick down wg0
-```
+   ```bash
+   wg-quick down wg0
+   ```
 
 ### MacOS
 Install WireGuard: 
@@ -115,17 +111,16 @@ Install WireGuard:
     - Example configuration:
      
     
-```
-[Interface]
-PrivateKey = DESKTOP_CLIENT_PRIVATE_KEY
-Address = 10.0.0.2/24
+   ```
+   [Interface]
+   PrivateKey = DESKTOP_CLIENT_PRIVATE_KEY
+   Address = 10.0.0.2/24
 
-[Peer]
-PublicKey = SERVER_PUBLIC_KEY
-Endpoint = SERVER_IP_ADDRESS:PORT
-AllowedIPs = 0.0.0.0/0
-```
-
+   [Peer]
+   PublicKey = SERVER_PUBLIC_KEY
+   Endpoint = SERVER_IP_ADDRESS:PORT
+   AllowedIPs = 0.0.0.0/0
+   ```
 
 3. Launching WireGuard Application. 
  
@@ -133,7 +128,7 @@ AllowedIPs = 0.0.0.0/0
 4. Import VPN Configuration File: 
 
    - Open WireGuard, select "Import tunnel(s) from file".
-- Choose your previously created configuration file (sensitive-vpn.conf).
+   - Choose your previously created configuration file (sensitive-vpn.conf).
      
 
 5. Activate VPN Connection: 
