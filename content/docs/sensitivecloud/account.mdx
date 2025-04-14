@@ -12,16 +12,16 @@ SensitiveCloud leverages modern container technology via Kubernetes (K8s). It pr
 SensitiveCloud resources must be requested by a Principal Investigator (PI). The PI takes responsibility for data management and resource allocation during the project's lifetime. 
 
 - Contact us at mailto:support@e-infra.cz  with your request.  
-- Include the following in your message:  
+- Include the following information in your message:  
        *  Project name & acronym (for internal identification).  
-       *  Resource requirements: approximate CPU time, RAM, storage capacity, GPU needs.  
-       *  Short project/activity description & intended resource usage.  
+       *  Resource requirements: approximate CPU time, RAM, storage capacity, and GPU needs.  
+       *  Short project/activity description
        *  Expected duration of resource allocation.  
        *  Team members' names and email addresses.
          
      
 
-Example request email:   
+Example of a request email:   
 ```
 Subject: New SensitiveCloud Project Request
   
@@ -35,7 +35,7 @@ Thank you,
 PI’s Name (Digitally signed) 
 ```     
 
-After reviewing your request, we will arrange a brief meeting to confirm that SensitiveCloud meets your project's requirements. Afterwards, your team will receive training covering safe working practices and effective utilization of the SensitiveCloud environment. 
+After looking over your request, we will arrange a brief meeting to make sure that SensitiveCloud meets your project's requirements. Afterwards, your team will receive training covering safe working practices and effective utilization of the SensitiveCloud environment. 
 
 ## Connecting to SensitiveCloud 
 
@@ -43,25 +43,11 @@ Access to SensitiveCloud resources is secured via:
 
 - [Rancher management portal](https://rancher.cloud.trusted.e-infra.cz/)
 - Secure VPN connection (mandatory for resource access).
-- Multi-factor authentication (MFA) set up via the e-INFRA CZ single-sign-on (SSO).
+TBD prepare a link VPN tutorial
+
+- Multi-factor authentication (MFA) set up via the e-INFRA CZ single-sign-on (SSO). [Tutorial on setting up MFA](https://docs.account.e-infra.cz/en/docs/access/mfa).
      
-
-### Access Prerequisite Checklist: 
-
-✔️ Active project membership.   
-
-    - Tutorial for creating a project (PIs).  
-    - Managing project membership permissions (below).
-     
-
-✔️ Activated VPN   
-
-    - VPN setup tutorial .
-     
-
-✔️ Active MFA   
-
-    - Tutorial on setting up MFA .
+ 
      
 
 ### Managing Your Project 
@@ -69,40 +55,36 @@ Access to SensitiveCloud resources is secured via:
 Principal Investigators have administrative control over: 
 
    - User permissions: grant or revoke access to project resources.  
-   - Allocated resource changes: currently this procedure is manual; contact trusted@ics.muni.cz  to adjust your resource allocations.
+   - Allocated resource changes: currently, this procedure is manual; contact mailto:trusted@ics.muni.cz to adjust your resource allocations.
      
 
-### Managing User Access 
+#### Managing User Access 
 
-SensitiveCloud access relies on user groups defined in the Perun Identity Management system. Your group's identifier typically starts with prefix `sc_` (example: `sc_project-acronym`). 
+SensitiveCloud access relies on user groups defined in the Perun Identity Management system. Your group's identifier typically starts with the prefix `sc_` (example: `sc_project-acronym`). 
+
+<Callout type="info" title="Adding users">
+Please be careful when selecting the right group when adding/removing members. All groups can be found at the following link: [https://perun.e-infra.cz/organizations/3898/groups/15034/subgroups](https://perun.e-infra.cz/organizations/3898/groups/15034/subgroups). 
+</Callout>
+
 
 #### Adding Users 
 
 1. Log in to perun.e-infra.cz .
-2. Select your group (prefix: sc_).
-3. Click the Members tile → select Invite.
+2. Select your group (with prefix sc_: `sc_project-acronym`).
+3. Click the `Members` tile → select `Invite`.
 4. Enter your colleague’s name and email address, then submit your invitation.
      - They will receive an email and must complete their registration via their home organization's login.
               
 
 #### Removing Users 
 
- 1. Open your group's member management interface in Perun.
+ 1. Open your group's member management interface in [Perun](https://perun.e-infra.cz/organizations/3898/groups/15034/subgroups).
  2. Select group members to remove.
  3. Click Remove. These users immediately lose SensitiveCloud access via your project group.
      
 
-Next Steps & Further Documentation 
+## Next Steps & Further Documentation 
 
-To continue using SensitiveCloud effectively, refer to detailed instructions on: 
+Documentation on how to use Rancher in SensitivCloud is common with the standard [Kubernetes documentation](../rancher/rancher).
 
-     Connecting to the SensitiveCloud   
-     Working within the SensitiveCloud environment   
-     Deploying applications in SensitiveCloud (Coming soon) 
 
-## Technical Documentation
-Documentation on how to use Rancher is common with standard Kubernetes.
-
-     
-
-For more details, visit the SensitiveCloud product page 
