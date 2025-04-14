@@ -12,7 +12,7 @@ SensitiveCloud resources must be requested by a Principal Investigator (PI). The
 - Include the following information in your message:  
        *  Project name & acronym (for internal identification).  
        *  Resource requirements: approximate CPU time, RAM, storage capacity, and GPU needs.  
-       *  Short project/activity description
+       *  Short project/activity description.
        *  Expected duration of resource allocation.  
        *  Team members' names and email addresses.
          
@@ -39,20 +39,18 @@ After looking over your request, we will arrange a brief meeting to make sure th
 Access to SensitiveCloud resources is secured via: 
 
 - [Rancher management portal](https://rancher.cloud.trusted.e-infra.cz/)
-- Secure VPN connection (mandatory for resource access). [VPN Setting](./vpn)
+- Secure VPN connection (mandatory for resource access). [VPN Setting](./sensitivecloud/vpn)
 - Multi-factor authentication (MFA) set up via the e-INFRA CZ single-sign-on (SSO). [Tutorial on setting up MFA](https://docs.account.e-infra.cz/en/docs/access/mfa).
      
      
 
-### Managing Your Project 
+### Managing Your Project and User Access 
 
 Principal Investigators have administrative control over: 
 
    - User permissions: grant or revoke access to project resources.  
    - Allocated resource changes: currently, this procedure is manual; contact mailto:trusted@ics.muni.cz to adjust your resource allocations.
      
-
-#### Managing User Access 
 
 SensitiveCloud access relies on user groups defined in the Perun Identity Management system. Your group's identifier typically starts with the prefix `sc_` (example: `sc_project-acronym`). 
 
@@ -63,7 +61,7 @@ Please be careful when selecting the right group when adding/removing members. A
 
 #### Adding Users 
 
-1. Log in to perun.e-infra.cz .
+1. Log in to [perun.e-infra.cz](https://perun.e-infra.cz/organizations/3898/groups/15034/subgroup).
 2. Select your group (with prefix sc_: `sc_project-acronym`).
 3. Click the `Members` tile → select `Invite`.
 4. Enter your colleague’s name and email address, then submit your invitation.
