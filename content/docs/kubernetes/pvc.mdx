@@ -1,172 +1,229 @@
 ---
-title: Storage
+title: Storage                                                                  
 ---
 
-Kubernetes orchestrator offers several ways to utilize infrastructure storages. There are three important Kubernetes objects related to storage: *Storage Class*, *Physical Volume (PV)*, *Persistent Volume Claim (PVC)*. 
+Kubernetes orchestrator offers several ways to utilize infrastructure storages. There are three important Kubernetes objects related to storage: *Storage Class*, *Physical Volume (PV)*, *Persistent Volume Claim (PVC)*.
 
 ## Storage Class
+[Storage class](https://kubernetes.io/docs/concepts/storage/storage-classes/) provides a way for administrators to describe the "classes" of storage they offer. We differentiate between static and dynamic classes. Static class means that storage representation in Kubernetes (PV+PVC) must be created in advance to be used by Pod. Dynamic class means that volumes can be created on demand, as user requests them, usually via creating PVC. 
 
-[Storage class](https://kubernetes.io/docs/concepts/storage/storage-classes/) provides a way for administrators to describe the "classes" of storage they offer. Different classes might map to quality-of-service levels. We offer the following storage classes:
+Different classes might map to quality-of-service levels. 
 
-1. csi-ceph-rbd-du -- storage class backed up by CEPH RBD block volumes from DU CESNET facility. The block volume is formated e.g., as `ext4` local file system that can be connected to a single Pod.
-2. nfs-csi -- default dynamic class that uses NFS as connection protocol. Dynamic class means that volumes can be created ad-hoc as user requests them. 
-3. sshfs -- storage class that allows to use SSH protocol to connect to remote node (not necessarily storage node) and provide file system that is connected to a Pod.
+We offer the following storage classes:
 
-The table below describes performance characteristics of each storage class, in addition to these class, we provide CIFS storage characteristics that is also available not through *Storage class*, see below.
+1. `nfs-csi` -- default dynamic class that uses NFS as connection protocol.
 
-|Storage type|Read IOPS|Write IOPS|Read Linear|Write Linear|
-|:---|---:|---:|---:|---:|
-|Local SSD|98800|82800|1000MiB/s|947MiB/s|
-|nfs-csi|30700|22000|755MiB/s|1093MiB/s|
-|csi-ceph-rbd-du|496|814|224MiB/s|188MiB/s|
-|sshfs|13400|41200|171MiB/s|179MiB/s|
-|CIFS|19300|16900|372MiB/s|483MiB/s|
+    1. It is possible to create a static PVC in advance -- useful if you know that the PVC will be accessed by group of people over longer time
+2. `beegfs-csi` -- fast shared local storage accessible from all nodes (that support beegfs)  
 
+    1. **Maps** to quality of service level -- **all** physical nodes that offer beegfs must be functional in order for any beegfs PVC to function. If one node from this pool is broken (CPU, memory, motherboard, ...), no beegfs PVC (even from other nodes) works
+    2. Useful if faster shared storage is needed (10x faster than nfs)
+3. `zfs-csi` -- fast local storage accessible only from that node
 
-## PV
+    1. **Maps** to quality of service level -- PVC of this type is accessible only if physical node is functional
+    2. Useful for databases, working with large amount of files (if parallelism over several nodes is not required)
+4. `s3-csi` - dynamic class that will create PVC representing your S3 bucket. 
 
-PV represents physical volume that is responsible for storage connecting. Only administrator can create PV and it is cluster wide resource (not namespaced). 
+    1. Useful if you want to work with data stored in S3 bucket in interactive mode
+    2. Requires two steps to deploy, steps described in further subsection
+5. `sshfs` -- storage class that allows to use SSH protocol to connect to remote node (not necessarily storage node) and provide file system
 
-## PVC
+    1. Useful if you want to mount data stored on MetaCentrum storage
+    2. Requires cooperation with administrators, steps described in further subsection
+7. Ephemeral storage -- fast local storage allocated from node's disk or memory
 
-The PVC represents some kind of persistent storage that can be mounted into
-a *pod*. PVCs are usually network volumes, e.g., NFS or CIFS/SMB. These kind
-of PVCs can be mounted to many pods simultaneously thus making it a shared
+    1. **Maps** to quality of service level -- if Pod allocating this storage is moved to different physical node, content is lost
+    2. Useful for cache, steps described in further subsection
+8. `cvmfs` - specialized storage class for mounting software repositories, e.g. from CERN or MetaCentrum
+
+    1. Necessary to communicate with administrators, please email us with your request at k8s@ics.muni.cz
+
+## Persistent Volume (PV)
+PV represents physical volume that is responsible for storage connection. Only administrator can create PV and it is cluster wide resource (not namespaced). 
+
+## Persistent Volume Claim (PVC)
+The [PVC](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) is an object that represents persistent storage in Kubernetes. This object can be mounted into
+a *pod*. PVCs can be restricted to only one Pod or can be mounted to many pods simultaneously thus making it a shared
 storage among pods.
 
-* User can create an ad-hoc PVC using [pvc.yaml](/examples/ceritsc/manifests/pvc.yaml)
-   template. Downloading it and filling proper `name` and `storage` size and
-   issuing command:
-```bash
-kubectl create -f pvc.yaml -n namespace
-```
-
-    where `namespace` is user namespace as can be seen in Rancher GUI, usually
-    *surname-ns*. The ad-hoc pod does not contain any data in advance, the user
-    needs to populate the data on his/her own. PVC name is the exactly the
-    same you fill in the `name` value. User can choose different storage class according to description above.
-
-* Another option is to create PVC as CIFS storage from CERIT-SC. In such a case,
-    user needs to download [secret.yaml](/examples/ceritsc/manifests/secret.yaml),
-    fill in proper `name` and the following two annotations: `cerit.io/storage`,
-    `cerit.io/share`. Those values from the example work for *storage-brno12-cerit* as
-    they are, they make access to users home directory. For share `project` folders, `cerit.io/share` has to be set to: `cerit.io/share: 'export/nfs4/projects/project_name'`.
-    User also needs to fill in `mount_flags`. The `mount_flags` is
-    base64 encoded string that can be obtained using the following command:
-```bash
-echo -n "username=USER,password=PASS,uid=1000,gid=1000,nosetuids,vers=3.11,noserverino" | base64
-```
-
-where `USER` and `PASS` are username and password accessing *storage-brno12-cerit*, resp. In case the `USER` is UČO, `domain=UCN` needs to be added into the `echo` command as another comma separated value, i.e.,
+* User can create an ad-hoc PVC of `nfs-csi` storage class using [pvc.yaml](/examples/ceritsc/manifests/pvc.yaml)
+  template. Download it, fill in `name` and `storage` size and
+  issue command:
 
 ```bash
-echo -n "username=USER,password=PASS,uid=1000,gid=1000,nosetuids,vers=3.11,noserverino,domain=UCN" | base64
+kubectl create -f pvc.yaml -n [namespace]
 ```
 
-In case, you do not know CIFS password for CERIT-SC storage, just ask for one on support@cerit-sc.cz. It is **not** the same password you use for logging into infrastructure!
+  where `namespace` is user namespace as can be seen in Rancher GUI, usually *surname-ns*. Such newly created PVC does not contain any data, the user needs to populate the data on his/her own. PVC name is the exactly the same you fill in the `name` value. User can choose different storage class
+  according to description above.
 
-Be aware that the base64 encoded string is not encrypted, so keep it secret!
+* Another option is to request admins to create special PVC according to your needs, e.g. PV will point to specific folder on a storage server. You can request it at [k8s@cerit-sc.cz](mailto\:k8s@cerit-sc.cz).
 
-Once the user created secret.yaml file, it needs to be uploaded into Kubernetes via the following command: 
-
-```bash
-kubectl create -f secret.yaml -n namespace
+You see your PVCs in Rancher GUI in `Storage` → `PersistentVolumeClaims` ![Volumes](/img/ceritsc/pvc.jpg) or use kubectl
+``` bash
+kubectl get pvc -n [namespace]
 ```
-The `namespace` is the same as in the previous case. PVC name is derived from the `name` value and will be: `pvc-name`. In this case, PVC will not be empty, it contains data from your home from storage-brno12-cerit.
 
-* The last option is to request admins to create special PVC for you according
-to your needs. You can request it at k8s@cerit-sc.cz.
+## Tutorials
 
-You see your PVCs in Rancher GUI in `Storage` &rarr; `PersistentVolumeClaims` ![Volumes](/img/ceritsc/pvc.jpg)
+This section provides tutorials on how to create PVC of each storage class. Every `yaml` snippet can be saved into a file and then created as `kubectl create -f [that yaml] -n [your namespace]`. You can always check if PVC has been created by issuing `kubectl get pvc -n [your namespace]` and looking for PVC's name. If PVC is in Pending state for too long, there might be some problem. Normally, you should see in few moments PVC in `Bound` state.
 
-## Custom PVC Classes
+### NFS
 
-In our infrastructure we provide a few custom PVC storage classes for use
-with storage services we provide. In this section we list these classes
-and explain how to use them.
+It is important to configure `metadata.name`,`resources.requests.storage` and if necessary, [`spec.accessModes`](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes-1). It is necessary to deploy to namespace.
 
-### WebDAV
-
-This storage class allows you to access a WebDAV storage. For example some
-cloud storage providers have this feature. WebDAV accesses file storage via
-HTTP protocol and is therefore rather slow, if you have a different option
-to access your data, we would advise to use that for performance sake.
-
-To access a WebDAV storage, you will need:
-  - WebDAV URL
-  - directory to mount
-  - username
-  - password
-
-There are 2 ways to provide the password. Either add the password directly
-to PVC specification (STRONGLY discouraged) or save the password in a secret
-and then specify the secret name in PVC specification. We will show an
-example of the second approach.
-
-```yaml filename="manifests.yaml" copy
+``` yaml
+kind: PersistentVolumeClaim
 apiVersion: v1
-kind: Secret
 metadata:
-  name: my-webdav-secret
-  namespace: my-ns
-type: Opaque
-stringData:
-  password: SuperSecretPassword
----
+  name: test-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: nfs-csi
+  ```
+
+
+### beegfs-csi
+
+It is important to configure `metadata.name`,`resources.requests.storage` and if necessary, [`spec.accessModes`](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes-1). It is necessary to deploy to namespace.
+
+``` yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: my-webdav-pvc
-  namespace: my-ns
-  annotations:
-    url: "https://my.webdav.url/remote.php/dav/files/123456789"
-    dir: "directory_to_mount"
-    user: "my_username"
-    passwordSecret: "my-webdav-secret" # this is the name of the secret created a few lines above
+  name: test-pvc-beegfs
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1000Gi
+  storageClassName: "beegfs-csi"
+```
+
+
+### zfs-csi
+
+It is important to configure `metadata.name`,`resources.requests.storage` and if necessary, [`spec.accessModes`](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes-1). It is necessary to deploy to namespace.
+
+``` yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-pvc-zfs
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: "zfs-csi"
+```
+
+
+
+### s3-csi
+
+You need S3 endpoint, bucket, access key and secret key. 
+
+<Callout type="info" icon="&#9757;" title="Current limitations">
+If you don't have any S3 bucket, you can create one at [s3-ui.cloud.e-infra.cz](s3-ui.cloud.e-infra.cz).
+- Allowed bucket names are `[your-einfra-login]` or `[your-einfra-login]-*`, e.g. `viktorias-test`
+- Endpoint name in the secret will be `https://s3.cloud.e-infra.cz`
+</Callout>
+
+First, create a secret in a namespace with some name `[secret-name]`. The secret **must** have the following format.
+
+``` yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: [secret-name]
+spec:
+  accessKeyID: [your-access-key-id]
+  secretAccessKey: [your-secret-key]
+  endpoint: [endpoint]
+  bucket: [bucket]
+```
+
+Then create PVC which **must** have the same name as the secret therefore in `metadata.name` use secret's name.
+``` yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: [secret-name]
 spec:
   accessModes:
   - ReadWriteMany
   resources:
     requests:
-      storage: 100Gi
-  storageClassName: webdav
+      storage: 5Gi
+  storageClassName: s3-csi
 ```
 
-Replace `password`, `url`, `dir`, `user`, `passwordSecret` and all names and namespaces
-with your values. With this yaml file you should be able to successfuly create a PVC
-that can be mounted inside your pods.
+
+### sshfs
+
+This demonstrates how to make your MetaCentrum home available as PVC in Kubernetes. 
+
+First, you need to create ssh keypair
+
+``` bash
+ssh-keygen -b 4096 -t rsa -f ~/.ssh/custom_key
+```
+
+This command will generate public key into `~/.ssh/custom_key.pub` and private key into `~/.ssh/custom_key`. Create directory `.ssh` using `mkdir -p $HOME/.ssh` and copy the **full** contents of public key into your metacentrum home into file `.ssh/authorized_keys`.
+
+Second, you need to create a [ssh authentication secret](https://kubernetes.io/docs/concepts/configuration/secret/#ssh-authentication-secrets) in the namespace where you want to have your MetaCentrum available as PVC. The contents of secret is private part of ssh key located in `~/.ssh/custom_key`. The secret **must** have the following form.
+
+``` yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secret-ssh-auth
+type: kubernetes.io/ssh-auth
+data:
+  # the data is abbreviated in this example
+  ssh-privatekey: |
+    [full contents of private part of ssh key]
+```
+
+As a last step, administrators must create PV (and PVC) for you. Please, email us at ` k8s@cerit-sc.cz` and include information about your metacentrum username, which storage you want to mount, and the namespace in Kubernetes where you want to have the PVC and secret name. 
+
 
 ## Ephemeral Storage
-
-Ephemeral kind of storage is allocated from node's local storage. Allocation is done through resource requests, see [resources](./resources) and through volume mounts.
-
-Ephemeral storage can be allocated from local disk or local memory. If a Pod is evicted or moved to another node, content of ephemeral storage is lost.
+Ephemeral storage is allocated from node's local storage (disk or memory). Allocation is done through resource requests, see [resources](./resources) and through volume mounts. If a Pod is evicted or moved to another node, content of ephemeral storage is lost.
 
 Ephemeral storage from local disk:
 
 ```yaml copy
-volumes:
-- name: eph
-  emptyDir:
-    sizeLimit: 10Gi
-
-volumeMounts:
-- name: eph
-  mountPath: /data
+volumes:                                                                        
+- name: eph                                                                     
+  emptyDir:                                                                     
+    sizeLimit: 10Gi                                                             
+                                                                                
+volumeMounts:                                                                   
+- name: eph                                                                     
+  mountPath: /data                                                              
 ```
 
 Ephemeral storage from local memory:
 
 ```yaml copy
-volumes:
-- name: mem
-  emptyDir:
-    medium: Memory
-    sizeLimit: 1Gi
-
-volumeMounts:
-- name: mem
-  mountPath: /tmp
+volumes:                                                                        
+- name: mem                                                                     
+  emptyDir:                                                                     
+    medium: Memory                                                              
+    sizeLimit: 1Gi                                                              
+                                                                                
+volumeMounts:                                                                   
+- name: mem                                                                     
+  mountPath: /tmp                                                               
 ```
 
 In case of local memory, see requirements on [memory resources](./resources).
+
