@@ -5,7 +5,7 @@ title: Storage
 Kubernetes orchestrator offers several ways to utilize infrastructure storages. There are three important Kubernetes objects related to storage: *Storage Class*, *Physical Volume (PV)*, *Persistent Volume Claim (PVC)*.
 
 ## Storage Class
-[Storage class](https://kubernetes.io/docs/concepts/storage/storage-classes/) provides a way for administrators to describe the "classes" of storage they offer. We differentiate between static and dynamic classes. Static class means that storage representation in Kubernetes (PV+PVC) must be created in advance to be used by Pod. Dynamic class means that volumes can be created on demand, as user requests them, usually via creating PVC. 
+[Storage class](https://kubernetes.io/docs/concepts/storage/storage-classes/) provides a way for administrators to describe the "classes" of storage they offer. We differentiate between static and dynamic classes. Static class means that storage representation in Kubernetes (PV+PVC) must be created in advance by administrator or some controller to be used by Pod. Dynamic class means that volumes can be created on demand, as user requests them, usually via creating PVC. 
 
 Different classes might map to quality-of-service levels. 
 
@@ -13,30 +13,76 @@ We offer the following storage classes:
 
 1. `nfs-csi` -- default dynamic class that uses NFS as connection protocol.
 
-    1. It is possible to create a static PVC in advance -- useful if you know that the PVC will be accessed by group of people over longer time
-2. `beegfs-csi` -- fast shared local storage accessible from all nodes (that support beegfs)  
+    - While this class works as a database storage backend, users are encouraged to use the `zfs-csi` class for databases.
+    - Administrators can create a static PVC in advance, which is particularly useful when the volume will be accessed by a group of users over an extended period.
+    - This storage class is backed by an all-flash storage array, providing high performance. However, performance may be constrained by the 10 Gbps link between the cluster and the storage system. Under heavy load, this can result in noticeable lag.
+    - We can restore accidentally deleted files up to **one week** back, with **day-level granularity**. This means files created and deleted within the same day cannot be recovered.
+     
+      <Callout type="warn">
+      The storage has no additional redundancy. In the event of a catastrophic failure of the storage array, **all data will be permanently lost** with no possibility of recovery.
+      </Callout>
 
-    1. **Maps** to quality of service level -- **all** physical nodes that offer beegfs must be functional in order for any beegfs PVC to function. If one node from this pool is broken (CPU, memory, motherboard, ...), no beegfs PVC (even from other nodes) works
-    2. Useful if faster shared storage is needed (10x faster than nfs)
-3. `zfs-csi` -- fast local storage accessible only from that node
+2. `nfs-csi-backup` — Dynamic storage class using NFS as the connection protocol.
 
-    1. **Maps** to quality of service level -- PVC of this type is accessible only if physical node is functional
-    2. Useful for databases, working with large amount of files (if parallelism over several nodes is not required)
-4. `s3-csi` - dynamic class that will create PVC representing your S3 bucket. 
+   - This class is functionally the same as `nfs-csi`, but includes regular, system-level data backups to a separate physical location.
+   - Data is retained for **30 days**.
+   - Data recovery is available **upon request**; users cannot perform recovery autonomously.
 
-    1. Useful if you want to work with data stored in S3 bucket in interactive mode
-    2. Requires two steps to deploy, steps described in further subsection
-5. `sshfs` -- storage class that allows to use SSH protocol to connect to remote node (not necessarily storage node) and provide file system
+3. `beegfs-csi` — High-performance shared storage accessible from all nodes that support BeeGFS.
 
-    1. Useful if you want to mount data stored on MetaCentrum storage
-    2. Requires cooperation with administrators, steps described in further subsection
-7. Ephemeral storage -- fast local storage allocated from node's disk or memory
+    - **Tied to Quality of Service:** All physical nodes contributing to the `beegfs` pool must be operational for any BeeGFS-based PVC to function. If a single node in this pool experiences hardware failure (CPU, memory, motherboard, etc.), **all** BeeGFS PVCs become non-functional, regardless of which node they were created on.
+    - Currently, this includes all `kub-b` nodes. However, BeeGFS is mounted and available across both `kub-b` and `kub-c` nodes.
+    - Ideal when ultra-fast shared storage is required — up to **10× faster** than NFS.
+    
+    <Callout type="info">
+    - No backups or additional redundancy.
+    - Tolerates failure of one disk per node, but no additional redundancy is present.
+    - **Accidentally deleted files cannot be recovered.**
+    </Callout>
 
-    1. **Maps** to quality of service level -- if Pod allocating this storage is moved to different physical node, content is lost
-    2. Useful for cache, steps described in further subsection
-8. `cvmfs` - specialized storage class for mounting software repositories, e.g. from CERN or MetaCentrum
+4. `zfs-csi` — High-performance local storage accessible only from the node where it is provisioned.
 
-    1. Necessary to communicate with administrators, please email us with your request at k8s@ics.muni.cz
+   - **Tied to Quality of Service:** The PVC is available only if the physical node hosting it is fully operational.
+   - Offers lower latency and better performance, especially when data access is mostly non-parallel.
+   - Ideal for databases or workloads involving large numbers of files, provided that parallel access across multiple nodes is not required.
+
+   <Callout type="warn">
+   - Strongly recommended to use database replicas to avoid a single point of failure.
+   - Tolerates failure of one disk per node, but a full node failure will render the PVC inaccessible.
+   - No backups or data recovery options are available.
+   </Callout>
+
+5. `s3-csi` — Dynamic storage class that provisions a PVC representing your S3 bucket.
+
+   - Useful when you need to interactively work with data stored in an S3 bucket, or if your application cannot natively use an S3 backend.
+   - Requires a two-step deployment process — detailed instructions are provided in a later subsection.
+   
+   <Callout type="info">
+   - Redundancy and data protection are determined by the underlying S3 storage provider.
+   </Callout>
+
+6. `sshfs` — Storage class that uses the SSH protocol to connect to a remote node (not necessarily a storage node) and mount a file system.
+
+   - Useful for mounting data stored on MetaCentrum storage.
+   - Requires coordination with system administrators — setup steps are described in a later subsection.
+   - Since the file system is emulated over an SSH connection, **performance is limited**.
+
+7. Ephemeral storage — Fast local storage allocated from a node's disk or memory.
+
+   - **Tied to Quality of Service:** If the Pod using this storage is moved to a different physical node, all data is lost.
+   - Useful for caching purposes — setup steps are described in a later subsection.
+   - If a larger amount of local storage is needed, users are encouraged to declare it as ephemeral storage and request the appropriate resources. This allows the scheduler to coordinate Pod placement with respect to node storage capacity.
+   - Unlike using the `/tmp` directory, ephemeral storage can be shared among containers within the same Pod (e.g., sidecars).
+   - Ephemeral storage **cannot** be shared between different Pods, even if they run on the same node.
+
+   <Callout type="warn">
+   - There is no additional data protection.
+   </Callout>
+
+8. `cvmfs` — Specialized storage class for mounting software repositories, such as those from CERN or MetaCentrum.
+
+   - Requires coordination with system administrators.  
+   - Please send your request via email to: **k8s@cerit-sc.cz**
 
 ## Persistent Volume (PV)
 PV represents physical volume that is responsible for storage connection. Only administrator can create PV and it is cluster wide resource (not namespaced). 
