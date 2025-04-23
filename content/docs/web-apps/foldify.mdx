@@ -14,7 +14,7 @@ Next, [request access to the appropriate group](https://signup.e-infra.cz/fed/re
 After successful login you will be redirected to the Dashboard View that consists of two main sections: `New Job` and `Last Computed Jobs`.
 
 ### New Job Section
-This section consists of the cards with available Tools - AlphaFold, ColabFold, OmegaFold and ESMFold.
+This section consists of the cards with available Tools - AlphaFold 3, AlphaFold 2, ColabFold, OmegaFold and ESMFold.
 By pressing the `Run Job` button you can start a new computation with the selected tool. You will be redirected to the form page where you can fill in the parameters for the computation.
 
 ### Last Computed Jobs Section
@@ -31,31 +31,34 @@ If you are currently running a computation, you can see it in the `Running Jobs`
 
 ## Running a Computation
 
-After choosing a tool, you will be redirected to the form page where you can fill in the parameters for the computation. 
+After choosing a tool, you will be redirected to the form page where you can fill in the parameters for the computation.
 
+### AlphaFold 2, ColabFold, OmegaFold and ESMFold
 The only required parameters are the **Protein Sequence** and the **Job Name**, everything else can be left 
 default. You can change the name of the job, but it must be unique (you cannot run multiple computations with the same name), otherwise you will be prompted
 to enter a different name or check the `Force Computation` checkbox.
 
-By default, all calculation results are public, i.e. everyone who is able to log in can see them, but the name of the user who initiated the calculation is not shown. If this is not desired, publication can be disabled (*Make results public* checkbox).
+### AlphaFold 3
+AlphaFold 3 is the latest version of the AlphaFold protein structure prediction model.
+Foldify offers three different modes of submission for AlphaFold 3: `Basic Submission`, `Advanced Submission`, and `JSON Submission`.
+- **Basic Submission**: This mode is designed for users who want to quickly submit a protein sequence for structure prediction without delving into advanced options. It provides a simplified interface with essential parameters.
+- **Advanced Submission**: This mode is intended for users who want to customize their submission with advanced options. It allows for more control over the prediction process, including the ability to specify custom ligands, atom bonds and upload CCD file.
+- **JSON Submission**: This mode is for users who want to submit a JSON file containing the protein sequence and other parameters. It is useful for batch submissions or for users who prefer to work with JSON files.
 
-After filling in the parameters, you can start the calculation by clicking the `Run Job` button. When compuatation finishes, you will receive an email notification.
+![af3form](/img/ceritsc/apps/foldify/alphafold3-form.png)
+
+By default, all calculation results are private, i.e. only you can see them. If you want to share your results with collegues, you can do so by checking (*Make results public* checkbox). In this case, the results is shown in `Public Jobs Table` and you can share the computation with link.
+
+After filling in the parameters, you can start the computation by clicking the `Run Job` button. When the computation finishes, you will receive an email notification.
 
 ![form](/img/ceritsc/apps/foldify/af-form.png)
 
 ## Viewing Results
 
-If you want to preview the computed results, you can do so from the `Last Computed Jobs` table on the dashboard. You can find your protein name and click the `View Result` button to display the result in the browser. The viewer is interactive and allows rotation and panning.
+If you want to preview the computed results, you can do so from the `Last Computed Jobs` table on the dashboard. Find the protein name and click the `View Result` button to display the result in the browser. Visualization is provided by [Mol* Viewer](https://molstar.org/), which is a web-based molecular visualization tool. It allows you to view the protein structure in 3D and interact with it.
 You can also download the results by clicking the `Download` button. Please note, that the results are in most cases large files and can take some time to download. After closing the dialog window downloading process will be cancelled.
 
 ![computedjobs](/img/ceritsc/apps/foldify/last-computed-jobs.png)
-
-### Molstar Viewer
-
-In the `Results` page you can also find the `Mol*` viewer, which is a more complex viewer for the results. You can open it by clicking the `Mol*` logo below the embedded 3D viewer.
-
-![results](/img/ceritsc/apps/foldify/results.png)
-![molstar](/img/ceritsc/apps/foldify/molstar.png)
 
 ### Plddt Score
 
@@ -69,6 +72,19 @@ Further you can explore `Configuration` tab, where you can see the parameters of
 
 ![resulttabs](/img/ceritsc/apps/foldify/result-tabs.png)
 
+## FAQ
+### How to run a computation?
+To run a computation, go to the Dashboard View and select the tool you want to use. Click the `Run Job` button and fill in the parameters for the computation. After that, click the `Run Job` button again to start the computation.
 
+### How to view the results?
+To view the results, go to the Dashboard View and find the protein name in the `Last Computed Jobs` table. Click the `View Result` button to display the result in the browser.
 
+### How to share the results?
+To share the results, check the `Make results public` checkbox when running the computation. This will make the results visible in the `Public Jobs` table and you can share the link with your collegues.
+
+### How to download the results?
+To download the results, click the `Download` button in the `Last Computed Jobs` table. Please note that the results are in most cases large files and can take some time to download. After closing the dialog window downloading process will be cancelled.
+
+### Why did my computation failed?
+One way to find out how your computation failed is to view the logs and find an error warning there. To view the logs, go to the `Results` page and click on the `Technical Output` tab. Here you can see the logs of the computation. If you find an error message, you can try to fix it and run the computation again. If you are not sure what the error message means, you can contact us for help via [k8s@ics.muni.cz](mailto:k8s@ics.muni.cz).
 
