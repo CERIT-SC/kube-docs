@@ -31,7 +31,7 @@ sudo rpm --import 'https://download.ceph.com/keys/release.asc'
 ```
 
 In the directory **/etc/yum.repos.d/** create a text file **ceph.repo** and fill in the record for Ceph instruments.
-```conf filename="/etc/yum.repos.d/ceph.repo" copy
+```ini filename="/etc/yum.repos.d/ceph.repo" copy
 [ceph]
     name=Ceph packages for $basearch
     baseurl=https://download.ceph.com/<contact-admin-for-current-version>/el7/$basearch
@@ -87,7 +87,7 @@ To configure and connect to RBD, use the credentials provided by the system admi
 In the directory **/etc/ceph/** create a text file **ceph.conf** with the following content. 
 
 **CL1 Data Storage**
-```conf filename="ceph.conf" copy
+```ini filename="ceph.conf" copy
 [global]
     fsid = 19f6785a-70e1-45e8-a23a-5cff0c39aa54
     mon_host = [v2:78.128.244.33:3300,v1:78.128.244.33:6789],[v2:78.128.244.37:3300,v1:78.128.244.37:6789],[v2:78.128.244.41:3300,v1:78.128.244.41:6789]
@@ -95,7 +95,7 @@ In the directory **/etc/ceph/** create a text file **ceph.conf** with the follow
 ```
 
 **CL2 Data Storage**
-```conf filename="ceph.conf" copy
+```ini filename="ceph.conf" copy
 [global]
     fsid = 3ea58563-c8b9-4e63-84b0-a504a5c71f76
     mon_host = [v2:78.128.244.65:3300/0,v1:78.128.244.65:6789/0],[v2:78.128.244.69:3300/0,v1:78.128.244.69:6789/0],[v2:78.128.244.71:3300/0,v1:78.128.244.71:6789/0]
@@ -103,7 +103,7 @@ In the directory **/etc/ceph/** create a text file **ceph.conf** with the follow
 ```
 
 **CL3 Data Storage**
-```conf filename="ceph.conf" copy
+```ini filename="ceph.conf" copy
 [global]
     fsid = b16aa2d2-fbe7-4f35-bc2f-3de29100e958
     mon_host = [v2:78.128.244.240:3300/0,v1:78.128.244.240:6789/0],[v2:78.128.244.241:3300/0,v1:78.128.244.241:6789/0],[v2:78.128.244.242:3300/0,v1:78.128.244.242:6789/0]
@@ -111,7 +111,7 @@ In the directory **/etc/ceph/** create a text file **ceph.conf** with the follow
 ```
 
 **CL4 Data Storage**
-```conf filename="ceph.conf" copy
+```ini filename="ceph.conf" copy
 [global]
     fsid = c4ad8c6f-7ef3-4b0e-873c-b16b00b5aac4
     mon_host = [v2:78.128.245.29:3300/0,v1:78.128.245.29:6789/0] [v2:78.128.245.30:3300/0,v1:78.128.245.30:6789/0] [v2:78.128.245.31:3300/0,v1:78.128.245.31:6789/0]
@@ -119,7 +119,7 @@ In the directory **/etc/ceph/** create a text file **ceph.conf** with the follow
 ```
 
 **CL5 Data Storage**
-```
+```ini
 [global]
 fsid = c581dace-40ff-4519-878b-c0ffeec0ffee
 mon_host = [v2:78.128.245.157:3300/0,v1:78.128.245.157:6789/0] [v2:78.128.245.158:3300/0,v1:78.128.245.158:6789/0] [v2:78.128.245.159:3300/0,v1:78.128.245.159:6789/0]
@@ -127,7 +127,7 @@ auth_client_required = cephx
 ```
 
 Next, in the **/etc/ceph/** directory, create a text file **ceph.keyring**. Then, save the keyring in that file, as shown in the example below.
-```conf filename="ceph.keyring" copy
+```ini filename="ceph.keyring" copy
 [client.rbd_user]
         key = sdsaetdfrterp+sfsdM3iKY5teisfsdXoZ5==
 ```
@@ -236,7 +236,7 @@ Configuration for automatic RBD connection, including LUKS encryption and filesy
 ### RBD Image
 Edit the configuration file located at `/etc/ceph/rbdmap` by adding the following lines.
 
-```conf filename="/etc/ceph/rbdmap" copy
+```ini filename="/etc/ceph/rbdmap" copy
 # RbdDevice             Parameters
 #poolname/imagename     id=client,keyring=/etc/ceph/ceph.client.keyring
 pool_name/image_name id=rbd_user,keyring=/etc/ceph/ceph.keyring
@@ -244,7 +244,7 @@ pool_name/image_name id=rbd_user,keyring=/etc/ceph/ceph.keyring
 
 ### LUKS
 Edit configuration file located at `/etc/crypttab` by adding the following lines.
-```conf filename="/etc/crypttab" copy
+```ini filename="/etc/crypttab" copy
 rbd_luks_pool /dev/rbd/pool_name/image_name  /etc/ceph/luks.keyfile luks,_netdev
 ```
 
@@ -256,7 +256,7 @@ Path to block device `source device` is generally `/dev/rbd/$POOL/$IMAGE`
 
 ### fstab file
 Edit the configuration file located at `/etc/fstab` by adding the following lines.
-```conf filename="/etc/fstab" copy
+```ini filename="/etc/fstab" copy
 /dev/mapper/rbd_luks_pool /mnt/rbd_luks_pool btrfs defaults,noatime,auto,_netdev 0 0
 ```
 
@@ -268,7 +268,7 @@ path to LUKS container (`file system`) is generally `/dev/mapper/$LUKS_NAME`, wh
 ### Systemd Unit
 Edit the configuration file located at `/etc/systemd/system/systemd-cryptsetup@rbd_luks_pool.service.d/10-deps.conf` by adding the following lines.
 
-```conf filename="10-deps.conf" copy
+```ini filename="10-deps.conf" copy
 [Unit]
     After=rbdmap.service
     Requires=rbdmap.service
