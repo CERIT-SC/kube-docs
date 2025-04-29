@@ -33,19 +33,43 @@ Open-WebUI provides access to various AI models for text generation. To use them
 </div>
 </center>
 
-### Currently available models (as of 02/13/2025)
+### Currently Available Models (as of 04/29/2025)
 
-|Model         |Description|
-|--------------|-----------|
-|LLama 3.3     |Language model from Meta, 70B variant, this efficiency makes it suitable for a variety of natural language processing tasks.|
-|DeepSeek R1   |Language model of Chinese Deepseek, 32B Qwen distilled variant. It focuses on reasoning capabilities, excelling in complex tasks such as mathematics and coding.|
-|Qwen 2.5 Coder|Language model for Code generation, 32B Q8 variant, it specializes in understanding and generating code, making it valuable for developers seeking assistance with programming tasks.|
-|Aya Expanse   |Language model of Cohere, 32B Q8 variant, it is trained to perform well across 23 different languages including Czech.|
-|Gemma3        |Language model of Google, 27B FP16 variant, Gemma is a lightweight, family of models from Google built on Gemini technology.|
-|Phi4          |Language model of Microsoft, 14B Q8 variant, state-of-the-art open model built upon a blend of synthetic datasets, data from filtered public domain websites, and acquired academic books and Q&A datasets.|
-|QwQ           |Language model of Chinese Qwen, 32B FP16 variant, it is the medium-sized reasoning model, which is capable of achieving competitive performance against state-of-the-art reasoning models, e.g., DeepSeek-R1, o1-mini.|
-|nomic-embed-text:latest|Text embedding model|
-|mxbai-embed-large:latest|Text embedding model| 
+We categorize our models into two groups:
+
+1. **Guaranteed Models** – These are stable and expected to remain available long-term. Any replacements or updates will be announced here and via WebUI banners.
+2. **Experimental Models** – These are subject to change as we optimize resources or test new capabilities.
+
+<Callout type="info">
+For exact model names, query the model list as shown [below](#models-for-api-interface). When accessing externally, you must use the exact model names, such as `llama3.3:latest`.
+
+Model names are case-sensitive and may include version tags like `:latest` or specific quantization formats.
+</Callout>
+
+#### Guaranteed Models
+
+| Model           | Description |
+|----------------|-------------|
+| **LLaMA 3.3**     | A 70B language model from Meta. Its efficiency and versatility make it well-suited for a wide range of natural language processing tasks. |
+| **DeepSeek R1**   | A 32B Qwen-distilled model from DeepSeek (China), designed with a focus on reasoning. It excels at complex tasks such as mathematics and code generation. |
+| **Qwen 2.5 Coder**| A 32B Q8 variant specialized in code understanding and generation, ideal for developers needing programming assistance. |
+| **Gemma 3**       | A 27B FP16 language model from Google, part of the lightweight Gemma family built on Gemini technology. |
+| **Command-A**     | A 111B model from Cohere. Though slower in response time, it is particularly strong in programming tasks and manifest generation. |
+
+#### Experimental Models
+
+| Model              | Description |
+|-------------------|-------------|
+| **Aya Expanse**      | A 32B Q8 multilingual model from Cohere, trained to perform well across 23 languages, including Czech. |
+| **Phi-4**            | A 14B Q8 model from Microsoft, trained on a mix of synthetic datasets, filtered public web content, academic books, and Q&A datasets. It represents the current state of the art in open-access models. |
+| **LLaMA 4**          | Meta’s Scout 17B-16E variant. While intended for general NLP tasks, it currently underperforms compared to LLaMA 3.3. |
+| **Mistral-Small 3.1**| A 24B language model from Mistral AI, featuring built-in vision capabilities. |
+
+#### Embedding Models
+
+The Open WebUI currently does not support API access to embedding models (even if compatible with the OpenAI API). As a result, no embedding models are currently available through the Open WebUI API.  
+
+However, users may request IP-based access to the **vLLM** system, which includes support for embedding models.
 
 ## Generating Images
 
