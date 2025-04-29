@@ -28,7 +28,7 @@ sudo apt install s3cmd
 
 Add the following lines to the configuration file located at **/home/user/.s3cfg**.
 
-```conf filename="/home/user/.s3cfg" copy
+```ini filename="/home/user/.s3cfg" copy
 [default]
     host_base = https://s3.clX.du.cesnet.cz
     use_https = True
@@ -41,7 +41,7 @@ the `host_base` and `host_bucket` refer to the S3 endpoint URL, which you receiv
 
 **Configuration file with GPG encryption**
 
-```conf filename="/home/user/.s3cfg" copy
+```ini filename="/home/user/.s3cfg" copy
 [default]
 host_base = https://s3.clX.du.cesnet.cz
     use_https = True
