@@ -9,7 +9,7 @@ Originální, úplná dokumentace o struktuře PostgresOperator je k dispozici [
 
 ## Nasazení instance clusteru
 
-Je možné nasadit buď jednotlivou, nebo clusterovou instanci. Pro testovací účely doporučujeme nasadit minimální (jednotlivou) instanci, která používá NFS úložiště jako podkladové úložiště a spotřebovává omezené zdroje (výkon je nízký). Pro lepší dostupnost a výkon lze použít nasazení clusteru. V tomto případě běží v clusteru více instancí, přičemž jedna z nich je vůdčí (leader) a ostatní ji následují a synchronizují data od tohoto vůdce.
+Je možné nasadit buď jednotlivou, nebo clusterovou instanci. Pro testovací účely doporučujeme nasadit minimální (jednotlivou) instanci, která používá NFS úložiště jako podkladové úložiště a spotřebovává omezené zdroje (výkon je nízký). Pro lepší dostupnost a výkon lze použít nasazení v clusteru. V tomto případě běží více instancí v clusteru, přičemž jedna z nich je vůdčí (leader) a ostatní ji následují a synchronizují data od vůdčí instance.
 
 ### Jednotlivá instance
 
