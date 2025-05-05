@@ -49,7 +49,7 @@ Pro nasazení verze clusteru můžete stáhnout [manifest clusteru](/examples/ce
 numberOfInstances: 3
 ```
 
-To požaduje 3 uzlový cluster. Tento typ nastavení je odolný vůči selhání uzlu --- pokud uzel běžící tuto instanci selže, databáze je znovu vytvořena na jiném uzlu, data jsou znovu připojena z NFS úložiště a operace pokračují. Na druhou stranu, toto nastavení není rychlostně nadřazené, i když jsou přidány zdroje.
+To vyžaduje cluster se 3 uzly. Tento typ nastavení je odolný vůči výpadku uzlu — pokud dojde k selhání uzlu, na kterém instance běží, databáze se znovu vytvoří na jiném uzlu, data se znovu připojí z NFS úložiště a operace pokračují. Na druhou stranu toto nastavení nepřináší vyšší výkon, ani když jsou přidány další zdroje.
 
 *Poznámka*: Instance clusteru spotřebovávají více zdrojů a musíte zvážit, kolik zdrojů je k dispozici ve vašem namespace/projektu. Instance clusteru spotřebovává `numberOfInstances * limits` zdrojů.
 
