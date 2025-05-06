@@ -124,3 +124,13 @@ location / {
     proxy_set_header X-Forwarded-Proto $scheme;
 }
 ```
+
+## Multiple Pods
+
+By design, a single WireGuard configuration **cannot be used simultaneously** across multiple Pods or devices. Each Pod requires a **unique WireGuard configuration** that must not be shared or reused elsewhere.
+
+This limitation arises because WireGuard effectively establishes a Layer 2-like network among peers. If multiple clients use the same IP address within this network, it leads to **IP address collisions**, resulting in unstable behavior.
+
+### Symptom
+
+A common symptom of this issue is **connectivity flapping** in regular intervals—typically every 10 seconds. For example, the connection may be stable for 10 seconds, then drop for the next 10 seconds, repeating in a loop.
