@@ -233,6 +233,12 @@ spec:
         cidr: [another_IP]/32
 ```
 
+<Callout type="warn" icon="⚠️ ">
+In this case, ensure that the corresponding LoadBalancer Service has the `externalTrafficPolicy` field set to `Local`, i.e., `externalTrafficPolicy: Local`. 
+
+If this field is not set or is set to `Cluster`, the network policy will not function as expected. This is because the client source IP address (the one specified in the `ipBlock` → `cidr`) will be masked and replaced by a cluster node's IP address. As a result, it becomes impossible to effectively restrict access based on the original client IP.
+</Callout>
+
 ## Data Backups
 
 Postgres operator offers automatic backups to S3 storage implemented via periodic wal streaming and regular backups (basically `pgdump` equivalent) using `CronJobs`.
