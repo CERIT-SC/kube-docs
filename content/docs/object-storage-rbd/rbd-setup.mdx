@@ -132,10 +132,20 @@ Next, in the **/etc/ceph/** directory, create a text file **ceph.keyring**. Then
         key = sdsaetdfrterp+sfsdM3iKY5teisfsdXoZ5==
 ```
 
+Now RBD mapping can be performed (rbd_user is a string originating from the keyring, after stripping the string **client**.
+```bash
+sudo rbd --id rbd_user --exclusive device map name_pool/name_image
+```
 <Callout type="warn" icon="⚠️">
+We strongly recommend using the `--exclusive` option when mapping the RBD image. This option prevents the image from being mapped to multiple devices or mapped multiple times locally, which could lead to data corruption. Please be aware that if there is any risk of multiple mapping, you should use the `--exclusive` option.
+
+However, do not use the --exclusive option if you need to mount the RBD image on multiple machines—for example, in a clustered file system setup.
+</Callout>
+
+<Callout type="info" emoji="ℹ️">
 If the files `ceph.conf` and `username.keyring` are located in a directory other than the default **/etc/ceph/**, you must specify the corresponding paths during the mapping process. See the example below.
 ```bash
-sudo rbd -c /home/username/ceph/ceph.conf -k /home/username/ceph/username.keyring --id rbd_user device map name_pool/name_image
+sudo rbd -c /home/username/ceph/ceph.conf -k /home/username/ceph/username.keyring --id rbd_user --exclusive device map name_pool/name_image
 ```
 </Callout>
 
