@@ -27,7 +27,7 @@ The IPv6 address uses `:` as a separator. A format like `2001:718:801:390:10.18.
 
 The `AllowedIP` field in your configuration should be set to:
 
-```config
+```
 AllowedIP = 10.16.48.0/25, 10.16.62.0/23, 147.251.33.144/28, 147.251.33.160/30, 2001:718:801:42bf:8:4::/96, 2001:718:801:42d8:8:4::/96, 2001:718:801:42d9:8:4::/96
 ```
 
@@ -87,7 +87,7 @@ Each WireGuard configuration file is intended for use on a single device only. I
 2. **Configure VPN**  
    - Create the file `/etc/wireguard/wg0.conf` with the configuration details provided by our support team.  
    - Example configuration file:  
-     ```config
+     ```
      [Interface]
      PrivateKey = DESKTOP_CLIENT_PRIVATE_KEY
      Address = 10.0.0.2/24
@@ -125,7 +125,7 @@ Each WireGuard configuration file is intended for use on a single device only. I
 
 - Securely create the file `sensitive-vpn.conf` in your home directory (e.g., `/Users/<username>/sensitive-vpn.conf`) using the configuration details provided by our support team.
 - Example configuration:  
-  ```config
+  ```
   [Interface]
   PrivateKey = DESKTOP_CLIENT_PRIVATE_KEY
   Address = 10.0.0.2/24
