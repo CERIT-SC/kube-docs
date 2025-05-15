@@ -11,11 +11,11 @@ Pro usnadnění poskytujeme několik funkčních příkladů níže, rozdělený
 Celkové schéma komponent MinIO je zobrazeno níže:
 ![minio-schema](/img/ceritsc/minio-schema.svg)
 
-## Nasazení jedné instance
+## Nasazení Single instance
 
 Můžete začít s ukázkovou instancí, která je ideální pro testovací účely. Tento příklad vytvoří zdroj `Tenant`, který je spravován nainstalovaným MinIO Operátorem. Příklad si můžete stáhnout [zde](/examples/ceritsc/manifests/minio-minimal-tenant.yaml).
 
-###yaml
+```yaml
 apiVersion: minio.min.io/v2
 kind: Tenant
 metadata:
@@ -58,7 +58,7 @@ spec:
           - ALL
         seccompProfile:
           type: "RuntimeDefault"
-###
+```
 
 Tento příklad rovněž vyžaduje nasazení tajného klíče pro uživatele. Příklad lze stáhnout [zde](/examples/ceritsc/manifests/minio-minimal-tenant-secret.yaml).
 
