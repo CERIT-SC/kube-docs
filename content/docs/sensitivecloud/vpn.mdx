@@ -21,9 +21,9 @@ Make sure your configuration includes an IPv6 address derived from your IPv4 add
 The IPv4 format is: `10.18.x.y/32`  
 The corresponding IPv6 format is: `2001:718:801:390:10:18:x:y/128`
 
-<Codeblock type="warn">
+<Callout type="warn">
 The IPv6 address uses `:` as a separator. A format like `2001:718:801:390:10.18.x.y` might be accepted by the system, but it will not work. It must be exactly: `2001:718:801:390:10:18:x:y`
-</Codeblock>
+</Callout>
 
 The `AllowedIP` field in your configuration should be set to:
 
@@ -31,13 +31,13 @@ The `AllowedIP` field in your configuration should be set to:
 AllowedIP = 10.16.48.0/25, 10.16.62.0/23, 147.251.33.144/28, 147.251.33.160/30, 2001:718:801:42bf:8:4::/96, 2001:718:801:42d8:8:4::/96, 2001:718:801:42d9:8:4::/96
 ```
 
-<Codeblock icon="⚠️">
+<Callout icon="⚠️">
 Never share your `PrivateKey`. It must remain confidential. The rest of the configuration is not considered sensitive.
-</Codeblock>
+</Callout>
 
-<Codeblock icon="⚠️">
+<Callout icon="⚠️">
 Each WireGuard configuration file is intended for use on a single device only. If you need to connect from multiple devices, please request separate configurations for each one.
-</Codeblock>
+</Callout>
 
 <Tabs items={['Windows', 'Linux', 'MacOS']}>
 <Tab value="Windows">
