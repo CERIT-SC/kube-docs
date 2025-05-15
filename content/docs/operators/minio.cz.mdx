@@ -2,7 +2,7 @@
 title: MinIO Operator
 ---
 
-[MinIO Operator](https://min.io/docs/minio/kubernetes/upstream/index.html) zjednodušuje nasazení MinIO Tenants v Kubernetes. Nabízí celoklastrového MinIO Operátora pro bezproblémové spouštění MinIO S3 objektových úložišť.
+[MinIO Operator](https://min.io/docs/minio/kubernetes/upstream/index.html) zjednodušuje nasazení MinIO Tenants v Kubernetes. Nabízí cluster-wide (pro celý cluster) MinIO Operátor pro snadné zajištění MinIO S3 objektového úložiště.
 
 MinIO Operator zavádí vlastní zdroj s názvem `Tenant`, který zajišťuje vytvoření a správu instancí objektového úložiště. Kompletní dokumentaci ke struktuře najdete [zde](https://min.io/docs/minio/kubernetes/upstream/index.html). Oficiální návod na vytvoření MinIO Tenanta je dostupný [zde](https://github.com/minio/operator/blob/master/docs/examples.md).
 
@@ -338,5 +338,53 @@ Pokud selže SSO, přihlaste se:
 ### Krok 2: Vytvoření politiky
 
 V konzoli MinIO přejděte do **Administrator** → **Policies** a vytvořte novou politiku se jménem odpovídajícím roli.
+
+### Krok 2: Vytvoření zásady (Policy) pro roli
+
+Přejděte do **Administrator** → **Policies** a vytvořte **novou zásadu se stejným názvem, jako má role**, např.  
+`urn:geant:muni:cz:group:MU:kubernetes-admins@idm.ics.muni.cz`.
+
+V editoru zásad definujte zásadu podobně jako následující JSON:
+
+###json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:*"
+            ],
+            "Resource": [
+                "arn:aws:s3:::${jwt:preferred_username}-*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:*"
+            ],
+            "Resource": [
+                "arn:aws:s3:::shared-bucket"
+            ]
+        }
+    ]
+}
+###
+
+#### ✅ Vysvětlení zásady:
+- Tato zásada umožňuje uživatelům se zadanou **OIDC rolí** vytvářet a spravovat buckety se vzorem názvu `<loginname>-něco`.
+
+  Například uživatel s přihlašovacím jménem `xhejtman` může vytvořit bucket s názvem `xhejtman-test`.
+
+- Zásada také poskytuje plný přístup ke sdílenému bucketu `shared-bucket`, který by měl být předem vytvořen správcem MinIO.
+
+- Protože však tato zásada umožňuje i mazání bucketů, **zvažte omezení oprávnění** (např. pouze na `s3:PutObject`, `s3:GetObject`) podle vašich bezpečnostních požadavků. Více informací naleznete v [dokumentaci k zásadám MinIO](https://min.io/docs/minio/linux/administration/identity-access-management/policy-based-access-control.html).
+
+### 🎯 Závěrečné poznámky:
+- **Název zásady musí přesně odpovídat názvu OIDC role**, jinak bude přístup zamítnut.
+- Různým rolím můžete přiřadit různé zásady pro jemnější řízení přístupu.
+
+
 
 ---
