@@ -60,9 +60,9 @@ spec:
           type: "RuntimeDefault"
 ```
 
-Tento příklad rovněž vyžaduje nasazení tajného klíče pro uživatele. Příklad lze stáhnout [zde](/examples/ceritsc/manifests/minio-minimal-tenant-secret.yaml).
+Tento příklad rovněž vyžaduje nasazení secret pro uživatele. Příklad lze stáhnout [zde](/examples/ceritsc/manifests/minio-minimal-tenant-secret.yaml).
 
-###yaml
+```yaml
 apiVersion: v1
 kind: Secret
 metadata:
@@ -71,7 +71,7 @@ type: Opaque
 data:
   CONSOLE_ACCESS_KEY: Y29uc29sZQ== # "console", base64
   CONSOLE_SECRET_KEY: Y29uc29sZTEyMw== # "console123", base64
-###
+```
 
 Pro nastavení vlastního `access_key` (uživatelské jméno) a `secret_key` (heslo) můžete použít následující příkazy:
 
