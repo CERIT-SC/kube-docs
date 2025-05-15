@@ -171,9 +171,9 @@ helm install myminio -n [mynamespace] minio-operator/tenant -f values.yaml
 
 #### ✅ Důležité:
 
-- **Oddělené TLS Secrety:** Nepoužívejte stejný `secretName` pro API i konzoli.  Každý Ingress musí mít svůj unikátní TLS secret.
+- **Oddělené TLS Secrety:** Nepoužívejte stejný `secretName` pro API i konzoli. Každý Ingress musí mít svůj unikátní TLS secret.
 - **Backend protokol:** Při `requestAutoCert=true` nastavte `nginx.ingress.kubernetes.io/backend-protocol: HTTPS`.
-- **Chybové hlášky MinIO:** Nastavte `nginx.ingress.kubernetes.io/custom-http-errors: "599"`.
+- **Chybové hlášky MinIO:** Nastavte `nginx.ingress.kubernetes.io/custom-http-errors: "599"` aby se zabránilo vlastnímu zpracování chyb ze strany NGINX, které by mohlo skrýt vlastní chybové zprávy MinIO.
 
 ## Nasazení MinIO s podporou proxy
 
