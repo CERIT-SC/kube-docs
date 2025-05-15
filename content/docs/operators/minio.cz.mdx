@@ -109,22 +109,22 @@ Pro zpřístupnění MinIO mimo cluster doporučujeme použít Helm chart `Tenan
 
 #### Krok 1: Přidejte MinIO Helm repozitář
 
-###bash
+```bash
 helm repo add minio-operator https://operator.min.io
 helm repo update
-###
+```
 
 #### Krok 2: Generujte výchozí `values.yaml`
 
-###bash
+```bash
 helm show values minio-operator/tenant > values.yaml
-###
+```
 
 #### Krok 3: Nastavte Ingress ve `values.yaml`
 
 Upravte sekci `ingress` následovně:
 
-###yaml
+```yaml
 ingress:
   api:
     enabled: true
@@ -156,13 +156,13 @@ ingress:
     host: myminio-ui-my-namespace.dyn.cloud.e-infra.cz
     path: /
     pathType: Prefix
-###
+```
 
 #### Krok 4: Instalace Tenanta
 
-###bash
+```bash
 helm install myminio -n [mynamespace] minio-operator/tenant -f values.yaml
-###
+```
 
 #### Krok 5: Přístup k MinIO
 
@@ -187,7 +187,7 @@ V prostředí s HTTP(S) proxy je potřeba nastavit proměnné prostředí:
 
 ### Krok 2: Úprava `values.yaml`
 
-###yaml
+```yaml
 tenant:
   env:
   - name: HTTPS_PROXY
@@ -196,7 +196,8 @@ tenant:
     value: http://proxy.ics.muni.cz:3128
   - name: NO_PROXY
     value: ".svc.cluster.local,.svc,10.0.0.0/8,147.251.0.0/16,..."
-###
+```
+
 
 ## Network Policy
 
@@ -204,7 +205,7 @@ Pro zvýšení bezpečnosti můžete omezit přístup k MinIO pomocí **NetworkP
 
 ### Příklad 1: NetworkPolicy pro MinIO
 
-###yaml
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -242,11 +243,11 @@ spec:
       port: 9000
     - protocol: TCP
       port: 9443
-###
+```
 
 ### Příklad 2: NetworkPolicy pro aplikaci
 
-###yaml
+```yaml
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
@@ -265,7 +266,7 @@ spec:
     ports:
     - protocol: TCP
       port: 9000
-###
+```
 
 ### ✅ Shrnutí:
 
@@ -286,14 +287,14 @@ MinIO lze integrovat s **e-INFRA CZ SSO** pomocí **OIDC**. Předpokládá se re
 
 ### Krok 2: Nastavení proměnných prostředí
 
-###yaml
+```yaml
 MINIO_IDENTITY_OPENID_CONFIG_URL: https://login.e-infra.cz/oidc/.well-known/openid-configuration
 ...
-###
+```
 
 ### Krok 3: Bezpečné uložení Secretů
 
-###yaml
+```yaml
 apiVersion: v1
 kind: Secret
 metadata:
@@ -304,16 +305,16 @@ stringData:
     export MINIO_ROOT_USER="<admin-username>"
     export MINIO_ROOT_PASSWORD="<admin-password>"
     ...
-###
+```
 
 ### Krok 4: Reference v `values.yaml`
 
-###yaml
+```yaml
 tenant:
   configSecret:
     name: <secret-name>
     existingSecret: true
-###
+```
 
 ### ✅ Poznámky:
 
@@ -346,7 +347,7 @@ Přejděte do **Administrator** → **Policies** a vytvořte **novou zásadu se 
 
 V editoru zásad definujte zásadu podobně jako následující JSON:
 
-###json
+```json
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -370,7 +371,7 @@ V editoru zásad definujte zásadu podobně jako následující JSON:
         }
     ]
 }
-###
+```
 
 #### ✅ Vysvětlení zásady:
 - Tato zásada umožňuje uživatelům se zadanou **OIDC rolí** vytvářet a spravovat buckety se vzorem názvu `<loginname>-něco`.
