@@ -202,6 +202,10 @@ tenant:
    value: ".svc.cluster.local,.svc,10.0.0.0/8,147.251.0.0/16,2001:718:801::/48,127.0.01,::1,.cloud.trusted.e-infra.cz"
 ```
 
+### ✅ Notes:
+
+- Ensure that the `NO_PROXY` value includes all local networks and internal services to avoid unnecessary proxy usage.
+- Double-check the `NO_PROXY` settings, especially for IPv6 ranges, as incorrect configuration can cause connectivity issues within the cluster.
 
 ## Network Policy
 
