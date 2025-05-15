@@ -177,7 +177,7 @@ helm install myminio -n [mynamespace] minio-operator/tenant -f values.yaml
 
 ## Nasazení MinIO s podporou proxy
 
-V prostředí s HTTP(S) proxy je potřeba nastavit proměnné prostředí:
+Při nasazování Tenanta v Kubernetes clusteru, který vyžaduje HTTP(S) proxy, je nutné nastavit proxy konfiguraci pomocí proměnných prostředí.
 
 ### Krok 1: Proxy proměnné
 
