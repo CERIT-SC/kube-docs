@@ -1,142 +1,156 @@
 ---
 title: VPN Configuration Guide for Sensitive Cloud
 ---
-A Virtual Private Network (VPN) enables connection to secure environments isolated from the public internet. CERIT-SC utilizes WireGuard VPN technology. To access the VPN, you must first request access and configuration details.
 
-Refer to the next section for obtaining access.
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
+A Virtual Private Network (VPN) allows secure access to environments that are isolated from the public internet. At CERIT-SC, we use WireGuard VPN technology. To begin using the VPN, you must first request access and receive the necessary configuration details.
+
+Please refer to the next section for instructions on how to obtain access.
 
 ## Obtaining VPN Access
 
-If you're interested in accessing secure resources through our VPN solution, please reach out to our support:  
-[trusted(at)e-infra.cz](mailto:trusted@e-infra.cz).
+To gain access to secure resources via our VPN, contact our support team at:  
+[trusted(at)e-infra.cz](mailto:trusted@e-infra.cz)
 
-## Connecting to VPN with WireGuard
+## Connecting to the VPN with WireGuard
 
-Below is a guide detailing how to configure WireGuard VPN using provided configuration files you received upon registration.
+The following guide explains how to configure your WireGuard VPN client using the configuration files provided upon registration.
 
-### Windows
-1. **Install WireGuard**:  
-   Download the WireGuard installer for Windows [here](https://www.wireguard.com/install/) and follow installation instructions.
+Make sure your configuration includes an IPv6 address derived from your IPv4 address.  
+The IPv4 format is: `10.18.x.y/32`  
+The corresponding IPv6 format is: `2001:718:801:390:10:18:x:y/128`
 
-2. **Create Configuration File**:
-   - Create a configuration file named `sensitive-vpn.conf`. Save this file securely within your personal directory, for example:
+<Codeblock type="warn">
+The IPv6 address uses `:` as a separator. A format like `2001:718:801:390:10.18.x.y` might be accepted by the system, but it will not work. It must be exactly: `2001:718:801:390:10:18:x:y`
+</Codeblock>
+
+The `AllowedIP` field in your configuration should be set to:
+
+```config
+AllowedIP = 10.16.48.0/25, 10.16.62.0/23, 147.251.33.144/28, 147.251.33.160/30, 2001:718:801:42bf:8:4::/96, 2001:718:801:42d8:8:4::/96, 2001:718:801:42d9:8:4::/96
+```
+
+<Codeblock icon="⚠️">
+Never share your `PrivateKey`. It must remain confidential. The rest of the configuration is not considered sensitive.
+</Codeblock>
+
+<Codeblock icon="⚠️">
+Each WireGuard configuration file is intended for use on a single device only. If you need to connect from multiple devices, please request separate configurations for each one.
+</Codeblock>
+
+<Tabs items={['Windows', 'Linux', 'MacOS']}>
+<Tab value="Windows">
+1. **Install WireGuard**  
+   Download the WireGuard installer for Windows [here](https://www.wireguard.com/install/) and follow the installation instructions.
+
+2. **Create Configuration File**  
+   - Create a configuration file named `sensitive-vpn.conf`. Save this file securely within your personal directory, for example:  
      ```
      C:\Users\<username>\Documents\sensitive-vpn.conf
      ```
-   - Example configuration file contents (replace placeholders with values provided by our support team):   
-   
-   ```
-   [Interface]
-   PrivateKey = DESKTOP_CLIENT_PRIVATE_KEY
-   Address = 10.0.0.2/24
-   
-   [Peer]
-   PublicKey = SERVER_PUBLIC_KEY
-   Endpoint = SERVER_IP_ADDRESS:PORT
-   AllowedIPs = 0.0.0.0/0
-   ```
-3. **Launch WireGuard Application**.
+   - Example configuration file contents (replace placeholders with values provided by our support team):  
+     ```
+     [Interface]
+     PrivateKey = DESKTOP_CLIENT_PRIVATE_KEY
+     Address = 10.0.0.2/24
 
-4. **Import VPN Configuration**:
-   - From the WireGuard interface, click **"Import tunnel(s) from file"**.
+     [Peer]
+     PublicKey = SERVER_PUBLIC_KEY
+     Endpoint = SERVER_IP_ADDRESS:PORT
+     AllowedIPs = 0.0.0.0/0
+     ```
+
+3. **Launch WireGuard Application**
+
+4. **Import VPN Configuration**  
+   - From the WireGuard interface, click **"Import tunnel(s) from file"**.  
    - Select the previously created `sensitive-vpn.conf`.
 
- ![wg1](/img/ceritsc/wg1.jpg)   
+   ![wg1](/img/ceritsc/wg1.jpg)
 
-5. **Connect to VPN**:
-   - Select the imported VPN tunnel.
+5. **Connect to VPN**  
+   - Select the imported VPN tunnel.  
    - Click **"Activate"**.
 
-![wg2](/img/ceritsc/wg2.jpg)
+   ![wg2](/img/ceritsc/wg2.jpg)
 
-6. **Disconnecting**:
+6. **Disconnecting**  
    - To deactivate the VPN, select the active tunnel and click **"Deactivate"**.
 
-![wg3](/img/ceritsc/wg3.jpg)
-
-
-
-### Linux
-
-1. **Install WireGuard**:
+   ![wg3](/img/ceritsc/wg3.jpg)
+</Tab>
+<Tab value="Linux">
+1. **Install WireGuard**  
    - Follow official WireGuard installation instructions for your Linux distribution found [here](https://www.wireguard.com/install/).
 
-2. **Configure VPN**:
-   - Create the file `/etc/wireguard/wg0.conf` with the configuration details provided by our support team.
-   - Example configuration file:
+2. **Configure VPN**  
+   - Create the file `/etc/wireguard/wg0.conf` with the configuration details provided by our support team.  
+   - Example configuration file:  
+     ```config
+     [Interface]
+     PrivateKey = DESKTOP_CLIENT_PRIVATE_KEY
+     Address = 10.0.0.2/24
 
-   ```
-   [Interface]
-   PrivateKey = DESKTOP_CLIENT_PRIVATE_KEY
-   Address = 10.0.0.2/24
-   
-   [Peer]
-   PublicKey = SERVER_PUBLIC_KEY
-   Endpoint = SERVER_IP_ADDRESS:PORT
-   AllowedIPs = 0.0.0.0/0
-   ```
+     [Peer]
+     PublicKey = SERVER_PUBLIC_KEY
+     Endpoint = SERVER_IP_ADDRESS:PORT
+     AllowedIPs = 0.0.0.0/0
+     ```
 
-3. **Start VPN**:
-   - Open your terminal and execute:
+3. **Start VPN**  
+   - Open your terminal and execute:  
+     ```bash
+     sudo wg-quick up wg0
+     ```
 
-   ```bash
-   sudo wg-quick up wg0
-   ```
-
-
-4. Check VPN Status: 
-   To verify if the VPN tunnel is active, run:
-     
+4. **Check VPN Status**  
+   To verify if the VPN tunnel is active, run:  
    ```bash
    wg-quick show
    ```
 
-5. Disconnect VPN: 
-
-   To deactivate the VPN tunnel, execute:
-     
+5. **Disconnect VPN**  
+   To deactivate the VPN tunnel, execute:  
    ```bash
    wg-quick down wg0
    ```
+</Tab>
+<Tab value="MacOS">
+## Install WireGuard
 
-### MacOS
-Install WireGuard: 
+1. Download and install the WireGuard VPN Client from the Mac [App Store](https://apps.apple.com/us/app/wireguard/id1451685025?mt=12).
 
-1. Download and install WireGuard VPN Client from the Mac [App Store](https://apps.apple.com/us/app/wireguard/id1451685025?mt=12).
-     
-2. Create VPN Configuration: 
+## Create VPN Configuration
 
-    - Securely create the file sensitive-vpn.conf in your home directory (e.g., `/Users/<username>/sensitive-vpn.conf`) with contents provided by our support team.
-    - Example configuration:
-     
-    
-   ```
-   [Interface]
-   PrivateKey = DESKTOP_CLIENT_PRIVATE_KEY
-   Address = 10.0.0.2/24
+- Securely create the file `sensitive-vpn.conf` in your home directory (e.g., `/Users/<username>/sensitive-vpn.conf`) using the configuration details provided by our support team.
+- Example configuration:  
+  ```config
+  [Interface]
+  PrivateKey = DESKTOP_CLIENT_PRIVATE_KEY
+  Address = 10.0.0.2/24
 
-   [Peer]
-   PublicKey = SERVER_PUBLIC_KEY
-   Endpoint = SERVER_IP_ADDRESS:PORT
-   AllowedIPs = 0.0.0.0/0
-   ```
+  [Peer]
+  PublicKey = SERVER_PUBLIC_KEY
+  Endpoint = SERVER_IP_ADDRESS:PORT
+  AllowedIPs = 0.0.0.0/0
+  ```
 
-3. Launching WireGuard Application. 
- 
+## Launch WireGuard Application
 
-4. Import VPN Configuration File: 
+- Open the WireGuard application from your Applications folder.
 
-   - Open WireGuard, select "Import tunnel(s) from file".
-   - Choose your previously created configuration file (sensitive-vpn.conf).
-     
+## Import VPN Configuration File
 
-5. Activate VPN Connection: 
+- In the WireGuard interface, select **"Import tunnel(s) from file"**.
+- Choose your previously created `sensitive-vpn.conf` file.
 
-    - Select imported configuration and click "Activate".
-     
+## Activate VPN Connection
 
-6. Disconnect VPN: 
+- Select the imported configuration and click **"Activate"**.
 
-    - To disconnect, select the active VPN tunnel and click "Deactivate".
-     
+## Disconnect VPN
+
+- To disconnect, select the active VPN tunnel and click **"Deactivate"**.
+</Tab>  
+</Tabs>  
