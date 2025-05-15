@@ -75,20 +75,20 @@ data:
 
 Pro nastavení vlastního `access_key` (uživatelské jméno) a `secret_key` (heslo) můžete použít následující příkazy:
 
-###bash
+```bash
 # kódování
 echo -n "securepassword" | base64
 # dekódování
 echo -n "c2VjdXJlcGFzc3dvcmQ=" | base64 -d
-###
+```
 
-Následně tajný klíč a Tenant nasadíte pomocí:
+Následně secret a Tenant nasadíte pomocí:
 
-###bash
+```bash
 kubectl create -n [namespace] -f example-tenant-secret.yaml -f example-tenant.yaml
-###
+```
 
-Po úspěšném nasazení byste měli vidět pod s názvem `myminio-pool-0-0` běžící v daném namespace.
+Pokud je nasazení úspěšné, měli byste vidět pod s názvem myminio-pool-0-0 (nebo podobným, v závislosti na vaší konfiguraci), který běží ve zvoleném namespace.
 
 ## Přístup k MinIO
 
