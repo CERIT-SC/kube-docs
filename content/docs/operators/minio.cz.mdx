@@ -187,17 +187,19 @@ Při nasazování Tenanta v Kubernetes clusteru, který vyžaduje HTTP(S) proxy,
 
 Proměnná `NO_PROXY`je zásadní pro zajištění toho, aby MinIO nesměroval provoz přes proxy pro místní síťové komunikace v rámci clusteru. To je obzvlášť důležité pro komunikaci v rámci `kubas-cluster`.
 
-### Krok 2: Úprava `values.yaml`
+### Krok 2: Nakonfigurujte soubor `values.yaml`
+
+Přidejte následující konfiguraci pod sekci `tenant.env`:
 
 ```yaml
 tenant:
-  env:
-  - name: HTTPS_PROXY
-    value: http://proxy.ics.muni.cz:3128
-  - name: HTTP_PROXY
-    value: http://proxy.ics.muni.cz:3128
-  - name: NO_PROXY
-    value: ".svc.cluster.local,.svc,10.0.0.0/8,147.251.0.0/16,..."
+ env:
+ - name: HTTPS_PROXY
+   value: http://proxy.ics.muni.cz:3128
+ - name: HTTP_PROXY
+   value: http://proxy.ics.muni.cz:3128
+ - name: NO_PROXY
+   value: ".svc.cluster.local,.svc,10.0.0.0/8,147.251.0.0/16,2001:718:801::/48,127.0.01,::1,.cloud.trusted.e-infra.cz"
 ```
 
 
