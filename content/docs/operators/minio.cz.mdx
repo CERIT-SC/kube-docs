@@ -215,11 +215,11 @@ Ve výchozím nastavení je externí přístup (např. z veřejného internetu) 
 
 ### Příklad 1: NetworkPolicy pro MinIO Tenant
 
-The following example restricts ingress and egress traffic for the MinIO `Tenant`. It allows:
+Následující příklad omezuje příchozí (ingress) a odchozí (egress) síťový provoz pro MinIO `Tenant`. To umožňuje:
 
-- Egress communication to the local DNS resolver.
-- Egress communication to the MinIO Operator installed within the Kubernetes cluster.
-- Ingress communication from any pod to the MinIO S3 API (`9000`) and web console (`9443`) ports.
+- Odchozí komunikaci k místnímu DNS resolveru.
+- Odchozí komunikaci k MinIO Operátoru nainstalovanému v rámci Kubernetes clusteru.
+- Příchozí komunikaci z jakéhokoli podu na porty MinIO S3 API (`9000`) a webové konzole (`9443`).
 
 You can download this example [here](/examples/ceritsc/manifests/minio-minimal-tenant-np.yaml).
 
