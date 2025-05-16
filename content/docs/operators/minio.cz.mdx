@@ -209,7 +209,9 @@ tenant:
 
 ## Network Policy
 
-Pro zvýšení bezpečnosti můžete omezit přístup k MinIO pomocí **NetworkPolicy**.
+Pro zvýšení zabezpečení lze použít **NetworkPolicy** k omezení přístupu k úložišti MinIO S3, a povolit tak připojení pouze z konkrétních podů. Více informací naleznete v [dokumentaci k síťovým politikám.](../kubernetes/security)
+
+Ve výchozím nastavení je externí přístup (např. z veřejného internetu) zakázán. Pokud je to však potřeba, je možné MinIO zpřístupnit pomocí [Load Balancer](../kubernetes/expose#other-applications) nebo Ingressu (viz výše).
 
 ### Příklad 1: NetworkPolicy pro MinIO
 
