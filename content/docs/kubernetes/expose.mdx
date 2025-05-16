@@ -403,4 +403,57 @@ spec:
     app: application
 ```
 
+
+### Sharing an IP Address Across Multiple Services
+
+Since IPv4 addresses are a scarce resource, it's beneficial to share a single IP address across multiple LoadBalancer services differentiated by port numbers. This can be accomplished by creating multiple `Service` objects and using the `metallb.universe.tf/allow-shared-ip` annotation to allocate a shared IP address.
+
+The value of this annotation acts as a grouping key: all services with the same key will attempt to share the same IP address, provided it is possible. Therefore, choose a unique key for the annotation to avoid unintended IP sharing between unrelated services.
+
+Below are examples of two LoadBalancer services configured to share the same IP address:
+
+```yaml filename="service1.yaml" copy
+apiVersion: v1  
+kind: Service  
+metadata:  
+  name: application-svc-rw  
+  annotations:  
+    external-dns.alpha.kubernetes.io/hostname: application.dyn.cloud.e-infra.cz  
+    metallb.universe.tf/allow-shared-ip: [my-shared-key-for-application]
+spec:  
+  type: LoadBalancer  
+  allocateLoadBalancerNodePorts: false  
+  externalTrafficPolicy: Cluster  
+  ports:  
+  - port: 5432  
+    targetPort: 5432  
+  selector:  
+    app: application-rw  
+```
+
+```yaml filename="service2.yaml" copy
+apiVersion: v1  
+kind: Service  
+metadata:  
+  name: application-svc-ro  
+  annotations:  
+    external-dns.alpha.kubernetes.io/hostname: application.dyn.cloud.e-infra.cz  
+    metallb.universe.tf/allow-shared-ip: [my-shared-key-for-application]
+spec:  
+  type: LoadBalancer  
+  allocateLoadBalancerNodePorts: false  
+  externalTrafficPolicy: Cluster  
+  ports:  
+  - port: 5433  
+    targetPort: 5432  
+  selector:  
+    app: application-ro  
+```
+
+#### Limitations
+
+- If `externalTrafficPolicy` is set to `Local`, **all target Pods must be scheduled on the same node** to ensure accessibility.
+- If `externalTrafficPolicy` is set to `Cluster`, **Pods can be distributed across multiple nodes**, which improves resilience and load distribution.
+
+
 ---

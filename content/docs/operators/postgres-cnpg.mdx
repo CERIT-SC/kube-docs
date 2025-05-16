@@ -124,13 +124,7 @@ spec:
     role: primary
 ```
 
-The annotation `metallb.universe.tf/allow-shared-ip` ensures that both LoadBalancers share the same IP address and are distinguished by ports:
-- `5433` port is for read-only replicas
-- `5432` is for writable replicas
-
 This example assigns IP addresses that are reachable **only from internal network from Masaryk University or via VPN service of Masaryk University**. 
-
-
 
 ##### Non-MU accesses
 
