@@ -213,7 +213,15 @@ Pro zvýšení zabezpečení lze použít **NetworkPolicy** k omezení přístup
 
 Ve výchozím nastavení je externí přístup (např. z veřejného internetu) zakázán. Pokud je to však potřeba, je možné MinIO zpřístupnit pomocí [Load Balancer](../kubernetes/expose#other-applications) nebo Ingressu (viz výše).
 
-### Příklad 1: NetworkPolicy pro MinIO
+### Příklad 1: NetworkPolicy pro MinIO Tenant
+
+The following example restricts ingress and egress traffic for the MinIO `Tenant`. It allows:
+
+- Egress communication to the local DNS resolver.
+- Egress communication to the MinIO Operator installed within the Kubernetes cluster.
+- Ingress communication from any pod to the MinIO S3 API (`9000`) and web console (`9443`) ports.
+
+You can download this example [here](/examples/ceritsc/manifests/minio-minimal-tenant-np.yaml).
 
 ```yaml
 apiVersion: networking.k8s.io/v1
@@ -223,11 +231,13 @@ metadata:
 spec:
   podSelector:
     matchLabels:
+      # This NetworkPolicy is applied to the `myminio` Tenant
       app: myminio
   policyTypes:
   - Egress
   - Ingress
   egress:
+    # Enables egress communication to the local DNS resolver
   - to:
     - namespaceSelector:
         matchLabels:
@@ -238,14 +248,26 @@ spec:
     ports:
     - protocol: UDP
       port: 53
+    # Enables egress communication to the Minio operator installed in Kubernetes.
   - to:
     - ipBlock:
         cidr: 10.43.0.1/32
-    ...
+    - ipBlock:
+        cidr: 10.16.62.14/32
+    - ipBlock:
+        cidr: 10.16.62.15/32
+    - ipBlock:
+        cidr: 10.16.62.16/32
+    - ipBlock:
+        cidr: 10.16.62.17/32
+    - ipBlock:
+        cidr: 10.16.62.18/32
     ports:
     - port: 6443
       protocol: TCP
   ingress:
+    # Enables ingress communication from any Pod to the 9000 and 9443 ports
+    # for web management console access and S3 connection
   - from:
     - podSelector: {}
     ports:
