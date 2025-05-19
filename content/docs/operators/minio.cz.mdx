@@ -328,13 +328,19 @@ Během procesu registrace na [spadmin.e-infra.cz](https://spadmin.e-infra.cz/), 
 - **PKCE Code Challenge Method:** `SHA256 code challenge`
 - **Enable introspection endpoint access**
 
+### Krok 2: Nakonfigurujte proměnné prostředí MinIO
 
-
-### Krok 2: Nastavení proměnných prostředí
+Na straně MinIO nastavte následující proměnné prostředí:
 
 ```yaml
 MINIO_IDENTITY_OPENID_CONFIG_URL: https://login.e-infra.cz/oidc/.well-known/openid-configuration
-...
+MINIO_IDENTITY_OPENID_CLIENT_ID: <client id>
+MINIO_IDENTITY_OPENID_CLIENT_SECRET: <client secret>
+MINIO_IDENTITY_OPENID_SCOPES: eduperson_entitlement,profile,email
+MINIO_IDENTITY_OPENID_CLAIM_NAME: eduperson_entitlement
+MINIO_IDENTITY_OPENID_REDIRECT_URI: https://<console url>/oauth_callback
+MINIO_IDENTITY_OPENID_DISPLAY_NAME: "e-INFRA CZ"
+MINIO_IDENTITY_OPENID_CLAIM_USERINFO: on
 ```
 
 ### Krok 3: Bezpečné uložení Secretů
