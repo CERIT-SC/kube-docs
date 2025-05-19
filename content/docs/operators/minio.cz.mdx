@@ -313,17 +313,22 @@ spec:
 
 ## OIDC autentizace pro MinIO pomocí e-INFRA CZ SSO
 
-
-
 MinIO lze nakonfigurovat tak, aby využívalo **e-INFRA CZ Single Sign-On (SSO)** prostřednictvím **OIDC (OpenID Connect)**. Tento návod předpokládá, že vaše služba MinIO byla zaregistrována v [e-INFRA CZ SP Admin Portal](https://spadmin.e-infra.cz/) a že jste získali  **Client ID** a **Client Secret**.
 
 ---
 
-### Krok 1: Registrace v SP Admin
+### Krok 1: Zaregistrujte MinIO v SP Admin
+
+Během procesu registrace na [spadmin.e-infra.cz](https://spadmin.e-infra.cz/), nakonfigurujte následující:
 
 - **Callback URL:** `https://<your-console-url>/oauth_callback`
 - **Scopes:** `eduperson_entitlement, profile, email`
-- ...
+- **Authorization flow:** `authorization code`
+- **Token endpoint authentication method:** `client_secret_basic`
+- **PKCE Code Challenge Method:** `SHA256 code challenge`
+- **Enable introspection endpoint access**
+
+
 
 ### Krok 2: Nastavení proměnných prostředí
 
