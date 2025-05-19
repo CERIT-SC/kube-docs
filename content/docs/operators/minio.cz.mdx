@@ -277,7 +277,11 @@ spec:
       port: 9443
 ```
 
-### Příklad 2: NetworkPolicy pro aplikaci
+### Příklad 2: Síťová politika pro aplikaci přistupující k MinIO
+
+Následující politika umožňuje konkrétní aplikaci (myapplication) přístup k MinIO S3 API na portu `9000`.
+
+Tento příklad si můžete stáhnout [zde](/examples/ceritsc/manifests/minio-minimal-application-np.yaml).
 
 ```yaml
 kind: NetworkPolicy
@@ -287,14 +291,16 @@ metadata:
 spec:
   podSelector:
     matchLabels:
+      # This NetworkPolicy is applied to `myapplication` Pod
       app: myapplication
   policyTypes:
   - Egress
   egress:
+    # Enables egress S3 communication from `myapplication` to the `myminio` Tenant
   - to:
     - podSelector:
         matchLabels:
-          app: myminio
+          app : myminio
     ports:
     - protocol: TCP
       port: 9000
