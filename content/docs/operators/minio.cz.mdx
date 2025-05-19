@@ -311,9 +311,11 @@ spec:
 - **MinIO NetworkPolicy:** zabezpečuje instance MinIO řízením jak příchozího (ingress), tak odchozího (egress) síťového provozu.
 - **Aplikační NetworkPolicy:** umožňuje interakci s MinIO S3 API pouze vybraným aplikacím.
 
-## OIDC autentizace s e-INFRA CZ SSO
+## OIDC autentizace pro MinIO pomocí e-INFRA CZ SSO
 
-MinIO lze integrovat s **e-INFRA CZ SSO** pomocí **OIDC**. Předpokládá se registrace služby v [SP Admin Portálu](https://spadmin.e-infra.cz/).
+
+
+MinIO lze nakonfigurovat tak, aby využívalo **e-INFRA CZ Single Sign-On (SSO)** prostřednictvím **OIDC (OpenID Connect)**. Tento návod předpokládá, že vaše služba MinIO byla zaregistrována v [e-INFRA CZ SP Admin Portal](https://spadmin.e-infra.cz/) a že jste získali  **Client ID** a **Client Secret**.
 
 ---
 
