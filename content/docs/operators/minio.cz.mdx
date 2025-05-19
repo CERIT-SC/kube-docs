@@ -345,6 +345,8 @@ MINIO_IDENTITY_OPENID_CLAIM_USERINFO: on
 
 ### Krok 3: Bezpečné uložení Secretů
 
+**Není doporučeno** ukládat citlivá data, jako je `MINIO_IDENTITY_OPENID_CLIENT_SECRET`, přímo do souboru `values.yaml`. Místo toho vytvořte **Kubernetes Secret**:
+
 ```yaml
 apiVersion: v1
 kind: Secret
@@ -355,10 +357,31 @@ stringData:
   config.env: |-
     export MINIO_ROOT_USER="<admin-username>"
     export MINIO_ROOT_PASSWORD="<admin-password>"
-    ...
+    export MINIO_IDENTITY_OPENID_CONFIG_URL: https://login.e-infra.cz/oidc/.well-known/openid-configuration
+    export MINIO_IDENTITY_OPENID_CLIENT_ID: <client-id>
+    export MINIO_IDENTITY_OPENID_CLIENT_SECRET: <client-secret>
+    export MINIO_IDENTITY_OPENID_SCOPES: eduperson_entitlement,profile,email
+    export MINIO_IDENTITY_OPENID_CLAIM_NAME: eduperson_entitlement
+    export MINIO_IDENTITY_OPENID_REDIRECT_URI: https://<console url>/oauth_callback
+    export MINIO_IDENTITY_OPENID_DISPLAY_NAME: "e-INFRA CZ"
+    export MINIO_IDENTITY_OPENID_CLAIM_USERINFO: on
+    export HTTPS_PROXY=http://proxy.ics.muni.cz:3128
+    export NO_PROXY=".svc.cluster.local,.svc,10.0.0.0/8,147.251.0.0/16,2001:718:801::/48,127.0.01,::1,.cloud.trusted.e-infra.cz"
 ```
 
-### Krok 4: Reference v `values.yaml`
+Nahraďte:
+
+- `<admin-username>` svým uživatelským jménem správce MinIO.
+- `<admin-password>` svým heslem správce MinIO.
+- `<client-id>` a `<client-secret>` hodnotami získanými při registraci v SP Admin.
+- `<your-console-url>` adresou URL vaší MinIO konzole.
+- `<secret-name>` s vlastním názvem pro Secret.
+
+
+
+### Krok 4: Odkazy na Secret v souboru values.yaml
+
+Ve svém souboru values.yaml odkažte na vytvořený Secret následujícím způsobem:
 
 ```yaml
 tenant:
@@ -367,11 +390,14 @@ tenant:
     existingSecret: true
 ```
 
-### ✅ Poznámky:
+### ✅ Důležité poznámky:
 
-- Admin přihlašovací údaje jsou stále potřeba.
-- Secret name musí odpovídat `configSecret.name`.
-- Proxy proměnné jsou volitelné.
+- **Přihlašovací údaje správce MinIO** (`MINIO_ROOT_USER` a `MINIO_ROOT_PASSWORD`)  jsou stále vyžadovány pro počáteční nastavení, i když je OIDC povoleno.
+- Ujistěte se, že název Secretu `<secret-name>`) odpovídá hodnotě `configSecret.name` v souboru `values.yaml`.
+- Proměnné `HTTP_PROXY` a `NO_PROXY` jsou volitelné. Přidejte je pouze v případě, že váš cluster vyžaduje proxy pro komunikaci s vnějším světem.
+
+
+
 
 ## Správa rolí v MinIO s OIDC
 
