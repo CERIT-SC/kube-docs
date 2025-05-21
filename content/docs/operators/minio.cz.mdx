@@ -87,31 +87,32 @@ data:
   CONSOLE_SECRET_KEY: Y29uc29sZTEyMw== # "console123", base64 encoding
 ```
 
-Pro nastavení vlastního `access_key` (uživatelské jméno) a `secret_key` (heslo) můžete použít následující příkazy:
+Pro nastavení vlastního `access_key` (uživatelské jméno) a `secret_key` (heslo) můžete hodnoty ručně zakódovat nebo dekódovat pomocí následujících příkazů:
 
 ```bash
-# kódování
+# encode
 echo -n "securepassword" | base64
-# dekódování
+# decode
 echo -n "c2VjdXJlcGFzc3dvcmQ=" | base64 -d
 ```
 
-Následně secret a Tenant nasadíte pomocí:
+Následně secret a MinIO Tenant nasadíte pomocí:
 
 ```bash
 kubectl create -n [namespace] -f example-tenant-secret.yaml -f example-tenant.yaml
-```
+````
 
 Pokud je nasazení úspěšné, měli byste vidět pod s názvem myminio-pool-0-0 (nebo podobným, v závislosti na vaší konfiguraci), který běží ve zvoleném namespace.
 
 ## Přístup k MinIO
 
-Pro přístup k MinIO z jiných podů použijte služby `myminio-console` a `myminio-hl`, které jsou automaticky vytvořeny. Tyto služby fungují jako DNS jména uvnitř clusteru.
+Pro přístup k MinIO z jiných podů použijte služby `myminio-console` a `myminio-hl`, které jsou automaticky vytvořeny. Tyto služby fungují jako DNS názvy, což umožňuje ostatním aplikacím v rámci Kubernetes clusteru používat je jako koncové body (endpoints).
 
-Při přístupu z jiného namespace použijte FQDN, např. `myminio-hl.[namespace].svc.cluster.local`.
+Při přístupu z jiného namespace použijte plně kvalifikovaný doménový název (FQDN), např. `myminio-hl.[namespace].svc.cluster.local`.
 
-- `myminio-console:9443` — Webové rozhraní pro správu MinIO.
-- `myminio-hl:9000` nebo `minio:<PORT>` — S3 kompatibilní API endpoint. `<PORT>` je `443` (pokud `requestAutoCert=true`) nebo `80` (pokud `false`).
+- `myminio-console:9443` — Poskytuje webové rozhraní pro správu MinIO.
+- `myminio-hl:9000` nebo `minio:<PORT>` — Poskytuje S3-kompatibilní API endpoint pro přístup k objektovému úložišti. Hodnota `<PORT>` je buď `443` (pokud je `requestAutoCert=true`) nebo `80` (pokud je requestAutoCert=false).
+
 
 ### Certifikáty
 
