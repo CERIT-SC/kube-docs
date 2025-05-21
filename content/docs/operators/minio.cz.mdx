@@ -397,8 +397,6 @@ tenant:
 - Proměnné `HTTP_PROXY` a `NO_PROXY` jsou volitelné. Přidejte je pouze v případě, že váš cluster vyžaduje proxy pro komunikaci s vnějším světem.
 
 
-
-
 ## Správa rolí OIDC v MinIO
 
 Při přihlašování do MinIO prostřednictvím e-INFRA CZ SSO narazíte na stránku se souhlasem podobnou této:
@@ -408,15 +406,17 @@ Při přihlašování do MinIO prostřednictvím e-INFRA CZ SSO narazíte na str
 **Je zásadní si poznamenat název role (group)**, který bude použit pro přístupovou politiku v MinIO. V tomto příkladu je role `urn:geant:muni:cz:group:MU:kubernetes-admins@idm.ics.muni.cz`, zvýrazněná červeným obdélníkem výše.
 
 
-### Krok 1: Přihlášení jako admin
+### Krok 1: Přihlaste se jako administrátor
 
-Pokud selže SSO, přihlaste se:
+Počáteční přihlášení přes SSO pravděpodobně **selže** kvůli chybějícím politikám založeným na rolích.
+Pro pokračování proveďte následující kroky:
 
-1. Klikněte na **Other Authentication Methods**
-2. Vyberte **Use Credentials**
-3. Přihlaste se jako:
-   - **Uživatel:** `<admin-username>`
+1. Na úvodní stránce webové konzole MinIO klikněte na **Other Authentication Methods**.
+2. Vyberte možnost **Use Credentials**.
+3. Přihlaste se pomocí administrátorských údajů pro MinIO uvedených výše:
+   - **Uživatelské jméno:** `<admin-username>`
    - **Heslo:** `<admin-password>`
+
 
 ### Krok 2: Vytvoření politiky
 
