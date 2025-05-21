@@ -116,7 +116,9 @@ Při přístupu z jiného namespace použijte plně kvalifikovaný doménový n�
 
 ### Certifikáty
 
-Pokud `requestAutoCert=true`, generují se samopodepsané certifikáty. Některé aplikace mohou hlásit neznámou certifikační autoritu (CA). Řešením je buď přidat CA certifikát do aplikace, nebo použít externí Issuer. Výchozí CA certifikát je v každém namespace v ConfigMapě `kube-root-ca.crt`, klíč `ca.crt`.
+
+Pokud je requestAutoCert=true, automaticky se generují samopodepsané certifikáty. V důsledku toho mohou aplikace hlásit neznámou certifikační autoritu (CA). Tento problém lze vyřešit buď poskytnutím správného CA certifikátu aplikaci, nebo konfigurací vlastního Issuera pro použití externích certifikátů pro MinIO. Pokud je použit výchozí AutoCert, odpovídající CA certifikát je dostupný v každém  namespace v ConfigMap s názvem kube-root-ca.crt, pod klíčem ca.crt.
+
 
 ### Zpřístupnění MinIO mimo Kubernetes pomocí Ingress
 
