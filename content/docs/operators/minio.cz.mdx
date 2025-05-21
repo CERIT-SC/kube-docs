@@ -460,9 +460,7 @@ V editoru politik definujte politiku podobnou následujícímu JSONu:
 - Vzhledem k tomu, že tato politika umožňuje i mazání bucketu **zvažte omezení oprávnění** (např. pouze na `s3:PutObject`, `s3:GetObject`) podle vašich bezpečnostních požadavků. Více informací naleznete v [dokumentaci k politikám MinIO](https://min.io/docs/minio/linux/administration/identity-access-management/policy-based-access-control.html).
 
 ### 🎯 Závěrečné poznámky:
-- **Název zásady musí přesně odpovídat názvu OIDC role**, jinak bude přístup zamítnut.
-- Různým rolím můžete přiřadit různé zásady pro jemnější řízení přístupu.
 
+- **Název politiky musí přesně odpovídat názvu OIDC role**, jinak bude přístup odepřen.
+- Různým rolím můžete přiřadit různé politiky a tím řídit přístup s větší mírou podrobnosti.
 
-
----
