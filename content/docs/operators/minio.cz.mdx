@@ -141,15 +141,16 @@ Vytvořte výchozí soubor `values.yaml`:
 helm show values minio-operator/tenant > values.yaml
 ```
 
-#### Krok 3: Nastavte Ingress ve `values.yaml`
+#### Krok 3: Nakonfigurujte Ingress v souboru `values.yaml`
 
-Upravte sekci `ingress` následovně:
+Upravte soubor `values.yaml` a nastavte sekci ingress následovně:
 
 ```yaml
 ingress:
   api:
     enabled: true
     ingressClassName: "nginx"
+    labels: { }
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-prod
       kubernetes.io/tls-acme: "true"
@@ -165,6 +166,7 @@ ingress:
   console:
     enabled: true
     ingressClassName: "nginx"
+    labels: { }
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-prod
       kubernetes.io/tls-acme: "true"
@@ -179,16 +181,17 @@ ingress:
     pathType: Prefix
 ```
 
-#### Krok 4: Instalace Tenanta
+#### Krok 4: Instalace Tenant
+
+Nainstalujte MinIO Tenanta pomocí upraveného souboru `values.yaml`
 
 ```bash
-helm install myminio -n [mynamespace] minio-operator/tenant -f values.yaml
+helm install myminio -n [mynamespace]  minio-operator/tenant -f values.yaml
 ```
-
 #### Krok 5: Přístup k MinIO
 
 - MinIO Console: `https://myminio-ui-my-namespace.dyn.cloud.e-infra.cz`
-- S3 API: `https://myminio-my-namespace.dyn.cloud.e-infra.cz`
+- S3 API Endpoint: `https://myminio-my-namespace.dyn.cloud.e-infra.cz`
 
 #### ✅ Důležité:
 
