@@ -6,7 +6,7 @@ title: MinIO Operator
 
 MinIO Operator obsahuje vlastní zdroj s názvem `Tenant`, který zajišťuje vytvoření a správu instancí objektového úložiště. Kompletní dokumentaci ke struktuře najdete [zde](https://min.io/docs/minio/kubernetes/upstream/index.html). Oficiální návod na vytvoření MinIO Tenanta je dostupný [zde](https://github.com/minio/operator/blob/master/docs/examples.md).
 
-Pro usnadnění poskytujeme několik funkčních příkladů rozdělených do sekcí viz níže.
+Pro usnadnění poskytujeme několik funkčních příkladů rozdělených do sekcí, viz níže.
 
 Celkové schéma komponent MinIO je zobrazeno níže:
 ![minio-schema](/img/ceritsc/minio-schema.svg)
@@ -21,18 +21,30 @@ kind: Tenant
 metadata:
   name: myminio
 spec:
+  ## Name of the tenant instance
   name: myminio
+  ## Create users in the Tenant using this field. Make sure to create secrets per user added here.
+  ## Secret should follow the format used in `minio-creds-secret`.
   users:
     - name: myminio-user-secret
+  ## Pre create buckets
   buckets:
     - name: mybucket
   certificate:
-    requestAutoCert: true
+    requestAutoCert: true ## if true, Minio uses HTTPS protocol - important for Ingress, if false, HTTP (no encryption) is used
+  ## Specification for MinIO Pool(s) in this Tenant.
   pools:
+    ## Servers specifies the number of MinIO Tenant Pods / Servers in this pool.
+    ## For standalone mode, supply 1. For distributed mode, supply 4 or more.
+    ## Note that the operator does not support upgrading from standalone to distributed mode.
     - servers: 1
+      ## custom pool name
       name: pool-0
+      ## volumesPerServer specifies the number of volumes attached per MinIO Tenant Pod / Server.
       volumesPerServer: 1
+      ## select NFS storage class
       storageClassName: nfs-csi
+      ## This VolumeClaimTemplate is used across all the volumes provisioned for MinIO Tenant in this Pool.
       volumeClaimTemplate:
         metadata:
           name: data
@@ -42,11 +54,13 @@ spec:
           resources:
             requests:
               storage: 2Gi
+      ## Configure Pod's security context
       securityContext:
         runAsNonRoot: true
         fsGroup: 1000
         runAsUser: 1000
         runAsGroup: 1000
+      ## Configure container security context
       containerSecurityContext:
         runAsNonRoot: true
         privileged: false
@@ -69,8 +83,8 @@ metadata:
   name: myminio-user-secret
 type: Opaque
 data:
-  CONSOLE_ACCESS_KEY: Y29uc29sZQ== # "console", base64
-  CONSOLE_SECRET_KEY: Y29uc29sZTEyMw== # "console123", base64
+  CONSOLE_ACCESS_KEY: Y29uc29sZQ== # "console", base64 encoding
+  CONSOLE_SECRET_KEY: Y29uc29sZTEyMw== # "console123", base64 encoding
 ```
 
 Pro nastavení vlastního `access_key` (uživatelské jméno) a `secret_key` (heslo) můžete použít následující příkazy:
