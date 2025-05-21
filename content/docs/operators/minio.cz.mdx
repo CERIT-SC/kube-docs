@@ -122,16 +122,20 @@ Pokud je requestAutoCert=true, automaticky se generují samopodepsané certifik�
 
 ### Zpřístupnění MinIO mimo Kubernetes pomocí Ingress
 
-Pro zpřístupnění MinIO mimo cluster doporučujeme použít Helm chart `Tenant` a nakonfigurovat sekci `ingress`.
+Pro zpřístupnění MinIO mimo cluster doporučujeme použít Helm chart `Tenant` a nakonfigurovat sekci `ingress` v Tenant resource.
 
 #### Krok 1: Přidejte MinIO Helm repozitář
+
+Nejprve přidejte MinIO Operator Helm repository a aktualizujte local Helm cache:
 
 ```bash
 helm repo add minio-operator https://operator.min.io
 helm repo update
 ```
 
-#### Krok 2: Vygenerujte výchozí `values.yaml`
+#### Krok 2: Vygenerujte výchozí hodnoty
+
+Vytvořte výchozí soubor `values.yaml`: 
 
 ```bash
 helm show values minio-operator/tenant > values.yaml
