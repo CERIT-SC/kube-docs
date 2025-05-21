@@ -418,16 +418,15 @@ Pro pokračování proveďte následující kroky:
    - **Heslo:** `<admin-password>`
 
 
-### Krok 2: Vytvoření politiky
+### Krok 2: Vytvoření politiky pro roli
 
 V konzoli MinIO přejděte do **Administrator** → **Policies** a vytvořte novou politiku se jménem odpovídajícím roli.
 
 ### Krok 2: Vytvoření zásady (Policy) pro roli
 
-Přejděte do **Administrator** → **Policies** a vytvořte **novou zásadu se stejným názvem, jako má role**, např.  
-`urn:geant:muni:cz:group:MU:kubernetes-admins@idm.ics.muni.cz`.
+Přejděte do nabídky **Administrator** → **Policies**  a vytvořte **novou politiku s přesným názvem role**, např. `urn:geant:muni:cz:group:MU:kubernetes-admins@idm.ics.muni.cz`.
 
-V editoru zásad definujte zásadu podobně jako následující JSON:
+V editoru politik definujte politiku podobnou následujícímu JSONu:
 
 ```json
 {
