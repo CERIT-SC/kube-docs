@@ -2,96 +2,247 @@
 title: GitLab Kubernetes Agent
 ---
 
-The following text describes how to install GitLab Kubernetes Agent step by step.
+## CI/CD Integration Between GitLab and Kubernetes
 
-Following the steps should leave you with functional agent and knowledge of making manifest files.
+This guide outlines the steps required to set up continuous integration and deployment (CI/CD) between GitLab and Kubernetes. The CI/CD process is managed by the GitLab Kubernetes Agent, which operates within the target namespace—i.e., the namespace where CI/CD actions are executed.
+
+### Limitations
+
+A key limitation of this setup is that multi-namespace deployments from a single GitLab repository are not possible without administrative intervention. Specifically, a cluster-wide RBAC role is required to enable such deployments.
+
+### Conceptual Overview
+
+From a conceptual standpoint, the GitLab Kubernetes Agent functions as a proxy between GitLab (more precisely, the GitLab Runner that executes CI/CD pipeline jobs) and the Kubernetes API. The agent uses a Kubernetes Service Account to authenticate with the Kubernetes API.
+
+This Service Account must be granted adequate permissions to carry out CI/CD operations. These permissions are defined via Kubernetes RBAC resources: `Role`, `RoleBinding`.
+
+### Use Case: Deploying a Helm Chart
+
+CI/CD pipelines can automate a wide range of tasks. This guide focuses on the most common scenario: deploying a Helm chart from a Git repository into a Kubernetes namespace.
+
+The following sections will describe the necessary configuration steps to achieve this deployment workflow.
 
 ## Prerequisites
-- Namespace on your cluster
-- Gitlab repository
-- kubectl
 
+- A namespace on your Kubernetes cluster (e.g., `kuba-cluster` from CERIT-SC)
+- A GitLab repository (referenced as [https://gitlab.ics.muni.cz/cerit-sc/gitlab-test](https://gitlab.ics.muni.cz/cerit-sc/gitlab-test))
+- `kubectl` and `helm` tools installed and configured to manage the Kubernetes namespace
 
-## Define a configuration repository
+### GitLab Setup
 
-In your desired repository, add the agent configuration file: `.gitlab/agents/<agent-name>/config.yaml`
+Assume the GitLab repository ([https://gitlab.ics.muni.cz/cerit-sc/gitlab-test](https://gitlab.ics.muni.cz/cerit-sc/gitlab-test)) contains a Helm chart similar to our [Langflow chart](https://github.com/CERIT-SC/rancher-apps/tree/master/charts/langflow/v1.0).
 
-Make sure that `<agent-name>` conforms to the [Agent’s naming format](https://gitlab.com/gitlab-org/cluster-integration/gitlab-agent/-/blob/master/doc/identity_and_auth.md#agent-identity-and-name).
+Log in to GitLab, navigate to your repository, and go to `Operate` → `Kubernetes clusters`. Select **Connect a cluster**, as shown in the screenshot below:
 
-```yaml
+![gitlab1](/img/ceritsc/gitops/gitlab1.png)
+
+Ignore the `Flux` section and enter a name for the agent, for example, `my-agent`.
+
+On the next screen, make note of the access token and the initial `helm` setup commands (the first two lines shown).
+
+![gitlab2](/img/ceritsc/gitops/gitlab2.png)
+
+<Callout type="warn">
+Do not expose the access token! It can be used to control your Kubernetes namespace. This is the only time the token will be displayed. If you lose it, you will need to register the cluster again to obtain a new token.
+</Callout>
+
+You can now close the setup dialog. By default, the agent uses the generated configuration. If you need a custom configuration, create a new file in your Git repository at `.gitlab/agents/<agent-name>/config.yaml`. Make sure `<agent-name>` matches the name used during the setup (e.g., `.gitlab/agents/my-agent/config.yaml`).
+
+A sample custom agent configuration is shown below:
+
+```yaml filename="config.yaml" copy
+ci_access:
+  projects:
+    - id: ceit-sc/gitlab-test
 gitops:
-    manifest_projects:
-        - id: <Your Project ID>
-          default_namespace: <Your Namespace>
-          paths:
-              - glob: '/manifest/*.{yaml,yml,json}'
+  manifest_projects:
+    - id: gitlab-test
+      default_namespace: gitlab-test-ns
+      paths:
+        - glob: '*.yaml'
+        - glob: 'templates/*'
+        - glob: 'charts/*'
+
 ```
 
-**Note**: `<Your Project ID>` can be replaced by your project path.
+### Kubernetes Setup
 
+Install the Helm repository and update it:
 
-## Connect to cluster
+```bash
+helm repo add gitlab https://charts.gitlab.io
+helm repo update
+```
 
-- Register agent and get agent token.
-  
-  In your project go to: 
-  
-  Infrastructure -> Kubernetes clusters -> Install a new agent 
-  ![agentk1](/img/ceritsc/gitops/agentk1.png)
-  
-  Select an agent -> Register
-  ![agentk2](/img/ceritsc/gitops/agentk2.png)
-  
-  An agent token will appear, copy it. Be careful, the token is not accessible twice.
-  
-- Make an opaque secret named `gitlab-kubernetes-agent-token` with `key named token`, `value=<Your Agent Token>`
-  
-  By kubectl: `kubectl create secret generic -n <Your Namespace> gitlab-kubernetes-agent-token --from-literal=token=<Your Token>`
+Create a new file `values.yaml`:
 
-- Download deployment file [resources.yaml](/examples/ceritsc/gitops/resources.yaml).
-  
-  In the file, in this section:
-  
-  ```yaml
-  apiVersion: rbac.authorization.k8s.io/v1
-  kind: Role
-  metadata:
-    name: gitlab-kubernetes-agent-role
-  rules:
-  - resources: ["configmaps", "secrets", "pods"]
-    apiGroups: 
-    - ""
-    verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
-  - resources: ["deployments", "statefulsets"]
-    apiGroups:
-    - "apps"
-    verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
-  ```
-  
-  Specify the resources and verbs to your choosing. 
-  You can list all resources you have permission to by this command `kubectl api-resources --verbs=list -n <Your Namespace>`
+```yaml filename="values.yaml" copy
+replicas: 1
+podSecurityContext:
+   runAsNonRoot: true
+   seccompProfile:
+     type: RuntimeDefault
+securityContext:
+   runAsUser: 1000
+   allowPrivilegeEscalation: false
+   capabilities:
+     drop:
+     - ALL
+rbac:
+  create: false
+config:
+  operational_container_scanning:
+    enabled: false
+  kasAddress: 'wss://gitlab.ics.muni.cz/-/kubernetes-agent/'
+  token: [token-from-connect-a-cluster]
+```
 
-- Apply the deployment with the following command:
-`kubectl apply -n <Your Namespace> -f resources.yaml`
+Create a file `role.yaml`:
 
-- Check if the agent is running. Either in rancher or using kubectl `kubectl get pods -n <Your Namespace>`
+```yaml filename="role.yaml" copy
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: gitlab-agent
+rules:
+- apiGroups: [""]
+  resources: [events]
+  verbs: [create]
+- apiGroups: ["coordination.k8s.io"]
+  resources: [leases]
+  verbs: [create, get, delete, watch, update]
 
-## Manage deployments
+- apiGroups: [""]
+  resources: [configmaps, secrets, persistentvolumeclaims, services, serviceaccounts]
+  verbs: [create, get, delete, list, patch, update]
+- apiGroups: ["apps"]
+  resources: [deployments, statefulsets]
+  verbs: [create, get, delete, patch]
+- apiGroups: ["networking.k8s.io"]
+  resources: [ingresses, networkpolicies]
+  verbs: [create, get, delete, patch]
+- apiGroups: ["postgresql.cnpg.io"]
+  resources: [clusters]
+  verbs: [create, get, delete, patch]
+- apiGroups: ["policy"]
+  resources: [poddisruptionbudgets]
+  verbs: [create, get, delete, patch]
+```
 
-- In your repository make manifest file: `/manifest/manifest.yaml`
- 
- 
-For the purpose of testing the agent, we will make simple manifest file that will create ConfigMap in `<Your Namespace>`.
+The first two resources (`events` and `leases`) are always required. Additional resources must be listed based on those used in your Helm chart. If a required resource is not specified in the role, the GitLab pipeline job will fail with an error such as:
+
+```
+Error: Unable to continue with install: could not get information about the resource 
+PodDisruptionBudget "langflow-redis-master" in namespace "gitlab-test-ns": 
+poddisruptionbudgets.policy "langflow-redis-master" is forbidden: 
+User "system:serviceaccount:gitlab-test-ns:test-gitlab-gitlab-agent" cannot get 
+resource "poddisruptionbudgets" in API group "policy" in the namespace "gitlab-test-ns": 
+RBAC: clusterrole.rbac.authorization.k8s.io "fleet-content" not found
+```
+
+This indicates a missing role configuration, such as:
+```yaml
+- apiGroups: ["policy"]
+  resources: [poddisruptionbudgets]
+  verbs: [create, get, delete, patch]
+```
+
+<Callout type="info">
+Helm typically requires the verbs `[create, get, delete, patch]`, and occasionally also `[list]` and `[update]`. These verbs represent the actions permitted for a given resource and API group, and can be combined as needed.
+</Callout>
+
+You can identify required `apiGroups` and `resources` from your Helm chart using the following command in your local Git repository:
+```bash
+for i in `find . -type f -name '*.yaml'`; do grep '^apiVersion:' $i | sort -u; grep '^kind:' $i | sort -u; done
+```
+
+<Callout type="info">
+If `apiVersion` is simply `v1` or `v2`, the corresponding `apiGroup` is an empty string: `[""]`.
+</Callout>
+
+<Callout type="info">
+The `kind` field is listed in singular form (e.g., `Secret`), whereas the `resources` field in the role must use the plural, lowercase form (e.g., `secrets`). Watch out for irregular plurals like `networkpolicies`.
+</Callout>
+
+Create a `rolebinding.yaml` file:
 
 ```yaml
-apiVersion: v1
-kind: ConfigMap
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
 metadata:
-  name: test-map
-  namespace: <Your Namespace>  # Can be any namespace managed by you that the agent has access to.
-data:
-  key: value
+  name: gitlab-agent
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: gitlab-agent
+subjects:
+- kind: ServiceAccount
+  name: [gitlab-agent-serviceaccount-name]
+  namespace: [yournamespace]
 ```
 
-If everything went smoothly, you should have a ConfigMap named test-map.
-***
+Replace `[yournamespace]` with your actual namespace and `[gitlab-agent-serviceaccount-name]` with the name derived from your Helm release name suffixed with `-gitlab-agent`. For example, if your Helm release is `test-gitlab`, use `test-gitlab-gitlab-agent`.
+
+Deploy the role and role binding:
+```bash
+kubectl create -f role.yaml -n [yournamespace]
+kubectl create -f rolebinding.yaml -n [yournamespace]
+```
+Install the GitLab Kubernetes Agent:
+```bash
+helm install test-gitlab gitlab/gitlab-agent -n [yournamespace] -f values.yaml
+```
+
+The `values.yaml` file referenced above must be saved in your current working directory before running the Helm install command.
+
+Once deployed, the GitLab Agent should be running within your specified namespace. You can verify this by listing the pods:
+
+```bash
+kubectl get pods -n [yournamespace]
+```
+
+To check if the agent is working properly, inspect the logs of the agent Pod. This can be done either through your Kubernetes dashboard (e.g., Rancher) or via the command line:
+
+```bash
+kubectl logs [gitlab-agent-pod] -n [yournamespace]
+```
+
+You may encounter a log message such as:
+
+```json
+{"time":"2025-05-23T14:52:22.709117293Z","level":"INFO","msg":"Flux could not be detected or the Agent is missing RBAC, skipping module. A restart is required for this to be checked again","mod_name":"flux"}
+```
+
+This message is normal and expected. It simply indicates that the Flux module is not in use because the FluxCD is not installed in the cluster.
+Unless you're explicitly using Flux-based GitOps workflows, this can be safely ignored.
+
+### CI/CD Setup
+
+The final step in the deployment process is configuring CI/CD within your GitLab repository. Create a `.gitlab-ci.yml` file at the root of your repository with the following contents:
+
+```yaml
+deploy:
+  image:
+    name: alpine/k8s:1.32.4
+  script:
+    - kubectl config use-context [yourproject]:[your-agent-name] # e.g., cerit-sc/gitlab-test:my-agent
+    - helm upgrade --install langflow -n [yournamespace] . -f values.yaml
+```
+
+Replace `[yourproject]`, `[your-agent-name]`, and `[yournamespace]` with your actual GitLab project path, configured agent name, and Kubernetes namespace, respectively.
+
+If you're unsure what value to use in the `use-context` line, you can add the following command to the top of your `script` section to list all available contexts:
+
+```yaml
+    - kubectl config get-contexts
+```
+
+Check the job logs in GitLab after the pipeline runs to see the available contexts and verify that the correct one is being used.
+
+Saving this file should automatically trigger a CI/CD pipeline in GitLab. If the job fails due to RBAC permissions (similar to the errors described earlier), simply update your `role.yaml` file with the necessary permissions and reapply it:
+
+```bash
+kubectl apply -f role.yaml -n [yournamespace]
+```
+
+After applying the updated role, you can rerun the failed pipeline job. There is no need to restart or reinstall the GitLab Agent.
