@@ -157,7 +157,7 @@ for i in `find . -type f -name '*.yaml'`; do grep '^apiVersion:' $i | sort -u; g
 ```
 
 <Callout type="info">
-If `apiVersion` is simply `v1` or `v2`, the corresponding `apiGroup` is an empty string: `[""]`.
+If `apiVersion` is simply `v1` or `v2`, the corresponding `apiGroup` is an empty string: `[""]`. Otherwise, the `apiGroup` is the portion of `apiVersion` before the `/`, i.e., the version suffix like `/v1` or `/v2` is removed. For example, `apps/v1` → `apiGroup: ["apps"]`.
 </Callout>
 
 <Callout type="info">
