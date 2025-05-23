@@ -50,10 +50,10 @@ You can now close the setup dialog. By default, the agent uses the generated con
 
 A sample custom agent configuration is shown below:
 
-```yaml filename="config.yaml" copy
+```yaml title="config.yaml"
 ci_access:
   projects:
-    - id: ceit-sc/gitlab-test
+    - id: cerit-sc/gitlab-test
 gitops:
   manifest_projects:
     - id: gitlab-test
@@ -76,7 +76,7 @@ helm repo update
 
 Create a new file `values.yaml`:
 
-```yaml filename="values.yaml" copy
+```yaml title="values.yaml"
 replicas: 1
 podSecurityContext:
    runAsNonRoot: true
@@ -99,7 +99,7 @@ config:
 
 Create a file `role.yaml`:
 
-```yaml filename="role.yaml" copy
+```yaml title="role.yaml"
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
