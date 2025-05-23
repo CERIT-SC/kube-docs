@@ -151,7 +151,7 @@ This indicates a missing role configuration, such as:
 Helm typically requires the verbs `[create, get, delete, patch]`, and occasionally also `[list]` and `[update]`. These verbs represent the actions permitted for a given resource and API group, and can be combined as needed.
 </Callout>
 
-You can identify required `apiGroups` and `resources` from your Helm chart using the following command in your local Git repository:
+You can identify required `apiGroups` (shown in YAML files as `apiVersion`) and `resources` (shown as `kind`) from your Helm chart using the following command in your local Git repository:
 ```bash
 for i in `find . -type f -name '*.yaml'`; do grep '^apiVersion:' $i | sort -u; grep '^kind:' $i | sort -u; done
 ```
