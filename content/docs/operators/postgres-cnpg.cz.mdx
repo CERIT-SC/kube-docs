@@ -2,18 +2,19 @@
 title: Postgres Operator Cloudnative-PG
 ---
 
-[Postgres Operator](https://cloudnative-pg.io/documentation/1.23/) poskytuje snadné spuštění PostgreSQL clusteru na Kubernetes. Poskytli jsme clusterový Postgres Operator pro snadné nasazení serverů databáze Postgres SQL. Postgres Operator definuje typ `Cluster`, který zajišťuje existenci databáze nebo databázového clusteru. Pro vaše pohodlí poskytujeme několik funkčních příkladů v následujících sekcích spolu s některými pokročilými funkcemi.
+[Postgres Operator](https://cloudnative-pg.io/documentation/1.23/) poskytuje snadné spuštění PostgreSQL clusteru na Kubernetes. Poskytujeme cluster-wide Postgres Operator pro snadné nasazení serverů databáze PostgreSQL. Postgres Operator definuje typ `Cluster`, který zajišťuje existenci databáze nebo databázového clusteru.  Pro vaše pohodlí uvádíme v následujících sekcích několik funkčních příkladů spolu s pokročilými funkcemi.
 
-Originální, úplná dokumentace o struktuře PostgresOperator je k dispozici [zde](https://cloudnative-pg.io/documentation/1.23/) s oficiálním manuálem pro vytvoření minimálního PostgreSQL clusteru umístěným v [sekci rychlého startu](https://cloudnative-pg.io/documentation/1.23/quickstart/). Pokud hledáte pokročilou konfiguraci nebo popis a vysvětlení YAML polí, nahlédněte do oficiální dokumentace.
+
+Originální, úplná dokumentace o struktuře PostgresOperator je k dispozici [zde](https://cloudnative-pg.io/documentation/1.23/) s oficiálním manuálem pro vytvoření minimálního PostgreSQL clusteru umístěným v [sekci Quickstart](https://cloudnative-pg.io/documentation/1.23/quickstart/). Pokud hledáte pokročilou konfiguraci nebo popis a vysvětlení YAML polí, nahlédněte do oficiální dokumentace.
 
 
 ## Nasazení instance clusteru
 
-Je možné nasadit buď jednotlivou, nebo clusterovou instanci. Pro testovací účely doporučujeme nasadit minimální (jednotlivou) instanci, která používá NFS úložiště jako podkladové úložiště a spotřebovává omezené zdroje (výkon je nízký). Pro lepší dostupnost a výkon lze použít nasazení v clusteru. V tomto případě běží více instancí v clusteru, přičemž jedna z nich je vůdčí (leader) a ostatní ji následují a synchronizují data od vůdčí instance.
+Je možné nasadit buď samostatnou instanci, nebo clusterovou instanci. Pro testovací účely doporučujeme nasadit minimální (samostatnou) instanci, která využívá NFS úložiště jako podkladové úložiště a spotřebovává omezené zdroje (výkon je nízký). Pro lepší dostupnost a výkon lze použít nasazení clusteru. V tomto případě běží v clusteru více instancí, přičemž jedna z nich je vůdčí (leader) a ostatní ji následují a synchronizují data od vůdčí instance.
 
-### Jednotlivá instance
+### Samostatná instance
 
-V tomto příkladu je vytvořena jednotlivá instance s vygenerovaným uživatelským jménem a heslem. Je také možné poskytnout vlastní objekt `Secret` místo automaticky vygenerovaného uživatelského jména/hesla.
+V tomto příkladu je vytvořena samostatná instance s vygenerovaným uživatelským jménem a heslem. Je možné zadat vlastní objekt `Secret` namísto automaticky generovaného uživatelského jména a hesla – viz sekce Vlastní přihlašovací údaje k databázi.
 
 ```yaml
 apiVersion: postgresql.cnpg.io/v1
