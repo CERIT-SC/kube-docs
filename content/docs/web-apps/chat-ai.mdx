@@ -124,7 +124,7 @@ While we could integrate external embedding models like OpenAI’s `text-embeddi
 
 ## Data Privacy
 
-Open WebUI displays model labels as either internal or external. This labeling is a feature of WebUI itself. Models are marked as internal if inference is handled via the Ollama API, and external if inference is done through an OpenAI-compatible API (in our case, the vLLM system).
+In Open WebUI, model labels are now standardized for clarity. All local models are correctly labeled as internal, ensuring consistent and intuitive categorization.
 
 All models accessible to users run on our infrastructure, and inference-related data does not leave our systems. However, we can provide access to truly external models—such as GPT-4o—upon special agreement. In such cases, data is understandably transmitted to a third party.
 
