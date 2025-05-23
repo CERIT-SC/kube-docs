@@ -16,13 +16,13 @@ From a conceptual standpoint, the GitLab Kubernetes Agent functions as a proxy b
 
 This Service Account must be granted adequate permissions to carry out CI/CD operations. These permissions are defined via Kubernetes RBAC resources: `Role`, `RoleBinding`.
 
-### Use Case: Deploying a Helm Chart
+## Use Case: Deploying a Helm Chart
 
 CI/CD pipelines can automate a wide range of tasks. This guide focuses on the most common scenario: deploying a Helm chart from a Git repository into a Kubernetes namespace.
 
 The following sections will describe the necessary configuration steps to achieve this deployment workflow.
 
-## Prerequisites
+### Prerequisites
 
 - A namespace on your Kubernetes cluster (e.g., `kuba-cluster` from CERIT-SC)
 - A GitLab repository (referenced as [https://gitlab.ics.muni.cz/cerit-sc/gitlab-test](https://gitlab.ics.muni.cz/cerit-sc/gitlab-test))
