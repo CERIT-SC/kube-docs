@@ -79,8 +79,11 @@ Create a new file `values.yaml`:
 ```yaml title="values.yaml"
 replicas: 1
 resources:
+  requests:
+    cpu: "50m"
+    memory: "50Mi"
   limits:
-    cpu: "500m"
+    cpu: "1"
     memory: "512Mi"
 podSecurityContext:
    runAsNonRoot: true
