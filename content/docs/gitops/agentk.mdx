@@ -78,6 +78,10 @@ Create a new file `values.yaml`:
 
 ```yaml title="values.yaml"
 replicas: 1
+resources:
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
 podSecurityContext:
    runAsNonRoot: true
    seccompProfile:
