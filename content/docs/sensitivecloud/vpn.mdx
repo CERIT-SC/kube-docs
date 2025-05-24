@@ -25,10 +25,10 @@ The corresponding IPv6 format is: `2001:718:801:390:10:18:x:y/128`
 The IPv6 address uses `:` as a separator. A format like `2001:718:801:390:10.18.x.y` might be accepted by the system, but it will not work. It must be exactly: `2001:718:801:390:10:18:x:y`
 </Callout>
 
-The `AllowedIP` field in your configuration should be set to:
+The `AllowedIPs` field in your configuration should be set to:
 
 ```
-AllowedIP = 10.16.48.0/25, 10.16.62.0/23, 147.251.33.144/28, 147.251.33.160/30, 2001:718:801:42bf:8:4::/96, 2001:718:801:42d8:8:4::/96, 2001:718:801:42d9:8:4::/96
+AllowedIPs = 10.16.48.0/25, 10.16.62.0/23, 147.251.33.144/28, 147.251.33.160/30, 2001:718:801:42bf:8:4::/96, 2001:718:801:42d8:8:4::/96, 2001:718:801:42d9:8:4::/96
 ```
 
 <Callout icon="⚠️">
