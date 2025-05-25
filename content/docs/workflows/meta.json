@@ -1,6 +1,7 @@
 {
   "pages": [
     "nextflow",
+    "argo",
     "teswes",
     "snakemake"
   ]
