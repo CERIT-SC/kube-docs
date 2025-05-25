@@ -7,7 +7,7 @@ Argo Workflows is a Kubernetes-native workflow engine designed for orchestrating
 By leveraging Kubernetes as the underlying scheduler, Argo enables scalable and resilient workflow execution using familiar Kubernetes tooling.
 
 <Callout type="info">
-Workflow objects must be created in the **same namespace** where the Argo controller is running.  
+Workflow objects must be created in the **same namespace** where the Argo controller is running. It also means that `ClusterWorkflow` resources are not supported. 
 This is a limitation of the managed cluster setup at CERIT-SC. Currently, deploying a controller that watches multiple namespaces is **not supported**.
 </Callout>
 
