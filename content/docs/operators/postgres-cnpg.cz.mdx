@@ -75,7 +75,8 @@ Použijte `dbuser:password` jako přihlašovací údaje pro připojení.
 
 ### Přístup k databázi 
 
-K databázi lze přistupovat (připojit se) ze stejného namespace, kde je nasazena, z jiného namespace nebo zvenčí Kubernetes clusteru. Databáze obvykle používají připojení pouze pro čtení (obvykle cílení na repliky) a připojení pro čtení a zápis (cílení na hlavní instance).
+K databázi lze přistupovat (připojit se) ze stejného namespace, kde je nasazena, z jiného namespace nebo zvenčí Kubernetes clusteru. Databáze běžně používají připojení pouze pro čtení (obvykle směrované na repliky) a připojení pro čtení i zápis (směrované na hlavní instance).
+
 
 #### Přístup ze stejného namespace
 
