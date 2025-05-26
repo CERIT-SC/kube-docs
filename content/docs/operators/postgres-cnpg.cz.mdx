@@ -96,7 +96,7 @@ Hostname pro použití repliky pouze pro čtení je `test-cluster-ro` a hostname
 
 Předpokládáme, že název databáze je `test-cluster`, hostname pouze pro čtení je `test-cluster-ro.[namespace].svc.cluster.local`, a zapisovatelný hlavní uzel je `test-cluster-rw.[namespace].svc.cluster.local`, nahraďte `[namespace]` názvem namespace, kde je databáze nasazena. 
 
-Pokud není výslovně nastaveno jinak, port je dobře známý postgres port `5432`.
+Pokud není výslovně nastaven jiný port, používá se známý port PostgreSQL – `5432`.
 
 #### Přístup zvenčí Kubernetes clusteru
 
