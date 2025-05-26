@@ -59,9 +59,9 @@ To vyžaduje cluster se 3 uzly. Tento typ nastavení je odolný vůči výpadku 
 
 Pro přístup k databázi musíte znát přihlašovací údaje a umístění databáze. 
 
-### Přihlašovací údaje databáze
+### Přihlašovací údaje k databázi
 
-Pokud jste použili vlastní objekt `Secret`, použijte tyto přihlašovací údaje. Jinak zadejte příkaz (`test-cluster-app`, pokud `metadata.name` nebylo změněno z příkladu, jinak `[metadata-name]-app`)
+Pokud jste použili vlastní objekt `Secret`, použijte přihlašovací údaje z `Secret`. Jinak zadejte příkaz (`test-cluster-app`, pokud `metadata.name` nebylo změněno z příkladu, jinak `[metadata-name]-app`)
 ```shell
 kubectl get secret test-cluster-app -n [namespace] -o 'jsonpath={.data.pgpass}' | base64 -d
 ```
