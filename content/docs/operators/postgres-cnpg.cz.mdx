@@ -55,13 +55,13 @@ To vyžaduje cluster se 3 uzly. Tento typ nastavení je odolný vůči výpadku 
 *Poznámka*: Instance clusteru spotřebovávají více zdrojů a musíte zvážit, kolik zdrojů je k dispozici ve vašem namespace/projektu. Instance clusteru spotřebovává `numberOfInstances * limits` zdrojů.
 
 
-## Přístup k databázi
+## Přistupování k databázi
 
 Pro přístup k databázi musíte znát přihlašovací údaje a umístění databáze. 
 
-### Přihlašovací údaje databáze
+### Přihlašovací údaje k databázi
 
-Pokud jste použili vlastní objekt `Secret`, použijte tyto přihlašovací údaje. Jinak zadejte příkaz (`test-cluster-app`, pokud `metadata.name` nebylo změněno z příkladu, jinak `[metadata-name]-app`)
+Pokud jste použili vlastní objekt `Secret`, použijte přihlašovací údaje z `Secret`. Jinak zadejte příkaz (`test-cluster-app`, pokud `metadata.name` nebylo změněno z příkladu, jinak `[metadata-name]-app`)
 ```shell
 kubectl get secret test-cluster-app -n [namespace] -o 'jsonpath={.data.pgpass}' | base64 -d
 ```
@@ -75,7 +75,8 @@ Použijte `dbuser:password` jako přihlašovací údaje pro připojení.
 
 ### Přístup k databázi 
 
-K databázi lze přistupovat (připojit se) ze stejného namespace, kde je nasazena, z jiného namespace nebo zvenčí Kubernetes clusteru. Databáze obvykle používají připojení pouze pro čtení (obvykle cílení na repliky) a připojení pro čtení a zápis (cílení na hlavní instance).
+K databázi lze přistupovat (připojit se) ze stejného namespace, kde je nasazena, z jiného namespace nebo zvenčí Kubernetes clusteru. Databáze běžně používají připojení pouze pro čtení (obvykle směrované na repliky) a připojení pro čtení i zápis (směrované na hlavní instance).
+
 
 #### Přístup ze stejného namespace
 
@@ -88,21 +89,22 @@ metadata:
 ...
 ```
 
-Hostname pro použití repliky pouze pro čtení je `test-cluster-ro` a hostname zapisovatelného hlavního uzlu je `test-cluster-rw`. Pokud není výslovně nastaveno jinak, port je dobře známý postgres port `5432`.
+Hostname pro použití repliky pouze pro čtení je `test-cluster-ro` a hostname zapisovatelného hlavního uzlu je `test-cluster-rw`. Pokud není výslovně nastaven jiný port, používá se známý port PostgreSQL – `5432`.
+
 
 #### Přístup z jiného namespace
 
 Předpokládáme, že název databáze je `test-cluster`, hostname pouze pro čtení je `test-cluster-ro.[namespace].svc.cluster.local`, a zapisovatelný hlavní uzel je `test-cluster-rw.[namespace].svc.cluster.local`, nahraďte `[namespace]` názvem namespace, kde je databáze nasazena. 
 
-Pokud není výslovně nastaveno jinak, port je dobře známý postgres port `5432`.
+Pokud není výslovně nastaven jiný port, používá se známý port PostgreSQL – `5432`.
 
 #### Přístup zvenčí Kubernetes clusteru
 
-Pro přístup k databázi z externího světa (mimo Kubernetes cluster) musí být vytvořen nový objekt služby typu `LoadBalancer`. 
+Pro přístup k databázi z vnějšího prostředí (mimo Kubernetes cluster) musí být vytvořen nový objekt služby typu `LoadBalancer`. 
 
 Pokud chcete také přístup pouze pro čtení (kromě přístupu pro zápis), musí být vytvořeny dva LoadBalancery. V tomto případě nás prosím kontaktujte na **k8s@ics.muni.cz**.
 
-Existuje mírný rozdíl v vytvořených objektech v závislosti na tom, zda přistupujete k databázi **z Masarykovy univerzity/Masarykovy univerzity VPN** nebo **odkudkoli jinde**.
+Existuje drobný rozdíl ve vytvořených objektech podle toho, zda k databázi přistupujete z **z Masarykovy univerzity/Masarykovy univerzity VPN** nebo **odkudkoli jinud**.
 
 ##### MU/MU VPN
 
