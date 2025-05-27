@@ -26,9 +26,14 @@ spec:
   ## Secret should follow the format used in `minio-creds-secret`.
   users:
     - name: myminio-user-secret
+  ## if selfsigned certs are not required
+  requestAutoCert: false
   ## Pre create buckets
   buckets:
     - name: mybucket
+  ## Environment variables, must contain MINIO_ROOT_USER and MINIO_ROOT_PASSWORD variables at least. 
+  configuration:
+    name: myminio-config-secret
   ## Specification for MinIO Pool(s) in this Tenant.
   pools:
     ## Servers specifies the number of MinIO Tenant Pods / Servers in this pool.
@@ -90,6 +95,23 @@ echo -n "securepassword" | base64
 # decode
 echo -n "c2VjdXJlcGFzc3dvcmQ=" | base64 -d
 ```
+
+The last required part is a configuration secret shown below:
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: myminio-config-secret
+type: Opaque
+stringData:
+  config.env: |-
+    export MINIO_ROOT_USER=[replace with root username]
+    export MINIO_ROOT_PASSWORD=[replace with root password, at least 8 characters!]
+```
+
+<Callout type="info">
+The `MINIO_ROOT_USER` and `MINIO_ROOT_PASSWORD` variables are not base64 encoded because the manifest defines them as the `stringData`.
+</Callout>
 
 Next, deploy the secret and the MinIO Tenant with the following command:
 
