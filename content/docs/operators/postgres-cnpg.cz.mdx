@@ -152,8 +152,9 @@ spec:
 
 V tomto případě jsou IP adresy přidělovány z veřejného IP rozsahu. Při přístupu k databázi z vnějšího prostředí **důrazně doporučujeme** nastavit síťovou politiku.
 
-##### Získání veřejné IP adresy pro připojení
 
+
+##### Získání veřejné IP adresy pro připojení
 
 Po vytvoření této služby je databáze dostupná na veřejné IP adrese, kterou lze zjistit pomocí příkazu:
 
@@ -170,11 +171,12 @@ NAME                    TYPE           CLUSTER-IP    EXTERNAL-IP       PORT(S)  
 test-cluster-external   LoadBalancer   10.43...      147.251.X.Y       5432/TCP   21h
 ```
 
-### Network Policy
+### Síťová politika
 
-Pro zvýšení bezpečnosti se používá *síťová politika*, která umožňuje přístup k databázi pouze z určitých podů. Síťová politika je doporučena ve všech výše uvedených případech a **silně doporučena**, pokud byl nastaven přístup zvenčí Kubernetes clusteru. Viz [Network Policy](../kubernetes/security) pro obecné koncepty.
 
-Měli byste omezit přístup buď z konkrétního Podu, nebo z konkrétní IP adresy. Nicméně, přístup z `cloudnativegp` namespace musí být povolen, aby operátor spravující Postgres cluster mohl spravovat instanci. 
+Pro zvýšení bezpečnosti se používá *síťová politika*, která umožňuje přístup k databázi pouze z určitých podů. Síťová politika je doporučena ve všech výše uvedených případech a **důrazně doporučena**, pokud byl nastaven přístup zvenčí Kubernetes clusteru. Viz [Network Policy](../kubernetes/security) pro obecné koncepty.
+
+Měli byste omezit přístup buď z konkrétního Podu, nebo z konkrétní externí IP adresy. Nicméně, přístup z `cloudnativegp` namespace musí být povolen, aby operátor spravující Postgres cluster mohl spravovat instanci. 
 
 #### Access Only from Specific Namespace Allowed
 
