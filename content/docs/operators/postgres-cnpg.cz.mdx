@@ -315,9 +315,9 @@ spec:
 
 Harmonogram je **NE** standardní `cron` harmonogram – místo něj se používá pořadí: sekundy / minuty / hodiny / den v měsíci / měsíc / den v týdnu.
 
-## High Availability Cluster Setup
+## Nastavení High Availability clusteru
 
-Replikovaný cluster může být využit pro případy vysoké dostupnosti. Od verze Postgres 11 operátor podporuje další nastavení pro zvýšení vysoké dostupnosti.
+Replikovaný cluster může být využit pro scénáře s  high-availability. Od verze Postgres 11 operátor podporuje další nastavení pro zvýšení  high-availability.
 
 
 1. Zvyšte historii segmentů `wal` pomocí následujícího úryvku. Změňte hodnotu `wal_keep_size` podle potřeby. Výchozí hodnota je přibližně 500MB, což může být málo. Tato hodnota je však alokována z podkladového úložiště. Pokud je použit `zfs-csi`, vynucuje velikost disku a DB `wals` mohou snadno spotřebovat veškeré místo na disku.
