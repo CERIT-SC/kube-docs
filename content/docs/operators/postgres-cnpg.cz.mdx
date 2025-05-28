@@ -180,9 +180,6 @@ Měli byste omezit přístup buď z konkrétního Podu, nebo z konkrétní exter
 
 #### Přístup povolen pouze z konkrétního namespace
 
-
-Tento příklad umožňuje přístup pouze z konkrétního namespace clusteru Kubernetes (stáhnout zde ). Zadejte název clusteru (pokud byl změněn) jako spec.podSelector.matchLabels.cnpg.io/cluster a nahraďte [namespace] namespace, ve kterém je nasazen PostgreSQL. Ostatní namespace jsou povoleny přidáním dalších položek namespaceSelector do seznamu.
-
 Tento příklad umožňuje přístup pouze z konkrétního namespace Kubernetes clusteru ([stáhnout zde](/examples/ceritsc/manifests/netpolicy-internal.yaml)). Uveďte název clusteru (pokud byl změněn) jako `spec.podSelector.matchLabels.cnpg.io/cluster` a nahraďte `[namespace]` názvem namespace, kde je postgres nasazen. Další namespace jsou povoleny přidáním více položek `namespaceSelector` do seznamu.
 
 ```yaml
@@ -210,7 +207,7 @@ spec:
     ...
 ```
 
-#### Access Only from Specific External IP Address Allowed
+#### Přístup povolen pouze z konkrétní externí IP adresy
 
 Tento příklad umožňuje přístup pouze z konkrétní externí IP adresy ([stáhnout zde](/examples/ceritsc/manifests/netpolicy-external.yaml)). Uveďte název clusteru (pokud byl změněn) jako `spec.podSelector.matchLabels.cnpg.io/cluster`, nahraďte `[namespace]` názvem namespace, kde je cluster nasazen, a nahraďte `[IP]/32` vaší externí IP `/32` (tato část `slash 32` musí být poskytnuta jako koncová část adresy). Další IP bloky mohou být povoleny přidáním celé části `ipBlock` do yaml.
 
