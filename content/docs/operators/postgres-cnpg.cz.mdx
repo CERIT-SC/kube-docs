@@ -242,12 +242,10 @@ spec:
 Pokud toto pole není nastaveno nebo je nastaveno na Cluster, síťová politika nebude fungovat podle očekávání. Je to proto, že zdrojová IP adresa klienta (ta, která je specifikována v ipBlock → cidr) bude maskována a nahrazena IP adresou uzlu clusteru. V důsledku toho je nemožné účinně omezit přístup na základě původní IP adresy klienta.
 
 
-
-
 <Callout type="warn" icon="⚠️ ">
 V tomto případě se ujistěte, že odpovídající LoadBalancer Service má pole `externalTrafficPolicy`  nastaveno na `Local`, tj. `externalTrafficPolicy: Local`. 
 
-Pokud toto pole není nastaveno nebo je nastaveno na Cluster, síťová politika nebude fungovat podle očekávání. Je to proto, že zdrojová IP adresa klienta (ta, která je specifikována v `ipBlock` → `cidr`) bude maskována a nahrazena IP adresou uzlu clusteru.V důsledku toho je nemožné účinně omezit přístup na základě původní IP adresy klienta.
+Pokud toto pole není nastaveno nebo je nastaveno na Cluster, síťová politika nebude fungovat podle očekávání. Je to proto, že zdrojová IP adresa klienta (ta, která je specifikována v `ipBlock` → `cidr`) bude maskována a nahrazena IP adresou uzlu clusteru. V důsledku toho je nemožné účinně omezit přístup na základě původní IP adresy klienta.
 
 </Callout>
 
@@ -256,7 +254,7 @@ Pokud toto pole není nastaveno nebo je nastaveno na Cluster, síťová politika
 
 
 
-## Data Backups
+## Zálohování dat
 
 Postgres operátor nabízí automatické zálohy do S3 úložiště implementované prostřednictvím periodického wal streamingu a pravidelných záloh (v podstatě ekvivalent `pgdump`) pomocí `CronJobs`.
 
@@ -280,7 +278,7 @@ Pro povolení zálohy přidejte sekci `backup` do manifestu clusteru. Viz [šabl
     retentionPolicy: "30d"
 ```
 
-Nahraďte `[BUCKET]` a `[S3URL]` skutečnými hodnotami. **Nehrajte si s `ACCESS_KEY_ID` a `ACCESS_SECRET_KEY`, musí odpovídat klíčovým slovům Secret, která identifikují jejich hodnoty.**
+Nahraďte `[BUCKET]` a `[S3URL]` skutečnými hodnotami. **Nenahrazujte `ACCESS_KEY_ID` a `ACCESS_SECRET_KEY`, musí odpovídat klíčovým slovům Secret, která identifikují jejich hodnoty.**
 
 ### Full Backups
 
