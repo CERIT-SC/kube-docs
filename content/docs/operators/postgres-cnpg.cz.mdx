@@ -250,10 +250,6 @@ Pokud toto pole není nastaveno nebo je nastaveno na Cluster, síťová politika
 </Callout>
 
 
-
-
-
-
 ## Zálohování dat
 
 Postgres operátor nabízí automatické zálohy do S3 úložiště implementované prostřednictvím periodického wal streamingu a pravidelných záloh (v podstatě ekvivalent `pgdump`) pomocí `CronJobs`.
@@ -280,7 +276,7 @@ Pro povolení zálohy přidejte sekci `backup` do manifestu clusteru. Viz [šabl
 
 Nahraďte `[BUCKET]` a `[S3URL]` skutečnými hodnotami. **Nenahrazujte `ACCESS_KEY_ID` a `ACCESS_SECRET_KEY`, musí odpovídat klíčovým slovům Secret, která identifikují jejich hodnoty.**
 
-### Full Backups
+### Plné zálohy
 
 Pro plné zálohy musí být vytvořeny další zdroje. 
 
@@ -296,7 +292,7 @@ spec:
     name: [db-name]
 ```
 
-Nahraďte `[backup-name]` vhodným názvem zdroje (musí být jedinečný v rámci namespace) a `[db-name]` názvem databázového clusteru z hlavního manifestu, tyto dva názvy musí odpovídat. Např. manifest clusteru začínající:
+Nahraďte `[backup-name]` vhodným názvem zdroje (musí být jedinečný v rámci namespace) a `[db-name]` názvem databázového clusteru z hlavního manifestu, tyto dva názvy se musí shodovat. Např. manifest clusteru začínající:
 ```yaml
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
@@ -317,7 +313,7 @@ spec:
     name: test-cluster
 ```
 
-Harmonogram je **NE** standardní `cron` harmonogram - tato sekunda/minuta/hodina/den v měsíci/měsíc/den v týdnu.
+Harmonogram je **NE** standardní `cron` harmonogram – místo něj se používá pořadí: sekundy / minuty / hodiny / den v měsíci / měsíc / den v týdnu.
 
 ## High Availability Cluster Setup
 
