@@ -377,7 +377,7 @@ spec:
 
 ## Lokální úložiště vs NFS
 
-Je možné použít lokální úložiště (SSD) místo NFS nebo jakéhokoli síťového podporovaného PVC. I když není možné přímo požadovat lokální úložiště v sekci `volume`, je možné použít lokální úložiště. Můžete si stáhnout [manifest pro jednotlivou instanci](/examples/ceritsc/manifests/minimal-local-cn.yaml), který může být také použit pro instanci clusteru (nastavte požadovaný `numberOfInstances`).
+Je možné použít lokální úložiště (SSD) místo NFS nebo jakéhokoli síťového podporovaného PVC. I když není možné přímo požadovat lokální úložiště v sekci `volume`, je možné jeho použití. Můžete si stáhnout [manifest pro samostatnou instanci](/examples/ceritsc/manifests/minimal-local-cn.yaml), terý lze použít i pro nasazení v clusteru (nastavte požadovaný `numberOfInstances`).
 
 V podstatě lze použít třídu úložiště `zfs-csi` pro využití lokálního úložiště. Při nastavování limitu je třeba věnovat zvláštní pozornost. Limit nelze v budoucnu zvýšit a je vynucen, nicméně je to nejrychlejší úložiště, které je nabízeno.
 
