@@ -152,14 +152,18 @@ spec:
 
 V tomto případě jsou IP adresy přidělovány z veřejného IP rozsahu. Při přístupu k databázi z vnějšího prostředí **důrazně doporučujeme** nastavit síťovou politiku.
 
-##### Retrieve Public IP to Connect
+##### Získání veřejné IP adresy pro připojení
 
-Po vytvoření této služby je databáze dostupná na veřejné IP adrese, kterou lze nalézt pomocí příkazu:
+
+Po vytvoření této služby je databáze dostupná na veřejné IP adrese, kterou lze zjistit pomocí příkazu:
+
 ```shell
 kubectl get svc [name_of_loadbalancer_service_from_previous_step] -n [namespace_where_cluster_is_deployed]
 ```
 
-Výstup bude podobný následujícímu, kde `EXTERNAL-IP` označuje IP pro připojení (hostname/adresa v pgAdmin) a `PORT` port pro připojení.
+Výstup bude podobný tomu níže, kde `EXTERNAL-IP` označuje IP adresu pro připojení  (hostname/address v pgAdmin) a `PORT` představuje port, na který se připojit.
+
+
 ```shell
 kubectl get svc test-cluster-external -n test-postgres-ns          
 NAME                    TYPE           CLUSTER-IP    EXTERNAL-IP       PORT(S)    AGE
