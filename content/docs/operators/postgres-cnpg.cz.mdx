@@ -178,7 +178,10 @@ Pro zvýšení bezpečnosti se používá *síťová politika*, která umožňuj
 
 Měli byste omezit přístup buď z konkrétního Podu, nebo z konkrétní externí IP adresy. Nicméně, přístup z `cloudnativegp` namespace musí být povolen, aby operátor spravující Postgres cluster mohl spravovat instanci. 
 
-#### Access Only from Specific Namespace Allowed
+#### Přístup povolen pouze z konkrétního namespace
+
+
+Tento příklad umožňuje přístup pouze z konkrétního namespace clusteru Kubernetes (stáhnout zde ). Zadejte název clusteru (pokud byl změněn) jako spec.podSelector.matchLabels.cnpg.io/cluster a nahraďte [namespace] namespace, ve kterém je nasazen PostgreSQL. Ostatní namespace jsou povoleny přidáním dalších položek namespaceSelector do seznamu.
 
 Tento příklad umožňuje přístup pouze z konkrétního namespace Kubernetes clusteru ([stáhnout zde](/examples/ceritsc/manifests/netpolicy-internal.yaml)). Uveďte název clusteru (pokud byl změněn) jako `spec.podSelector.matchLabels.cnpg.io/cluster` a nahraďte `[namespace]` názvem namespace, kde je postgres nasazen. Další namespace jsou povoleny přidáním více položek `namespaceSelector` do seznamu.
 
