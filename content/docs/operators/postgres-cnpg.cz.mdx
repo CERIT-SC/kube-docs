@@ -209,7 +209,7 @@ spec:
 
 #### Přístup povolen pouze z konkrétní externí IP adresy
 
-Tento příklad umožňuje přístup pouze z konkrétní externí IP adresy ([stáhnout zde](/examples/ceritsc/manifests/netpolicy-external.yaml)). Uveďte název clusteru (pokud byl změněn) jako `spec.podSelector.matchLabels.cnpg.io/cluster`, nahraďte `[namespace]` názvem namespace, kde je cluster nasazen, a nahraďte `[IP]/32` vaší externí IP `/32` (tato část `slash 32` musí být poskytnuta jako koncová část adresy). Další IP bloky mohou být povoleny přidáním celé části `ipBlock` do yaml.
+Tento příklad umožňuje přístup pouze z konkrétní externí IP adresy ([stáhnout zde](/examples/ceritsc/manifests/netpolicy-external.yaml)). Zadejte název clusteru (pokud byl změněn) jako `spec.podSelector.matchLabels.cnpg.io/cluster`, nahraďte `[namespace]` názvem namespace, kde je cluster nasazen, a nahraďte `[IP]/32` vaší externí IP `/32` (tato část `slash 32` musí být uvedena jako koncová část adresy). Další IP bloky mohou být povoleny přidáním celé části `ipBlock` do yaml.
 
 ```yaml
 apiVersion: networking.k8s.io/v1
