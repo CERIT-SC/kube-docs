@@ -127,11 +127,7 @@ spec:
     role: primary
 ```
 
-Anotace `metallb.universe.tf/allow-shared-ip` zajišťuje, že oba LoadBalancery sdílejí stejnou IP adresu a jsou rozlišovány podle portů:
-- port `5433` je pro repliky pouze pro čtení
-- port `5432` je pro zapisovatelné repliky
-
-Tento příklad přiřazuje IP adresy, které jsou dostupné **pouze z interní sítě Masarykovy univerzity nebo prostřednictvím VPN služby Masarykovy univerzity**. 
+Tento příklad přiřazuje IP adresy, které jsou dostupné **pouze z vnitřní sítě Masarykovy univerzity nebo prostřednictvím VPN služby Masarykovy univerzity**. 
 
 ##### Non-MU accesses
 
