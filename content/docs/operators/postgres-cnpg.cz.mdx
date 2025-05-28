@@ -129,7 +129,7 @@ spec:
 
 Tento příklad přiřazuje IP adresy, které jsou dostupné **pouze z vnitřní sítě Masarykovy univerzity nebo prostřednictvím VPN služby Masarykovy univerzity**. 
 
-##### Non-MU accesses
+##### Přístupy mimo Masarykovu univerzitu
 
 Předpokládáme, že název databáze je opět `test-cluster`, následující příklady ukazují potřebné služby pro přístup jak pro čtení, tak pro zápis.
 
@@ -150,7 +150,7 @@ spec:
     role: primary
 ```
 
-V tomto případě jsou IP adresy přidělovány z veřejného IP poolu. Při přístupu k databázi z externího světa **silně doporučujeme** nastavit síťovou politiku.
+V tomto případě jsou IP adresy přidělovány z veřejného IP rozsahu. Při přístupu k databázi z vnějšího prostředí **důrazně doporučujeme** nastavit síťovou politiku.
 
 ##### Retrieve Public IP to Connect
 
