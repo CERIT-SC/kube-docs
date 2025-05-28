@@ -317,17 +317,19 @@ Harmonogram je **NE** standardní `cron` harmonogram – místo něj se použív
 
 ## Nastavení High Availability clusteru
 
-Replikovaný cluster může být využit pro scénáře s  high-availability. Od verze Postgres 11 operátor podporuje další nastavení pro zvýšení  high-availability.
+Replikovaný cluster může být využit pro scénáře s high-availability. Od verze Postgres 11 operátor podporuje další nastavení pro zvýšení high-availability.
 
 
-1. Zvyšte historii segmentů `wal` pomocí následujícího úryvku. Změňte hodnotu `wal_keep_size` podle potřeby. Výchozí hodnota je přibližně 500MB, což může být málo. Tato hodnota je však alokována z podkladového úložiště. Pokud je použit `zfs-csi`, vynucuje velikost disku a DB `wals` mohou snadno spotřebovat veškeré místo na disku.
+1. Zvyšte historii segmentů `wal` následovně. Změňte hodnotu `wal_keep_size` podle potřeby. Výchozí hodnota je přibližně 500MB, což může být málo. Tato hodnota je však alokována z podkladového úložiště. Pokud je použit `zfs-csi`, vynucuje velikost disku a DB `wals` mohou snadno spotřebovat veškeré místo na disku.
+
+
 ```yaml
 postgresql:
     parameters:
       wal_keep_size: 64GB
 ```
 
-2. Povolte možnost vysoké dostupnosti:
+2. Povolte možnost high availability:
 ```yaml
 replicationSlots:
     highAvailability:
