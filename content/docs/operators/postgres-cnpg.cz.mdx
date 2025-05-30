@@ -477,7 +477,7 @@ spec:
 
 1. Pokud narazíte na chybu nasazení a chcete instanci smazat a znovu vytvořit, **musíte** se ujistit, že běžící instance je smazána před jejím opětovným vytvořením. Pokud vytvoříte novou instanci příliš brzy, nikdy se nevytvoří a budete muset použít jiné jméno.
 
-2. Pokud během nasazení *clusteru* dojdou kvóty, budou nasazeny pouze instance v rámci kvót. Bohužel, i v tomto případě nemůžete odstranit/znovu nasadit databázi pomocí těchto nasazení.
+2. Pokud během nasazení *clusteru* dojdou kvóty, budou nasazeny pouze instance v rámci kvót. Bohužel ani v tomto případě nelze databázi pomocí manifestu odstranit nebo znovu spustit.
 
 3. Varianta lokálního SSD není odolná vůči selhání clusteru. Data mohou být v tomto případě ztracena (např. pokud je cluster obnoven ze zálohy, lokální data nemusí být dostupná). Pravidelné zálohy jsou silně doporučovány.
 
