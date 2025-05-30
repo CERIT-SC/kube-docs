@@ -320,6 +320,9 @@ Harmonogram je **NE** standardní `cron` harmonogram – místo něj se použív
 Replikovaný cluster může být využit pro scénáře s high-availability. Od verze Postgres 11 operátor podporuje další nastavení pro zvýšení high-availability.
 
 
+Zvyšte historii wal segmentů pomocí následujícího úryvku. Upravte hodnotu wal_keep_size podle potřeby. Výchozí hodnota je přibližně 500 MB, což může být málo. Tato hodnota je však alokována z podkladového úložiště. Pokud je použit zfs-csi, vynucuje velikost disku a databázové wal segmenty mohou snadno zaplnit veškeré dostupné místo na disku.
+
+
 1. Zvyšte historii segmentů `wal` následovně. Změňte hodnotu `wal_keep_size` podle potřeby. Výchozí hodnota je přibližně 500MB, což může být málo. Tato hodnota je však alokována z podkladového úložiště. Pokud je použit `zfs-csi`, vynucuje velikost disku a DB `wals` mohou snadno spotřebovat veškeré místo na disku.
 
 
@@ -377,6 +380,7 @@ spec:
 
 ## Lokální úložiště vs NFS
 
+
 Je možné použít lokální úložiště (SSD) místo NFS nebo jakéhokoli síťového podporovaného PVC. I když není možné přímo požadovat lokální úložiště v sekci `volume`, je možné jeho použití. Můžete si stáhnout [manifest pro samostatnou instanci](/examples/ceritsc/manifests/minimal-local-cn.yaml), terý lze použít i pro nasazení v clusteru (nastavte požadovaný `numberOfInstances`).
 
 V podstatě lze použít třídu úložiště `zfs-csi` pro využití lokálního úložiště. Při nastavování limitu je třeba věnovat zvláštní pozornost. Limit nelze v budoucnu zvýšit a je vynucen, nicméně je to nejrychlejší úložiště, které je nabízeno.
@@ -409,11 +413,12 @@ bootstrap:
         name: [secret_name]
 ```
 
-## Egress Network Policy
+## Odchozí síťová politika
+
 
 Pokud chcete řídit odchozí provoz (egress), je nutné povolit konkrétní porty a ipblocks - viz následující příklad. Pokud je pro vás vhodné omezení pouze na příchozí provoz, můžete odstranit pravidla egress.
 
-**Vezměte prosím na vědomí, že pokud chcete používat zálohy dat a také omezit egress komunikaci, možná budete muset přidat pravidlo egress, které umožní komunikaci se zálohovacím serverem!** 
+**Vezměte prosím na vědomí, že pokud chcete používat zálohy dat a také omezit  komunikaci, možná budete muset přidat pravidlo egress, které umožní komunikaci se zálohovacím serverem!** 
 
 ```yaml
 apiVersion: networking.k8s.io/v1
@@ -468,7 +473,7 @@ spec:
 
 ## Upozornění
 
-### Chyby nasazení
+### Chyby při nasazení
 
 1. Pokud narazíte na chybu nasazení a chcete ji smazat a znovu vytvořit, **musíte** se ujistit, že běžící instance je smazána před jejím opětovným vytvořením. Pokud vytvoříte novou instanci příliš brzy, instance nebude nikdy vytvořena a budete muset použít jiné jméno.
 
