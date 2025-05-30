@@ -479,12 +479,15 @@ spec:
 
 2. Pokud během nasazení *clusteru* dojdou kvóty, budou nasazeny pouze instance v rámci kvót. Bohužel ani v tomto případě nelze databázi pomocí manifestu odstranit nebo znovu spustit.
 
-3. Varianta lokálního SSD není odolná vůči selhání clusteru. Data mohou být v tomto případě ztracena (např. pokud je cluster obnoven ze zálohy, lokální data nemusí být dostupná). Pravidelné zálohy jsou silně doporučovány.
+3. Varianta lokálního SSD není odolná vůči selhání clusteru. V takovém případě může dojít ke ztrátě dat (např. pokud je cluster obnoven ze zálohy, lokální data nemusí být dostupná). Důrazně se doporučují pravidelné zálohy.
 
-4. Může se stát, že replikace selže a nemůže se připojit k clusteru, v takovém případě musí být replikace a PVC odstraněny najednou pomocí `kubectl delete pod/test-cluster-1 pvc/test-cluster-1 -n [namespace]`, pokud je selhávající replikace `test-cluster-1`. Replikace bude obnovena a synchronizována se zbytkem clusteru. Její číslo však bude zvýšeno.
+4. Může se stát, že replika selže a nebude se moci připojit ke clusteru, v takovém případě musí být replikace a PVC odstraněny najednou pomocí `kubectl delete pod/test-cluster-1 pvc/test-cluster-1 -n [namespace]`, pokud je selhávající replika `test-cluster-1`. Replika bude obnovena a synchronizována se zbytkem clusteru. Její číslo však bude zvýšeno.
 
-### Obrázky
+
+
+### Obrazy
 
 V současnosti docker obrazy cloudnative-pg neobsahují lokalitu `cs_CZ`, takže české řazení nemůže být použito. Z tohoto důvodu jsme vytvořili dva místní obrazy: `cerit.io/cloudnative-pg/postgresql:10.23-3` a `cerit.io/cloudnative-pg/postgresql:15.0`, které obsahují české lokality.
+
 
 Seznam veřejných obrazů je k dispozici [zde](https://github.com/cloudnative-pg/postgres-containers/pkgs/container/postgresql).
