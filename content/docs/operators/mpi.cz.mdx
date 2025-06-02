@@ -43,6 +43,8 @@ Samozřejmě, že musíte přidat svou aplikaci a správný základní obraz jak
 
 Můžete si [stáhnout](/examples/ceritsc/manifests/mpijob.yaml) příklad manifestu MPI Job. Tento příklad však v aktuální podobě **nefunguje**, musíte specifikovat `IMAGE` a `COMMAND`. Uživatel v atributu `sshAuthMountPath` musí odpovídat uživatelskému jménu vytvořenému v docker obraze. Atribut `Worker.replicas` určuje, kolik workers se má vytvořit, tj. kolik paralelních úloh bude spuštěno. Také parametr `-n "2"` pro `Launcher` musí odpovídat `Worker.replicas`. Všimněte si, že číslo `2` musí být vždy uvedeno v uvozovkách `"2"`.
 
+
+
 ## Running the MPI Job
 
 Jakmile máte docker obraz a manifest připraveny, spustíte MPI Job pomocí:
