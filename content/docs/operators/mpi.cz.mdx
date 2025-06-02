@@ -10,6 +10,8 @@ Aby bylo možné spustit MPI úlohu, jsou zapotřebí dva kroky: připravit spec
 
 MPIJob očekává specifický Docker obraz, obraz musí obsahovat openssh server a tento server musí být nakonfigurován. Také je nutné vytvořit nějakého uživatele v docker obraze. Uživatel musí však přidat následující fragment pro distribuce rodiny Debian ([stáhnout zde](/examples/ceritsc/docker/Dockerfile-mpi)):
 
+
+
 ```dockerfile
 RUN apt-get update && \
     apt-get -y --no-install-recommends install openmpi-bin openssh-server openssh-client bind9-host && \
@@ -35,7 +37,7 @@ RUN chown 1000:1000 /etc/ssh/ssh_config
 CMD /usr/sbin/sshd -De
 ```
 
-Samozřejmě, že musíte přidat svou aplikaci a správný základní obraz jako `tensorflow` nebo `pytorch`. Stejný obraz by měl být použit pro oba `Launcher` a `Worker` Pods.
+Samozřejmě, že musíte přidat svou aplikaci a správný základní obraz jako `tensorflow` nebo `pytorch`. Stejný obraz by měl být použit pro oba `Launcher` aj `Worker` Pod.
 
 ## MPI Job Manifest
 
