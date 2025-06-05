@@ -15,17 +15,19 @@ Spark UI je automaticky vytvořena pro vaše aplikace na HTTPS adrese
 ```
 https://spark-[app_namespace].dyn.cloud.e-infra.cz/[app_namespace]/[app_name]
 ```
-a je také viditelná v uživatelském rozhraní Rancher, postupujte podle kroků, abyste viděli její konečnou podobu. Když zkopírujete adresu do prohlížeče, vynechte poslední skupinu znaků `(/|$)(.*)` (problém související s Rancherem).
+a je také viditelná v uživatelském rozhraní Rancher, postupujte podle pokynů, abyste viděli její finální podobu. Když zkopírujete adresu do prohlížeče, vynechte poslední skupinu znaků `(/|$)(.*)` (jde o problém související s Rancherem).
 
 ![sparkaddress](/img/ceritsc/sparkaddress.png)  
 
-Když přistoupíte na tuto cestu, měli byste být prezentováni s dashboardem podobným
+Když přejdete na uvedenou adresu, měl by se vám zobrazit dashboard podobný tomuto:
 
 ![sparkdashboard](/img/ceritsc/sparkdashboard.png)  
 
+
+
 #### Vlastní SparkUI Ingress
 
-Pokud chcete poskytnout vlastní anotace pro Ingress (např. použít jiného vydavatele certifikátů, používáme `letsencrypt`) nebo vlastní TLS tajný klíč, musíte zahrnout následující kódový úryvek do YAML souboru Spark aplikace.
+Pokud chcete přidat vlastní anotace do Ingressu (např. použít jiného vydavatele certifikátů, my používáme `letsencrypt`) nebo vlastní TLS secret, musíte zahrnout následující kód do YAML souboru Spark aplikace.
 
 ```
   sparkUIOptions:
