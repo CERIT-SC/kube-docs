@@ -22,6 +22,7 @@ metadata:
   name: syslog-flow
   namespace: [your_namespace]
 spec:
+  loggingRef: cerit-logging-root
   match:
     regexp:
       value: json.kubernetes.labels.app.kubernetes.io/instance
@@ -31,13 +32,12 @@ spec:
     - [output_resource_name]
 ```
 
-Pokud související Logging zdroj specifikuje hodnotu `loggingRef`, přidejte to do specifikace `SyslogNGFlow`.
-```yaml
-spec:
-  loggingRef: [value]
-```
+
+Část`loggingRef: cerit-logging-root` je důležitá a musí být nastavena přesně na tuto hodnotu.
 
 Pro zobrazení všech možností směrování se podívejte na [oficiální dokumentaci](https://kube-logging.dev/docs/configuration/log-routing-syslog-ng/).
+
+
 
 ## SyslogNGOutput
 
