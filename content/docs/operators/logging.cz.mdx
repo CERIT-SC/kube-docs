@@ -12,8 +12,8 @@ Loggingová pipeline se skládá ze dvou komponent, `SyslogNGFlow` a `SyslogNGOu
 `SyslogNGFlow` určuje, které logy by měly být odeslány do cílového výstupního místa. K tomu používá `match` podmínky, které podporují logické operátory `and`, `or` a `not`. `SyslogNGFlow`  musí obsahovat alespoň jednu match podmínku, aby mohl přenášet logy.
 
 
-### Example
-Můžete použít níže uvedenou příkladovou konfiguraci k shromažďování všech logů podů z určitého namespace. Specifikujte namespace a název souvisejícího zdroje `SyslogNGOutput`.
+### Příklad
+Níže uvedenou ukázkovou konfiguraci můžete použít ke sběru všech logů z podů v určitém namespace. Specifikujte namespace a název souvisejícího zdroje `SyslogNGOutput`.
 
 ```yaml
 apiVersion: logging.banzaicloud.io/v1beta1
