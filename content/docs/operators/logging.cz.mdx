@@ -9,7 +9,8 @@ Loggingová pipeline se skládá ze dvou komponent, `SyslogNGFlow` a `SyslogNGOu
 
 ## SyslogNGFlow
 
-`SyslogNGFlow` specifikuje, jaké logy by měly být odeslány do konečné výstupní destinace. K tomu používá `match` příkazy, které podporují logické operátory `and`, `or` a `not`. `SyslogNGFlow` musí mít alespoň jeden `match` příkaz pro přenos logů.
+`SyslogNGFlow` určuje, které logy by měly být odeslány do cílového výstupního místa. K tomu používá `match` podmínky, které podporují logické operátory `and`, `or` a `not`. `SyslogNGFlow`  musí obsahovat alespoň jednu match podmínku, aby mohl přenášet logy.
+
 
 ### Example
 Můžete použít níže uvedenou příkladovou konfiguraci k shromažďování všech logů podů z určitého namespace. Specifikujte namespace a název souvisejícího zdroje `SyslogNGOutput`.
