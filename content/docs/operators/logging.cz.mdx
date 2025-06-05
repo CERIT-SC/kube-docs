@@ -2,9 +2,10 @@
 title: Logging
 ---
 
-Logging v Kubernetes clusteru je zajišťováno [Logging operátorem](https://kube-logging.dev/). Tento nástroj umožňuje vytváření přizpůsobených loggingových pipeline, které splňují požadavky uživatelů.
+Logging v Kubernetes clusteru je zajišťováno [Logging operátorem](https://kube-logging.dev/). Tento nástroj umožňuje vytváření přizpůsobených loggingových pipeline, které odpovídají požadavkům uživatele.
 
-Loggingová pipeline se skládá ze dvou komponent, `SyslogNGFlow` a `SyslogNGOutput`. `SyslogNGFlow` specifikuje výběr logů a filtry logů. `SyslogNGOutput` specifikuje výstupní destinaci logů.
+Loggingová pipeline se skládá ze dvou komponent, `SyslogNGFlow` a `SyslogNGOutput`. `SyslogNGFlow` specifikuje výběr logů a filtry logů. `SyslogNGOutput` určuje cílové umístění, kam se logy odesílají.
+
 
 ## SyslogNGFlow
 
