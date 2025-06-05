@@ -41,7 +41,8 @@ Pro zobrazení všech možností směrování se podívejte na [oficiální doku
 
 ## SyslogNGOutput
 
-`SyslogNGOutput` konfiguruje výstupní destinaci logů. `SyslogNGOutput` může konfigurovat pouze jeden výstupní plugin v rámci specifikace.
+`SyslogNGOutput` konfiguruje cílové umístění, kam se logy odesílají. V rámci specifikace může `SyslogNGOutput` konfigurovat pouze jeden výstupní plugin.
+
 
 ### Example
 Můžete použít níže uvedenou příkladovou konfiguraci k přenosu logů pomocí Syslog protokolu. Specifikujte název zdroje, namespace, IP adresu a port. Ujistěte se, že používáte stejné jméno jako v `localOutputRefs`.
