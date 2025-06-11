@@ -2,20 +2,29 @@
 title: Matlab
 ---
 
-## Running Matlab
+## Option 1: Running RStudio via JupyterHub (Recommended)
+
+* Ease of Use: JupyterHub offers a straightforward way to launch Matlab directly from your Jupyter Notebook environment.
+* Data Integration: This method provides seamless integration with MetaCentrum storages, making it convenient for users already working within this ecosystem.
+* Supported Version: More Matlab versions are supported through this option.
+
+This is our preferred method due to its simplicity and straightforward setup. To learn more, see [JupyterHub introduction](../web-apps/jupyterhub) where you can find other necessary information.
+
+
+## Option 2: Running Matlab as a Rancher App (can be customized)
 
 If not already logged, log to [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz), see [Rancher](../rancher/rancher) section.
 
-Following the steps below, you can run Matlab application. This application has persistent home directory, it means, that if you delete the application and later install the application again preserving its name, content of home directory will be preserved. It also possible to connect some storage from e-infra.
+Following the steps below, you can run Matlab application. This application has a persistent home directory, which means that if you delete the application and later install it again, preserving its name, the content of the home directory will be preserved. It is also possible to connect some storage from e-infra.
 
 ### Notes
 
-* Default project had quota limit for 12 guaranteed CPUs and quota for 16 CPUs limit. Do not select more than 10 guaranteed CPUs and more than 14 CPUs limit. If needed more just [ask](mailto:k8s@ics.muni.cz). This may be increased in future so request for more CPUs can be made. 
+* The default project had a quota limit for 12 guaranteed CPUs and a quota limit for 16 CPUs. Do not select more than 10 guaranteed CPUs and a limit of 14 CPUs. If needed, more just [ask](mailto:k8s@ics.muni.cz). This may be increased in the future, so a request for more CPUs can be made. 
 
 * If you do not select `Customize Helm options before install` in **Install the Application** step, installation appears to fail but actually it works after some longer time.
 
-* From Matlab version `v9.11.1` it is possible to mount your MetaCentrum home without asking for a password. However, it is necessary to create a set of specific Kubernetes objects. We simplified whole process and it is enough if you: 
-  *  Firstly, go through [this short tutorial](../other/storagesecrets) where you just log into our custom service and select namespace where to create objects
+* From Matlab version `v9.11.1`, it is possible to mount your MetaCentrum home without asking for a password. However, it is necessary to create a set of specific Kubernetes objects. We simplified the whole process, and it is enough if you: 
+  *  Firstly, go through [this short tutorial](../other/storagesecrets) where you just log into our custom service and select the namespace where to create objects
   *  Secondly, run the Matlab application from Rancher the same way as before, just select version **v9.11.1** and above. The application form features a field in the `Storage` section where you select your home.
 
 ![selectapp](/img/ceritsc/apps/matlab/matlab-home.png)
