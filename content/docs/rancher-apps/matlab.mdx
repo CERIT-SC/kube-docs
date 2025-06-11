@@ -2,7 +2,7 @@
 title: Matlab
 ---
 
-## Option 1: Running RStudio via JupyterHub (Recommended)
+## Option 1: Running Matlab via JupyterHub (Recommended)
 
 * Ease of Use: JupyterHub offers a straightforward way to launch Matlab directly from your Jupyter Notebook environment.
 * Data Integration: This method provides seamless integration with MetaCentrum storages, making it convenient for users already working within this ecosystem.
@@ -45,7 +45,11 @@ When you click on the chart, you can select version of application as shown belo
 
 ### Install the Application
 
-Now you can install the Matlab application. In most cases, keep both `Namespace` (1) and `Name` (2) intact, but select `Customize Helm options before install` (3), however, you can select namespace as desired except `default`. The `default` namespace is available but it is not meant to be used. The `Name` will be in URL to access the application. The `Name` must be unique in the `Namespace`, i.e., you cannot run two or more instances with the same `Name` in the same `Namespace`. If you delete the application and later install the application again preserving its `Name`, content of home directory will be preserved. 
+Now you can install the Matlab application. In most cases, keep both `Namespace` (1) and `Name` (2) intact, but select `Customize Helm options before install` (3), however, you can select namespace as desired except `default`. The `default` namespace is available but it is not meant to be used. The `Name` will be in URL to access the application. 
+
+The `Name` must be unique in the `Namespace`, i.e., you cannot run two or more instances with the same `Name` in the same `Namespace`. The name must be composed of only alphanumeric characters and must start with a character, *matlab* or *matlab123* are good names but *1matlab2* or *1234* will fail.
+
+If you delete the application and later install the application again preserving its `Name`, content of home directory will be preserved. 
 
 ![appinst](/img/ceritsc/apps/matlab/appinst.png)
 
