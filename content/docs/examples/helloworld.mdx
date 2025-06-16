@@ -95,7 +95,7 @@ spec:
 ```
 This file creates a new `Service` object named "hello-kubernetes-svc", which targets TCP port 8080 on any `Pod` labeled `app=hello-kubernetes`.
 
-A Service can map any incoming port to a targetPort. By default, the targetPort is set to the same value as the port field. Default protocol is TCP but other supported protocols can be used too (UDP, HTTP, SCTP, PROXY).
+A Service can map any incoming port to a targetPort. By default, the targetPort is set to the same value as the containerPort field. Default protocol is TCP but other supported protocols can be used too (UDP, HTTP, SCTP, PROXY).
 
 ### 3. Ingress
 
