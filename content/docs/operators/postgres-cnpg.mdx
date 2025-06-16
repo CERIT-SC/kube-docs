@@ -113,7 +113,7 @@ kind: Service
 metadata:
   name: test-cluster-lb-rw
   annotations:
-    metallb.universe.tf/address-pool: privmuni
+    metallb.io/address-pool: privmuni
 spec:
   type: LoadBalancer
   ports:
@@ -136,7 +136,7 @@ kind: Service
 metadata:
   name: test-cluster-lb-rw
   annotations:
-    metallb.universe.tf/address-pool: default
+    metallb.io/address-pool: default
 spec:
   type: LoadBalancer
   ports:

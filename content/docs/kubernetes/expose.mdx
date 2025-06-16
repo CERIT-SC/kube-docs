@@ -380,7 +380,7 @@ where `namespace` is the Namespace of the `Service`. The `IP` address will be di
 To expose the application only within the **MUNI network** or **MUNI VPN**, use the following `Service` annotation:
 
 ```yaml
-metallb.universe.tf/address-pool: privmuni
+metallb.io/address-pool: privmuni
 ```
 
 This method is preferred as it avoids consuming a public IP.
@@ -391,7 +391,7 @@ kind: Service
 metadata:
   name: application-svc
   annotations:
-    metallb.universe.tf/address-pool: privmuni
+    metallb.io/address-pool: privmuni
     external-dns.alpha.kubernetes.io/hostname: application.dyn.cloud.e-infra.cz
 spec:
   type: LoadBalancer
@@ -406,7 +406,7 @@ spec:
 
 ### Sharing an IP Address Across Multiple Services
 
-Since IPv4 addresses are a scarce resource, it's beneficial to share a single IP address across multiple LoadBalancer services differentiated by port numbers. This can be accomplished by creating multiple `Service` objects and using the `metallb.universe.tf/allow-shared-ip` annotation to allocate a shared IP address.
+Since IPv4 addresses are a scarce resource, it's beneficial to share a single IP address across multiple LoadBalancer services differentiated by port numbers. This can be accomplished by creating multiple `Service` objects and using the `metallb.io/allow-shared-ip` annotation to allocate a shared IP address.
 
 The value of this annotation acts as a grouping key: all services with the same key will attempt to share the same IP address, provided it is possible. Therefore, choose a unique key for the annotation to avoid unintended IP sharing between unrelated services.
 
@@ -419,7 +419,7 @@ metadata:
   name: application-svc-rw  
   annotations:  
     external-dns.alpha.kubernetes.io/hostname: application.dyn.cloud.e-infra.cz  
-    metallb.universe.tf/allow-shared-ip: [my-shared-key-for-application]
+    metallb.io/allow-shared-ip: [my-shared-key-for-application]
 spec:  
   type: LoadBalancer  
   allocateLoadBalancerNodePorts: false  
@@ -438,7 +438,7 @@ metadata:
   name: application-svc-ro  
   annotations:  
     external-dns.alpha.kubernetes.io/hostname: application.dyn.cloud.e-infra.cz  
-    metallb.universe.tf/allow-shared-ip: [my-shared-key-for-application]
+    metallb.io/allow-shared-ip: [my-shared-key-for-application]
 spec:  
   type: LoadBalancer  
   allocateLoadBalancerNodePorts: false  

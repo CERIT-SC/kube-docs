@@ -234,7 +234,7 @@ Kde `selector:` `app: application` musí odpovídat názvu aplikace v nasazení 
 
 Nasazení tohoto *Service* vystavuje aplikaci na veřejné IP. Můžete zkontrolovat IP pomocí `kubectl get svc -n namespace`, kde `namespace` je namespace služby a aplikace.
 
-Je také možné vystavit aplikaci na soukromé MUNI IP. V tomto případě bude aplikace dostupná z MUNI sítě nebo pomocí MUNI VPN. Tento typ vystavení je vybrán pomocí anotace `metallb.universe.tf/address-pool: privmuni`. Tento případ je preferován, protože nepoužívá veřejnou IP. Úplný příklad je níže.
+Je také možné vystavit aplikaci na soukromé MUNI IP. V tomto případě bude aplikace dostupná z MUNI sítě nebo pomocí MUNI VPN. Tento typ vystavení je vybrán pomocí anotace `metallb.io/address-pool: privmuni`. Tento případ je preferován, protože nepoužívá veřejnou IP. Úplný příklad je níže.
 
 ```yaml filename="service.yaml" copy
 apiVersion: v1
@@ -242,7 +242,7 @@ kind: Service
 metadata:
   name: application-svc
   annotations:
-    metallb.universe.tf/address-pool: privmuni
+    metallb.io/address-pool: privmuni
     external-dns.alpha.kubernetes.io/hostname: application.dyn.cloud.e-infra.cz
 spec:
   type: LoadBalancer
