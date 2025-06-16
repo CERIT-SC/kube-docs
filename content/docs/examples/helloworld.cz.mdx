@@ -102,8 +102,7 @@ Služba může mapovat jakýkoli příchozí port na targetPort. Ve výchozím n
 
 ### 3. Ingress
 
-Nakonec musíme vytvořit `Ingress`, který vystavuje HTTP a HTTPS cesty ze světa ven do světa clusteru. Provoz je řízen pravidly nastavenými v zdroji.
-Je možné vystavit vaše nasazení [2 způsoby](../kubernetes/expose), ale zde použijeme cluster LoadBalancer s vytvořením pouze nového DNS názvu.
+Nakonec musíme vytvořit `Ingress`, který vystavuje HTTP a HTTPS cesty ze světa ven do světa clusteru. Provoz je řízen pravidly nastavenými v zdroji.Je možné vystavit vaše deployments [2 způsoby](../kubernetes/expose), ale zde použijeme cluster LoadBalancer s vytvořením pouze nového DNS názvu.
 Můžete použít jakýkoli název, který chcete, ale musí splňovat 2 požadavky:
 - název se skládá pouze z písmen, čísel a '-'
 - název končí na `.dyn.cloud.e-infra.cz`
@@ -145,7 +144,7 @@ Tento příkladový soubor se skládá z polí:
     - `hosts` musí přesně odpovídat DNS názvu, který bude použit
     - `secretName` musí odpovídat DNS názvu, ale *všechny tečky jsou nahrazeny '-' a -tls je přidáno na konec*
   - `.rules` je nejdůležitější část
-    - `host` je volitelný, pokud je poskytnut, pravidla se vztahují na tento host
+    - `host` je volitelný; pokud je zadán, pravidla se vztahují na tohoto hostitele.
     - `paths` (například, `/testpath`), z nichž každá má přidružený backend definovaný s `service.name` a `service.port.name` nebo `service.port.number`. `service.port.number` je port, který je vystaven službou, proto je v službě označen jako `spec.ports.port`, podobně `service.ports.[i].name` je ekvivalentní `spec.ports.[i].name`. Typ cesty může být specifikován, více o tom [zde](https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types)
 
 ### 4. Vytvořit
