@@ -2,12 +2,12 @@
 title: Tutorial pro Hello World
 ---
 
-Zde poskytujeme krátký tutoriál o tom, jak nasadit vlastní webový server v Kubernetes pomocí `kubectl`. Použijeme již existující příklad z [hello-kubernetes](https://github.com/paulbouwer/hello-kubernetes), ale s trochu více vysvětlením. Tento tutoriál rozhodně neobsahuje vše, co lze nakonfigurovat a udělat, ale spíše poskytuje první zkušenosti s Kubernetes.
+Zde nabízíme krátký návod, jak nasadit vlastní webový server v Kubernetes pomocí `kubectl`. Použijeme již existující příklad z [hello-kubernetes](https://github.com/paulbouwer/hello-kubernetes), ale s trochu podrobnějším vysvětlením. Tento návod zdaleka nepokrývá všechny možnosti konfigurace a nastavení, ale má sloužit jako první seznámení s Kubernetes.
 
 Chystáme se nasadit jednoduchý web, který běží z Docker image a zobrazuje "Hello world" spolu s názvem `Pod` a informacemi o `node OS`.
 
 *DŮLEŽITÉ*
-Pokud není dohodnuto jinak, pro osobní projekty a experimenty můžete použít `kuba-cluster`. Zde musíte pracovat ve svém namespace a jeho název je odvozen od vašeho příjmení s přidaným `-ns`. Nicméně, názvy nejsou jedinečné, a proto doporučujeme zkontrolovat svůj na `Rancher` v rozbalovacím menu v levém horním rohu `kuba-cluster` a `Project/Namespaces`.
+Pokud není dohodnuto jinak, pro osobní projekty a experimenty můžete použít `kuba-cluster`. Zde musíte pracovat ve svém vlastním namespace, jehož název je odvozen z vašeho příjmení s přidanou příponou -ns. Nicméně, názvy pak nejsou jedinečné, a proto doporučujeme ověřit si ten svůj na `Rancher` v rozbalovacím menu v levém horním rohu `kuba-cluster` a `Project/Namespaces`.
 
 ![kube ns](/img/ceritsc/hello-ns.jpg)
 
@@ -45,9 +45,23 @@ spec:
           capabilities:
             drop:
             - ALL
+        env:
+          - name: KUBERNETES_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: KUBERNETES_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: KUBERNETES_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
         ports:
         - containerPort: 8080
 ```
+
 Tento příkladový soubor se skládá z polí:
 - `.metadata`
   - `.name` označuje název nasazení
