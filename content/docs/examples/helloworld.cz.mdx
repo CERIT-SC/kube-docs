@@ -98,7 +98,7 @@ spec:
 ```
 Tento soubor vytváří nový objekt `Service` s názvem "hello-kubernetes-svc", který cílí na TCP port 8080 na jakémkoli `Pod` označeném `app=hello-kubernetes`.
 
-Služba může mapovat jakýkoli příchozí port na targetPort. Ve výchozím nastavení je targetPort nastaven na stejnou hodnotu jako pole port. Výchozí protokol je TCP, ale mohou být použity i další podporované protokoly (UDP, HTTP, SCTP, PROXY).
+Služba může mapovat jakýkoli příchozí port na targetPort. Ve výchozím nastavení je `targetPort` nastaven na stejnou hodnotu jako  `containerPort` port. Výchozí protokol je TCP, ale mohou být použity i další podporované protokoly (UDP, HTTP, SCTP, PROXY).
 
 ### 3. Ingress
 
