@@ -102,7 +102,7 @@ Služba může mapovat jakýkoli příchozí port na targetPort. Ve výchozím n
 
 ### 3. Ingress
 
-Nakonec musíme vytvořit `Ingress`, který vystavuje HTTP a HTTPS cesty ze světa ven do světa clusteru. Provoz je řízen pravidly nastavenými v tomto zdroji.
+Nakonec musíme vytvořit `Ingress`, který vystavuje HTTP a HTTPS cesty ze světa ven do světa clusteru. Provoz je řízen pravidly nastavenými v zdroji.
 Je možné vystavit vaše nasazení [2 způsoby](../kubernetes/expose), ale zde použijeme cluster LoadBalancer s vytvořením pouze nového DNS názvu.
 Můžete použít jakýkoli název, který chcete, ale musí splňovat 2 požadavky:
 - název se skládá pouze z písmen, čísel a '-'
