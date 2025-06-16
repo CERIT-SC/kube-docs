@@ -66,7 +66,7 @@ This example file is composed of fields:
   - `.name` denotes deployment's name
 - `.spec`
   - `.replicas` denotes number of replicated Pods that will be created
-  - `.selector` field defines how the `Deployment` finds which `Pods` to manage. Here, a label defined in the `Pod` template is selected (`app: hello-kubernetes`), sophisticated selection rules are possible as long as the `Pod` template itself satisfies the rule
+  - `.selector` field defines how the `Deployment` finds which `Pods` to manage. Here, a label defined in the `Pod` template is selected (`app: hello-kubernetes`). It is possible to use sophisticated selection rules, as long as the values `app: hello-kubernetes` match in the `spec:` and `template:` sections of the `Pod` template.
   - `.template`
     - `.metadata.labels` `Pods` are labeled here
     - `.spec` `Pod's` template specification
