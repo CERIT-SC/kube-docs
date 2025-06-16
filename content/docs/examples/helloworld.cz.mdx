@@ -64,17 +64,20 @@ spec:
 
 Tento příkladový soubor se skládá z polí:
 - `.metadata`
-  - `.name` označuje název nasazení
+  - `.name` označuje název deploymentu
 - `.spec`
   - `.replicas` označuje počet replikovaných Podů, které budou vytvořeny
-  - `.selector` pole definuje, jak `Deployment` najde, které `Pods` spravovat. Zde je vybrána značka definovaná v šabloně `Pod` (`app: hello-kubernetes`), sofistikovaná pravidla výběru jsou možná, pokud šablona `Pod` sama splňuje pravidlo
+  - `.selector` pole definuje, jak `Deployment` vyhledá `Pody`, které má spravovat. V tomto případě si vybírá podle `label` definovaného v šabloně `Pod` (`app: hello-kubernetes`). Je možné použít sofistikovaná pravidla výběru, pokud se hodnoty `app: hello-kubernetes` shodují v sekcích `spec:` a `template:` šablony `Podu`.
   - `.template`
-    - `.metadata.labels` `Pods` jsou zde označeny
+    - `.metadata.labels` `Pods` obsahují `labels`
     - `.spec` specifikace šablony `Pod`
       -  `.containers` pole definující kontejnery, které budou běžet. Každá položka musí mít `name, image`
-      -  `.containers.securityContext` definuje, pod jakým uživatelským a volitelně skupinovým uživatelským účtem bude kontejner běžet. *DŮLEŽITÉ* kontejnery musí běžet pod uživatelským účtem a skupinou, které nejsou root, kvůli bezpečnosti. Více v části o *PodSecurityPolicy* později
+      -  `.containers.securityContext` definuje, pod jakým  uživatelem a případně skupinovým skupinou bude kontejner běžet. *DŮLEŽITÉ* kontejnery musí běžet pod uživatelským účtem a skupinou, které nejsou root, kvůli bezpečnosti. Více v části o *PodSecurityPolicy* později.
+-  `.containers.env` nastavuje proměnné prostředí pro kontejner. Tyto proměnné mohou být převzaty z jiných polí daného objektu nebo z jiných typů objektů (např. Secret).
 
 Kompletní referenční dokumentace pro zdroje a jejich povolená pole a podpole je k dispozici [online](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.30/). Nezapomeňte na správné odsazení!
+
+
 
 ### 2. Service
 Za druhé, musíme vytvořit `Service`, což je abstraktní způsob, jak vystavit aplikaci jako síťovou službu.
