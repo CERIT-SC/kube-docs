@@ -162,7 +162,7 @@ Můžete zkontrolovat stav nasazených zdrojů pomocí `kubectl get [pods | serv
 POZNÁMKA: pokud máte problémy s chybovou zprávou 'Config not found', podívejte se [sem](../kubernetes/kubectl) pro další informace
 
 ## Další přizpůsobení
-Můžete specifikovat různé pole v každém souboru zdroje, z nichž mnohé zde nejsou použity. Jednou z více žádaných funkcí je předávání proměnných prostředí do `Deployments`, pokud potřebné kontejnery nějaké mají. V našem nasazení použijeme jednu proměnnou prostředí ke změně zobrazené zprávy. Na konci přidejte novou sekci `env`, která předá hodnotu do podu. Poté znovu spusťte `kubectl apply -f hello-world -n [namespace]`, abyste aplikovali změny. Když nyní přistoupíte na webovou stránku, zobrazí se nová zpráva!
+V souboru každého zdroje můžete zadat různá pole, z nichž mnohá zde nejsou použita. Jednou z více žádaných funkcí je předávání proměnných prostředí do `Deployments`, v případě, že je spuštěné kontejnery potřebují. V našem 'deployment' použijeme jednu proměnnou prostředí pro změnu zobrazované zprávy. Na konci přidejte novou sekci `env`, která předá hodnotu do podu. Poté znovu spusťte `kubectl apply -f hello-world -n [namespace]`, abyste aplikovali změny. Když nyní přistoupíte na webovou stránku, zobrazí se nová zpráva!
 
 ```yaml
 apiVersion: apps/v1
@@ -195,8 +195,20 @@ spec:
         ports:
         - containerPort: 8080
         env:
+         - name: KUBERNETES_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        - name: KUBERNETES_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+        - name: KUBERNETES_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
         - name: MESSAGE
-          value: Hello from the other side!
+            value: Hello from the other side!
 ```
 
 ![hello2](/img/ceritsc/hello2.png)
