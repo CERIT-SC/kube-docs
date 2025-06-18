@@ -299,11 +299,13 @@ Seznam (ne)povolených akcí:
 - Doplňkové skupiny: musí běžet jako 1-65535
 - Svazky: mohou připojit `configMap, emptyDir, projected, secret, downwardAPI, persistentVolumeClaim`
 
-Jakékoli nasazení, které se pokusí běžet jako root, nebude vytvořeno a zůstane ve stavu podobném (všimněte si READY 0/3 a AVAILABLE 0, logy a popis by řekly více)
+Jakýkoli deployment, který se pokusí běžet jako root, nebude vytvořen a zůstane ve stavu podobném tomuto:
+
 ```bash
 NAME               READY   UP-TO-DATE   AVAILABLE   AGE
 hello-kubernetes   0/1     1            0           7m8s
 ```
+(všimněte si READY 0/3 a AVAILABLE 0, více zjistíte pomocí příkazů logs a describe).
 
 ## Příkaz Kubectl
 Existuje mnoho užitečných příkazů `kubectl`, které lze použít k ověření stavu nasazených zdrojů nebo k získání informací o nich. Některé z nejpohodlnějších:
