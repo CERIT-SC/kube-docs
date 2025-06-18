@@ -17,7 +17,7 @@ Alternatively, you can also start the pipeline from an already running Pod withi
 
 ## Starting Nextflow
 
-### Recommended Method: Using `nextflow-go`
+### Recommended Method: Using nextflow-go
 
 The previously used method involved installing the official Nextflow (a Java application) and using the `kuberun` driver. However, this method is now deprecated.
 
@@ -25,7 +25,7 @@ We **recommend** using our custom-built binary, `nextflow-go`, which is availabl
 
 This binary is self-contained and works on Ubuntu Linux 22.04 or later, as well as on similar Debian/RedHat-based systems.
 
-### Why `nextflow-go`?
+### Why nextflow-go?
 
 There are several advantages of using `nextflow-go` over the official `kuberun` method:
 
@@ -52,7 +52,7 @@ Simply run the binary:
 ./nextflow-go
 ```
 
-## Running a Simple "hello" Pipeline
+## Running a Simple hello Pipeline
 
 To run a simple example pipeline, such as the built-in `hello` pipeline, you start it using the `nextflow-go` command along with a minimal configuration.
 
@@ -62,7 +62,7 @@ It is assumed that you are either:
 - have already configured access to the cluster using a valid [Kubernetes configuration file (`kubeconfig`)](../kubernetes/kubectl).
 </Callout>
 
-### 1. Create the `nextflow.config` File
+### 1. Create the nextflow.config File
 
 Save the following configuration file as `nextflow.config` in the same directory where you will run `nextflow-go`:
 
