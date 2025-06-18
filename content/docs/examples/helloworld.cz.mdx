@@ -252,7 +252,8 @@ PersistentVolumeClaim je připojen do `Deployment` (nebo jiných objektů jako `
 - polem `name`
 - typem zdroje, který bude připojen (zde `persistentVolumeClaim`) spolu se jménem zdroje (to, které je specifikováno v `metadata.name` PVC)
 
-`volumeMounts` připojuje položky ze `volumes` na určitou cestu uvnitř kontejneru. V kontejneru vše uložené na cestě `/work` přetrvá a může být sdíleno mezi více kontejnery (jeden svazek může být připojen mnohokrát, pokud je jeho typ `ReadWriteMany`, což NFS je)
+`volumeMounts` připojuje položky ze `volumes` do určité cesty uvnitř kontejneru. V kontejneru vše uložené v cestě `/work` přetrvá a může být sdíleno mezi více kontejnery (jeden svazek může být připojen vícekrát, pokud má typ `ReadWriteMany`, což NFS je)
+
 
 ```yaml
 spec:
