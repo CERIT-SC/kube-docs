@@ -296,11 +296,12 @@ List of (dis)allowed actions:
 - Supplemental groups: must run as 1-65535
 - Volumes: can mount `configMap, emptyDir, projected, secret, downwardAPI, persistentVolumeClaim`
 
-Any deployment that will attempt to run as root won't be created and will persist in state similar to (notice READY 0/3 and AVAILABLE 0, logs and describe would tell more)
+Any deployment that will attempt to run as root won't be created and will persist in state similar to:
 ```bash
 NAME               READY   UP-TO-DATE   AVAILABLE   AGE
 hello-kubernetes   0/1     1            0           7m8s
 ```
+ (notice READY 0/3 and AVAILABLE 0, logs and describe would tell more)
 
 ## Kubectl command
 There are many useful `kubectl` commands that can be used to verify status of deployed resources or get information about them. To list some of the most handy:
