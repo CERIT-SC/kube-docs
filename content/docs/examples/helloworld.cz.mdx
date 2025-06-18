@@ -222,6 +222,7 @@ Další přizpůsobení mohou zahrnovat:
 ## Vytváření PersistentVolumeClaim
 Pokud potřebujete použít nějaké trvalé úložiště, můžete vytvořit NFS svazek a připojit ho v `Deployment`.
 
+
 Příklad: vytvořte soubor `pvc.yaml` a nastavte `[pvc-name]` na požadovaný název a `[capacity]` na požadovanou kapacitu.
 ```yaml
 apiVersion: v1
@@ -243,7 +244,7 @@ NAME                                                               STATUS   VOLU
 [pvc-name]                                                    Bound    pvc-bcdcea2e-3019-409b-8b0f-18eb50d72c21   1Gi        RWX            csi-nfs        11d
 ```
 
-Nárok je připojen do `Deployment` (nebo jiných objektů jako `Job, StatefulSet, DaemonSet` atd.) ve 2 krocích:
+PersistentVolumeClaim je připojen do `Deployment` (nebo jiných objektů jako `Job, StatefulSet, DaemonSet` atd.) ve 2 krocích:
 - vytvořte pole `volumes` pod `spec.template`
 - vytvořte pole `volumeMounts` pod `spec.template.spec.containers[container_which_will_have_pvc_mounted]`
 
