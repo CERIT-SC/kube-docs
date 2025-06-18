@@ -1,152 +1,258 @@
 ---
 title: Running Nextflow Pipelines in Kubernetes
+keywords: Nextflow, Pipeline, Workflows, Kubernetes, nf-core
 ---
 
-The following text describes how to run [Nextflow](https://nextflow.io) pipelines in CERIT-SC Kubernetes cluster.
+The following guide explains how to run [Nextflow](https://nextflow.io) pipelines on the CERIT-SC Kubernetes cluster.
 
-You need to install Nextflow on your local computer or any computer that you will start the Nextflow, the pipeline will not run on that computer it will run in Kubernetes cluster and the computer serves only for starting it. The computer does not need to be online while the pipeline is still running.
+## Nextflow Overview
 
-## Nextflow Installation
+To run a Nextflow pipeline using this guide, you will start it from your local machine or any other accessible machine. However, the pipeline itself will run on the **CERIT-SC Kubernetes cluster**, **not** on the machine you start it from. That machine only serves to launch the pipeline and does **not** need to stay online once the pipeline is running.
 
-To install Nextflow you need to download and compile our patched version from git:
+<Callout type="info>
+Running pipelines on a Kubernetes cluster is **not** a general feature of Nextflow by default. It works this way **only when you follow this specific guide** and use the provided tools and configuration for the CERIT-SC Kubernetes environment.
+</Callout>
+
+Alternatively, you can also start the pipeline from an already running Pod within the Kubernetes cluster.
+
+## Starting Nextflow
+
+### Recommended Method: Using `nextflow-go`
+
+The previously used method involved installing the official Nextflow (a Java application) and using the `kuberun` driver. However, this method is now deprecated.
+
+We **recommend** using our custom-built binary, `nextflow-go`, which is available at [https://github.com/CERIT-SC/nextflow-go](https://github.com/CERIT-SC/nextflow-go) under the **Releases** section.
+
+This binary is self-contained and works on Ubuntu Linux 22.04 or later, as well as on similar Debian/RedHat-based systems.
+
+### Why `nextflow-go`?
+
+There are several advantages of using `nextflow-go` over the official `kuberun` method:
+
+- The `kuberun` driver **requires direct access to shared storage**, which is not possible from most local machines.
+- `nextflow-go` allows you to **start a pipeline from any machine**, even without access to shared storage.
+- The `kuberun` driver **requires explicit support in each pipeline**, meaning some pipelines may not work at all unless `kuberun` is specifically adapted.
+- `kuberun` has **compatibility issues with some pipeline configurations**, particularly those using **functions inside the `nextflow.config` file**, which may lead to errors or unexpected behavior.
+- `nextflow-go` removes these limitations and provides a more robust and flexible way to launch pipelines in the CERIT-SC Kubernetes environment.
+
+### Installation
+
+Download and make the binary executable:
 
 ```shell
-git clone https://github.com/CERIT-SC/nextflow.git
-cd nextflow
-make compile install
+wget https://github.com/CERIT-SC/nextflow-go/releases/download/v0.1/nextflow-go-linux-amd64 -O nextflow-go
+chmod a+x nextflow-go
 ```
 
-To run and compile, Java Virtual Machine needs to be installed. On Ubnutu systems, it is package `openjdk-17-jdk:amd64` or newer.
+### Running the Binary
 
-If you want to use *DSL 1* workflows, you need to instal `nextflow` version `22.10.8`:
+Simply run the binary:
 
 ```shell
-git clone https://github.com/CERIT-SC/nextflow-dsl1.git
-cd nextflow
-make compile install
+./nextflow-go
 ```
 
-You can compile and install both version simultaneously, if neede.
+## Running a Simple `hello` Pipeline
 
-## Architecture of Nextflow 
+To run a simple example pipeline, such as the built-in `hello` pipeline, you start it using the `nextflow-go` command along with a minimal configuration.
 
-The Nextflow pipeline gets started by running the `nextflow` command, e.g.:
+<Callout type="info">
+It is assumed that you are either:
+- running the command **from within the CERIT-SC Kubernetes cluster**, or
+- have already configured access to the cluster using a valid [Kubernetes configuration file (`kubeconfig`)](../kubernetes/kubectl).
+</Callout>
 
-```shell
-nextflow run hello
-```
+### 1. Create the `nextflow.config` File
 
-which starts `hello` pipeline. The pipeline run consists of two parts:
-*workflow controller* and *workers*. The *workflow controller* manages
-pipeline run while *workers* run particular tasks. 
-
-Nextflow engine expects that the *workflow controller* and the *workers* have
-access to some shared storage. On a local computer, this is usually just a
-particular directory, in case of distributed computing, this has to be a
-network storage such as NFS mount. User needs to specify what storage can be
-used when running the Nextflow.
-
-## Runing Nextflow in Kubernetes
-
-In case of K8s, *workflow controller* is run as a
-[Pod](https://kubernetes.io/docs/concepts/workloads/pods/) in Kubernetes
-cluster. Its task is to run *worker* pods according to pipeline definition.
-The *workflow controller* pod has some generated name like `naughty-williams`.
-The *workers* have hashed names like `nf-81dae79db8e5e2c7a7c3ad5f6c7d59c6`.
-
-
-Firstly, you must have:
-- installed [`kubectl`](../kubernetes/kubectl) with `kubeconfig` file in an expected location `$HOME/.kube/config`. 
-- Kubernetes [Namespace](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) to run in (see [here](../kubernetes/ns) how to know your namespace).
-- created [PVC](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) (see [here](../kubernetes/pvc) how to do it).
-
-### Configuration 🧩
-
-Running a Nextflow pipeline in Kubernetes requires local configuration with some necessary content:
+Save the following configuration file as `nextflow.config` in the same directory where you will run `nextflow-go`:
 
 ```js filename="nextflow.config" copy
 k8s {
-   namespace = '[your-ns]'
-   runAsUser = 1000
-   computeResourceType = 'Job'
-   cpuLimits = true
-   storageClaimName = '[name_of_created_pvc]'
-   storageMountPath = '[mountpath]'
-   launchDir = '[mountpath_from_storageMountPath]/[some_launchDir_path]'
-   workDir = '[mountpath_from_storageMountPath]/[some_workDir_path]'
-}
-
-executor {
-  queueSize = 30
+   namespace        = '[your-namespace]'
+   runAsUser        = 1000
+   storageClaimName = '[your-pvc]'
+   storageMountPath = '/mnt'
+   launchDir        = '${k8s.storageMountPath}'
+   workDir          = '${k8s.storageMountPath}/tmp'
 }
 
 process {
    executor = 'k8s'
-   pod = [[securityContext:[fsGroupChangePolicy:'OnRootMismatch', runAsUser:1000, runAsGroup:1, fsGroup:1, seccompProfile:[type:'RuntimeDefault']]], [automountServiceAccountToken:false]]
+}
+```
+
+Replace the placeholders with the appropriate values for your Kubernetes environment:
+
+- `[your-namespace]` — your Kubernetes [Namespace](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/), which determines where the workflow will run. You can find your namespace in the [Rancher UI](https://rancher.cloud.e-infra.cz) or follow the instructions [here](../kubernetes/ns) to look it up.
+- `[your-pvc]` — the name of your [PersistentVolumeClaim (PVC)](https://kubernetes.io/docs/concepts/storage/persistent-volumes/), which defines the shared storage used by the workflow. You can view existing PVCs in the [Rancher UI](https://rancher.cloud.e-infra.cz) or refer to the guide [here](../kubernetes/pvc) to create or identify one.
+
+These values are essential for ensuring that both the workflow controller and task workers can access the same storage and run in the correct Kubernetes environment.
+
+### 2. Run the Pipeline
+
+Once the configuration file is ready, launch the `hello` pipeline using:
+
+```shell
+./nextflow-go run hello
+```
+
+This command starts the standard `hello` pipeline, which is a simple built-in test workflow available from a public GitHub repository. You do **not** need to download the pipeline manually—Nextflow will fetch it automatically.
+
+### How It Works
+
+When the pipeline is launched, it runs in two main components:
+
+- **Workflow Controller** – responsible for managing the execution of the pipeline.
+- **Workers** – individual jobs that perform the specific tasks defined in the pipeline.
+
+Both the controller and the workers must have access to a **shared storage** volume. This is defined by your `[your-pvc]`, and it is mounted to the Kubernetes pods at `/mnt` (as specified by `storageMountPath` in the config). This shared storage is essential for data exchange between tasks during execution.
+
+Make sure you have a valid and accessible PVC, and that your Kubernetes namespace is correctly set up with permissions to use it.
+
+### Expected Output
+
+Expected output of the `hello` run:
+
+```
+Running Nextflow K8s Job...
+computeResourceType not defined in configuration, defaulting to Job
+--- Output from pod himalayan-fact-bx8d5 ---
+N E X T F L O W  ~  version 25.04.4
+Pulling nextflow-io/hello ...
+ downloaded from https://github.com/nextflow-io/hello.git
+Launching `https://github.com/nextflow-io/hello` [elegant_panini] DSL2 - revision: 2be824e69a [master]
+[81/765d22] Submitted process > sayHello (2)
+[9f/c26cb7] Submitted process > sayHello (1)
+[c7/1e9f5c] Submitted process > sayHello (3)
+[9a/11f0e3] Submitted process > sayHello (4)
+Ciao world!
+
+Bonjour world!
+
+Hello world!
+
+Hola world!
+
+Kubernetes Job 'himalayan-fact' created successfully.
+```
+
+This output confirms that the pipeline ran successfully on the Kubernetes cluster. You can see that the workflow was pulled from the GitHub repository (`nextflow-io/hello`) and that multiple processes (`sayHello`) were submitted and executed as Kubernetes jobs.
+
+Each `sayHello` process returns a greeting in a different language, indicating that multiple tasks ran independently and in parallel, as expected in a Nextflow workflow.
+
+The final message, `Kubernetes Job 'himalayan-fact' created successfully.`, indicates that the main workflow controller job completed its setup and coordination of worker pods. You can use this kind of output to verify that the basic setup (config, namespace, PVC, and connectivity) is working correctly.
+
+## Advanced Nextflow Configuration for Kubernetes
+
+When running advanced pipelines in Kubernetes, more fine-grained control over the execution environment is often needed.
+
+In this setup, the *workflow controller* is executed as a Kubernetes [Pod](https://kubernetes.io/docs/concepts/workloads/pods/). It launches additional *worker* pods based on the process definitions in your pipeline. The controller pod is typically given a randomly generated human-readable name (e.g., `naughty-williams`), while worker pods have hashed names (e.g., `nf-81dae79db8e5e2c7a7c3ad5f6c7d59c6`).
+
+### Configuration 🧩
+
+Here is an extended example of a `nextflow.config` file with more advanced settings:
+
+```js filename="nextflow.config" copy
+k8s {
+   namespace           = '[your-namespace]'
+   runAsUser           = 1000
+   computeResourceType = 'Job' // explicitly use Jobs instead of Pods
+   cpuLimits           = true  // needed for correct cpu resource settings
+   storageClaimName    = '[your-pvc]'
+   storageMountPath    = '/mnt'
+   launchDir           = '/mnt/path/to/launch'
+   workDir             = '/mnt/path/to/work'
 }
 
+executor {
+  queueSize = 30 // Maximum number of tasks running in parallel
+}
+
+process {
+   executor = 'k8s'
+}
 ```
 
-You must set the `namespace` to correct value (namespace you can access). Set the name of PVC you created as `storageClaimName`, it will serve as shared working space for nextflow. Set `storageMountPath` to any path, where you would like to connect this PVC (we advise `/mnt`). Set `launchDir` and `workDir` to point somewhere on the PVC. Take care, if running Nextflow in parallel, always use different `launchDir` and `workDir` for the parallel runs.
+- Use a unique `launchDir` and `workDir` for each pipeline run if running multiple workflows in parallel to avoid file conflicts.
+- The shared storage defined by `storageClaimName` (PVC) must be writable and accessible by all pods.
 
-There are plenty of other customization options for workers or individual processes. It is possible to:
-- mount another PVC or secret
-- set resource requirements (cpu, memory)
-- add labels or annotations
-- etc.
+### Customization Options
 
-For customizing individual processes (e.g., memory, cpu), see nextflow documentation section on [processes](https://www.nextflow.io/docs/latest/process.html). For customizing the pod itself (e.g., mount pvc) see details in [nextflow pod documentation](https://www.nextflow.io/docs/latest/process.html#pod). 
+Nextflow allows further customization at both the process and pod level:
 
+- **Mount additional volumes**: such as other PVCs or Kubernetes secrets.
+- **Set resource limits**: including CPU and memory requirements per process.
+- **Attach metadata**: like Kubernetes labels or annotations to pods.
+- **Use selective configuration**: through labels (`withLabel`) or process names (`withName`).
 
-When mixing generic process configuration 
+For more information:
+- See [Nextflow process documentation](https://www.nextflow.io/docs/latest/process.html) for defining process-level options.
+- See the section on [Kubernetes pod customization](https://www.nextflow.io/docs/latest/process.html#pod) for pod-level tweaks.
 
-```js
-process {...}
-```
+### Priority of Configuration
 
-and selectors the following priority rules are applied (from lower to higher):
+When applying configuration settings, Nextflow uses the following order of precedence (from lowest to highest):
 
-- Process generic configuration (`nextflow.config`).
-- Process specific directive defined in the workflow script.
-- withLabel selector definition.
-- withName selector definition.
+1. Generic `process` configuration in `nextflow.config`
+2. Process-specific directives in the workflow script
+3. `withLabel` selector configuration
+4. `withName` selector configuration
+
+This means that more specific settings (e.g., using `withName`) will override general defaults.
 
 
 ### Run ⏱
 
-To start a pipeline, you must use the `kuberun` subcommand of `nextflow`: 
+To start a pipeline, use the `run` subcommand of `nextflow-go` with optional flags to customize the execution environment:
 
 ```shell
--head-image 'cerit.io/nextflow/nextflow:24.04.4' -head-memory 4096Mi -head-cpus 1
+-head-image 'cerit.io/nextflow/nextflow:25.04.4' -head-memory 4096Mi -head-cpus 1
 ```
 
-These options are required just for *workflow controller pod* in our cluster. `head-memory`/`head-cpus` specify amount of memory/cpu dedicated to the controller pod  -- use higher number if your pipeline is expected to generate thousands of tasks.
+These options are not mandatory—they simply override the default settings. The default container image used by `nextflow-go` (as of version `v0.3`) is:
 
-Example run command:
+```
+cerit.io/nextflow/nextflow:25.04.4
+```
+
+The `-head-memory` and `-head-cpus` flags define the memory and CPU resources allocated to the *workflow controller pod*. For pipelines that generate thousands of tasks, consider increasing these values to ensure stability and performance.
+
+#### Example
+
+To run the basic `hello` pipeline:
 
 ```shell
-nextflow kuberun hello -head-image 'cerit.io/nextflow/nextflow:24.04.4' -head-memory 4096Mi -head-cpus 1 -v PVC:/mnt 
+nextflow-go run hello -head-image 'cerit.io/nextflow/nextflow:25.04.4' -head-memory 4096Mi -head-cpus 1 -v PVC:/mnt
 ```
 
-For *DSL 1* `nextflow`, use image `cerit.io/nextflow/nextflow:22.10.8`:
+This mounts the specified PersistentVolumeClaim (`PVC`) to the controller pod at `/mnt`.
+
+#### Running DSL 1 Pipelines
+
+If you are using an older *DSL 1* Nextflow pipeline, use an appropriate image like:
+
+```
+cerit.io/nextflow/nextflow:22.10.8
+```
+
+Example command:
 
 ```shell
-nextflow kuberun hello -head-image 'cerit.io/nextflow/nextflow:22.10.8' -head-memory 4096Mi -head-cpus 1 -v PVC:/mnt 
+nextflow-go run hello -head-image 'cerit.io/nextflow/nextflow:22.10.8' -head-memory 4096Mi -head-cpus 1 -v PVC:/mnt
 ```
 
-
-A configuration file might look as following:
+DSL 1 pipelines typically require a more detailed configuration. Here's an example:
 
 ```js filename="nextflow.config" copy
 k8s {
-   namespace = 'nf-ns'
-   runAsUser = 1000
+   namespace           = '[your-namespace]'
+   runAsUser           = 1000
    computeResourceType = 'Job'
-   cpuLimits = true
-   storageClaimName = 'pvc-nf'
-   storageMountPath = '/mnt'
-   launchDir = '/mnt/data1'
-   workDir = '/mnt/data1/tmp'
+   cpuLimits           = true
+   storageClaimName    = '[your-pvc]'
+   storageMountPath    = '/mnt'
+   launchDir           = '/mnt/data1'
+   workDir             = '/mnt/data1/tmp'
 }
 
 executor {
@@ -155,19 +261,34 @@ executor {
 
 process {
    executor = 'k8s'
-   memory = '500M' // THIS WILL BE DEFAULTLY APPLIED TO ALL WORKERS IF NOT SPECIFIED IN WORKFLOW SCRIPT
-   pod = [[label: 'hpctransfer', value: 'must'], [automountServiceAccountToken:false], [secret: 'keythings', mountPath: '/etc/secrets']] // THIS WILL BE APPLIED TO ALL WORKERS
-   
-   withLabel:VEP { // THIS WILL BE APPLIED ONLY TO PROCESS WITH LABEL VEP EVEN IF SPECIFIED IN WORKFLOW SCRIPT
-       memory = {check_resource(14.GB * task.attempt)}
+   memory   = '500M' // Default for all workers unless overridden
+   pod = [
+      [securityContext:
+          [fsGroupChangePolicy:'OnRootMismatch', 
+           runAsUser:1000, 
+           runAsGroup:1, 
+           fsGroup:1, 
+           seccompProfile:
+           [type:'RuntimeDefault']]], 
+      [automountServiceAccountToken:false]]
+
+   withLabel:VEP {
+       memory = { check_resource(14.GB * task.attempt) } // Applied only to processes with label VEP
    }
-   
 }
 
-process mdrun { // THIS WILL BE APPLIED ONLY TO PROCESS NAMED mdrun IF NOT SPECIFIED IN WORKFLOW SCRIPT
-  cpus 20
+process mdrun {
+  cpus = 20 // Applied only to 'mdrun' process if not set in script
 }
 ```
+
+This example demonstrates how to:
+- Apply default settings to all processes (e.g., memory, Pod securityContext).
+- Customize resources per label (`withLabel:VEP`).
+- Target individual processes by name (`process mdrun`).
+
+Such flexibility is especially important when working with older pipelines or those that require fine-tuned resource control.
+
 
 ### Debug 🐞 
 We recommend watching your namespace in Rancher GUI or on command line when you submit a pipeline. Not all problems are propagated to terminal, especially error related to Kubernetes such as quota exceeded. You can open `Jobs` tab in Rancher GUI and watch out for jobs that are `In progress` for too long or in `Error` state. Useful commands might include 
@@ -187,46 +308,11 @@ If job is waiting for start for too long, try describing a job. It might reveal 
   Warning  FailedCreate  18m    job-controller  Error creating: pods "nf-5dd9dc33d33c729b5cd57c818bafba86-lk4tl" is forbidden: exceeded quota: default-kbz9v, requested: requests.cpu=8, used: requests.cpu=16, limited: requests.cpu=20
 ```
 
-If this happens to you, consider lowering problematic resource requests of workflow controller or processes that might demand a little too much. If you don't know what to do, <a href="mailto:k8s@ics.muni.cz">contact us</a> and we will come with solution together.
-
-## Running Nextflow Hello pipeline
-
-Download [nextflow.config](/examples/ceritsc/nextflow/nextflow.config) which is prepared to be used as is, just hange `namespace` to correct value (namespace you can access) and specify `launchDir` and `workDir` to point somewhere on the PVC. Take
-care, if running Nextflow in parallel, always use different `launchDir` and
-`workDir` for the parallel runs.
-
-You need to keep the file in the current directory where the `nextflow`
-command is run and it has to be named `nextflow.config`.
-
-To instruct the Nextflow to run the `hello` pipeline in Kubernetes, run the
-following command:
-
-```shell
-nextflow kuberun hello -head-image 'cerit.io/nextflow/nextflow:24.04.4' -v PVC:/mnt 
-```
-
-where PVC is name of the PVC as discussed above. It will be mounted as /mnt.
-You should use this mount point as some pipelines expect this location.
-
-If everything was correct then you should see output like this:
-
-```
- Pod started: naughty-williams
- N E X T F L O W  ~  version 24.04.4
- Launching `nextflow-io/hello` [naughty-williams] - revision: e6d9427e5b [master]
- [f0/ce818c] Submitted process > sayHello (2)
- [8a/8b278f] Submitted process > sayHello (1)
- [5f/a4395f] Submitted process > sayHello (3)
- [97/71a2e0] Submitted process > sayHello (4)
- Ciao world!
- Hola world!
- Bonjour world!
- Hello world!
-```
+If this happens to you, consider lowering problematic resource requests of workflow controller or processes that might demand a little too much. If you don't know what to do, <a href="mailto:k8s@cerit-sc.cz">contact us</a> and we will come with solution together.
 
 ### Caveats
 
-* If pipeline runs for a long time (not the case of the `hello` pipeline), the `nextflow` command ends with connection terminated. This is normal and it does not mean that pipeline is not running anymore. It stops logging to your terminal only. You can still find logs of the workflow controller in Rancher GUI.
+* If pipeline runs for a long time (not the case of the `hello` pipeline), the `nextflow-go` command ends with connection terminated. This is normal and it does not mean that pipeline is not running anymore. It stops logging to your terminal only. You can still find logs of the workflow controller in Rancher GUI.
 
 * Running pipeline can be terminated from Rancher GUI, hitting `ctrl-c` does not terminate the pipeline.
 
@@ -244,57 +330,44 @@ kubectl logs POD -n NAMESPACE
 
   where `POD` is the name of the *worker* (e.g., `nf-81dae79db8e5e2c7a7c3ad5f6c7d59c6`) and `NAMESPACE` is used namespace.
 
-## nf-core/sarek pipeline
+## nf-core/sarek Pipeline
 
-[nf-core/sarek](https://nf-co.re/sarek) is analysis pipeline to detect germline
-or somatic variants (pre-processing, variant calling and annotation) from WGS /
-targeted sequencing.
+[nf-core/sarek](https://nf-co.re/sarek) is a comprehensive analysis pipeline for detecting germline or somatic variants from whole genome sequencing (WGS) or targeted sequencing data. It includes steps for pre-processing, variant calling, and annotation.
 
 ### Kubernetes Run
 
-The Sarek requires specific
-[nextflow.config](/examples/ceritsc/nextflow/nextflow-sarek.config),
-it sets more memory for a VEP process which is a part of the pipeline. With
-basic settings, VEP process will be killed most probably due to memory.
-It also requires specific
-[custom.config](/examples/ceritsc/nextflow/custom.config)
-as the git version of the Sarek contains bug so that output stats will be
-written to wrong files.
+To run `sarek` on Kubernetes, you need to provide a custom configuration to ensure the pipeline executes correctly and reliably:
 
-The Sarek pipeline uses functions in the pipeline configuration. However,
-functions in the pipeline configuration are not currently supported by
-`kuberun` executor. 
+- Use a specific [`nextflow.config`](/examples/ceritsc/nextflow/nextflow-sarek.config) file that increases memory allocation for the VEP process, which is part of the pipeline. Without this adjustment, the VEP step is likely to be killed due to insufficient memory.
+- Use a patched [`custom.config`](/examples/ceritsc/nextflow/custom.config), as the public GitHub version of the `sarek` pipeline contains a known bug that causes output statistics to be written to incorrect files.
 
-To deal with this bug, you need Nextflow version 22.06.1-edge or later.
+Additionally, the `sarek` pipeline uses functions inside its configuration. These are **not supported** by the standard `kuberun` executor in Nextflow, but **are supported** by the `nextflow-go` binary. This means that if you're following this guide and using `nextflow-go`, no workaround is necessary.
 
-Download
-[nextflow-cfg.sh](/examples/ceritsc/nextflow/nextflow-cfg.sh)
-and
-[nextflow.config.add](/examples/ceritsc/nextflow/nextflow.config.add)
-and put both on the PVC (into its root). Do not rename the files and make
-`nextflow-cfg.sh` executable (`chmod a+x nextflow-cfg.sh`).
-
-Now, if you have prepared your data on the PVC, you can start the Sarek
-pipeline with the following command:
+Once your input data is available on the shared PVC, you can launch the pipeline with the following command:
 
 ```shell
-nextflow kuberun nf-core/sarek -head-memory 4096Mi -head-cpus 1 -head-prescript /mnt/nextflow-cfg.sh -head-image 'cerit.io/nextflow/nextflow:24.04.4' -v PVC:/mnt --input /mnt/test.tsv --genome GRCh38 --tools HaplotypeCaller,VEP,Manta
+nextflow-go run nf-core/sarek -v PVC:/mnt --input /mnt/test.tsv --genome GRCh38 --tools HaplotypeCaller,VEP,Manta
 ```
 
-where `PVC` is the mentioned PVC and `test.tsv` contains input data located on
-the PVC. 
+Here, replace `PVC` with your actual PersistentVolumeClaim name, and make sure `test.tsv` is present on the PVC. This TSV should contain your input metadata.
+
+<Callout type="info">
+The `nf-core/sarek` pipeline version 3.x supports DSL 2 and is compatible with Nextflow 25.04.4, making it suitable for `nextflow-go`. If you need to run an older version of Sarek that uses DSL 1, ensure the configuration matches the DSL 1 setup described earlier.
+</Callout>
 
 ### Caveats
 
-* It is recommended to download *igenome* from S3 Amazon location to local PVC. It rapidly speeds up `-resume` option in the case the pipeline run fails and you run it again to continue. It also mitigates Amazon overloading or network issues leading to pipeline fail. Once you download the *igenome*, just add something like `--igenomes_base /mnt/igenome` to the command line options of `nextflow`.
+- **Download igenome locally**: It's highly recommended to download the *igenome* data from Amazon S3 to your PVC in advance. This significantly improves performance when using the `-resume` option after a failed run and avoids issues caused by Amazon S3 throttling or network interruptions. After downloading, specify the path with:
 
-* If you receive error about unknown `check_resource`, then you failed with the `nextflow-cfg.sh` and `nextflow.config.add` setup.
+  ```shell
+  --igenomes_base /mnt/igenome
+  ```
 
-* The pipeline run ends with stacktrace and `No signature of method: java.lang.String.toBytes()` error. This is normal and it is result of not specifying email address to send final email. Nothing to be worried about.
+- **Expected error at end of run**: The pipeline may end with a stacktrace like `No signature of method: java.lang.String.toBytes()`. This occurs when no email is specified for notifications. It is harmless and can be safely ignored.
 
-* The pipeline run does not clean workDir, it is up to user to clean/remove it.
+- **Work directory cleanup**: The `sarek` pipeline does not automatically delete its `workDir`. You are responsible for manually cleaning it up after the run.
 
-* Manual resuming of Sarek is possible using different `--input` spec. See [here](https://nf-co.re/sarek/2.7.1/docs/usage#troubleshooting).
+- **Manual resume with different input**: You can resume a failed run using a modified `--input` specification. Refer to the [official documentation](https://nf-co.re/sarek/2.7.1/docs/usage#troubleshooting) for guidance.
 
 
 ## vib-singlecell-nf/vsn-pipelines pipeline
@@ -312,7 +385,7 @@ Consult [documentation](https://vsn-pipelines.readthedocs.io/en/latest/index.htm
 You can run the pipeline with the following command:
 
 ```shell
-nextflow -C nextflow.config kuberun vib-singlecell-nf/vsn-pipelines -head-image 'cerit.io/nextflow/nextflow:24.04.4' -head-cpus 1 -head-memory 4096Mi -v PVC:/mnt -entry scenic
+nextflow-go -C nextflow.config kuberun vib-singlecell-nf/vsn-pipelines -head-image 'cerit.io/nextflow/nextflow:24.04.4' -head-cpus 1 -head-memory 4096Mi -v PVC:/mnt -entry scenic
 ```
 
 where `PVC` is the mentioned PVC, `scenic` is pipeline entry point, and `nextflow.config` is the downloaded `nextflow.config`.
@@ -342,3 +415,66 @@ process {
    }
 }
 ```
+
+## Run from Jupyter Notebook
+
+The `nextflow-go` binary can be used directly from within a Jupyter Notebook environment, provided it's placed in the home directory of the Jupyter user. This setup allows users to launch and monitor Nextflow pipelines from notebooks running inside the Kubernetes cluster.
+
+### Setup Instructions
+
+First, open a terminal inside the Jupyter Notebook environment and determine your home PVC name:
+
+```shell
+echo $JUPYTERHUB_PVC_HOME
+```
+
+**Example output:**
+```
+jovyan@jupyter-xhejtman--ai---11fb682b:~$ echo $JUPYTERHUB_PVC_HOME
+xhejtman-home-ai
+```
+
+Next, get your service account (SA) name:
+
+```shell
+echo sa-$JUPYTERHUB_USER
+```
+
+**Example output:**
+```
+jovyan@jupyter-xhejtman--ai---11fb682b:~$ echo sa-$JUPYTERHUB_USER
+sa-xhejtman
+```
+
+Now create the following `nextflow.config` file in the same directory where your `nextflow-go` binary is located:
+
+```js filename="nextflow.config" copy
+k8s {
+   storageClaimName      = '[PVC]'
+   storageMountPath      = '/home/jovyan'
+   serviceAccount        = '[SA]'
+   launchDir             = '/home/jovyan'
+   workDir               = '/home/jovyan/tmp'
+   computeResourceType   = 'Job'
+   runAsUser             = 1000
+}
+
+executor {
+  queueSize = 10
+}
+
+process {
+   executor = 'k8s'
+}
+```
+
+Replace the `[PVC]` placeholder with the output of `$JUPYTERHUB_PVC_HOME` (e.g., `xhejtman-home-ai`), and replace `[SA]` with the value of your service account (e.g., `sa-xhejtman`).
+
+Once this file is saved, you can run any supported Nextflow pipeline directly from your notebook environment using the same commands as in the general instructions, such as:
+
+```shell
+./nextflow-go run hello
+```
+
+This approach enables seamless experimentation and workflow execution from interactive Jupyter environments, fully utilizing the underlying Kubernetes cluster.
+
