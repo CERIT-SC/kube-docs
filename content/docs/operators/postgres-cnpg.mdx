@@ -9,26 +9,9 @@ The original, full documentation about PostgresOperator structure is available [
 
 Ask any questions related to using **CloudNativePG operator instances** pressing the button below. It is connected to the official documentation, GitHub issues, and GitHub discussions to help provide accurate and relevant answers.
 
-import Script from 'next/script';
-import RunLLMButton from '@/components/runllmbutton'
+import RunLLMWidget from '@/components/runllmwidget';
 
-<Script type="module"
-  id="runllm-widget-script"
-  src="https://widget.runllm.com"
-  crossorigin="true"
-  version="stable"
-  runllm-keyboard-shortcut="Mod+j"
-  runllm-name="Cloudnative PG"
-  runllm-assistant-id="1086"
-  runllm-hide-trigger-button="true"
-  runllm-disable-ask-a-person="true"
-  async />
-
-<RunLLMButton />
-
-<Callout type="warn"> 
-This chat is a third-party service and does not offer any guarantees regarding functionality or data privacy. Use at your own discretion. 
-</Callout>
+<RunLLMWidget assistantId="1086" name="Cloudnative PG" />
 
 ## Deploying a Cluster Instance
 
