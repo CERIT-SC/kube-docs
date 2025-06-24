@@ -18,7 +18,7 @@ export default function RunLLMWidget({ assistantId, name = 'AI Assistant' }: Run
         src="https://widget.runllm.com"
         async
         {...{
-          crossOrigin: "true"
+          crossOrigin: "true",
           version: 'stable',
           'runllm-keyboard-shortcut': 'Mod+j',
           'runllm-name': name,
