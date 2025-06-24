@@ -40,6 +40,20 @@ export default function RunLLMButton() {
 
   if (!loaded) return null;
 
-  return <button className={cn(buttonVariants({variant: 'secondary'}),'bottom-4 right-4 z-10 gap-2 rounded-xl text-fd-secondary-foreground/80 shadow-lg backdrop-blur-lg md:bottom-8 md:right-8','bg-fd-secondary', 'ring-1', 'ring-[#24a9c2]')} onClick={handleClick}> <MessageCircle className="size-4" /> Ask AI assistent for help</button>;
+  return (
+    <div className="flex items-center justify-center w-full h-full">
+      <button
+        className={cn(
+          buttonVariants({ variant: 'secondary' }),
+          'gap-2 rounded-xl text-fd-secondary-foreground/80 shadow-lg backdrop-blur-lg',
+          'bg-fd-secondary ring-1 ring-[#24a9c2]'
+        )}
+        onClick={handleClick}
+      >
+        <MessageCircle className="size-4" />
+        Need help? Ask the AI
+      </button>
+    </div>
+  );
 }
 
