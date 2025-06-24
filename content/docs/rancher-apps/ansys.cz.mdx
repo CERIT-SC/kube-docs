@@ -50,11 +50,11 @@ Ve druhé části formuláře si zvolíte heslo. Toto heslo se používá pro p�
 
 Ve třetí části formuláře vyberete, zda chcete persistent home, tj. domov, který bude zachován i po odinstalaci aplikace. Poznámka: persistent home je vázán na název aplikace od samého začátku instalačního formuláře. To znamená, že pokud nastavíte název na `ansys`, persistent home bude vázán na název `ansys`. Pokud příště zvolíte název `ansys-0`, získáte nový domov vázaný na název `ansys-0`.
 
-V této části můžete vybrat úložiště **e-INFRA CZ**, které se připojí k aplikaci. Pokud zaškrtnete `Externí úložiště`, objeví se další možnosti. Můžete vybrat úložiště a přihlašovací údaje. V současnosti je podporováno pouze `storage-brno12-cerit.metacentrum.cz`. Uživatelské jméno je e-infra ([metacentrum](https://metavo.metacentrum.cz/)) přihlášení a heslo **není** heslo Metacentrum, ale jiné nastavené administrátorem, [zeptejte se](mailto:k8s@ics.muni.cz), pokud potřebujete nastavit. Připravujeme pohodlnější způsob. Toto úložiště bude připojeno k adresáři `/storage`.
+V této části můžete vybrat úložiště **e-INFRA CZ**, které se připojí k aplikaci. Pokud zaškrtnete `External Storage`, objeví se další možnosti. Můžete vybrat úložiště a přihlašovací údaje. V současnosti je podporováno pouze `storage-brno12-cerit.metacentrum.cz`. Uživatelské jméno je e-infra ([metacentrum](https://metavo.metacentrum.cz/)) přihlášení a heslo **není** heslo Metacentrum, ale jiné nastavené administrátorem, [zeptejte se](mailto:k8s@ics.muni.cz), pokud potřebujete nastavit. Připravujeme pohodlnější způsob. Toto úložiště bude připojeno k adresáři `/storage`.
 
 ![appform3](/img/ceritsc/apps/ansys/appform3.png)
 
-Ve čtvrté části formuláře můžete vybrat požadované zdroje. Tento krok je volitelný. Minimální CPU nebo RAM je garantované množství CPU a RAM, systém si tyto zdroje rezervuje pro aplikaci. Aplikace však může překročit garantované zdroje až do `Maximálního`. V tomto případě nejsou zdroje výhradní a mohou být sdíleny s jinými aplikacemi. Pokud aplikace překročí `Maximální` CPU, bude omezena, pokud překročí `Maximální` RAM, bude ukončena (uvidíte zprávu OOMKill) a restartována. Viz poznámka výše o maximálních hodnotách.
+Ve čtvrté části formuláře můžete vybrat požadované zdroje. Tento krok je volitelný. 'Minimum' CPU nebo RAM je garantované množství CPU a RAM, systém si tyto zdroje rezervuje pro aplikaci. Aplikace však může překročit garantované zdroje až do `Maximum`. V tomto případě nejsou zdroje výhradní a mohou být sdíleny s jinými aplikacemi. Pokud aplikace překročí `Maximum` CPU, bude omezena, pokud překročí `Maximum` RAM, bude ukončena (uvidíte zprávu OOMKill) a restartována. Viz poznámka výše o maximálních hodnotách.
 
 ![appform4](/img/ceritsc/apps/ansys/appform4.png)
 
