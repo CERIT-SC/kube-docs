@@ -12,7 +12,7 @@ type RunLLMWidgetProps = {
 export default function RunLLMWidget({ assistantId, name = 'AI Assistant' }: RunLLMWidgetProps) {
   return (
     <>
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      {/* eslint-disable @typescript-eslint/no-explicit-any */}
       <Script
         type="module"
         id="runllm-widget-script"
@@ -28,6 +28,7 @@ export default function RunLLMWidget({ assistantId, name = 'AI Assistant' }: Run
           'runllm-disable-ask-a-person': 'true',
         } as any}
       />
+      {/* eslint-enable @typescript-eslint/no-explicit-any */}
 
       <RunLLMButton />
 
