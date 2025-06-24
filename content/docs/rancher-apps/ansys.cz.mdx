@@ -8,40 +8,42 @@ Pokud nejste již přihlášeni, přihlaste se na [rancher.cloud.e-infra.cz](htt
 
 Ansys aplikaci můžete spustit podle níže uvedených kroků. Tato aplikace má trvalý domovský adresář, což znamená, že pokud aplikaci odstraníte a později ji znovu nainstalujete pod stejným názvem, obsah domovského adresáře bude zachován. Je také možné připojit nějaké úložiště z e-INFRA CZ.
 
+
 ### Poznámky
 
-* Výchozí projekt měl kvótový limit pro 12 garantovaných CPU a kvótový limit pro 16 CPU. Nevybírejte více než 10 garantovaných CPU a více než 14 CPU limit. Pokud potřebujete více, jednoduše [se zeptejte](mailto:k8s@ics.muni.cz). To může být v budoucnu zvýšeno, takže se můžete ptát na více CPU.
+* Výchozí projekt má kvótový limit pro 12 garantovaných CPU a kvótový limit pro 16 CPU. Nevybírejte více než 10 garantovaných CPU a více než 14 CPU limit. Pokud potřebujete více, jednoduše [se zeptejte](mailto:k8s@ics.muni.cz). Tento limit může být v budoucnu navýšen, takže si o více CPU můžete požádat.
 
-* Pokud v kroku **Nainstalovat aplikaci** nevyberete `Přizpůsobit možnosti Helm před instalací`, instalace se zdá, že selhala, ale ve skutečnosti funguje po nějakém čase.
+Pokud v kroku **Install the Application** nevyberete možnost `Customize Helm options before installing', instalace se může zdát jako neúspěšná, ale ve skutečnosti po nějaké době proběhne úspěšně.
 
 ### Výběr aplikace k spuštění
 
-Ujistěte se, že jste nevybrali žádný prostor jmen a vidíte `Pouze uživatelské prostory jmen` (1) v horní části stránky Rancher.
+Ujistěte se, že nemáte vybraný žádný namespace a že vidíte `User namespaces only` (1) v horní části stránky Rancher.
 
-Procházejte `App & Marketplace` (2), `Charts` (3), omezte grafy pouze na `cerit-sc` (4) a vyberte `Ansys` (5). Viz snímek obrazovky níže.
+Přejděte do `App & Marketplace` (2), `Charts` (3), omezte výběr grafů pouze na `cerit-sc`(4) a vyberte Ansys (5). Viz screenshot níže.
+ 
 
 ![selectapp](/img/ceritsc/apps/ansys/selectapp.png)
 
 ### Výběr verze aplikace
 
-Když kliknete na graf, můžete vybrat verzi aplikace, jak je znázorněno níže. Vyberte 'Verze grafu', pod 'Verze aplikace' najdete přesnou verzi Ansys. Verze se mohou v průběhu času lišit. Stiskněte `Nainstalovat`, abyste pokračovali.
+Po kliknutí na chart můžete vybrat verzi aplikace, jak je ukázáno níže. Vyberte 'Chart Version', a pod 'Application Version' naleznete přesnou verzi Ansys. Verze se mohou časem lišit. Pro pokračování klikněte na  `Install`.
 
 ![selectversion](/img/ceritsc/apps/ansys/selectversion.png)
 
 
 ### Instalace aplikace
 
-Nyní jste připraveni nainstalovat aplikaci Ansys. Většinou necháte jak `Namespace` (1), tak `Name` (2) nedotčené, ale vyberete `Přizpůsobit možnosti Helm před instalací` (3), ale můžete vybrat jakýkoli prostor jmen kromě `default`. Prostor jmen `default` je k dispozici, ale není určen k použití. `Name` se používá v URL pro přístup k aplikaci. `Name` musí být jedinečné v `Namespace`, tj. nemůžete spustit dvě nebo více instancí se stejným `Name` ve stejném `Namespace`. Pokud aplikaci odstraníte a později ji znovu nainstalujete pomocí stejného `Name`, obsah domovského adresáře bude zachován.
+Nyní jste připraveni nainstalovat aplikaci Ansys. Ve většině případů ponecháte jak `Namespace` (1), tak `Name` (2) beze změny, ale vyberete `Customize Helm options before install` (3). Můžete však vybrat libovolný namespace kromě `default`. Namespace `default` je sice dostupný, ale není určen k použití. `Name` se používá v URL adrese pro přístup k aplikaci. `Name` musí být jedinečný v rámci zvoleného Namespace, tzn. nemůžete spustit více instancí se stejným `Name` ve stejném `Namespace`. Pokud aplikaci odstraníte a později ji znovu nainstalujete se stejným `Name`, obsah domovského adresáře bude zachován.
 
 ![appinst](/img/ceritsc/apps/ansys/appinst.png)
 
-V první části formuláře vyberte metodu zobrazení přístupu. Metoda [VNC](https://cs.wikipedia.org/wiki/Virtual_Network_Computing) je výchozí. Budete potřebovat program vncview [realvnc](https://www.realvnc.com/en/connect/download/viewer/) nebo `vncviewer` na většině distribucí Linuxu. Na MacOS stačí napsat `vnc://host` v prohlížeči Safari, přičemž `host` nahraďte podle pokynů níže. Nemačkejte `Nainstalovat`, dokud nebude formulář dokončen. Při použití *VNC* je k dispozici pouze softwarové vykreslování, 3D akcelerace není možná.
+V první části formuláře vyberte metodu zobrazení přístupu. Metoda [VNC](https://cs.wikipedia.org/wiki/Virtual_Network_Computing) je výchozí. Budete potřebovat program vncview [realvnc](https://www.realvnc.com/en/connect/download/viewer/) nebo `vncviewer`, který je dostupný ve většině linuxových distribucí. Na MacOS stačí napsat `vnc://host` v prohlížeči Safari, přičemž `host` nahraďte podle pokynů níže. Nepokračujte kliknutím na `Install`, dokud není formulář kompletně vyplněn. Při použití *VNC* je k dispozici pouze softwarové vykreslování, žádná 3D akcelerace není možná.
 
 Pokud není vybráno VNC, bude použita metoda *WEBRTC*. Tato možnost je stále v beta verzi a není připravena pro produkční použití, ale plná 3D OpenGL akcelerace je k dispozici.
 
 ![appform1](/img/ceritsc/apps/ansys/appform1.png)
 
-Ve druhé části formuláře vyberete heslo. Toto heslo se používá pro přihlášení k VNC. Pokud není vybráno VNC, musíte také vyplnit `uživatelské jméno`, tyto přihlašovací údaje budou použity v prohlížeči pro připojení k relaci *WEBRTC*.
+Ve druhé části formuláře vyberete heslo. Toto heslo se používá pro přihlášení k VNC. Pokud není vybráno VNC, musíte také vyplnit `username`, tyto přihlašovací údaje budou použity v prohlížeči pro připojení k relaci *WEBRTC*.
 
 ![appform2](/img/ceritsc/apps/ansys/appform2.png)
 
