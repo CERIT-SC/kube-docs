@@ -14,6 +14,7 @@ This chat is a third-party service and does not offer any guarantees regarding f
 </Callout>
 
 import Script from 'next/script';
+import RunLLMButton from '@/components/RunLLMButton'
 
 <Script type="module"
   id="runllm-widget-script"
@@ -25,6 +26,8 @@ import Script from 'next/script';
   runllm-assistant-id="1086"
   runllm-hide-trigger-button="true"
   async />
+
+<RunLLMButton />
 
 ## Deploying a Cluster Instance
 
