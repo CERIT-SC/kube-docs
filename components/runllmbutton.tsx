@@ -1,5 +1,8 @@
 'use client';
 
+import { twMerge as cn } from 'tailwind-merge';
+import { buttonVariants } from '@/components/button';
+import { MessageCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 declare global {
@@ -37,6 +40,6 @@ export default function RunLLMButton() {
 
   if (!loaded) return null;
 
-  return <button onClick={handleClick}>Ask AI assistent for help</button>;
+  return <button className={cn(buttonVariants({variant: 'secondary'}),'bottom-4 right-4 z-10 gap-2 rounded-xl text-fd-secondary-foreground/80 shadow-lg backdrop-blur-lg md:bottom-8 md:right-8','bg-fd-secondary', 'ring-1', 'ring-[#24a9c2]')} onClick={handleClick}> <MessageCircle className="size-4" /> Ask AI assistent for help</button>;
 }
 
