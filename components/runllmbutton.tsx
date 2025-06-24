@@ -41,7 +41,7 @@ export default function RunLLMButton() {
   if (!loaded) return null;
 
   return (
-    <div className="flex items-center justify-center w-full h-full">
+    <div className="flex items-center justify-center w-full">
       <button
         className={cn(
           buttonVariants({ variant: 'secondary' }),
