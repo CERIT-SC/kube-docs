@@ -16,14 +16,16 @@ export default function RunLLMWidget({ assistantId, name = 'AI Assistant' }: Run
         type="module"
         id="runllm-widget-script"
         src="https://widget.runllm.com"
-        crossOrigin="anonymous"
-        version="stable"
-        runllm-keyboard-shortcut="Mod+j"
-        runllm-name={name}
-        runllm-assistant-id={assistantId}
-        runllm-hide-trigger-button="true"
-        runllm-disable-ask-a-person="true"
         async
+        {...{
+          crossOrigin: "true"
+          version: 'stable',
+          'runllm-keyboard-shortcut': 'Mod+j',
+          'runllm-name': name,
+          'runllm-assistant-id': assistantId,
+          'runllm-hide-trigger-button': 'true',
+          'runllm-disable-ask-a-person': 'true',
+        } as any}
       />
 
       <RunLLMButton />
