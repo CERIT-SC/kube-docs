@@ -2,6 +2,14 @@
 
 import { useEffect, useState } from 'react';
 
+declare global {
+  interface Window {
+    runllm?: {
+      open: () => void;
+    };
+  }
+}
+
 export default function RunLLMButton() {
   const [loaded, setLoaded] = useState(false);
 
