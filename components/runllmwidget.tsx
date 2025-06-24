@@ -12,6 +12,7 @@ type RunLLMWidgetProps = {
 export default function RunLLMWidget({ assistantId, name = 'AI Assistant' }: RunLLMWidgetProps) {
   return (
     <>
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <Script
         type="module"
         id="runllm-widget-script"
