@@ -2,6 +2,7 @@
   "title": "S3 Object Storage",
   "pages": [
     "s3-service",
+    "s3-getting-access",
     "s3-use-cases",
     "s3-clients",
     "s3browser",

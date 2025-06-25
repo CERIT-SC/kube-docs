@@ -1,0 +1,37 @@
+---
+title: Getting Access to CESNET S3
+---
+
+The procedure to get access to the service depends on your needs.
+
+#### Personal S3 Access
+
+Provided you are seeking an S3 service that
+  - provides just a personal S3 space for your own use,
+  - doesn't support sharing between users and/or groups,
+  - has a standard quota of 2 TB (can be increased on request),
+  - but is available just upon simple registration (you need to be an
+  employee or a student of a Czech public university, the AS CR, or an employee of a CESNET customer; you are expected to declare your eligibility using the identity federation),
+you are invited to register at https://einfra.cesnet.cz/allfed/registrar/?vo=VO_s3&group=s3_cl4.
+
+#### Group S3 Access, aka “Virtual Organisation”
+
+In case you need access to S3, and any of the conditions above doesn't fit your needs, we will typically prepare a “Virtual Organisation” and appropriate S3 service for you individually.
+
+Contact our support at `support@cesnet.cz` and we'll discuss your expectations with you.
+
+You can also refer to [common S3 use cases](s3-use-cases) for inspiration about serving typical use cases.
+
+#### Accessing the Storage
+
+You will need a suitable [S3 client](s3-clients), and to configure it with
+your storage access credentials.
+
+<Callout type="info" emoji="ℹ️">
+  **Obtaining access credentials to the storage**<br />
+  Access credentials to most of our object storage facilities are available through https://access.du.cesnet.cz.
+</Callout>
+
+Kindly note that personal S3 appears as “Personal Account” in the system; other Virtual Organisations are listed individually. We recommend using separate access/secret key pair for each and every specific tool you access the storage with.
+
+
