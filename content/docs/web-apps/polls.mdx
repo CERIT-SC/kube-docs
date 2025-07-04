@@ -15,15 +15,19 @@ This instance of Rallly is self-hosted by **CERIT-SC Kubernetes** using the offi
 
 ### Key Features
 
-- ✅ **No login required** – Create or vote on polls without an account.
-- ✅ **Simple & intuitive UI** – Schedule in just a few clicks.
+- ✅ **Sign-in required for poll creation** – To create a poll, you must be signed in using your **e-INFRA CZ account**.
+- ✅ **Voting without an account** – Participants do **not** need an account to vote.
+- ✅ **Anonymous voting allowed** – Voters can participate without logging in, but must provide a **name** and optionally an **email address**
+ ✅ **Customizable poll settings** – When creating a poll, you can choose whether providing an **email address is required** for participants.
+- ✅ **Email updates for organizers** – Organizers receive **e-mail notifications when someone votes**.
+- ✅ **Finalized meeting = calendar invite** – When the poll is closed, participants automatically receive an **email notification** and a **calendar invitation** (iCal), so no one can say they “missed it” next time. 😉
 - ✅ **Privacy-respecting** – Hosted by e-INFRA CZ, no third-party tracking.
 - ✅ **Free to use** – No limits on the number of polls or participants.
 
 
 ## Accessing Polls
 
-Open-WebUI is accessible at https://polls.e-infra.cz. To use the full potential of the platform, you need the valid [e-INFRA CZ account](https://docs.account.e-infra.cz/en/docs/access/account).
+Open-WebUI is accessible at https://polls.e-infra.cz. To use the full potential of the platform, you need a valid [e-INFRA CZ account](https://docs.account.e-infra.cz/en/docs/access/account).
 
 ## How Does It Work?
 
@@ -33,12 +37,13 @@ A scheduling poll lets you propose one or more **date/time options** for a meeti
 
 ### Example workflow:
 1. **Go to** [polls.e-infra.cz](https://polls.e-infra.cz)
-2. Click **"Create a Poll"**
-3. Fill in the event name and your name/email (optional)
-4. Choose potential **date and time slots**
-5. Share the poll link with participants
-6. Wait for votes and choose the most suitable time
-7. **Close the poll** — this sends out **calendar invites** and a **confirmation email**
+2. Sign in with your **e-INFRA CZ account** to create a poll
+3. Click **"Create a Poll"**
+4. Fill in the event name and your name/email (optional)
+5. Choose potential **date and time slots**
+6. Share the poll link with participants
+7. Wait for votes and choose the most suitable time
+8. **Close the poll** — this sends out **calendar invites** and a **confirmation email**
 
 
 👉 See full workflow documentation here: 📖 [Rallly Poll Creation Guide](https://support.rallly.co/workflow/create)
@@ -46,15 +51,19 @@ A scheduling poll lets you propose one or more **date/time options** for a meeti
 
 ## Guest Users vs. Registered Users
 
-You can create and manage polls without creating an account. However, **signing up is recommended** if you want to:
-
-* Edit or delete your polls later
-* Get email notifications about votes or comments
-* Access your full poll history
-
-<Callout type="warning">
-**Note:** Polls created without an account **may be lost** if you lose the original poll link.
+<Callout type="info">
+**Note:** Polls created without an account are not possible on `polls.e-infra.cz`. Only logged-in users may create polls.
 </Callout>
+
+- 🧑‍💼 **Poll creators must be logged in** with an e-INFRA CZ identity.
+- 🧑 **Voters do not need an account**, but they are required to enter at least a **name**, and optionally an **e-mail address**.
+- ✏️ When creating a poll, you can configure whether e-mail is **required** from participants.
+
+
+
+
+
+
 
 
 
