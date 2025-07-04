@@ -478,3 +478,56 @@ Once this file is saved, you can run any supported Nextflow pipeline directly fr
 
 This approach enables seamless experimentation and workflow execution from interactive Jupyter environments, fully utilizing the underlying Kubernetes cluster.
 
+
+## Common Problems
+
+### 1. Jobs Not Starting
+
+If your jobs are not starting, you can troubleshoot by running:
+
+```bash
+kubectl get events -n [your-namespace]
+```
+
+This command may reveal errors like the following:
+
+```
+Warning  FailedCreate  job/nf-...  Error creating: pods "nf-..." is forbidden: violates PodSecurity "restricted:latest": 
+runAsNonRoot != true (pod or container "nf-..." must set securityContext.runAsNonRoot=true), 
+seccompProfile (pod or container "nf-..." must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+```
+
+These errors are typically related to **Pod Security Policies** being enforced on your cluster.
+
+### 2. Security Context Errors
+
+Security-related pod creation errors like:
+
+```
+Error creating: pods "nf-..." is forbidden: violates PodSecurity "restricted:latest": runAsNonRoot != true
+```
+
+are usually due to incorrect `securityContext` settings in your `nextflow.config`.  
+
+<Callout title="Recommendation" type="info">
+Do **not** set any custom `securityContext` values in your configuration unless you have a specific reason. The `nextflow-go` runner and official Nextflow images automatically handle the correct security settings.
+</Callout>
+
+### 3. Java Certificate Error
+
+If you encounter the following error:
+
+```
+ERROR ~ extension (5) should not be presented in certificate_request
+```
+
+It is caused by using an outdated Java version in your Nextflow environment.
+
+<Callout title="Solution" type="info">
+- For **DSL 2**, simply omit the `--head-image` option when running Nextflow. The `nextflow-go` runner will automatically use the latest compatible image.  
+- For **DSL 1**, explicitly use the following image:
+
+```
+cerit.io/nextflow/nextflow:22.10.8
+```
+</Callout>
