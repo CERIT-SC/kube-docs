@@ -3,6 +3,7 @@
     "foldify",
     "binderhub",
     "jupyterhub",
-    "chat-ai"
+    "chat-ai",
+    "polls"
   ]
 }
