@@ -62,7 +62,7 @@ Při nasazování Podu je možné požádat o specifický typ GPU. To lze prové
 
 Například pro přímé požadování GPU typu NVIDIA A40 použijte následující definici Podu:
 
-```yaml filename="pod.yaml" copy
+```yaml title="pod.yaml"
 apiVersion: v1
 kind: Pod
 metadata:
@@ -109,7 +109,7 @@ Je také možné požadovat určité vlastnosti GPU, například velikost pamět
 
 Následující příklad přidělí jakýkoli dostupný typ GPU s alespoň 80 000 MB GPU paměti:
 
-```yaml filename="pod.yaml" copy
+```yaml title="pod.yaml"
 apiVersion: v1
 kind: Pod
 metadata:

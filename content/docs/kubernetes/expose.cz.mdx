@@ -16,7 +16,7 @@ Celková architektura je znázorněna na této obrázku:
 Tento typ aplikace vyžaduje službu, která váže port na aplikaci, a pravidla ingress, která exponují službu na Internet.
 
 Předpokládejme, že máme aplikaci, která je připravena běžet na portu 8080. Vytvoříme službu:
-```yaml filename="service.yaml" copy
+```yaml title="service.yaml"
 apiVersion: v1
 kind: Service
 metadata:
@@ -35,7 +35,7 @@ Kde `selector:` `app: application` musí odpovídat názvu aplikace v nasazení 
 
 Jakmile máme službu, vytvoříme ingress:
 
-```yaml filename="ingress.yaml" copy
+```yaml title="ingress.yaml"
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -80,7 +80,7 @@ Je také možné použít vlastní doménové jméno (v podstatě jakékoli jmé
 1. Je vyžadován DNS záznam `CNAME`. Pro `kuba-cluster` je cílový `CNAME` `kuba-pub.cerit-sc.cz`.
 2. Objekt Ingress má formu:
 
-```yaml filename="ingress.yaml" copy
+```yaml title="ingress.yaml"
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -115,7 +115,7 @@ spec:
 `Ingress` může vyžadovat autentizaci uživatele, aby poskytl omezený přístup k `Service`. Autentizaci lze nastavit pomocí `Secret` a anotací.
 
 Nejprve nastavte tajemství:
-```yaml filename="secret.yaml" copy
+```yaml title="secret.yaml"
 apiVersion: v1
 kind: Secret
 metadata:
@@ -158,7 +158,7 @@ Objekt Ingress může vystavit aplikace, které používají protokol HTTPS mís
 
 Je možné omezit přístup k webové aplikaci na úrovni ingress tím, že omezíte přístup z konkrétního rozsahu IP adres. To se provádí pomocí anotace `Ingress` `nginx.ingress.kubernetes.io/whitelist-source-range`, následující příklad omezuje přístup pouze z MUNI sítě.
 
-```yaml filename="ingress.yaml" copy
+```yaml title="ingress.yaml"
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -214,7 +214,7 @@ Události je také možné zkontrolovat z uživatelského rozhraní Rancher.
 
 Aplikace, které nepoužívají protokol `HTTP`, jsou vystaveny přímo prostřednictvím `Service`.
 
-```yaml filename="service.yaml" copy
+```yaml title="service.yaml"
 apiVersion: v1
 kind: Service
 metadata:
@@ -236,7 +236,7 @@ Nasazení tohoto *Service* vystavuje aplikaci na veřejné IP. Můžete zkontrol
 
 Je také možné vystavit aplikaci na soukromé MUNI IP. V tomto případě bude aplikace dostupná z MUNI sítě nebo pomocí MUNI VPN. Tento typ vystavení je vybrán pomocí anotace `metallb.io/address-pool: privmuni`. Tento případ je preferován, protože nepoužívá veřejnou IP. Úplný příklad je níže.
 
-```yaml filename="service.yaml" copy
+```yaml title="service.yaml"
 apiVersion: v1
 kind: Service
 metadata:

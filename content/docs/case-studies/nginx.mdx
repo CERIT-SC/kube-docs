@@ -27,7 +27,7 @@ This example assumes that the image contains `/bin/sh` and `id` binaries. Mainly
 
 The following manifest can be used to run the NGINX instance. The name `nginx` can be replaced with any other valid string (small letters, numbers, dash). Also resources part should be set accordingly to expected usage (memory and CPU).
 
-```yaml filename="deployment.yaml" copy
+```yaml title="deployment.yaml"
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -76,7 +76,7 @@ Optimal way to change served content is to add PVC volume, see more about [PVC](
 
 We can create ad-hoc PVC using the following manifest:
 
-```yaml filename="pvc.yaml" copy
+```yaml title="pvc.yaml"
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -94,7 +94,7 @@ Data on this PVC are preserved until the PVC is deleted.
 
 If the PVC has been created, we need to change the deployment so that PVC is used:
 
-```yaml {39-45}filename="deployment.yaml" copy
+```yaml title="deployment.yaml"
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -158,7 +158,7 @@ To make the running NGINX accessible from internet, see [Exposing applications](
 
 The service manifest route traffic into the running Pod. It needs correct target port and application label. In our case, we chose `app: nginx` as application label (see metadata labels section of the deployment manifest), and from `nginx-unprivileged` [documentation](https://hub.docker.com/r/nginxinc/nginx-unprivileged) we can see, that the NGINX is using `8080` port, so the Service manifest looks as follows:
 
-```yaml filename="service.yaml" copy
+```yaml title="service.yaml"
 apiVersion: v1
 kind: Service
 metadata:
@@ -178,7 +178,7 @@ spec:
 
 The last required manifest is the `Ingress` manifest. It contains the hostname of the application and it can also provide the Let's Encrypt certificate.
 
-```yaml filename="ingress.yaml" copy
+```yaml title="ingress.yaml"
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:

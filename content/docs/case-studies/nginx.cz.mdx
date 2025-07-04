@@ -27,7 +27,7 @@ Tento příklad předpokládá, že image obsahuje `/bin/sh` a `id` binární so
 
 Následující manifest může být použit pro spuštění instance NGINX. Název `nginx` může být nahrazen jakýmkoli jiným platným řetězcem (malá písmena, čísla, pomlčka). Také část s prostředky by měla být nastavena podle očekávaného použití (paměť a CPU).
 
-```yaml filename="deployment.yaml" copy
+```yaml title="deployment.yaml"
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -76,7 +76,7 @@ Optimální způsob, jak změnit poskytovaný obsah, je přidat PVC volume, víc
 
 Můžeme vytvořit ad-hoc PVC pomocí následujícího manifestu:
 
-```yaml filename="pvc.yaml" copy
+```yaml title="pvc.yaml"
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -94,7 +94,7 @@ Data na tomto PVC jsou uchována, dokud není PVC smazáno.
 
 Pokud bylo PVC vytvořeno, musíme změnit nasazení tak, aby bylo PVC použito:
 
-```yaml {39-45}filename="deployment.yaml" copy
+```yaml title="deployment.yaml"
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -158,7 +158,7 @@ Aby byl běžící NGINX přístupný z internetu, viz sekci [Exponování aplik
 
 Manifest služby směruje provoz do běžícího Podu. Potřebuje správný cílový port a aplikační štítek. V našem případě jsme zvolili `app: nginx` jako aplikační štítek (viz sekce štítků metadat v manifestu nasazení), a z dokumentace `nginx-unprivileged` [dokumentace](https://hub.docker.com/r/nginxinc/nginx-unprivileged) vidíme, že NGINX používá port `8080`, takže manifest služby vypadá takto:
 
-```yaml filename="service.yaml" copy
+```yaml title="service.yaml"
 apiVersion: v1
 kind: Service
 metadata:
@@ -178,7 +178,7 @@ spec:
 
 Poslední požadovaný manifest je manifest `Ingress`. Obsahuje hostname aplikace a může také poskytnout certifikát Let's Encrypt.
 
-```yaml filename="ingress.yaml" copy
+```yaml title="ingress.yaml"
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:

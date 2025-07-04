@@ -62,7 +62,7 @@ It is possible to request a specific GPU type when deploying a Pod. This can be 
 
 For example, to directly request the NVIDIA A40 GPU type, use the following Pod definition:
 
-```yaml filename="pod.yaml" copy
+```yaml title="pod.yaml"
 apiVersion: v1
 kind: Pod
 metadata:
@@ -108,7 +108,7 @@ It is also possible to request some GPU properties, such as GPU memory. This is 
 
 The following example will allocate any GPU type with at least 80000MB of GPU memory:
 
-```yaml filename="pod.yaml" copy
+```yaml title="pod.yaml"
 apiVersion: v1
 kind: Pod
 metadata:

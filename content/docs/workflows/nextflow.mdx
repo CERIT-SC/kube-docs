@@ -66,7 +66,7 @@ It is assumed that you are either:
 
 Save the following configuration file as `nextflow.config` in the same directory where you will run `nextflow-go`:
 
-```js filename="nextflow.config" copy
+```js title="nextflow.config"
 k8s {
    namespace        = '[your-namespace]'
    runAsUser        = 1000
@@ -152,7 +152,7 @@ In this setup, the *workflow controller* is executed as a Kubernetes [Pod](https
 
 Here is an extended example of a `nextflow.config` file with more advanced settings:
 
-```js filename="nextflow.config" copy
+```js title="nextflow.config"
 k8s {
    namespace           = '[your-namespace]'
    runAsUser           = 1000
@@ -243,7 +243,7 @@ nextflow-go run hello -head-image 'cerit.io/nextflow/nextflow:22.10.8' -head-mem
 
 DSL 1 pipelines typically require a more detailed configuration. Here's an example:
 
-```js filename="nextflow.config" copy
+```js title="nextflow.config"
 k8s {
    namespace           = '[your-namespace]'
    runAsUser           = 1000
@@ -406,7 +406,7 @@ Using GPUs in containers is straightforward, just add:
 
 into process section of `nextflow.config`, e.g.:
 
-```js filename="nextflow.config" copy
+```js title="nextflow.config"
 process {
    executor = 'k8s'
 
@@ -448,7 +448,7 @@ sa-xhejtman
 
 Now create the following `nextflow.config` file in the same directory where your `nextflow-go` binary is located:
 
-```js filename="nextflow.config" copy
+```js title="nextflow.config"
 k8s {
    storageClaimName      = '[PVC]'
    storageMountPath      = '/home/jovyan'

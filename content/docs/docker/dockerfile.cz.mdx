@@ -27,7 +27,7 @@ Zde jsou nejběžnější příkazy Dockerfile:
 6. `WORKDIR dir` -- specifikuje aktuální pracovní adresář, poslední pracovní adresář bude použit jako výchozí adresář ve spuštěném kontejneru.
 
 Příklad pro Dockerfile:
-```docker filename="Dockerfile" copy
+```docker title="Dockerfile"
 FROM debian:buster
 RUN apt update -y && apt upgrade -y && apt install build-essential libssh-dev git -y
 RUN git clone https://gitlab.con/zvon/iobench && cd iobench && make && make install

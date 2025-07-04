@@ -65,7 +65,7 @@ Nejprve musíte mít:
 
 Spuštění Nextflow pipeline v Kubernetes vyžaduje místní konfiguraci s některým nezbytným obsahem:
 
-```js filename="nextflow.config" copy
+```js title="nextflow.config"
 k8s {
    namespace = '[your_namespace]'
    runAsUser = 1000
@@ -139,7 +139,7 @@ nextflow kuberun hello -pod-image 'cerit.io/nextflow/nextflow:22.06.1'
 
 Konfigurační soubor může vypadat následovně:
 
-```js filename="nextflow.config" copy
+```js title="nextflow.config"
 k8s {
    namespace = 'nf-ns'
    runAsUser = 1000
@@ -329,7 +329,7 @@ Použití GPU v kontejnerech je jednoduché, stačí přidat:
 
 do sekce procesu `nextflow.config`, např.:
 
-```js filename="nextflow.config" copy
+```js title="nextflow.config"
 process {
    executor = 'k8s'
 

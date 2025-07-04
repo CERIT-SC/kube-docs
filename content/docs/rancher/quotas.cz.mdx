@@ -37,7 +37,7 @@ Aby vše fungovalo správně, nevytvářejte *Namespace* pomocí `kubectl`, `hel
 4. Vytvořte následující role binding v novém namespace. Nové namespaces nemohou provádět žádnou akci, takže abyste zajistili, že můžete nasazovat objekty, je tento role binding nezbytný. Role binding můžete vytvořit pomocí UI nebo pomocí kubectl.
 
 YAML role binding:
-```yaml copy filename="rolebinding.yaml"
+```yaml title="rolebinding.yaml"
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:

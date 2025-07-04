@@ -58,7 +58,7 @@ To test push functionality we will use a very simple image that doesn't do
 much. If you don't have an existing image, you can save the following text
 into a file called `Dockerfile`.
 
-```docker filename="Dockerfile" copy
+```docker title="Dockerfile"
 FROM ubuntu
 RUN apt update && apt install -y wget \
     && wget 'https://raw.githubusercontent.com/dylanaraps/pfetch/master/pfetch' \
@@ -79,7 +79,7 @@ computer and can push it into Harbor with the following command:
 To present what it looks like when multiple tags are present for an image,
 we will modify the Dockerfile slightly:
 
-```docker filename="Dockerfile" copy
+```docker title="Dockerfile"
 FROM ubuntu
 RUN apt update && apt install -y wget \
     && wget 'https://raw.githubusercontent.com/dylanaraps/pfetch/master/pfetch' \

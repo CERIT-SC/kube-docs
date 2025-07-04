@@ -45,7 +45,7 @@ docker login cerit.io
 
 Vytváření Docker obrazů je složité téma, které přesahuje rámec tohoto článku. Pro testování funkčnosti nahrávání použijeme velmi jednoduchý obraz, který toho moc nedělá. Pokud nemáte existující obraz, můžete uložit následující text do souboru s názvem `Dockerfile`.
 
-```docker filename="Dockerfile" copy
+```docker title="Dockerfile"
 FROM ubuntu
 RUN apt update && apt install -y wget \
     && wget 'https://raw.githubusercontent.com/dylanaraps/pfetch/master/pfetch' \
@@ -59,7 +59,7 @@ Nyní máte obraz s názvem `cerit.io/$USER/tutorial:v0.1` na svém počítači 
 
 Abychom ukázali, jak to vypadá, když má obraz více tagů, mírně upravíme soubor Dockerfile:
 
-```docker filename="Dockerfile" copy
+```docker title="Dockerfile"
 FROM ubuntu
 RUN apt update && apt install -y wget \
     && wget 'https://raw.githubusercontent.com/dylanaraps/pfetch/master/pfetch' \

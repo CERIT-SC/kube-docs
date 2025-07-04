@@ -27,7 +27,7 @@ Here are the most common Dockerfile commands:
 6. WORKDIR dir` -- specifies current working directory, last working directory will be used as initial directory in a running container.
 
 Example for Dockerfile:
-```docker filename="Dockerfile" copy
+```docker title="Dockerfile"
 FROM debian:buster
 RUN apt update -y && apt upgrade -y && apt install build-essential libssh-dev git -y
 RUN git clone https://gitlab.con/zvon/iobench && cd iobench && make && make install

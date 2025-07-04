@@ -36,7 +36,7 @@ To make things work properly, do not create a *Namespace* using `kubectl` or `he
 4. Create the following role binding in the new namespace. New namespaces are forbidden to perform any action so to ensure you can deploy objects, this role binding is necessary. You can create rolebinding via UI or using kubectl.
 
 YAML rolebinding:
-```yaml copy filename="rolebinding.yaml"
+```yaml title="rolebinding.yaml"
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:

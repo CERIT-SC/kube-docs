@@ -37,7 +37,7 @@ To expose a web-based application, you need:
 
 Assume we have an application running on port `8080`. First, we define a `Service`:
 
-```yaml filename="service.yaml" copy
+```yaml title="service.yaml"
 apiVersion: v1
 kind: Service
 metadata:
@@ -59,7 +59,7 @@ In this configuration:
 
 After creating the Service, we define an Ingress:
 
-```yaml filename="ingress.yaml" copy
+```yaml title="ingress.yaml"
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -132,7 +132,7 @@ It is possible to use a custom domain name instead of `*.dyn.cloud.e-infra.cz`.
 
 2. Define an `Ingress` with the custom domain:
 
-   ```yaml filename="ingress.yaml" copy
+   ```yaml title="ingress.yaml"
    apiVersion: networking.k8s.io/v1
    kind: Ingress
    metadata:
@@ -170,7 +170,7 @@ You can secure access to your `Ingress`-exposed application by requiring user au
 
 1. Create a Secret:
 
-   ```yaml filename="secret.yaml" copy
+   ```yaml title="secret.yaml"
    apiVersion: v1
    kind: Secret
    metadata:
@@ -236,7 +236,7 @@ You can restrict access to your application at the `Ingress` level by limiting a
 
 For example, to restrict access to only the **MUNI network**:
 
-```yaml filename="ingress.yaml" copy
+```yaml title="ingress.yaml"
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -345,7 +345,7 @@ With this configuration, NGINX will no longer intercept 500 and 503 errors, allo
 
 For applications that do not use the `HTTP` protocol, exposure is done via a `Service` without `Ingress`.
 
-```yaml filename="service.yaml" copy
+```yaml title="service.yaml"
 apiVersion: v1
 kind: Service
 metadata:
@@ -385,7 +385,7 @@ metallb.io/address-pool: privmuni
 
 This method is preferred as it avoids consuming a public IP.
 
-```yaml filename="service.yaml" copy
+```yaml title="service.yaml"
 apiVersion: v1
 kind: Service
 metadata:
@@ -412,7 +412,7 @@ The value of this annotation acts as a grouping key: all services with the same 
 
 Below are examples of two LoadBalancer services configured to share the same IP address:
 
-```yaml filename="service1.yaml" copy
+```yaml title="service1.yaml"
 apiVersion: v1  
 kind: Service  
 metadata:  
@@ -431,7 +431,7 @@ spec:
     app: application-rw  
 ```
 
-```yaml filename="service2.yaml" copy
+```yaml title="service2.yaml"
 apiVersion: v1  
 kind: Service  
 metadata:  
