@@ -147,3 +147,25 @@ LD_LIBRARY_PATH='' ssh user@host
 ```
 
 This forces the system to use its default OpenSSL version instead of the one provided by Conda.
+
+---
+**Question:** I'm encountering a connection error such as:  
+`Failed to connect to github.com port 443 after 135243 ms: Couldn't connect to server`.
+**Answer:**  This error indicates that the Pod does not have access to the external internet. To resolve this, you need to configure an HTTP proxy. You can do this by exporting the following environment variables, either directly in the Pod shell or by setting them in the Pod's deployment manifest under `env`:
+
+```bash
+export HTTPS_PROXY=http://proxy.muni.cz:3128
+export HTTP_PROXY=http://proxy.muni.cz:3128
+```
+
+<Callout type="warn">  
+The proxy is only suitable for HTTP-based protocols. It cannot be used for protocols such as SSH.
+</Callout>
+
+<Callout type="warn">
+The proxy does not support access to the Kubernetes API. If you export these proxy variables, tools like `kubectl` or `helm` inside the Pod may stop working unless you also configure the `NO_PROXY` environment variable. For example:  
+ 
+```bash
+export NO_PROXY=10.43.0.1 # 10.43.0.1 is the exact address of the Kubernetes API
+```
+</Callout>
