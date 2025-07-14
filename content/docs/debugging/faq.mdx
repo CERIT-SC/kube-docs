@@ -159,6 +159,13 @@ export HTTPS_PROXY=http://proxy.muni.cz:3128
 export HTTP_PROXY=http://proxy.muni.cz:3128
 ```
 
+Some programs (e.g., `wget`) require lowercase `https_proxy` or `http_proxy` variables. In such cases, you also need to export the lowercase variants:
+
+```bash
+export https_proxy=http://proxy.muni.cz:3128
+export http_proxy=http://proxy.muni.cz:3128
+```
+
 <Callout type="warn">  
 The proxy is only suitable for HTTP-based protocols. It cannot be used for protocols such as SSH.
 </Callout>
