@@ -49,6 +49,12 @@ Foldify offers three different modes of submission for AlphaFold 3: `Basic Submi
 
 ![af3form](/img/ceritsc/apps/foldify/alphafold3-form.png)
 
+#### Faster Predictions with MMSeqs2
+Foldify supports the use of MMSeqs2 for faster predictions. MMseqs2 is a fast and sensitive sequence search tool that can significantly speed up the prediction process. We use the scripts to add MMseqs2 MSA/templates to an AlphaFold 3 input JSON file.
+
+To use MMseqs2, you need to check the `Use Generated MSA` checkbox in the form - it is checked by default. This will enable the use of MMseqs2 for faster predictions. If you want to specify number of templates, check the `Use Generated Templates` checkbox and specify the number of templates in the `Number of Templates` field that appears. The default value is 20, but you can change it to custom value.
+![mmseqs2](/img/ceritsc/apps/foldify/MMseqs2.png)
+
 By default, all calculation results are private, i.e. only you can see them. If you want to share your results with collegues, you can do so by checking `Make results public` checkbox. In this case, the result is shown in `Public Jobs Table` and you can share the computation with link.
 
 After filling in the parameters, you can start the computation by clicking the `Run Job` button. When the computation finishes, you will receive an **email notification**.
