@@ -36,10 +36,11 @@ Open-WebUI provides access to various AI models for text generation. To use them
 
 ### Currently Available Models (as of 04/29/2025)
 
-We categorize our models into two groups:
+We categorize our models into three groups:
 
-1. **Guaranteed Models** – These are stable and expected to remain available long-term. Any replacements or updates will be announced here and via WebUI banners.
-2. **Experimental Models** – These are subject to change as we optimize resources or test new capabilities.
+1. **Guaranteed Models** – Stable models maintained for long-term availability. Any updates or replacements will be announced on this page and via WebUI banners.
+2. **Experimental Models** – Subject to change during resource optimization or new capability testing.
+3. **Deprecated Models** – Currently operational but scheduled for decommissioning.
 
 <Callout type="info">
 For exact model names, query the model list as shown [below](#models-for-api-interface). When accessing externally, you must use the exact model names, such as `llama3.3:latest`.
@@ -48,14 +49,19 @@ Model names are case-sensitive and may include version tags like `:latest` or sp
 </Callout>
 
 #### Guaranteed Models
+| Model                | Description |
+|----------------------|-------------|
+| **LLaMA 4 Scout**    | A 109B language model from Meta. Its efficiency and versatility make it well-suited for diverse natural language processing tasks. Features vision capabilities for image description generation. |
+| **DeepSeek R1 0528** | A 685B reasoning-optimized language model from Deepseek AI. Excels at complex tasks including mathematics, logical reasoning, and code generation. |
+| **Qwen 2.5 Coder**   | A 32B Q8 variant specialized in code comprehension and generation. Ideal for developers seeking programming assistance. |
+| **Qwen 3 Coder**     | A 480B language model from Qwen. Succeeds the Qwen 2.5 Coder with significantly enhanced performance in coding tasks. |
 
-| Model           | Description |
-|----------------|-------------|
-| **LLaMA 3.3**     | A 70B language model from Meta. Its efficiency and versatility make it well-suited for a wide range of natural language processing tasks. |
-| **DeepSeek R1**   | A 32B Qwen-distilled model from DeepSeek (China), designed with a focus on reasoning. It excels at complex tasks such as mathematics and code generation. |
-| **Qwen 2.5 Coder**| A 32B Q8 variant specialized in code understanding and generation, ideal for developers needing programming assistance. |
-| **Gemma 3**       | A 27B FP16 language model from Google, part of the lightweight Gemma family built on Gemini technology. |
-| **Command-A**     | A 111B model from Cohere. Though slower in response time, it is particularly strong in programming tasks and manifest generation. |
+<Callout type="info">
+Although **Deepseek R1 0528** and **Qwen 3 Coder** are designated as **guaranteed** models, please note:
+- Their underlying hardware may require maintenance, and we lack backup infrastructure of comparable scale
+- During urgent priority tasks requiring this hardware, model availability may be temporarily suspended
+- Advance notice of such interruptions will be provided on this page and within the chat interface
+</Callout>
 
 #### Experimental Models
 
@@ -63,14 +69,39 @@ Model names are case-sensitive and may include version tags like `:latest` or sp
 |-------------------|-------------|
 | **Aya Expanse**      | A 32B Q8 multilingual model from Cohere, trained to perform well across 23 languages, including Czech. |
 | **Phi-4**            | A 14B Q8 model from Microsoft, trained on a mix of synthetic datasets, filtered public web content, academic books, and Q&A datasets. It represents the current state of the art in open-access models. |
-| **LLaMA 4**          | Meta’s Scout 17B-16E variant. While intended for general NLP tasks, it currently underperforms compared to LLaMA 3.3. |
 | **Mistral-Small 3.1**| A 24B language model from Mistral AI, featuring built-in vision capabilities. |
+
+#### Deprecated Models
+
+| Model              | Description |
+-------------------------------------
+| **LLaMA 3.3**     | A 70B language model from Meta. Its efficiency and versatility make it well-suited for a wide range of natural language processing tasks. |
+| **DeepSeek R1**   | A 32B Qwen-distilled model from DeepSeek (China), designed with a focus on reasoning. It excels at complex tasks such as mathematics and code generation. |
+| **Gemma 3**       | A 27B FP16 language model from Google, part of the lightweight Gemma family built on Gemini technology. |
+| **Command-A**     | A 111B model from Cohere. Though slower in response time, it is particularly strong in programming tasks and manifest generation. |
 
 #### Embedding Models
 
 The Open WebUI currently does not support API access to embedding models (even if compatible with the OpenAI API). As a result, no embedding models are currently available through the Open WebUI API.  
 
 However, users may request IP-based access to the **vLLM** system, which includes support for embedding models.
+
+#### Czech Language Proficiency
+We evaluated selected models using the [BenCzechMark](https://huggingface.co/blog/benczechmark) benchmark. Full results are available at the provided link. For reference, key scores are summarized below:
+
+| Model             | Mean Score |
+|-------------------|------------|
+| DeepSeek-R1-0528  | 85.3       |
+| Command-A         | 82.8       |
+| LLaMA-3.3         | 73.5       |
+| LLaMA-4-Scout     | 71.5       |
+| Aya Expanse       | 63.5       |
+| Gemma 3           | 59.2       |
+| Phi-4             | 58.2       |
+
+<Callout type="info">
+Mistral-Small exhibits compatibility issues with this Czech benchmark.
+</Callout>
 
 ## Generating Images
 
