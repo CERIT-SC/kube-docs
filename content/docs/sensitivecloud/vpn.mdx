@@ -29,10 +29,20 @@ To gain access to secure resources via Sensitive Cloud VPN, contact our support 
 ## About the Sensitive Cloud VPN
 - Your IP Address might change - it's not a static lease of IP address for your client.
 - You might use as many devices as you want with concurent use of VPN. 
-- Each Sensitive Cloud VPN project (bound to compute or storage project) supports up to 128 concurent connections*
+- Each Sensitive Cloud VPN project (bound to compute or storage project) supports up to 64 concurent connections<sup>1</sup>
 
-* - exceptions might apply for bigger research groups
+<sup>1</sup> - exceptions might apply for bigger research groups
+
+## More eduVPN instances at the same time?
+
+Due to the limitations of eduVPN software, it is not possible to run two eduVPN instances and have more than one VPN tunnel active.
+You may hovever use the Wireguard + eduVPN at the same time, therefore it is possible to obtain "static configuration" at your organization's eduVPN portal and use it for Wireguard software manually. 
+Static configuration for `vpn.trusted.e-infra.cz` is currently not possible to obtain through eduVPN.
+
+## Switching from my organization's eduVPN
+
+If your organization is using eduVPN, you will need to switch organizations from yours to `vpn.trusted.e-infra.cz` first. 
+   ![ev4](/img/ceritsc/vpb-switch-from-organizations.png)
 
 ## Machine-to-Machine access?
 In case you need the static lease of IP address for VPN tunneling to Sensitive Cloud, it is possible to hand static `Wireguard` connection profile. This can be arranged upon your request at e-mail [trusted@e-infra.cz](mailto:trusted@e-infra.cz).
-
