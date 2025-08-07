@@ -31,6 +31,3 @@ Jobs in the cluster do not have any special configuration apart from necessary s
     - Section `spec.template.spec.containers[].volumeMounts[]` (an array, there can be multiple volumeMounts)
     - An array of volumes to be mounted in a particular container (it is defined for every container individually)
     - Only items listed in `spec.template.spec.volumes[]` can be mounted in a container
-    - <Callout type="default">
-      Name of the volume in section `spec.template.spec.volumes[]` is the same as `name` when specifying a volumeMount.
-      </Callout> 
