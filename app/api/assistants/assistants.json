@@ -1,4 +1,13 @@
 [
+        {
+                "type": "assistant",
+                "id": "solver",
+                "name": "Solver",
+                "api_path": "/api/chat-solver",
+                "engine": "openai",
+                "embed": false,
+                "enabled": true
+        },
 	{
 		"type": "category",
 		"name": "RunLLM",
