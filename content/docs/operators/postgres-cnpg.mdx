@@ -6,13 +6,6 @@ The [Postgres Operator](https://cloudnative-pg.io/documentation/1.23/) provides 
 
 The original, full documentation about PostgresOperator structure is available [on its website](https://cloudnative-pg.io/documentation/1.23/) with the official manual for creating a minimal PostgreSQL cluster located in the [quickstart section](https://cloudnative-pg.io/documentation/1.23/quickstart/). If you seek advanced configuration or description and explanation of the YAML fields, consult the official documentation.
 
-
-Ask any questions related to using **CloudNativePG instances** pressing the button below. It is connected to the official documentation, GitHub issues, and GitHub discussions to help provide accurate and relevant answers.
-
-import RunLLMWidget from '@/components/runllmwidget';
-
-<RunLLMWidget assistantId="1086" name="Cloudnative PG" />
-
 ## Deploying a Cluster Instance
 
 It is possible to deploy either a single or cluster instance. For testing purposes, we advise to deploy a minimal (single) instance that uses NFS storage as an underlying storage and consumes limited resources (performance is low). For better availability and performance, cluster deployment can be used. In this case, multiple instances run in the cluster where one of them is a leader and others follow and sync data from the leader.
