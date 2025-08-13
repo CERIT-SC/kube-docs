@@ -146,6 +146,18 @@ You will see output similar to:
 
 Then use, e.g., the `llama3.3:latest` as the model name in the API.
 
+Example `PydanticAI` configuration for integrating with our API (use similar settings for other frameworks):
+
+```python
+model = OpenAIModel(
+    'llama-4-scout-17b-16e-instruct',
+    provider=OpenAIProvider(
+        base_url='https://chat.ai.e-infra.cz/api',
+        api_key=os.getenv('E_INFRA_API_TOKEN'),
+    ),
+)
+```
+
 ## Knowledge Function (Alpha)
 
 Open WebUI includes an experimental *Knowledge Function*, which is essentially a [RAG (Retrieval-Augmented Generation)](https://en.wikipedia.org/wiki/Retrieval-augmented_generation) system. This allows users to upload custom texts and query a model that generates answers based on that content.

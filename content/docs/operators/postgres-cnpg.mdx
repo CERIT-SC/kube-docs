@@ -295,7 +295,56 @@ spec:
     name: test-cluster
 ```
 
-The schedule is **NOT** a standard `cron` schedule - this second/minutes/hours/day in month/month/day of week.
+The schedule is **NOT** a standard `cron` schedule -- this second/minutes/hours/day in month/month/day of week.
+
+<Callout type="warn">
+Some newer Postgres images include updated versions of the `boto3` library, which may be incompatible with certain S3 endpoints (for example, DU CESNET).  
+When this occurs, the Postgres Pod may log the following error:  
+`ERROR: Error received from upload worker: An error occurred (MissingContentLength) when calling the UploadPart operation: Unknown`  
+
+As a workaround, set the following three environment variables in the cluster definition:
+
+```yaml
+- name: AWS_REQUEST_CHECKSUM_CALCULATION
+  value: when_required
+- name: AWS_RESPONSE_CHECKSUM_VALIDATION
+  value: when_required
+- name: AWS_NO_CHUNKED_ENCODING
+  value: "true"
+```
+</Callout>
+
+Example database cluster definition with the required environment variables:
+
+```yaml
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: test-cluster       # name, can be modified
+spec:
+  instances: 1             # single instance
+
+  imageName: 'cerit.io/cloudnative-pg/postgresql:15.0'  # image to use
+
+  primaryUpdateStrategy: unsupervised
+
+  bootstrap:
+   initdb:
+     database: mydb        # db to create, can be modified
+     owner: myowner        # user to create, can be modified
+
+  env:
+  - name: AWS_REQUEST_CHECKSUM_CALCULATION
+    value: when_required
+  - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+    value: when_required
+  - name: AWS_NO_CHUNKED_ENCODING
+    value: "true"
+
+  storage:
+    size: 10Gi
+    storageClass: nfs-csi  # storage class to use, can be modified
+```
 
 ## High Availability Cluster Setup
 
