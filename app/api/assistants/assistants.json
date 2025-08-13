@@ -14,6 +14,7 @@
 		"name": "RunLLM",
 		"id": "runllm",
 		"enabled": true,
+                "description": "Answers from AI may be inaccurate, please verify the information.<br/>Ask a direct question or paste an error—only the first question searches the documentation; <b>for a new topic, use the button below.</b><br/><b>Note: This variant uses an external service. If privacy is a concern, do not use it!</b>",
 		"assistants": [
 			{
 				"type": "assistant",
