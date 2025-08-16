@@ -17,7 +17,7 @@
                 "assistants": [
                         {
                                 "type": "assistant",
-                                "id": "runllm_1379",
+                                "id": "runllm_1116",
                                 "name": "Ceph",
                                 "api_path": "/api/chat-runllm",
                                 "engine": "runllm",
