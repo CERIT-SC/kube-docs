@@ -22,11 +22,12 @@ Následujícími kroky můžete spustit aplikaci Matlab. Tato aplikace má trval
 
 * Výchozí projekt měl kvótový limit pro 12 garantovaných CPU a kvótu pro limit 16 CPU. Nevybírejte více než 10 garantovaných CPU a více než 14 CPU limit. Pokud potřebujete více, jednoduše [se zeptejte](mailto:k8s@ics.muni.cz). Toto může být v budoucnu zvýšeno, takže žádost o více CPU může být podána.
 
-* Pokud v kroku **Nainstalovat aplikaci** nevyberete `Přizpůsobit možnosti Helm před instalací`, instalace se zdá, že selhala, ale ve skutečnosti funguje po delší době.
+* Pokud v kroku **Nainstalovat aplikaci** nevyberete `Přizpůsobit možnosti Helm před instalací`, instalace se může jevit jako neúspěšná, ale ve skutečnosti se po delší době.
+
 
 * Od verze Matlab `v9.11.1` je možné připojit váš domovský adresář MetaCentrum bez žádosti o heslo. Je však nutné vytvořit sadu specifických objektů Kubernetes. Celý proces jsme zjednodušili a stačí, když: 
   *  Nejprve projdete [tímto krátkým tutoriálem](../other/storagesecrets), kde se pouze přihlásíte do našeho vlastního servisu a vyberete prostor, kde vytvořit objekty
-  *  Za druhé, spusťte aplikaci Matlab z Rancheru stejným způsobem jako dříve, pouze vyberte verzi **v9.11.1** a vyšší. Formulář aplikace obsahuje pole v sekci `Úložiště`, kde vyberete svůj domov.
+  *  Za druhé, spusťte aplikaci Matlab z Rancheru stejným způsobem jako dříve, pouze vyberte verzi **v9.11.1** a vyšší. Formulář aplikace obsahuje v části `Úložiště` pole, ve kterém si vyberete svůj home adresář.
 
 ![selectapp](/img/ceritsc/apps/matlab/matlab-home.png)
 
