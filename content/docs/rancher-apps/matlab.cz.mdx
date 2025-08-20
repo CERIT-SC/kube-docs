@@ -48,7 +48,7 @@ Když kliknete na chart, můžete vybrat verzi aplikace, jak je znázorněno ní
 
 ### Instalace aplikace
 
-Nyní jste připraveni nainstalovat aplikaci  Matlab. Ve většině případů ponecháte jak `Namespace` (1), tak `Name` (2) beze změny, ale vyberete `Customize Helm options before install` (3). Můžete však vybrat libovolný namespace kromě `default`. Namespace `default` je sice dostupný, ale není určen k použití. `Name` se používá v URL adrese pro přístup k aplikaci. `Name` musí být jedinečné v rámci zvoleného Namespace, tzn. nemůžete spustit více instancí se stejným `Name` ve stejném `Namespace`. Pokud aplikaci odstraníte a později ji znovu nainstalujete se stejným `Name`, obsah domovského adresáře bude zachován.
+Nyní jste připraveni nainstalovat aplikaci  Matlab. Ve většině případů ponecháte jak `Namespace` (1), tak `Name` (2) beze změny, ale vyberete `Customize Helm options before install` (3). Můžete však vybrat libovolný namespace kromě `default`. Namespace `default` je sice dostupný, ale není určen k použití. `Name` se používá v URL adrese pro přístup k aplikaci. `Name` musí být jedinečné v rámci zvoleného Namespace, tzn. nemůžete spustit více instancí se stejným `Name` ve stejném `Namespace`.Název musí být složen pouze z alfanumerických znaků a musí začínat písmenem. Například matlab nebo matlab123 jsou vhodné názvy, ale 1matlab2 nebo 1234 nebudou fungovat. Pokud aplikaci odstraníte a později ji znovu nainstalujete se stejným `Name`, obsah domovského adresáře bude zachován.
 
 ![appinst](/img/ceritsc/apps/matlab/appinst.png)
 
