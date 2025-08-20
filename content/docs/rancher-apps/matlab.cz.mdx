@@ -45,9 +45,10 @@ Když kliknete na chart, můžete vybrat verzi aplikace, jak je znázorněno ní
 
 ![selectversion](/img/ceritsc/apps/matlab/selectversion.png)
 
-### Nainstalujte aplikaci
 
-Nyní můžete nainstalovat aplikaci Matlab. Většinou ponechte jak `Prostor` (1), tak `Název` (2) nedotčené, ale vyberte `Přizpůsobit možnosti Helm před instalací` (3), nicméně můžete vybrat prostor podle potřeby kromě `default`. Prostor `default` je k dispozici, ale není určen k použití. `Název` bude v URL pro přístup k aplikaci. `Název` musí být jedinečný v `Prostoru`, tj. nemůžete spustit dvě nebo více instancí se stejným `Názvem` ve stejném `Prostoru`. Pokud aplikaci odstraníte a později ji znovu nainstalujete se stejným `Názvem`, obsah domovského adresáře bude zachován.
+### Instalace aplikace
+
+Nyní jste připraveni nainstalovat aplikaci  Matlab. Ve většině případů ponecháte jak `Namespace` (1), tak `Name` (2) beze změny, ale vyberete `Customize Helm options before install` (3). Můžete však vybrat libovolný namespace kromě `default`. Namespace `default` je sice dostupný, ale není určen k použití. `Name` se používá v URL adrese pro přístup k aplikaci. `Name` musí být jedinečné v rámci zvoleného Namespace, tzn. nemůžete spustit více instancí se stejným `Name` ve stejném `Namespace`. Pokud aplikaci odstraníte a později ji znovu nainstalujete se stejným `Name`, obsah domovského adresáře bude zachován.
 
 ![appinst](/img/ceritsc/apps/matlab/appinst.png)
 
