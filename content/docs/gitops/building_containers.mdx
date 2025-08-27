@@ -2,57 +2,72 @@
 title: Building Docker containers with Gitlab
 ---
 
-This tutorial shows how to set up the basic GitLab pipeline to automaticaly build Docker image and publish it to a container registry.
+This guide demonstrates how to build and push Docker images using [Kaniko](https://github.com/GoogleContainerTools/kaniko) in a CI environment (e.g., GitLab CI). Kaniko executes Docker builds without needing a Docker daemon.
 
-## Prerequisites
-- Gitlab repository
-- Dockerfile in the repository with desired container configuration
+## Setup Requirements
 
-## Configure CI/CD Gitlab Pipeline file
-- In your desired repository, use **Set up CI/CD** button as shown in the following image. 
-![setup](/img/ceritsc/gitops/containers_1.png)
+### Registry Credentials
 
-- In the `.gitlab-ci.yml` editor copy and paste following snippet:    
+Create a Base64-encoded `username:password` for your container registry. Store this as a [protected CI/CD variable](https://docs.gitlab.com/ci/variables/) (e.g., HARBOR_CRED in GitLab).
 
-```yaml title=".gitlab-ci.yml"
-docker-build:
-  image: docker:latest
-  stage: build
-  services:
-    - docker:dind
+### Dockerfile
+
+Ensure that `Dockerfile` exists in repo root.
+Example content:
+
+```
+FROM alpine
+CMD ["echo", "Hello World!!"]
+```
+
+### Example CI Configuration (`gitlab-ci.yml`)
+
+```yaml
+stages:
+  - docker
+
+docker-job:
+  stage: docker
+  image:
+    name: gcr.io/kaniko-project/executor:debug  # Official Kaniko executor image
+    entrypoint: [""]  # Disable default entrypoint
   before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - echo "{\"auths\":{\"your-registry.io\":{\"auth\":\"${HARBOR_CRED}\"}}}" > /kaniko/.docker/config.json
+    - cat /kaniko/.docker/config.json  # Verify config (optional)
   script:
+    - export VERSION='0.0.1'  # Set your image version
+    # Dynamic tagging logic:
     - |
       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
-        tag=""
-        echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
+        tag="${VERSION}"
+        echo "Default branch '$CI_DEFAULT_BRANCH': tag=$tag"
       else
-        tag=":$CI_COMMIT_REF_SLUG"
-        echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
+        tag="${VERSION}-$CI_COMMIT_REF_SLUG"  # Appends branch slug
+        echo "Branch '$CI_COMMIT_BRANCH': tag=$tag"
       fi
-    - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" .
-    - docker push "$CI_REGISTRY_IMAGE${tag}"
-  rules:
-    - if: $CI_COMMIT_BRANCH
-      exists:
-        - Dockerfile
+    # Build and push the image:
+    - /kaniko/executor
+      --context $CI_PROJECT_DIR
+      --dockerfile $CI_PROJECT_DIR/Dockerfile
+      --destination "cerit.io/your-project/docker-image:${tag}"
+  only:
+    - tags  # Trigger on Git tags
+    - master  # Or your default branch
 ```
-This will use the standard Gitlab Container Registry available within your own project. Note the variable `$CI_REGISTRY`, which is specific for the repository.
 
-- Commit changes 
-![commit](/img/ceritsc/gitops/containers_2.png)
+### Notes
 
-- Pipeline will be triggered and it's status could be shown within the last commit information.
-![pipeline_status](/img/ceritsc/gitops//containers_3.png)
-For list of jobs for given pipeline visit `CI/CD > Pipelines`
-![pipelines](/img/ceritsc/gitops//containers_4.png)
-
-If pipeline job succeeds, the freshly built container image will be uploaded to Gitlab's container registry.   
-The `Packages & Registries > Container registry` is available here:
-![sda](/img/ceritsc/gitops//containers_5.png)
-
-For advanced information please refer to the [official documentation](https://docs.gitlab.com/ee/user/packages/container_registry/#container-registry-examples-with-gitlab-cicd)
+- In `before_script`, docker config is created using credential value from your CI variable (here `HARBOR_CRED`).
+- Version value is explicitely set in CI. Consider factoring it out, for example to `version.txt` in repo or obtain it from other config in repo such
+    as `setup.py` (in case of a Python ) or `package.json` (in case of node.js project), etc.
+- Tagging logic in the example is tuned for a setup, where:
+  - Default branch (`master`) is a [protected branch](https://docs.gitlab.com/user/project/repository/branches/protected/) which can only be changed by merge request (i.e., cannot be pushed to directly).
+  - Features are developed in a branch.
+  - By default, docker job is executed only on master branch (after merge request).
+  - Docker job can also be executed on demand in on a branch commit if this commit is tagged. In that case, docker image tag consists of VERSION suffixed by tag value.
+- Check this [repository graph](https://gitlab.ics.muni.cz/172429/kaniko-docker-build-example/-/network/master?ref_type=heads) and [pipeline history](https://gitlab.ics.muni.cz/172429/kaniko-docker-build-example/-/pipelines).
+- See Kaniko documentation for advanced flags (e.g., --cache, --build-arg).
+- Keep in mind, that Kaniko is probably obsolete.
 
 ## How to use images from Gitlab Registry
 
@@ -68,10 +83,6 @@ If project visibility or container registry are set to private, authentication t
 
 For more information please refer to [official documentation](https://docs.gitlab.com/ee/user/packages/container_registry/#use-images-from-the-container-registry).
 
-## Upload image to custom container registry
-Change the options of `docker login` command in `before_script` part of your definition of pipeline (`gitlab-ci.yml`). 
-
-```yaml
-  before_script:
-    - docker login -u "username" -p "password" example.io
-```
+<Callout type="warn">
+MUNI ICS GitLab does not support Docker builder anymore, Kaniko must be used as describe above.
+</Callout>
