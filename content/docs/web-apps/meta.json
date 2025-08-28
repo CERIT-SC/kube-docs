@@ -4,6 +4,7 @@
     "binderhub",
     "jupyterhub",
     "chat-ai",
+    "deepsite",
     "polls"
   ]
 }
