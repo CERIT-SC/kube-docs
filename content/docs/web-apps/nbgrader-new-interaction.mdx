@@ -4,7 +4,7 @@ title: NBGrader Docs
 
 ## URL Adresy
 
-Primárna inštancia: jupytul.cloud.e-infra.cz
+Inštancia JupyterHubu pre TUL: jupytul.cloud.e-infra.cz
 
 ## Prístup na jupytul
 
@@ -15,9 +15,11 @@ Prístup je zabezpečený cez členstvo inštruktorov aj študentov v skupine. E
 - `zap-instructors`
 - `pav-students` [Perun skupina PAV students](https://perun.e-infra.cz/organizations/3898/groups/15922)
 - `pav-instructors`
+- `cfd-students` [Perun skupina CFD students](https://perun.e-infra.cz/organizations/3898/resources/20980)
+- `cfd-instructors`
 
 Do skupiny sa posiela prihláška. Prihláška ma nejakú expiráciu (default 1 mesiac), je na študentoch/inšturktoroch aby ju prijali. Ak študent:
-- vidí `Access denied`, tak na 100% nie je členom *žiadnej* skupiny
+- vidí po prihlásení do hubu`Access denied`, tak na 100% nie je členom *žiadnej* skupiny
 - vie sa prihlásiť ale nevidí správny kurz - je členom nesprávnej skupiny
 
 V perune (linky vyššie) si viete skontrolovať kto je člen skupiny a kto má Pending pozvánku. Ak osobu nenájdete ani v jednom zo zoznamov, nebola jej poslaná pozvánka. 
@@ -54,7 +56,9 @@ Pre pridanie/odobranie celého kurzu nutné komunikovať s nami.
 
 ### Pridanie študentov do kurzu
 
-Človek je študentom, ak je členom Perun subgroup `{kurz}-students` pod group `NBGrader Tulhub`.  Na pridanie študenta do skupiny potrebujemd jeho mail, ideálne vo formáte `mail, meno studenta`. Študentovi príde pozvánka, je na ňom aby to odklikol. Kým to neurobí, nevidí kurz.
+Človek je študentom, ak je členom Perun subgroup `{kurz}-students` pod group `NBGrader Tulhub`.  Na pridanie študenta do skupiny potrebujeme jeho mail, ideálne vo formáte `mail, meno studenta`. Študentovi príde pozvánka, je na ňom aby to odklikol. Kým to neurobí, nevidí kurz.
+
+Človek zodpovedný za rozposlanie pozvánok musí byť nastavený ako manažér skupiny - potrebujem vedieť dopredu, kto bude pre jednotlivé študentské skupiny rozposielať pozvánky, aby som tohto človeka priradila.
 
 ![membersnav](/img/ceritsc/apps/nbgrader/membersnav.png)
 
@@ -70,21 +74,27 @@ Ak sa rozhodnete poslať pozánku viacerým ľuďom naraz tak sa zobrazí:
 
 ### Pridanie inštruktorov do kurzu
 
-Človek je inšturktorom, ak je členom Perun subgroup `{kurz}-instructors` pod group `NBGrader Tulhub`.  Na pridanie inštruktora do skupiny potrebujem jeho mail, ideálne vo formáte `mail, meno instruktora`. Inštruktorovi príde pozvánka, je na ňom aby to odklikol. Kým to neurobí, nevidí kurz.
+Človek je inštruktorom, ak je členom Perun subgroup `{kurz}-instructors` pod group `NBGrader Tulhub`.  Na pridanie inštruktora do skupiny potrebujem jeho mail, ideálne vo formáte `mail, meno instruktora`. Inštruktorovi príde pozvánka, je na ňom aby to odklikol. Kým to neurobí, nevidí kurz.
+
+Pridanie inštruktorov môže byť tiež pod vašou správou a fungovať identicky, ako pridávanie študentov.
 
 <Callout type="info">
 Ak bol inštruktor pridaný ako inštruktor dodatočne (už sa niekedy prihlásil na jupytul a ostal prihlásený) tak sa musí odhĺásiť a prihlásiť. 
 </Callout>
 
 <Callout type="warning">
-Nemalo by sa stať, že inštruktor nejakého kurzu je zároveň aj študent iného. To zatiaľ vedie k mixu práv a nbgrader tak nefunguje dobre. Ak by to bolo v budúcnosti nutné, pozrieme sa na to no zatiaľ to nefunguje.
+Nemalo by sa stať, že inštruktor nejakého kurzu je zároveň aj študent iného. To zatiaľ vedie k mixu práv a nbgrader tak nefunguje dobre. Ak by to bolo v budúcnosti nutné, pozrieme sa na to, no zatiaľ to nefunguje.
 </Callout>
 
 ### Pridávanie assignments
 
-ASSIGNMENTS NESMÚ BYŤ V HOME!!! Assigments patria JEDINE A IBA do `/mnt/exchange/{kurz}/source`. Ak sa vyrobí `gradebook.db` inde než v  `/mnt/exchange/{kurz}/` tak je niečo zle.
 
-ODPORÚČAME vytvárať assignemnts cez UI (pretože si ten nbgrader možno vytvára ešte nejaké iné relácie než len dir) a do vytvoreného diru potom nakopírovať to, čo už máte natvorené. 
+<Callout type="warning">
+ASSIGNMENTS NESMÚ BYŤ V HOME!!! Assigments patria JEDINE A IBA do `/mnt/exchange/{kurz}/source`. Ak sa vyrobí `gradebook.db` inde než v  `/mnt/exchange/{kurz}/` tak je niečo zle.
+</Callout>
+
+
+ODPORÚČAME vytvárať assignemnts cez UI (nbgrader si možno vytvára ešte ďalšie iné relácie, než iba dir) a do vytvoreného diru potom nakopírovať to, čo už máte natvorené. 
 
 
 ![image](/img/ceritsc/apps/nbgrader/image.png)
@@ -102,7 +112,8 @@ Ak sa releasne assignemnt s nejakým configom, výsledok už nejde zmeniť. Ak z
 ## Konfigurácia notebookového prostredia
 
 Notebooky študentov sú spúšťatné ako samostatné kontajnere. Inštruktori pracujú v tom istom jednom kontajneri ktorý ešte naviac slúži ako samotné hub prostredie (tak to má nbgrader, dá sa to preprogramovať ak by bolo nutné).
-## Notebooky študentov
+
+### Notebooky študentov
 
 Študenti majú k dispozícii perzistentný home v `/home/jovyan` ktorý sa dá premazať, ak je potrebné (voľba pri spúšťaní notebooku). Podľa dohody majú študenti CPU request=1 a CPU limit=2. Memory request=memory limit=4GB.
 
