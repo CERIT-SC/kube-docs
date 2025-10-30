@@ -2,6 +2,7 @@
   "title": "Webové Aplikace",
   "pages": [
     "binderhub",
-    "jupyterhub"
+    "jupyterhub",
+    "chat-ai"
   ]
 }
