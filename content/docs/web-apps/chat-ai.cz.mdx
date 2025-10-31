@@ -93,7 +93,7 @@ Ačkoliv jsou modely **Deepseek R1 0528** a **Qwen 3 Coder** označeny jako **ga
 |--------------------|---------------|
 | **Command-A**      | Model s 111 miliardami parametrů od společnosti Cohere. I když reaguje pomaleji, je mimořádně silný v programovacích úlohách a generování manifestů.|
 | **DeepSeek&nbsp;R1**    | Model s 32 miliardami parametrů, odvozený z modelu Qwen společností DeepSeek (Čína), navržený s důrazem na logické uvažování. Vyniká v komplexních úlohách, jako je matematika a generování kódu.|
-| **Gemma 3**        | Jazykový model s 27 miliardami parametrů (FP16) od Google, patřící do odlehčené rodiny Gemma postavené na technologii Gemini. |
+| **Gemma 3**        | Jazykový model s 27 miliardami parametrů (FP16) od Google, patřící do Lightweight rodiny Gemma postavené na technologii Gemini. |
 | **LLaMA 3.3**      | Jazykový model se 70 miliardami parametrů od Meta. Díky své efektivitě a všestrannosti se hodí pro širokou škálu úloh zpracování přirozeného jazyka. |
 | **Mistral&#8209;Small&nbsp;3.1**| Jazykový model s 24 miliardami parametrů od Mistral AI, který má integrované vizuální schopnosti. |
 
@@ -102,6 +102,24 @@ Ačkoliv jsou modely **Deepseek R1 0528** a **Qwen 3 Coder** označeny jako **ga
 Open WebUI v současnosti nepodporuje přístup k embedding modelům prostřednictvím API (i když jsou kompatibilní s API OpenAI). Z tohoto důvodu momentálně nejsou přes API Open WebUI dostupné žádné embedding modely.  
 
 Uživatelé však mohou požádat o přístup na základě IP adresy k systému **vLLM**, který podporuje embedding modely.
+
+#### Znalost češtiny
+Vybrané modely jsme vyhodnotili pomocí benchmarku [BenCzechMark](https://huggingface.co/blog/benczechmark). Úplné výsledky jsou dostupné na uvedeném odkazu.
+Pro přehled uvádíme shrnutí hlavních skóre níže:
+
+| Model             | Průměrné skóre |
+|-------------------|------------|
+| DeepSeek-R1-0528  | 85.3       |
+| Command-A         | 82.8       |
+| LLaMA-3.3         | 73.5       |
+| LLaMA-4-Scout     | 71.5       |
+| Aya Expanse       | 63.5       |
+| Gemma 3           | 59.2       |
+| Phi-4             | 58.2       |
+
+<Callout type="info">
+Mistral-Small vykazuje problémy s kompatibilitou s tímto českým benchmarkem.
+</Callout>
 
 
 
