@@ -149,6 +149,12 @@ Pro používání API Open-WebUI je potřeba vygenerovat API klíč.
 6. Tento klíč používejte v API požadavcích k ověření a přístupu ke službám Open-WebUI.
 7. Adresa koncového bodu (endpoint) API je: [https://chat.ai.e-infra.cz/api/](https://chat.ai.e-infra.cz/api/).
 
+Pro rozhraní API byste měli zjistit přesné názvy modelů pomocí příkazů jako např. `curl` a `jq`, přičemž TOKEN nahraďte svým skutečným tokenem.
+
+```shell
+curl -H "Authorization: Bearer TOKEN" https://chat.ai.e-infra.cz/api/models | jq .data[].id
+```
+
 
 
 
