@@ -155,6 +155,30 @@ Pro rozhraní API byste měli zjistit přesné názvy modelů pomocí příkazů
 curl -H "Authorization: Bearer TOKEN" https://chat.ai.e-infra.cz/api/models | jq .data[].id
 ```
 
+Uvidíte výstup podobný tomuto:
+
+```
+"llama3.3:latest"
+"llama3.3:70b-instruct-fp16"
+"deepseek-r1:32b-qwen-distill-fp16"
+"qwen2.5-coder:32b-instruct-q8_0"
+"aya-expanse:latest"
+```
+
+Poté použijte například `llama3.3:latest` jako název modelu v API.
+
+Níže je uveden příklad konfigurace PydanticAI pro integraci s naším API (podobné nastavení použijte i pro jiné frameworky):
+
+```python
+model = OpenAIModel(
+    'deepseek-r1',
+    provider=OpenAIProvider(
+        base_url='https://chat.ai.e-infra.cz/api',
+        api_key=os.getenv('E_INFRA_API_TOKEN'),
+    ),
+)
+```
+
 
 
 
