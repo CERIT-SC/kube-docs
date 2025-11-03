@@ -121,14 +121,77 @@ We evaluated selected models using the [BenCzechMark](https://huggingface.co/blo
 Mistral-Small exhibits compatibility issues with this Czech benchmark.
 </Callout>
 
-## Generating Images
+## Examples 
+Below is step-by-step guide for leveraging LLM models in Open WebUI across various scenarios. 
+
+### Generating Images
 
 Open-WebUI also allows users to generate images using AI.
 
-1. Select text model for prompt generation (such as LLama 3.3).
-2. Click on Image icon (Generate an Image).
-3. Enter the text prompt, e.g, `Four horsemen of apocalypse`. Click send or Enter.
-4. Image will be generated and displayed.
+* Select a text-generation model (e.g., Llama 3) from top-left dropdown.
+* Click **Integration Icon** below prompt → Toggle **Image** slider ON 
+
+![image-webui](/img/ceritsc/image-webui.png)
+
+* Enter the text prompt, e.g, `Four horsemen of apocalypse`. 
+* Click send or Enter.
+* **Result:** The AI-generated image will appear in the chat window.
+
+### Picture-to-Text (OCR Scanner)
+Extract text from images using optical character recognition.
+
+* Select text-generation model (e.g., `llama3`)  
+* Click **+** icon → **Upload Files** → Select image (JPG/PNG)  
+
+![uploadfiles-webui](/img/ceritsc/uploadfiles-webui.png)
+
+* Upload an image containing text (e.g., scanned document or photo).
+* Enter OCR instruction: e.g., "Extract all text from this image verbatim, preserving line breaks.“
+* Press Enter or click Send.
+* **Result:** The extracted text will be displayed as a response.
+
+### Picture Editor
+Modify images via AI-editing. Requires models like Qwen-Image-Edit (20B).
+
+* Select the image-editing model (e.g., Qwen-Image-Edit-20B) from the model dropdown.
+* Click **+** → **Upload Files** → Select image 
+
+![uploadfiles-webui](/img/ceritsc/uploadfiles-webui.png)
+
+* Upload the image you want to edit.
+* Enter edit command: e.g., "Replace the human head with a pickaxe head."
+* Press Enter or click Send.
+* **Result:** The edited image will appear in the chat.
+** For **subsequent edits, start a new conversation** to ensure clarity.
+
+### Python Sandbox for Math/Code Tasks
+Solve problems using Python execution.
+* Select any model supporting tools (e.g., Llama 3).
+* Click **Integration Icon** → **Tools** → **Python Sandbox**  
+
+![python-webui](/img/ceritsc/python-webui.png)￼
+
+* Submit code request:  e.g., "Solve this Sudoku puzzle using Python: [[5][3][0][0][7][0][0][0][0], ...]".
+* Press Enter or click Send.
+* **Result**: Text output (e.g., solved puzzle)  
+
+### Memorize (Personalisation)
+Store user-specific context. 
+Example: After storing "I prefer Python over MATLAB", future coding suggestions will prioritize Python.
+
+* Enable Memory:
+	◦	Click username (bottom-left) → **Settings** → **Personalization** → **Memory Tab**  
+	◦	Toggle **Memory** ON  
+
+![memory-webui](/img/ceritsc/memory-webui.png)￼
+
+* Select model: `GPT OSS 120B with Memory` 		
+* **Add Memories**:
+	◦	**Manual**: Click **Manage** → Add: *Project: CFD optimization; Deadline: 2025-12-01*  
+	◦	**Chat Command**: Type `remember [fact]` (e.g., "remember my MetaCentrum login is xnovak12"). The model confirms storage. It works only with `GPT OSS 120B with Memory`
+* Memories are **applied automatically to all supported models** once enabled.
+	
+
 
 ## Creating an API Key
 
