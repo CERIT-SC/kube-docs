@@ -179,9 +179,9 @@ model = OpenAIModel(
 )
 ```
 
-## Knowledge Function (Alpha)
+## Funkce Knowledge (Alpha)
 
-Open WebUI includes an experimental *Knowledge Function*, which is essentially a [RAG (Retrieval-Augmented Generation)](https://en.wikipedia.org/wiki/Retrieval-augmented_generation) system. This allows users to upload custom texts and query a model that generates answers based on that content.
+Open WebUI obsahuje experimentální *Knowledge Function*, která v podstatě představuje systém [RAG (Retrieval-Augmented Generation)](https://en.wikipedia.org/wiki/Retrieval-augmented_generation). Tato funkce umožňuje uživatelům nahrávat vlastní texty a dotazovat se modelu, který generuje odpovědi na základě těchto nahraných dat.
 
 Currently, the Knowledge Function only supports global configuration, meaning that a single embedding model is used for all stored texts. We are still evaluating which embedding models are best suited for this purpose. A key limitation is that changing the embedding model requires all previously uploaded texts to be reprocessed, as RAG relies on consistent embeddings to function correctly. For this reason, the feature is not recommended for production use and is intended primarily for testing and preview.
 
