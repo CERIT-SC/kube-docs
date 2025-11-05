@@ -197,15 +197,15 @@ V Open WebUI jsou nyní označení modelů standardizována pro lepší přehled
 
 Všechny modely, ke kterým mají uživatelé přístup, běží na naší vlastní infrastruktuře, a data související s inferencí tedy neopouštějí naše systémy. Můžeme však poskytnout přístup i k externím modelům – například GPT-4o – na základě speciální dohody. V takových případech jsou data pochopitelně přenášena třetí straně.
 
-The Ollama inference system has all request/response logging completely disabled. In contrast, the vLLM system logs requests and responses only while the associated Pod is running.
+Systém inference Ollama má veškeré logování požadavků a odpovědí zcela vypnuté. Naopak systém vLLM loguje požadavky a odpovědi pouze po dobu, kdy běží příslušný Pod.
 
-Open WebUI itself logs at the INFO level by default, meaning request/response data is not logged. Occasionally, when troubleshooting is required, the log level may be temporarily raised to DEBUG. In such cases, request/response data is stored until the Pod is restarted—typically when a new version is deployed.
+Samotné Open WebUI ve výchozím nastavení loguje na úrovni INFO, což znamená, že údaje o požadavcích a odpovědích se neukládají. Občas, když je potřeba provést diagnostiku, může být úroveň logování dočasně zvýšena na DEBUG. V takových případech jsou data o požadavcích a odpovědích ukládána až do restartu Podu – obvykle při nasazení nové verze.
 
-Only system administrators have access to these logs, and they are not transmitted anywhere else.
+K těmto logům mají přístup pouze systémoví administrátoři a nikam jinam se nepřenášejí.
 
-Saved conversations are stored in a PostgreSQL database hosted within our infrastructure. When a conversation is deleted, it should also be removed from the database—though we have not independently verified whether WebUI fully implements this behavior. The database is backed up to an S3 storage on CESNET with a 30-day retention period, meaning older backups are deleted after 30 days. Theoretically, a deleted conversation will be completely erased within that window. Again, access to this system is restricted to administrators only.
+Uložené konverzace jsou uchovávány v databázi PostgreSQL hostované v rámci naší infrastruktury. Když je konverzace smazána, měla by být odstraněna také z databáze – i když jsme samostatně neověřili, zda to WebUI zcela správně provádí. Databáze je zálohována do úložiště S3 na CESNETu s 30denní retenční lhůtou, což znamená, že starší zálohy jsou po 30 dnech odstraněny. Teoreticky tedy bude smazaná konverzace během této lhůty definitivně odstraněna. Přístup k tomuto systému mají opět pouze administrátoři.
 
-All administrators have NDA signed. 
+Všichni administrátoři mají podepsanou NDA (dohodu o mlčenlivosti).
 
 
 
