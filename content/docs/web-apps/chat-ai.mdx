@@ -124,27 +124,27 @@ Mistral-Small exhibits compatibility issues with this Czech benchmark.
 ## Examples 
 Below is step-by-step guide for leveraging LLM models in Open WebUI across various scenarios. 
 
-### Generating Images
+### Image Generation
 
-Open-WebUI also allows users to generate images using AI.
+Generate AI images from text prompts.  
+* **Select** a text-generation model (e.g., `GPT-OSS-120B`) from the top-left dropdown.  
+* **Click** the **Integration Icon** below the prompt → Toggle **Image** slider to **ON**.  
+  
+<div class="w-110">  
+![image-webui](/img/ceritsc/image-webui.png)  
+</div>  
 
-* Select a text-generation model (e.g., GPT-OSS-120B) from top-left dropdown.
-* Click **Integration Icon** below prompt → Toggle **Image** slider ON 
+* Enter your text prompt and aspect ratio (e.g., `Four horsemen of apocalypse, 1:2`).  
+* Press Enter or click Send.  
+* Enter follow-up text instructions to modify the generated image (e.g., `Make neon lights brighter, add flying cars`). Press Enter again after each refinement prompt. 
+* **Result**: The generated image appears in the chat.  
 
-<div class="w-110">
-![image-webui](/img/ceritsc/image-webui.png)
-</div>
-
-* Enter the text prompt and aspect ratio, e.g, `Four horsemen of apocalypse, 1:2`. 
-* Click send or Enter.
-* Modify image using text prompt if necessary.
-* **Result:** The AI-generated image will appear in the chat window.
 
 ### Picture Editor
 
-Modify images via AI-editing. 
+Modify uploaded images using multimodal models.  
 
-* Select a multimodal model (RedHat AI Scout) from the model dropdown.
+* Select a multimodal model (e.g., `RedHat AI Scout`) from the model dropdown.
 * Click **+** icon → **Upload Files** → Select image (JPG/PNG) 
 
 <div class="w-110">
@@ -152,18 +152,19 @@ Modify images via AI-editing.
 </div>
 
 * Upload the image you want to edit.
-* Click **Integration Icon** below prompt → Toggle **Image** slider ON 
+* **Click** the **Integration Icon** below the prompt → Toggle **Image** slider to **ON**. 
 
 <div class="w-110">
 ![image-webui](/img/ceritsc/image-webui.png)
 </div>
 
-* Enter edit command: e.g., `Replace the background of the attached picture to ...`.
+* Enter your edit command: e.g., `Replace the background of the attached picture to ...`.
 * Press Enter or click Send.
-* **Result:** The edited image will appear in the chat.
+
+* **Result:** The edited image appears in the chat.
     
-### Picture-to-Text (OCR Scanner)
-Extract text from images using optical character recognition.
+### Image-to-Text (OCR Scanner)
+Extract text from images.
 
 * Select text-generation model (e.g., `Gemma 3` or `RedHatAI Scout`)  
 * Click **+** icon → **Upload Files** → Select image (JPG/PNG)  
@@ -172,46 +173,49 @@ Extract text from images using optical character recognition.
 ![uploadfiles-webui](/img/ceritsc/uploadfiles-webui.png)
 </div>
 
-* Upload an image containing text (e.g., scanned document or photo).
+* Upload an image containing text (e.g., scanned document, PDF, or photo).
 * Enter OCR instruction: e.g., `Extract all text from this image verbatim, preserving line breaks.`
 * Press Enter or click Send.
-* **Result:** The extracted text will be displayed as a response.
+* **Result:** The extracted text appears as a response.
 
 
 ### Python Sandbox for Math/Code Tasks
-Solve problems using Python execution.
-* Select any model supporting tools (e.g., GPT-OSS-120B).
-* Click **Integration Icon** → **Tools** → **Python Sandbox**  
+Execute Python for math/code tasks (*not general programming*).  
+* Select any model supporting tools (e.g., `GPT-OSS-120B`).
+* Click **Integration Icon** → **Tools** → Toggle **Python Sandbox** to **ON**
 
 <div class="w-110">
 ![python-webui](/img/ceritsc/python-webui.png)￼
 </div>
 
-* Submit code request:  e.g., `Solve this Sudoku puzzle using Python: [[5][3][0][0][7][0][0][0][0], ...]`.
+* Submit your request:  e.g., `Solve this Sudoku puzzle using Python: [[5][3][0][0][7][0][0][0][0], ...]`.
 * Press Enter or click Send.
 * **Result**: Text output (e.g., solved puzzle)  
 <Callout type="info">
-⚠️ **This is NOT for general programming!** Use exclusively for specific problems where Python can provide an efficient text solution (e.g., math calculations, data transformations).  
+⚠️  **General programming is disabled.**  Use exclusively for specific problems where Python can provide an efficient **text-based solution** (e.g., mathematical calculations, data transformations). 
 </Callout>
 
 ### Memorize (Personalisation)
-Store user-specific context. 
+Store user-specific context (e.g., preferences, credentials). 
 Example: After storing "I prefer Python over MATLAB", future coding suggestions will prioritize Python.
 
 * Enable Memory:
-	◦	Click username (bottom-left) → **Settings** → **Personalization** → **Memory Tab**  
-	◦	Toggle **Memory** ON  
+    * Click username (bottom-left) → **Settings** → **Personalization** → **Memory Tab**  
+	* Toggle **Memory** ON  
 
 <div class="w-110">
 ![memory-webui](/img/ceritsc/memory-webui.png)￼
 </div>
 
-* Select model: `GPT OSS 120B with Memory` 		
-* **Add Memories**:
-	* **Manual**: Click **Manage** → Add: *Project: CFD optimization; Deadline: 2025-12-01*  
-	* **Chat Command**: Type `remember [fact]` (e.g., `remember my MetaCentrum login is xnovak12`). The model confirms storage. It works only with `GPT OSS 120B with Memory`
-* Memories are **applied automatically to all supported models** once enabled.
-	
+* Select a memory-capable model: `GPT OSS 120B with Memory` 		
+* **Adding Memories**:
+	* **Manual**: Click **Manage** → Add key/value pairs: *Project: CFD optimization; Deadline: 2025-12-01*  
+	* **Chat Command**: Type `remember [fact]` (e.g., `remember my MetaCentrum login is xnovak12`). 
+The model confirms storage. 
+* It works only with `GPT OSS 120B with Memory model`
+<Callout type="info">
+Memories are **applied automatically to all supported models** once enabled.
+</Callout>	
 
 
 ## Creating an API Key
