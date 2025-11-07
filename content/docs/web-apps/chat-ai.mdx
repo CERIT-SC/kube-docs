@@ -124,7 +124,7 @@ Mistral-Small exhibits compatibility issues with this Czech benchmark.
 ## Examples 
 Below is step-by-step guide for leveraging LLM models in Open WebUI across various scenarios. 
 
-### Generating Images
+### Generating end Editing Images
 
 Open-WebUI also allows users to generate images using AI.
 
@@ -137,6 +137,7 @@ Open-WebUI also allows users to generate images using AI.
 
 * Enter the text prompt, e.g, `Four horsemen of apocalypse`. 
 * Click send or Enter.
+* Modify image using text prompt if necessary.
 * **Result:** The AI-generated image will appear in the chat window.
 
 ### Picture-to-Text (OCR Scanner)
@@ -154,21 +155,6 @@ Extract text from images using optical character recognition.
 * Press Enter or click Send.
 * **Result:** The extracted text will be displayed as a response.
 
-### Picture Editor
-Modify images via AI-editing. Currently (as of 2025-11-03), this feature is powered by Qwen-Image-Edit (20B) model.
-
-* Select the image-editing model (`Image Editor`) from the model dropdown.
-* Click **+** → **Upload Files** → Select image 
-
-<div class="w-110">
-![uploadfiles-webui](/img/ceritsc/uploadfiles-webui.png)
-</div>
-
-* Upload the image you want to edit.
-* Enter edit command: e.g., `Replace the human head with a pickaxe head.`
-* Press Enter or click Send.
-* **Result:** The edited image will appear in the chat.
-* For **subsequent edits, start a new conversation** to ensure clarity.
 
 ### Python Sandbox for Math/Code Tasks
 Solve problems using Python execution.
