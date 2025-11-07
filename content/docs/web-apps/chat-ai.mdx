@@ -124,7 +124,7 @@ Mistral-Small exhibits compatibility issues with this Czech benchmark.
 ## Examples 
 Below is step-by-step guide for leveraging LLM models in Open WebUI across various scenarios. 
 
-### Generating end Editing Images
+### Generating and Editing Images
 
 Open-WebUI also allows users to generate images using AI.
 
@@ -140,6 +140,28 @@ Open-WebUI also allows users to generate images using AI.
 * Modify image using text prompt if necessary.
 * **Result:** The AI-generated image will appear in the chat window.
 
+### Picture Editor
+
+Modify images via AI-editing. 
+
+* Select a multimodal model (RedHat AI Scout) from the model dropdown.
+* Click + → Upload Files → Select image
+
+<div class="w-110">
+![uploadfiles-webui](/img/ceritsc/uploadfiles-webui.png)
+</div>
+
+* Upload the image you want to edit.
+* Click **Integration Icon** below prompt → Toggle **Image** slider ON 
+
+<div class="w-110">
+![image-webui](/img/ceritsc/image-webui.png)
+</div>
+
+* Enter edit command: e.g., `Replace the background of the attached picture to ...`.
+* Press Enter or click Send.
+* **Result:** The edited image will appear in the chat.
+    
 ### Picture-to-Text (OCR Scanner)
 Extract text from images using optical character recognition.
 
