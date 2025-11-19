@@ -212,17 +212,27 @@ Spouštějte Python pro matematické nebo programovací úlohy (*ne pro obecné 
 </Callout>
 
 
+### Zapamatování (Personalizace)
+Ukládá uživatelský kontext (např. preference, přihlašovací údaje).
+Příklad: Po uložení „Preferuji Python před MATLABem“ budou budoucí programovací návrhy upřednostňovat Python.
 
+* Zapnutí paměti:
+    * Klikněte na své uživatelské jméno (vlevo dole) → **Nastavení** → **Personalizace** → **Karta Paměť**  
+	* Přepněte **Paměť** do polohy ZAPNUTO
 
+<div class="w-110">
+![memory-webui](/img/ceritsc/memory-webui.png)￼
+</div>
 
-
-
-
-
-
-
-
-
+* Vyberte model podporující paměť: `GPT OSS 120B with Memory`
+* **Přidávání paměťových záznamů:**:
+	* **Manuálně**: Klikněte na **Spravovat** → Přidejte dvojice klíč/hodnota: *Projekt: CFD optimalizace; Termín: 2025-12-01*  
+	* **Příkazem v chatu**: Napište `remember [fakt]` (např., `remember my MetaCentrum login is xnovak12`). 
+Model potvrdí uložení. 
+* Ukládání kontextu funguje pouze s modelem `GPT OSS 120B with Memory model`
+<Callout type="info">
+Paměť se **automaticky používá u všech podporovaných modelů** jakmile je aktivována.
+</Callout>	
 
 
 
