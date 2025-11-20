@@ -3,6 +3,7 @@
   "pages": [
     "binderhub",
     "jupyterhub",
-    "chat-ai"
+    "chat-ai",
+    "deepsite"
   ]
 }
