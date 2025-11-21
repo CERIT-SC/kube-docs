@@ -1,3 +1,5 @@
+
+
 ---
 title: Introduction
 ---
@@ -5,24 +7,46 @@ title: Introduction
 
 ## About AI as a Service 
 
-CERIT-SC—a core component of e-INFRA CZ—is developing an on-premise AI environment that provides researchers with secure, high-performance, and interoperable tools.
+CERIT-SC, a core component of e-INFRA CZ, is developing an **on-premise AI platform** that provides researchers with secure, high-performance, and interoperable tools.
 
 Our infrastructure features cutting-edge NVIDIA DGX H100 and DGX B200 systems, enabling efficient large-scale model training and inference. It hosts open large language and generative models (e.g., DeepSeek R1, Qwen3-Coder-480B, Gemma3, and GPT-OSS-120B), accessible via an Open WebUI interface or OpenAI-compatible APIs.
 
 Beyond conversational AI, the ecosystem supports AI-augmented workflows through JupyterHub, featuring preconfigured Notebook Intelligence plugins for local model interaction. Additionally, it includes the DeepSite web application for generating websites, visuals, and presentations, an AI-powered documentation portal with contextual assistance, and more. 
 
-**Features**
-* Secure, on-premise LLM and generative AI platform
-* Supports privacy-sensitive research
-* Models: DeepSeek R1, Qwen3-Coder-480B, GPT-OSS-120B,… 
-* Powered by NVIDIA DGX H100 and DGX B200 systems  
-* OpenAI-compatible API for easy integration
 
-**Integration with many e-INFRA CZ services** 
-* [WebUI chat](../ai-as-a-service/chat-ai)
-* [Hosting open-source LLM with Open-AI compatible API](../ai-as-a-service/chat-ai#using-ai-models)
-* [DeepSite](../ai-as-a-service/deepsite) (vibe coding)
-* [JupyterNotebooks with AI Intelligence](../web-apps/jupyterhub.mdx)
-* Chatbot in this documentation
+### What the Platform Provides
+
+| Category          | Highlights                                                                                                                                 |
+|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| **Compute**       | • NVIDIA **DGX‑H100** (Hopper) and **DGX‑B200** (Bergamo) clusters  <br>• Scalable GPU resources for training *and* inference                  |
+| **Models**        | • **DeepSeek R1** (LLM)  <br>• **Qwen‑3‑Coder‑480B** (code‑focused LLM)  <br>• **Gemma‑3** (multilingual)  <br>• **GPT‑OSS‑120B** (open‑source GPT) <br>• Additional community models can be added on request |
+| **Access**        | • **Open WebUI** – interactive chat & playground  <br>• **OpenAI‑compatible REST API** – drop‑in replacement for `openai` client libraries |
+| **Workflow Integration** | • **JupyterHub** with pre‑installed *Notebook Intelligence* plugins (local model calls, autocompletion, code generation)  <br>• **DeepSite** – AI‑driven website, visual, and presentation generation  <br>• **AI‑enhanced documentation portal** – contextual help, code samples, and Q&A |
+| **Security & Privacy** | • All resources run **on‑premise** on the e‑INFRA hardware  <br>• No data leaves the institutional network – suitable for privacy‑sensitive research |
+
+---
+
+### Key Features
+
+- **Secure, on‑premise LLM & generative‑AI platform** – data never leaves the trusted environment  
+- **Supports privacy‑sensitive research** – compliance with institutional and legal requirements  
+- **Broad model catalogue** – ready‑to‑use DeepSeek R1, Qwen‑3‑Coder‑480B, GPT‑OSS‑120B, and more  
+- **Powered by NVIDIA DGX H100 & DGX B200** – petaflop‑class GPU performance for large‑scale jobs  
+- **OpenAI‑compatible API** – use existing `openai` client code, LangChain, or other integrations without modification  
+
+
+
+###  How to Get Started 
+
+| Step | Action | Links |
+|------|--------|-------|
+| **1. Explore the chat UI** | Test models instantly via the web interface. | [WebUI chat](../ai-as-a-service/chat-ai) |
+| **2. Call the API** | Use the OpenAI‑compatible endpoint to integrate AI into your scripts, pipelines, or services. | [Using AI models – API docs](../ai-as-a-service/chat-ai#using-ai-models) |
+| **3. Launch a Jupyter notebook** | Open JupyterHub, start a notebook, and enable the *Notebook Intelligence* extensions for in‑notebook model calls. | [JupyterHub integration](../web-apps/jupyterhub.mdx) |
+| **4. Generate content with DeepSite | Automatically create websites, graphics, or slide decks from prompts. | [DeepSite (vibe‑coding)](../ai-as-a-service/deepsite) |
+| **5. Get contextual help** | The documentation portal itself runs an AI chatbot that can answer questions about the platform. | *Embedded chatbot* |
+
+
+Read more details on our (e-INFRA Blog)[https://blog.e-infra.cz/]
 
 
