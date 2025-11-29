@@ -5,18 +5,18 @@ title: Introduction
 
 ## About AI as a Service 
 
-CERIT-SC, a core component of e-INFRA CZ, is developing an **on-premise AI platform** that provides researchers with secure, high-performance, and interoperable tools.
+CERIT-SC, a core component of e-INFRA CZ, is developing an **on-premise AI platform** that provides researchers with secure, high-performance, and interoperable AI tools.
 
-Our infrastructure features cutting-edge NVIDIA DGX H100 and DGX B200 systems, enabling efficient large-scale model training and inference. It hosts open large language and generative models (e.g., DeepSeek R1, Qwen3-Coder-480B, Gemma3, and GPT-OSS-120B), accessible via an Open WebUI interface or OpenAI-compatible APIs.
+Our infrastructure features cutting-edge NVIDIA DGX H100 and DGX B200 (B300 will come soon) systems, enabling efficient large-scale model training and *inference*. It hosts open large language and generative models (e.g., DeepSeek R1, Qwen3-Coder-480B, Gemma3, and GPT-OSS-120B), accessible via an Open WebUI interface or OpenAI-compatible APIs.
 
 Beyond conversational AI, the ecosystem supports AI-augmented workflows through JupyterHub, featuring preconfigured Notebook Intelligence plugins for local model interaction. Additionally, it includes the DeepSite web application for generating websites, visuals, and presentations, as well as an AI-powered documentation portal with contextual assistance, among other features. 
 
 
 
-### Key Features
+### Key Features (Inference)
 
-* **Secure, on‑premise LLM & generative‑AI platform** – data never leaves the trusted environment  
-* **Supports privacy‑sensitive research** – compliance with institutional and legal requirements    
+* **Secure, on‑premise LLM & generative‑AI platform** – Our models run securely on the e-INFRA CZ infrastructure. Queries and responses are not logged by external providers, ensuring that your research and sensitive data remain within our environment. With the exception of internet searching, nothing leaves our local infrastructure. 
+* **Supports privacy‑sensitive research** – compliance with institutional and legal requirements. This makes our services ideal for handling sensitive data.     
 
 
 
@@ -25,22 +25,21 @@ Beyond conversational AI, the ecosystem supports AI-augmented workflows through 
 | Category          | Highlights                                                                                                                                 |
 |-------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
 | **Compute**       | NVIDIA **DGX‑H100** (Hopper) and **DGX‑B200** (Bergamo). Petaflop‑class GPU performance.                  |
-| **Models**        | **DeepSeek R1** (LLM), **Qwen‑3‑Coder‑480B** (code‑focused LLM), **Gemma‑3**, **GPT‑OSS‑120B** (open‑source GPT). Additional community models can be added on request. |
+| **Key Models**        | Full-sized **DeepSeek R1 0528 (685B)**: High-performance reasoning model, excellent for complex tasks and the best for Czech language processing. Operates without internet access for high security. **GPT-OSS-120B**: General reasoning model, equivalent to known mini OpenAI models. **Qwen3 Coder 480B Instruct**: Specialized instruct model optimized for programming and code generation. Additional community models can be added on request. |
 | **Access**        | **Open WebUI** – interactive chat & playground                                                               |
 | **External usage**    |    **OpenAI‑compatible REST API** - use existing `openai` client code, LangChain, or other integrations without modification           | 
-| **Workflow Integration** | **JupyterHub** with pre‑installed *Notebook Intelligence* plugins (local model calls, autocompletion, code generation), **DeepSite** – AI‑driven website, visual, and presentation generation                                     |
 
 
-
-### How to Get Started 
-
-| Step | Action | Links |
+### Key AI Services (Inference)
+| Service | Link | Description |
 |------|--------|-------|
-| **Explore the chat UI** | Test models instantly via the web interface. | [WebUI chat](../ai-as-a-service/chat-ai) |
-| **Call the API** | Use the OpenAI‑compatible endpoint to integrate AI into your scripts, pipelines, or services. | [Using AI models – API docs](../ai-as-a-service/chat-ai#using-ai-models) |
-| **Launch a Jupyter notebook** | Open JupyterHub, start a notebook, and enable the *Notebook Intelligence* extensions for in‑notebook model calls. | [JupyterHub integration](../web-apps/jupyterhub.mdx) |
-| **Generate content with DeepSite** | Automatically create websites, graphics, or slide decks from prompts. | [DeepSite (vibe‑coding)](../ai-as-a-service/deepsite) |
-| **Get Contextual Help** | The documentation portal itself features an AI chatbot that can answer questions about the platform. | Embedded chatbot |
+| **Chat (Open-WebUI)** | [WebUI chat](../ai-as-a-service/chat-ai)  | A full-featured conversational interface (similar to ChatGPT) offering advanced features and explicit language model selection. **Text Work**: Translations, summaries, analysis, and generation of program code. **Multimodality**: Image generation (including editing) and content recognition in images (e.g., extracting a serial number from a photo). **Tools**: Searching the internet, GitHub, arXiv, and a Python sandbox for running code in the browser and data analytics. **RAG (Knowledge)**: Searching within a document attached to the chat works very well.    |
+| **Call the API** | [Using AI models – API docs](../ai-as-a-service/chat-ai#using-ai-models)  | Use the OpenAI‑compatible endpoint to integrate AI into your scripts, pipelines, or services.|
+| **DeepSite** | [DeepSite (vibe‑coding)](../ai-as-a-service/deepsite)  | A generative tool that creates webpages and applications (HTML/CSS/JS) based on a simple text description. Excellent for design proposals, mockups, or quick web concepts.|
+| **AI in Jupyter Notebooks** | [JupyterHub integration](../web-apps/jupyterhub.mdx)  | Integration of an AI Assistant directly into the Jupyter Lab environment (Notebook Intelligence). Used for fixing code, generating new snippets, and conversational assistance within your coding projects.|
+| **Documentation ChatBot** | docs.e-infra.cz and other documentation sites | A Retrieval-Augmented Generation (RAG) system implemented across e-INFRA CZ documentation. Answers specific questions and acts as a problem solver based on our knowledge base (e.g., "How to run MATLAB?").|
 
 
+
+##Reference 
 Read more details on our e-INFRA Blog at https://blog.e-infra.cz/
