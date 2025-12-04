@@ -1,0 +1,177 @@
+---
+title: n8n AI Agents
+---
+
+## Introduction
+
+n8n is an open-source, low-code workflow automation platform. It uses a visual, node-based system to connect over 400 applications and APIs. 
+
+Its AI Agent functionality allows users to build autonomous workflows powered by Large Language Models (LLMs) that can make decisions, interact with apps, and execute complex, multi-step tasks without constant human input.
+
+While standard n8n workflows follow a linear path (Trigger → Action → Action), the AI Agent functionality introduces autonomy.
+ 
+
+### What is an AI agent?
+
+<div class="w-200">  
+![image-agents](/img/ceritsc/agent-intro01.png)  
+</div> 
+
+
+In n8n, an AI Agent acts as a "brain" within your workflow. Instead of following a strict set of pre-defined steps, an Agent uses a Large Language Model (LLM) to:
+
+* Understand natural language input.
+
+* Reason about the best way to solve a problem.
+
+* Select Tools (such as search, database lookups, or API calls) to gather information.
+
+* Execute complex, multi-step tasks without constant human intervention.
+
+<div class="w-200">  
+![image-agents2](/img/ceritsc/agent.png)  
+</div> 
+
+
+## Accessing n8n
+
+n8n is hosted on our Kubernetes/Rancher infrastructure.  
+
+
+Prerequisites
+
+* Account: A valid MetaCentrum account is required.
+
+* Platform: Access via Rancher [https://rancher.cloud.e-infra.cz/](https://rancher.cloud.e-infra.cz/).
+
+<Callout type="info">
+Need an Account? If you are a member of an academic or research institution in the Czech Republic (within e-INFRA CZ) and do not have an account, please request a MetaCentrum account [here](https://metavo.metacentrum.cz/en/application/form).
+</Callout>
+
+For issues or assistance, please contact support at k8s@cerit-sc.cz.
+
+
+
+## Deployment Guide: Start Your Own Instance
+
+**Log in to Rancher**
+
+1. Navigate to the Rancher Dashboard https://rancher.cloud.e-infra.cz/dashboard/
+2. Click `Log in with Shibboleth`
+3. Select `e-INFRA CZ AAI` and choose `e-INFRA CZ password` among the organisations. Logi in using your MetaCentrum credentials.
+
+
+**Locate the n8n application**
+1. Once on the RANCHER dashboard
+
+<div class="w-200">  
+![image-n8n1](/img/ceritsc/rancher-welcome.png)  
+</div> 
+
+2. Select KA --> Apps/Charts 
+
+3. Search for or select `n8n` 
+
+
+<div class="w-200">  
+![image-n8n2](/img/ceritsc/ka-charts.png)  
+</div> 
+
+
+**Configure the Instance**
+1. Click `Install`
+
+<div class="w-200">  
+![image-n8n3](/img/ceritsc/n8n-install.png)  
+</div> 
+
+
+2. Name your Instance: Enter a unique name for your deployment (e.g., username-n8n) and click Next. Fill in a name of the instance and remember it and click on `Next`
+
+<div class="w-200">  
+![image-n8n4](/img/ceritsc/n8n-name.png)  
+</div> 
+
+3. Set the URL: You may enter a specific URL suffix or leave it empty for an automatically generated URL. Click `Install`.
+
+<div class="w-200">  
+![image-n8n5](/img/ceritsc/n8n-url.png)  
+</div> 
+
+**Finalize Installation**
+
+
+Watch the installation logs. This process may take several minutes depending on available resources.
+
+Important: When the installation completes, the logs will display your unique Access URL. Copy and save this URL immediately.
+
+
+
+<div class="w-200">  
+![image-n8n6](/img/ceritsc/n8n-log.png)  
+</div> 
+
+## First Run Configuration
+
+1. Open your browser and navigate to the Access URL you saved in the previous step.
+
+2. Create an Admin Account: You will be prompted to set up an email and password.
+
+
+Note: This account is local to your n8n instance and is separate from your MetaCentrum login.
+
+
+Once logged in, you will see the n8n canvas. You can now start building workflows.
+
+
+<div class="w-200">  
+![image-n8n8](/img/ceritsc/n8n-login.png)  
+</div> 
+
+
+## Managing Resources -- Terminating
+
+
+To ensure fair usage and availability for all researchers, please manage your instance responsibly.
+
+**Deleting Your Instance**
+
+If you are no longer using n8n, please shut it down to free up resources.
+
+* Return to the Rancher Dashboard https://rancher.cloud.e-infra.cz/dashboard/ .
+
+* Locate your n8n instance in the list.
+
+* Click the three dots on the right side of the row.
+
+* Select Delete.
+
+
+<div class="w-200">  
+![image-n8n8](/img/ceritsc/n8n-shutdown.png)  
+</div> 
+
+ 
+
+## AI Model Availability
+
+We provide access to specific high-performance models for your agents.
+
+
+<Callout type="info">
+⚠️ Service Availability Notice
+Although **Deepseek R1 0528** and **Qwen 3 Coder** are designated as **guaranteed** models, please be aware of the following infrastructure constraints:
+* Maintenance: The underlying hardware may require periodic maintenance. We currently lack backup infrastructure of comparable scale.
+* Priority Tasks: During urgent priority tasks requiring this hardware, model availability may be temporarily suspended.
+* Notifications: Advance notice of interruptions will be provided on this page and within the chat interface.
+</Callout>
+
+
+
+
+
+
+## Examples 
+(Step-by-step guides for common use cases will be added here soon.)
+TBD 
+
