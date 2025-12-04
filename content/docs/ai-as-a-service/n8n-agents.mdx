@@ -10,25 +10,20 @@ Its AI Agent functionality allows users to build autonomous workflows powered by
 
 While standard n8n workflows follow a linear path (Trigger → Action → Action), the AI Agent functionality introduces autonomy.
  
-
-### What is an AI agent?
-
-<div class="w-200">  
+<div class="w-150">  
 ![image-agents](/img/ceritsc/agent-intro01.png)  
 </div> 
 
+### What is an AI agent?
 
 In n8n, an AI Agent acts as a "brain" within your workflow. Instead of following a strict set of pre-defined steps, an Agent uses a Large Language Model (LLM) to:
 
 * Understand natural language input.
-
 * Reason about the best way to solve a problem.
-
 * Select Tools (such as search, database lookups, or API calls) to gather information.
-
 * Execute complex, multi-step tasks without constant human intervention.
 
-<div class="w-200">  
+<div class="w-150">  
 ![image-agents2](/img/ceritsc/agent.jpeg)  
 </div> 
 
@@ -38,10 +33,9 @@ In n8n, an AI Agent acts as a "brain" within your workflow. Instead of following
 n8n is hosted on our Kubernetes/Rancher infrastructure.  
 
 
-Prerequisites
+**Prerequisites**
 
 * Account: A valid MetaCentrum account is required.
-
 * Platform: Access via Rancher [https://rancher.cloud.e-infra.cz/](https://rancher.cloud.e-infra.cz/).
 
 <Callout type="info">
@@ -103,8 +97,9 @@ For issues or assistance, please contact support at k8s@cerit-sc.cz.
 
 Watch the installation logs. This process may take several minutes depending on available resources.
 
+<Callout type="info">
 Important: When the installation completes, the logs will display your unique Access URL. Copy and save this URL immediately.
-
+</Callout>
 
 
 <div class="w-200">  
@@ -114,17 +109,16 @@ Important: When the installation completes, the logs will display your unique Ac
 ## First Run Configuration
 
 1. Open your browser and navigate to the Access URL you saved in the previous step.
-
 2. Create an Admin Account: You will be prompted to set up an email and password.
 
-
+<Callout type="info">
 Note: This account is local to your n8n instance and is separate from your MetaCentrum login.
-
+</Callout>
 
 Once logged in, you will see the n8n canvas. You can now start building workflows.
 
 
-<div class="w-200">  
+<div class="w-150">  
 ![image-n8n8](/img/ceritsc/n8n-login.png)  
 </div> 
 
@@ -139,13 +133,9 @@ To ensure fair usage and availability for all researchers, please manage your in
 If you are no longer using n8n, please shut it down to free up resources.
 
 * Return to the Rancher Dashboard https://rancher.cloud.e-infra.cz/dashboard/ .
-
 * Locate your n8n instance in the list.
-
 * Click the three dots on the right side of the row.
-
 * Select Delete.
-
 
 <div class="w-200">  
 ![image-n8n8](/img/ceritsc/n8n-shutdown.png)  
