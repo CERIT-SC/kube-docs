@@ -2,6 +2,7 @@
   "pages": [
     "introduction",
     "chat-ai",
-    "deepsite"
+    "deepsite",
+    "n8n-agents"
   ]
 }
