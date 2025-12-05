@@ -49,7 +49,7 @@ For issues or assistance, please contact support at k8s@cerit-sc.cz.
 
 
 
-## Deployment Guide: Start Your Own Instance
+## Deployment guide: Start your own instance
 
 **Log in to Rancher**
 
@@ -75,7 +75,7 @@ For issues or assistance, please contact support at k8s@cerit-sc.cz.
 </div> 
 
 
-**Configure the Instance**
+**Configure the instance**
 1. Click `Install`
 
 <div class="w-200">  
@@ -83,7 +83,7 @@ For issues or assistance, please contact support at k8s@cerit-sc.cz.
 </div> 
 
 
-2. Name your Instance: Enter a unique name for your deployment (e.g., username-n8n) and click Next. Fill in a name of the instance and remember it and click on `Next`
+2. Name your instance: Enter a unique name for your deployment (e.g., username-n8n) and click Next. Fill in a name of the instance and remember it and click on `Next`
 
 <div class="w-200">  
 ![image-n8n4](/img/ceritsc/n8n-name.png)  
@@ -95,7 +95,7 @@ For issues or assistance, please contact support at k8s@cerit-sc.cz.
 ![image-n8n5](/img/ceritsc/n8n-url.png)  
 </div> 
 
-**Finalize Installation**
+**Finalize installation**
 
 
 Watch the installation logs. This process may take several minutes depending on available resources.
@@ -109,7 +109,7 @@ Important: When the installation completes, the logs will display your unique Ac
 ![image-n8n6](/img/ceritsc/n8n-log.png)  
 </div> 
 
-## First Run Configuration
+## First run configuration
 
 1. Open your browser and navigate to the Access URL you saved in the previous step.
 2. Create an Admin Account: You will be prompted to set up an email and password.
@@ -126,12 +126,12 @@ Once logged in, you will see the n8n canvas. You can now start building workflow
 </div> 
 
 
-## Managing Resources -- Terminating
+## Managing resources -- Terminating
 
 
 To ensure fair usage and availability for all researchers, please manage your instance responsibly.
 
-**Deleting Your Instance**
+**Deleting your instance**
 
 If you are no longer using n8n, please shut it down to free up resources.
 
@@ -146,7 +146,7 @@ If you are no longer using n8n, please shut it down to free up resources.
 
  
 
-## AI Model Availability
+## AI model availability
 
 We provide access to specific high-performance models for your agents.
 
@@ -163,7 +163,7 @@ Although **Deepseek R1 0528** and **Qwen 3 Coder** are designated as **guarantee
 
 ## How to build an agent
 
-**Step 1: The Trigger**
+**Step 1: The trigger**
 
 To interact with your agent, you need a trigger. For testing and building chatbots, the Chat Trigger is the standard starting point.
 
@@ -172,14 +172,14 @@ For backend automation (like processing emails), you would use a Webhook or Emai
 </Callout>
 
 
-**Step 2: Connecting the Brain**
+**Step 2: Connecting the brain**
 
 Connect a Chat Model node (e.g., OpenAI) to the "Model" input of the Agent node. Our local models can be used. 
 * Credential: You will need an API key from the provider
 * Model Selection: Choose a model capable of reasoning
 
 
-**Step 3: Configuring the Agent**
+**Step 3: Configuring the agent**
 
 The AI Agent Node requires specific configuration to function correctly:
 
@@ -189,14 +189,14 @@ The AI Agent Node requires specific configuration to function correctly:
 | Prompt Source | Usually `Connected Chat Trigger` or `Define below` if using a webhook.  |
 | System Message | CRITICAL. This is where you define the persona. Ex: "You are a helpful math assistant. Always use the calculator tool."  |
 
-**Step 4: Empowering with Tools**
+**Step 4: Empowering with tools**
 
 Without tools, an LLM is just a text generator. Tools give it hands. You can connect:
 * **Pre-built Tools**: Calculator, Wikipedia, Bing Search
 * **Custom Tools**: Any n8n workflow can be converted into a tool using the "Call Workflow" tool
 
 
-**Step 5: Managing Memory**
+**Step 5: Managing memory**
 
 **Window Buffer Memory**: Keeps a "sliding window" of the last K messages. Best for: Keeping token costs low while maintaining immediate context.
 
