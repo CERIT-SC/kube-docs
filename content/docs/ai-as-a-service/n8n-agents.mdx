@@ -9,14 +9,17 @@ n8n is an open-source, low-code workflow automation platform. It uses a visual, 
 Its AI Agent functionality allows users to build autonomous workflows powered by Large Language Models (LLMs) that can make decisions, interact with apps, and execute complex, multi-step tasks without constant human input.
 
 While standard n8n workflows follow a linear path (Trigger → Action → Action), the AI Agent functionality introduces autonomy.
- 
-<div class="w-150">  
-![image-agents](/img/ceritsc/agent-intro01.png)  
-</div> 
 
 ### What is an AI agent?
 
-In n8n, an AI Agent acts as a "brain" within your workflow. Instead of following a strict set of pre-defined steps, an Agent uses a Large Language Model (LLM) to:
+<div class="w-150">  
+![image-agents2](/img/ceritsc/agent.jpeg)  
+</div> 
+
+In n8n, an AI Agent is built visually. The AI Agent Node sits at the center, acting as the controller. You connect the "Brain" (LLM Model), "Tools," and "Memory" directly to the agent node inputs. The workflow typically starts with a Trigger, such as a Chat Trigger or Webhook.
+
+
+Instead of following a strict set of pre-defined steps, an Agent uses a Large Language Model (LLM) to:
 
 * Understand natural language input.
 * Reason about the best way to solve a problem.
@@ -24,7 +27,7 @@ In n8n, an AI Agent acts as a "brain" within your workflow. Instead of following
 * Execute complex, multi-step tasks without constant human intervention.
 
 <div class="w-150">  
-![image-agents2](/img/ceritsc/agent.jpeg)  
+![image-agents](/img/ceritsc/agent-intro01.png)  
 </div> 
 
 
