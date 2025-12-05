@@ -161,7 +161,49 @@ Although **Deepseek R1 0528** and **Qwen 3 Coder** are designated as **guarantee
 
 
 
+## How to build an agent
 
+**Step 1: The Trigger**
+
+To interact with your agent, you need a trigger. For testing and building chatbots, the Chat Trigger is the standard starting point.
+
+<Callout type="info">
+For backend automation (like processing emails), you would use a Webhook or Email Trigger instead.
+</Callout>
+
+**Step 2: Connecting the Brain**
+
+Connect a Chat Model node (e.g., OpenAI) to the "Model" input of the Agent node. Our local models can be used. 
+* Credential: You will need an API key from the provider
+* Model Selection: Choose a model capable of reasoning
+
+**Step 3: Configuring the Agent**
+
+The AI Agent Node requires specific configuration to function correctly:
+
+| Setting   | Recommendation |
+|------------|----------------|
+| Agent Type  | Select `Tools Agent`. This is the most versatile type that can use external tools. |
+| Prompt Source | Usually `Connected Chat Trigger` or `Define below` if using a webhook.  |
+| System Message | CRITICAL. This is where you define the persona. Ex: "You are a helpful math assistant. Always use the calculator tool."  |
+
+**Step 4: Empowering with Tools**
+
+Without tools, an LLM is just a text generator. Tools give it hands. You can connect:
+* **Pre-built Tools**: Calculator, Wikipedia, Bing Search
+* **Custom Tools**: Any n8n workflow can be converted into a tool using the "Call Workflow" tool
+
+**Step 5: Managing Memory**
+
+**Window Buffer Memory**: Keeps a "sliding window" of the last K messages. 
+* Best for: Keeping token costs low while maintaining immediate context.
+
+**Simple Memory**: Stores the entire conversation history in execution RAM. 
+* Best for: Short, complex sessions where every detail matters.
+
+<Callout type="info">
+Without a memory node connected, the agent treats every message as a brand new conversation.
+</Callout>
 
 
 ## Examples 
