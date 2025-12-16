@@ -403,6 +403,32 @@ spec:
     app: application
 ```
 
+### LoadBalancer Firewall
+
+It is recommended to restrict external access to publicly exposed applications. This can be achieved either at the NetworkPolicy level (note that this works only when `externalTrafficPolicy` is set to `Local`) or by using the `loadBalancerSourceRanges` field in the `Service` object.
+
+The example below demonstrates how to limit access to the network `147.251.0.0/16` and to a single IP address `1.2.3.4/32`. The `loadBalancerSourceRanges` field always expects values in CIDR notation, so even a single IP address must be expressed with a `/32` mask. If you are using both IPv4 and IPv6 address families, be aware that you must specify source ranges for both.
+
+```yaml title="service.yaml"
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-svc-rw
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: application.dyn.cloud.e-infra.cz
+spec:
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: Cluster
+  ports:
+  - port: 5432
+    targetPort: 5432
+  selector:
+    app: application-rw
+  loadBalancerSourceRanges:
+  - 147.251.0.0/16
+  - 1.2.3.4/32
+```
 
 ### Sharing an IP Address Across Multiple Services
 
