@@ -146,7 +146,7 @@ spec:
     role: primary
 ```
 
-In this case, the IP addresses are allocated from the public IP pool. When accessing the database from the external world, we **strongly recommend** to setup the Network Policy.
+In this case, the IP addresses are allocated from the public IP pool. When accessing the database from the external world, we **strongly recommend** to setup the Network Policy or the [LoadBalancer firewall](../kubernetes/expose#loadbalancer-firewall).
 
 ##### Retrieve Public IP to Connect
 
@@ -161,6 +161,8 @@ kubectl get svc test-cluster-external -n test-postgres-ns
 NAME                    TYPE           CLUSTER-IP    EXTERNAL-IP       PORT(S)    AGE
 test-cluster-external   LoadBalancer   10.43...      147.251.X.Y       5432/TCP   21h
 ```
+
+
 
 ### Network Policy
 
