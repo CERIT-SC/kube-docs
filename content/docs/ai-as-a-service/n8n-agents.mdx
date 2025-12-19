@@ -221,46 +221,64 @@ Without a memory node connected, the agent treats every message as a brand new c
 </Callout>
 
 
-## Examples 
-
-Example with a calculator
+## Example: Adding a calculator to an OpenAI‑powered chat agent (with our local models)
 
 <div class="w-200">  
 ![image-api2](/img/ceritsc/n8n-choose-LLM-2.png)  
 </div> 
 
-1. Add AI agent
+1. Add AI agent 
+
+* Open the Nodes panel → click Add Node → search for AI Agent.  
+* Drag the node onto the canvas.
 
 <div class="w-200">  
 ![image-api](/img/ceritsc/n8n-choose-LLM-1.png)  
 </div> 
 
-2. Connect OpenAI Chat model
+2. Connect an OpenAI Chat model
 
 <div class="w-200">  
 ![image-api](/img/ceritsc/n8n-choose-LLM-2a.png)  
 </div> 
 
-3. Add the API Key, for our models use the token generated above and `Base URL: https://llm.ai.e-infra.cz/v1` 
+3. Configure the authentication for a local model 
+| Field | Value | 
+|--------|-------|
+| API Key | Paste the token you generated earlier |
+| Base URL | https://llm.ai.e-infra.cz/v1 |
+| Model | Pick the desired model (e.g., GPT‑OSS‑120b).
 
 <div class="w-200">  
 ![image-api](/img/ceritsc/n8n-choose-LLM-3.png)  
 </div> 
 
-Choose model from the list (GPT-OSS-120b)
-
 <div class="w-200">  
 ![image-api](/img/ceritsc/n8n-choose-LLM-4.png)  
 </div> 
 
-4. Add `Chat trigger` from the list
+4. Add a `Chat trigger` 
+The trigger starts the workflow when a user sends a message.  
+* From the Nodes panel, add Chat Trigger.  
+* Connect its output to the AI Agent node’s input.
+
 <div class="w-200">  
 ![image-api](/img/ceritsc/n8n-trigger.png)  
 </div> 
 
 5. Similarly, add `Simple memory` and `Calculator`
+* Simple Memory stores the conversation context so the model can reference previous messages.
+* Calculator handles arithmetic requests coming from the LLM.
+Wire them in the order: Chat Trigger → AI Agent → Simple Memory → Calculator → (optional) response node.
 
-6. try to ask for a simple calculation in the chat
+6. Test the workflow
+
+*  Open the Chat Trigger interface (or use the integrated test panel).  
+*  Type a straightforward math request, e.g. What is 5 × 5?.  
+*  The workflow should route the request to the Calculator, return the answer, and display it in the chat window.
+
 <div class="w-200">  
 ![image-api](/img/ceritsc/n8n-result.png)  
 </div> 
+
+If the answer appears correctly, the integration is successful!  
