@@ -151,8 +151,8 @@ If you are no longer using n8n, please shut it down to free up resources.
 We provide [API access](./chat-ai#creating-an-api-key) to high-performance models for your agents. 
 
 <Callout type="info">
-⚠️ Service Availability Notice
-Although **Deepseek R1 0528** and **Qwen 3 Coder** are designated as **guaranteed** models, please be aware of the following infrastructure constraints:
+⚠️ Service availability notice:
+Although **GPT-OSS-120B**, **Deepseek R1 0528** and **Qwen 3 Coder** are designated as **guaranteed** models, please be aware of the following infrastructure constraints:
 * Maintenance: The underlying hardware may require periodic maintenance. We currently lack backup infrastructure of comparable scale.
 * Priority Tasks: During urgent priority tasks requiring this hardware, model availability may be temporarily suspended.
 * Notifications: Advance notice of interruptions will be provided on this page and within the chat interface.
@@ -168,7 +168,6 @@ Although **Deepseek R1 0528** and **Qwen 3 Coder** are designated as **guarantee
 <div class="w-110">  
 ![image-api](/img/ceritsc/chat-ai-api-setting.png)  
 </div> 
-
 
 
 
@@ -223,7 +222,6 @@ Without a memory node connected, the agent treats every message as a brand new c
 
 
 ## Examples 
-(Step-by-step guides for common use cases will be added here soon.)
 
 Example with a calculator
 
@@ -231,19 +229,24 @@ Example with a calculator
 ![image-api](/img/ceritsc/n8n-agent-calculator.png)  
 </div> 
 
-Add AI agent
+1. Add AI agent
 <div class="w-110">  
 ![image-api2](/img/ceritsc/n8n-choose-LLM-2.png)  
 </div> 
 
-Connect OpenAI Chat model
+2. Connect OpenAI Chat model
 <div class="w-110">  
 ![image-api](/img/ceritsc/n8n-choose-LLM-2a.png)  
 </div> 
 
 
-Adding API Key, for our models, use the token generated above and `Base URL: https://llm.ai.e-infra.cz/v1` 
+3 Add the API Key, for our models use the token generated above and `Base URL: https://llm.ai.e-infra.cz/v1` 
+
 <div class="w-110">  
 ![image-api](/img/ceritsc/n8n-choose-LLM-3.png)  
+</div> 
+
+<div class="w-110">  
+![image-api](/img/ceritsc/n8n-choose-LLM-4.png)  
 </div> 
 
