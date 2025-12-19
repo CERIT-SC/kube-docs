@@ -150,7 +150,6 @@ If you are no longer using n8n, please shut it down to free up resources.
 
 We provide [API access](./chat-ai#creating-an-api-key) to high-performance models for your agents. 
 
-
 <Callout type="info">
 ⚠️ Service Availability Notice
 Although **Deepseek R1 0528** and **Qwen 3 Coder** are designated as **guaranteed** models, please be aware of the following infrastructure constraints:
@@ -158,6 +157,19 @@ Although **Deepseek R1 0528** and **Qwen 3 Coder** are designated as **guarantee
 * Priority Tasks: During urgent priority tasks requiring this hardware, model availability may be temporarily suspended.
 * Notifications: Advance notice of interruptions will be provided on this page and within the chat interface.
 </Callout>
+
+### How to generate an API Key (our local OpenAI models)
+
+* Open https://chat.ai.e‑infra.cz/ in your browser 
+* Open the `Settings` menu → `Account` → `API keys`  
+* Create a new API key, and copy the generated token
+
+
+<div class="w-110">  
+![image-api](/img/ceritsc/chat-ai-api-settings.png)  
+</div> 
+
+
 
 
 
@@ -174,9 +186,12 @@ For backend automation (like processing emails), you would use a Webhook or Emai
 
 **Step 2: Connecting the brain**
 
-Connect a Chat Model node (e.g., OpenAI) to the "Model" input of the Agent node. Our [local models can be used](./chat-ai#creating-an-api-key) . 
+Connect a Chat Model node (e.g., OpenAI) to the "Model" input of the Agent node. Our [local models can be used](./chat-ai#creating-an-api-key), use the token generated in the previous chapter. 
+
 * Credential: You will need an API key from the provider
 * Model Selection: Choose a model capable of reasoning
+
+
 
 
 **Step 3: Configuring the agent**
@@ -209,5 +224,26 @@ Without a memory node connected, the agent treats every message as a brand new c
 
 ## Examples 
 (Step-by-step guides for common use cases will be added here soon.)
-TBD 
+
+Example with a calculator
+
+<div class="w-110">  
+![image-api](/img/ceritsc/n8n-agent-calculator.png)  
+</div> 
+
+Add AI agent
+<div class="w-110">  
+![image-api2](/img/ceritsc/n8n-choose-LLM-2.png)  
+</div> 
+
+Connect OpenAI Chat model
+<div class="w-110">  
+![image-api](/img/ceritsc/n8n-choose-LLM-2a.png)  
+</div> 
+
+
+Adding API Key, for our models, use the token generated above and `Base URL: https://llm.ai.e-infra.cz/v1` 
+<div class="w-110">  
+![image-api](/img/ceritsc/n8n-choose-LLM-3.png)  
+</div> 
 
