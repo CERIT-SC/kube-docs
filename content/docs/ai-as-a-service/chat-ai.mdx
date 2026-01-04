@@ -67,7 +67,7 @@ Model names are case-sensitive and may include version tags like `:latest` or sp
 | Model                | Description | Context Size |
 |----------------------|-------------|--------------|
 | **DeepSeek&nbsp;R1&nbsp;0528** | A 685B reasoning-optimized language model from Deepseek AI. Excels at complex tasks including mathematics, logical reasoning, and code generation. | 128k  |
-| **GPT-OSS-B120**     | A 120B language model from OpenAI. Superior performance. |  128k  |
+| **GPT-OSS-120B**     | A 120B language model from OpenAI. Superior performance. |  128k  |
 | **Qwen 3 Coder**     | A 480B language model from Qwen. Succeeds the Qwen 2.5 Coder with significantly enhanced performance in coding tasks. | 64k   |
 | **Qwen 2.5 Coder**   | A 32B Q8 variant specialized in code comprehension and generation. Ideal for developers seeking programming assistance. |     |
 
@@ -260,14 +260,14 @@ To use Open-WebUI's API, you need to generate an API key.
 4. Ignore JWT token and select API key and either generate new or display existing.
 5. Copy the generated API key and store it securely.
 6. Use this key in API requests to authenticate and access Open-WebUI services.
-7. Endpoint API is: [https://chat.ai.e-infra.cz/api/](https://chat.ai.e-infra.cz/api/).
+7. Endpoint API is: [https://llm.ai.e-infra.cz/v1/](https://llm.ai.e-infra.cz/v1/).
 
 ### Models for API Interface
 
 For API interfaces, you should query exact model names using, e.g., `curl` and `jq` commands, replacing TOKEN with your real token.
 
 ```shell
-curl -H "Authorization: Bearer TOKEN" https://chat.ai.e-infra.cz/api/models | jq .data[].id
+curl -H "Authorization: Bearer TOKEN" https://llm.ai.e-infra.cz/v1/models | jq .data[].id
 ```
 
 You will see output similar to:
@@ -288,7 +288,7 @@ Example `PydanticAI` configuration for integrating with our API (use similar set
 model = OpenAIModel(
     'deepseek-r1',
     provider=OpenAIProvider(
-        base_url='https://chat.ai.e-infra.cz/api',
+        base_url='https://llm.ai.e-infra.cz/v1',
         api_key=os.getenv('E_INFRA_API_TOKEN'),
     ),
 )
@@ -319,7 +319,7 @@ schema: v1
 model_defaults: &model_defaults
   provider: openai
   apiKey: <api-key>
-  apiBase: https://chat.ai.e-infra.cz/openai
+  apiBase: https://llm.ai.e-infra.cz/v1
 models:
   - name: autocomplete-coder
     <<: *model_defaults
