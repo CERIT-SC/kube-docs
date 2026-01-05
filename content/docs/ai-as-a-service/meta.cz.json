@@ -1,9 +1,8 @@
 {
-  "title": "Webové Aplikace",
+  "title": "AI as a Service (AIaaS)",
   "pages": [
-    "binderhub",
-    "jupyterhub",
     "chat-ai",
     "deepsite"
   ]
 }
+
