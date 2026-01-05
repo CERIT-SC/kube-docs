@@ -1,1 +1,9 @@
-
+{
+  "title": "Webové Aplikace",
+  "pages": [
+    "binderhub",
+    "jupyterhub",
+    "chat-ai",
+    "deepsite"
+  ]
+}
