@@ -1,28 +1,55 @@
 ---
 title: Welcome to the CERIT-SC Kubernetes Container Platform
 ---
+## Your Gateway to High-Performance Research & AI
 
-Discover the power and flexibility of our cutting-edge container platform, built on the robust [Kubernetes orchestrator](https://kubernetes.io/) and utilizing [Docker](https://hub.docker.com/) container images. Our platform leverages the Rancher Kubernetes distribution, providing an intuitive user interface through the [Rancher dashboard](https://rancher.cloud.e-infra.cz).
+Welcome to the CERIT-SC documentation. We provide a state-of-the-art computational platform designed to accelerate your research. Whether you need to deploy complex workflow pipelines, run interactive data analysis, or leverage the latest AI models in a secure environment, our infrastructure is built to scale with your needs.
 
-### Platform Highlights
+## Why CERIT-SC?
 
-* Architecture: Built on Linux and x86_64 architecture, with support for NVIDIA GPU accelerators and high-speed SSD storage.
-* Networking: Experience seamless connectivity with InfiniBand 100Gbps and 200Gbps interconnect networks between selected nodes.
-* Versatility: From simple web applications to complex workflow pipelines, our platform supports a wide range of use cases. Explore examples like the [hello world](../examples/helloworld) example,  [scipion](../rancher-apps/scipion), or the [nextflow](../workflows/nextflow) workflow pipeline.
+* **User-Centric Design:** Focus on your science, not the infrastructure. From pre-built applications to custom Docker containers, we support all skill levels and expertise.
 
-### User-Centric Design
+* **Cutting-Edge Hardware:** Access powerful x86_64 clusters, high-speed NVMe storage, and NVIDIA GPU accelerators connected via 100/200Gbps InfiniBand networks.
 
-Our platform empowers users to concentrate on their applications, minimizing the need for infrastructure knowledge. Whether you're using pre-built applications or creating your own Docker images, our platform simplifies the process. 
+* **Open & Flexible:** Built on open standards [Kubernetes orchestrator](https://kubernetes.io/) and utilizing [Docker](https://hub.docker.com/) container images, ensuring portability and reproducibility of your scientific results.
 
 
-### Access and Eligibility
-Access to our platform requires an academic affiliation or a sponsored account. Users can log in via e-INFRA CZ AAI (MetaCenter account), Elixir AAI, or EGI AAI, with no additional membership needed for standard projects with limited resources.
 
-### Getting Started
+## Core Services
 
-   * Pre-Built Applications: Easily deploy applications through our infrastructure. Check out Rancher Applications (Matlab, Virtual Desktop,...) or Web Applications (Jupyter Notebook, Alphafold/Foldify,...) in the navigation left menu.
-   * Docker Image Utilization: Leverage a vast array of Docker images from global registries like [hub.docker.com](https://hub.docker.com), keeping in mind any limitations.
-   * Custom Application Development: Advanced users can create and deploy custom applications. Refer to the [dockerfile](../docker/dockerfile) section for guidance.
+### 1. Kubernetes Container Platform
+
+Our flagship service offers a managed Kubernetes environment powered by Rancher. It provides the ultimate flexibility for running your applications.
+
+* [Rancher dashboard](https://rancher.cloud.e-infra.cz): An intuitive web interface to manage your workloads without needing deep CLI knowledge.
+* App Catalog: One-click deployment for popular research tools (Matlab, RStudio, Scipion, etc.).
+* GitOps Ready: Fully supports advanced workflows using GitLab Kubernetes Agents and Argo Workflows.
+* Storage: Integrated persistent storage options including high-performance block storage and object storage (S3).
+* Docker Image Utilization: Leverage a vast array of Docker images from global registries like [hub.docker.com](https://hub.docker.com), keeping in mind any limitations.
+* Custom Application Development: Advanced users can create and deploy custom applications. Refer to the [dockerfile](../docker/dockerfile) section for guidance.
+
+### 2. Interactive Computing
+
+Need an environment for data exploration? We host managed web applications that require no installation on your part.
+
+* JupyterHub: Run Jupyter Notebooks with access to our compute resources.
+* BinderHub: Turn your Git repositories into interactive computational environments.
+* Foldify: A web-based UI for AlphaFold to predict protein structures.
+
    
+### 3. AI as a Service (AIaaS) New!
 
+Unlock the power of Artificial Intelligence without the technical overhead. We provide secure, on-premise access to state-of-the-art Large Language Models (LLMs) and AI tools.
 
+* Chat AI (Open WebUI): A secure, private alternative to ChatGPT. Access models like Llama 3 and others via a user-friendly chat interface.
+* RAG (Retrieval-Augmented Generation): Upload your own research papers or documents and "chat" with them to extract insights securely.
+* API Access: Integrate AI into your own scripts. We provide an OpenAI-compatible API, allowing you to switch between commercial and open models seamlessly.
+* DeepSite & Agents: Build AI-driven websites with DeepSite (Vibe Coding) or automate tasks using n8n AI Agents.
+
+## How to Access
+
+Access to the CERIT-SC platform is available to the academic community.
+
+* Log In: Use your existing e-INFRA CZ (MetaCentrum), Elixir AAI, or EGI AAI identity.
+* For standard projects with basic resource limits, you can log in and start immediately.
+* Scale Up: For intensive resource requirements, simply request a project quota via our portal.
