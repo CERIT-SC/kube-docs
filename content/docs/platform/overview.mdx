@@ -3,6 +3,8 @@ title: Welcome to the CERIT-SC Kubernetes Container Platform
 ---
 
 import { Cards3, Card } from '@/components/card3';
+import Image from 'next/image';
+import Kubernetes from '@/public/img/ceritsc/menu-logos/kubernetes-logo.svg';
 
 ## Your Gateway to High-Performance Research & AI
 
@@ -20,7 +22,7 @@ Welcome to the CERIT-SC documentation. We provide a state-of-the-art computation
 
 <Cards3 className="pt-4">
 
-<Card title="Kubernetes">
+<Card title="Kubernetes" icon={<Image src={Kubernetes} alt="Kubernetes Logo"/>}>
 
 Our flagship service offers a managed Kubernetes Container Platform powered by [Rancher](../rancher/rancher). 
 
