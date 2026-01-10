@@ -19,32 +19,29 @@ Welcome to the CERIT-SC documentation. We provide a state-of-the-art computation
 
 ### 1. Kubernetes Container Platform
 
-Our flagship service offers a managed Kubernetes environment powered by Rancher. It provides the ultimate flexibility for running your applications.
+Our flagship service offers a managed Kubernetes environment powered by [Rancher](../rancher/rancher). It provides the ultimate flexibility for running your applications.
 
-* [Rancher dashboard](https://rancher.cloud.e-infra.cz): An intuitive web interface to manage your workloads without needing deep CLI knowledge.
-* App Catalog: One-click deployment for popular research tools (Matlab, RStudio, Scipion, etc.).
-* GitOps Ready: Fully supports advanced workflows using GitLab Kubernetes Agents and Argo Workflows.
-* Storage: Integrated persistent storage options including high-performance block storage and object storage (S3).
-* Docker Image Utilization: Leverage a vast array of Docker images from global registries like [hub.docker.com](https://hub.docker.com), keeping in mind any limitations.
-* Custom Application Development: Advanced users can create and deploy custom applications. Refer to the [dockerfile](../docker/dockerfile) section for guidance.
+* Easy Management: Use the intuitive dashboard or one-click [App Catalog](../rancher-apps/rancher-applications)to deploy tools like Matlab, RStudio, and Scipion.
+* Advanced Capabilities: Full support for [Kubectl](../kubernetes/kubectl), custom [Docker containers](../docker/dockerfile), persistent storage, and [GitOps workflows](../gitops/agentk)
+
+
 
 ### 2. Interactive Computing
 
 Need an environment for data exploration? We host managed web applications that require no installation on your part.
 
-* JupyterHub: Run Jupyter Notebooks with access to our compute resources.
-* BinderHub: Turn your Git repositories into interactive computational environments.
-* Foldify: A web-based UI for AlphaFold to predict protein structures.
+* [JupyterHub](../web-apps/jupyterhub): Run Jupyter Notebooks with access to our compute resources.
+* [BinderHub](../web-apps/binderhub): Turn your Git repositories into interactive computational environments.
+* [Foldify](../web-apps/foldify): A web-based UI for AlphaFold to predict protein structures.
 
    
 ### 3. AI as a Service (AIaaS) New!
 
-Unlock the power of Artificial Intelligence without the technical overhead. We provide secure, on-premise access to state-of-the-art Large Language Models (LLMs) and AI tools.
+Unlock the power of [Artificial Intelligence](../ai-as-a-service/chat-ai) with secure, on-premise access to state-of-the-art Large Language Models (LLMs).
 
-* Chat AI (Open WebUI): A secure, private alternative to ChatGPT. Access models like Llama 3 and others via a user-friendly chat interface.
-* RAG (Retrieval-Augmented Generation): Upload your own research papers or documents and "chat" with them to extract insights securely.
-* API Access: Integrate AI into your own scripts. We provide an OpenAI-compatible API, allowing you to switch between commercial and open models seamlessly.
-* DeepSite & Agents: Build AI-driven websites with DeepSite (Vibe Coding) or automate tasks using n8n AI Agents.
+* **Chat & RAG:** Use our **Chat AI** (Open WebUI) to interact privately with models like Llama 3, Deepseek, or Mistral, and chat with your own uploaded documents.
+* **Develop:** Integrate AI into your scripts via our **OpenAI-compatible API** or build workflows with **n8n Agents** and **DeepSite** web/apps creator. 
+
 
 ## How to Access
 
