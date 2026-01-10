@@ -1,6 +1,9 @@
 ---
 title: Welcome to the CERIT-SC Kubernetes Container Platform
 ---
+
+import { Cards3, Card } from '@/components/card3';
+
 ## Your Gateway to High-Performance Research & AI
 
 Welcome to the CERIT-SC documentation. We provide a state-of-the-art computational platform designed to accelerate your research. Whether you need to deploy complex workflow pipelines, run interactive data analysis, or leverage the latest AI models in a secure environment, our infrastructure is built to scale with your needs.
@@ -13,35 +16,37 @@ Welcome to the CERIT-SC documentation. We provide a state-of-the-art computation
 
 * **Open & Flexible:** Built on open standards [Kubernetes orchestrator](https://kubernetes.io/) and utilizing [Docker](https://hub.docker.com/) container images.
 
-
-
 ## Core Services
 
-### 1. Kubernetes Container Platform
+<Cards3 className="pt-4">
+
+<Card title="Kubernetes Container Platform">
 
 Our flagship service offers a managed Kubernetes environment powered by [Rancher](../rancher/rancher). It provides the ultimate flexibility for running your applications.
 
 * Easy Management: Use the intuitive dashboard or one-click [App Catalog](../rancher-apps/rancher-applications) to deploy tools like Matlab, RStudio, and Scipion.
 * Advanced Capabilities: Full support for [Kubectl](../kubernetes/kubectl), custom [Docker containers](../docker/dockerfile), persistent storage, and [GitOps workflows](../gitops/agentk)
+</Card>
 
 
-
-### 2. Interactive Computing
+<Card title="Interactive Computing">
 
 Need an environment for data exploration? We host managed web applications that require no installation on your part.
 
 * [JupyterHub](../web-apps/jupyterhub): Run Jupyter Notebooks with access to our compute resources.
 * [BinderHub](../web-apps/binderhub): Turn your Git repositories into interactive computational environments.
 * [Foldify](../web-apps/foldify): A web-based UI for AlphaFold to predict protein structures.
-
+</Card>
    
-### 3. AI as a Service (AIaaS) New!
+<Card title="AI as a Service (AIaaS) New!">
 
 Unlock the power of [Artificial Intelligence](../ai-as-a-service/chat-ai) with secure, on-premise access to state-of-the-art Large Language Models (LLMs).
 
 * **Chat & RAG:** Use our **Chat AI** (Open WebUI) to interact privately with models like Llama 3, Deepseek, or Mistral, and chat with your own uploaded documents.
 * **Develop:** Integrate AI into your scripts via our **OpenAI-compatible API** or build workflows with **n8n Agents** and **DeepSite** web/apps creator. 
 
+</Card>
+</Cards3>
 
 ## How to Access
 
