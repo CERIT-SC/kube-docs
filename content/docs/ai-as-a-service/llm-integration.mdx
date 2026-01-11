@@ -1,0 +1,129 @@
+---
+title: LLM Integration
+---
+
+## Introduction
+The CERIT-SC AI infrastructure exposes Large Language Models (LLMs) through standard API protocols, allowing you to integrate powerful AI assistance directly into your local development environment. By connecting your tools to our backend, you can leverage high-performance models (such as qwen3-coder or gpt-oss-120b) for coding tasks without needing to run them on your own hardware or rely on external commercial providers.
+
+This chapter describes how to configure two popular tools to communicate with our API.
+
+<Callout type="info"> 
+Prerequisite: Before proceeding, ensure you have generated an API key from the [AI Chat WebUI](../chat-ai). You will need this key to authenticate your client. 
+</Callout>
+
+## Integrate with Visual Studio Code
+
+The AI chatbot can be integrated with Visual Studio Code. For this purpose, a 3rd part extension [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) is used. With this extension, you can engage AI in miscellaneous roles that can help you while coding in Visual Studio Code. The roles include simple chat, agent mode, or autocomplete. While the chat can provide a familiar conversation, the agent mode lets you analyze or edit files opened in your project. Finally, the autocomplete role suggests code as you write.
+
+### Install the Continue extension
+
+While Visual Studio Code is running, open the Extensions tab (`Ctrl+Shift+X`) and search for `Continue`. Click on the extension and then click on the `Install` button. After the installation is complete, you can access the `Continue` extension by clicking on the `Continue` icon in the left sidebar.
+
+### Configure the Continue extension
+
+First, the configuration file `config.yaml` must be edited. Access the `Continue` extension within Visual Studio Code using the icon in the left sidebar.
+
+1. Click `Open settings` in the top-right corner of the `Continue` extension window.
+2. Click `Configs`.
+3. Click `Open configuration` icon at the end of the line `Local Config`.
+4. Once the `config.yaml` is opened, use the following configuration with your own `<api-key>` (guide above):
+```
+%YAML 1.1
+---
+name: Local Assistant
+version: 1.0.0
+schema: v1
+model_defaults: &model_defaults
+  provider: openai
+  apiKey: <api-key>
+  apiBase: https://llm.ai.e-infra.cz/v1
+models:
+  - name: autocomplete-coder
+    <<: *model_defaults
+    model: qwen3-coder
+    promptTemplates:
+      autocomplete: '<|fim_prefix|>{{{ prefix }}}<|fim_suffix|>{{{ suffix }}}<|fim_middle|>'
+    autocompleteOptions:
+      transform: false
+    defaultCompletionOptions:
+      temperature: 0.6
+      maxTokens: 512
+    roles:
+      - autocomplete
+  - name: chat-coder    
+    <<: *model_defaults
+    model: qwen3-coder
+    env:
+      useLegacyCompletionsEndpoint: false
+    roles:
+      - chat
+      - edit
+context:
+  - provider: code
+  - provider: docs
+  - provider: diff
+  - provider: terminal
+  - provider: problems
+  - provider: folder
+  - provider: codebase
+```
+5. Save the file. The new configuration should apply immediately.
+6. Check that the `FIM` autocomplete is used by looking at the `Continue` button in the Visual Studio Code status bar (in the bottom-right corner). It should display `Continue`. It should not display `Continue (NE)`. If `Continue (NE)` is shown, press this button and select the choice `Use FIM autocomplete over Next Edit`.
+
+### Usage of AI in Visual Studio Code
+
+* The chat can be accessed by pressing the `Continue` icon in the left sidebar.
+* In the chat, you can engage the agent mode by asking to analyze, explain, or edit the file in the currently open project. This action will require additional permissions, such as read/write permissions to the related files. You need to grant the necessary permissions to get the agent to do the job.
+* Autocomplete feature will continuously suggest new code as you write. Once you see a suggestion, pressing `Tab` accepts the suggestion. The responsiveness of the suggestions depends on the model's speed. You can change the model `qwen3-coder` in the autocomplete config section to `gpt-oss-120b` to get a bit faster responses, but the default model performs better in coding tasks.
+
+### Caveats
+
+Disable all other Visual Studio Code extensions that provide AI autocomplete features. Otherwise, the `Continue` extension may not work properly.
+
+## Claude Code
+
+You can deploy [Claude Code](https://github.com/anthropics/claude-code) and configure it to work with our models by pointing it to our API endpoint.
+
+### Installation
+
+First, install Claude Code for your operating system by following the official instructions in the upstream repository:
+
+- [Claude Code – Getting Started](https://github.com/anthropics/claude-code?tab=readme-ov-file#get-started)
+
+Make sure the `claude` CLI is available in your `$PATH` after installation.
+
+### Configuration
+
+Claude Code is configured using environment variables. Export the following variables in your shell:
+
+```bash
+export ANTHROPIC_BASE_URL="https://llm.ai.e-infra.cz/"
+export ANTHROPIC_AUTH_TOKEN="sk-..."
+export ANTHROPIC_MODEL="qwen3-coder"
+export ANTHROPIC_DEFAULT_OPUS_MODEL="qwen3-coder"
+export ANTHROPIC_DEFAULT_SONNET_MODEL="qwen3-coder"
+export ANTHROPIC_DEFAULT_HAIKU_MODEL="gpt-oss-120b"
+```
+
+**Variable description:**
+
+- `ANTHROPIC_BASE_URL` – Base URL of our LLM API.
+- `ANTHROPIC_AUTH_TOKEN` – Your API token obtained from [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
+- `ANTHROPIC_MODEL` – Default model to use when running Claude Code.
+- `ANTHROPIC_DEFAULT_OPUS_MODEL` – Default model to use when running Claude Code for reasoning and complex tasks.
+- `ANTHROPIC_DEFAULT_SONNET_MODEL` – Default model to use when running Claude Code for reasoning and less complex tasks.
+- `ANTHROPIC_DEFAULT_HAIKU_MODEL` – Default model to use for simple tasks.
+
+### Running Claude Code
+
+Once the environment variables are set, start Claude Code with:
+
+```bash
+claude --model qwen3-coder
+```
+
+You should now be able to interact with Claude Code using our backend and selected model.
+
+<Callout type="idea">
+You can choose any of our available models, e.g., `devstral-2`. However, not all models are guaranteed to work correctly with Claude Code, esp. DeepSeek-R1 currently does not work and returns error: `Internal server error: can only concatenate str (not "dict") to str.`
+</Callout>
