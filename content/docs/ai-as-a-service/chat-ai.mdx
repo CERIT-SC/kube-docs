@@ -369,48 +369,6 @@ context:
 
 Disable all other Visual Studio Code extensions that provide AI autocomplete features. Otherwise, the `Continue` extension may not work properly.
 
-## Claude Code
-
-You can deploy [Claude Code](https://github.com/anthropics/claude-code) and configure it to work with our models by pointing it to our API endpoint.
-
-### Installation
-
-First, install Claude Code for your operating system by following the official instructions in the upstream repository:
-
-- [Claude Code – Getting Started](https://github.com/anthropics/claude-code?tab=readme-ov-file#get-started)
-
-Make sure the `claude` CLI is available in your `$PATH` after installation.
-
-### Configuration
-
-Claude Code is configured using environment variables. Export the following variables in your shell:
-
-```bash
-export ANTHROPIC_BASE_URL="https://llm.ai.e-infra.cz/"
-export ANTHROPIC_AUTH_TOKEN="sk-..."
-export ANTHROPIC_MODEL="deepseek-r1"
-```
-
-**Variable description:**
-
-- `ANTHROPIC_BASE_URL` – Base URL of our LLM API.
-- `ANTHROPIC_AUTH_TOKEN` – Your API token obtained from [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
-- `ANTHROPIC_MODEL` – Default model to use when running Claude Code.
-
-### Running Claude Code
-
-Once the environment variables are set, start Claude Code with:
-
-```bash
-claude --model deepseek-r1
-```
-
-You should now be able to interact with Claude Code using our backend and selected model.
-
-<Callout type="info">
-You can choose any of our available models. However, not all models are guaranteed to work correctly with Claude Code.
-</Callout>
-
 ## Knowledge Function (Alpha)
 
 Open WebUI includes an experimental *Knowledge Function*, which is essentially a [RAG (Retrieval-Augmented Generation)](https://en.wikipedia.org/wiki/Retrieval-augmented_generation) system. This allows users to upload custom texts and query a model that generates answers based on that content.
