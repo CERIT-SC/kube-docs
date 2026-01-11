@@ -2,7 +2,6 @@
 title: Welcome to the CERIT-SC Kubernetes Container Platform
 ---
 
-import { Cards3, Card } from '@/components/card3';
 import Image from 'next/image';
 import Kubernetes from '@/public/img/ceritsc/menu-logos/kubernetes-logo.svg';
 
@@ -20,7 +19,7 @@ Welcome to the CERIT-SC documentation. We provide a state-of-the-art computation
 
 ## Core Services
 
-<Cards3 className="pt-4">
+<Cards className="pt-4 grid-cols-1 gap-4 sm:grid-cols-3">
 
 <Card title="Kubernetes" icon={<Image src={Kubernetes} alt="Kubernetes Logo" width="24"/>}>
 
@@ -48,7 +47,7 @@ Unlock the power of [Artificial Intelligence](../ai-as-a-service/introduction) w
 * Develop: Integrate AI into your scripts via our [OpenAI-compatible API](../ai-as-a-service/chat-ai#creating-an-api-key) or build workflows with [n8n Agents](../ai-as-a-service/n8n-agents) or [DeepSite](../ai-as-a-service/deepsite) web creator. 
 
 </Card>
-</Cards3>
+</Cards>
 
 ## How to Access
 
