@@ -103,6 +103,26 @@ export ANTHROPIC_MODEL="qwen3-coder"
 export ANTHROPIC_DEFAULT_OPUS_MODEL="qwen3-coder"
 export ANTHROPIC_DEFAULT_SONNET_MODEL="qwen3-coder"
 export ANTHROPIC_DEFAULT_HAIKU_MODEL="gpt-oss-120b"
+export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+```
+
+Alternatively, you can define these environment variables in the settings file `~/.claude/settings.json`:
+
+```json title="settings.json"
+{
+  "permissions": {
+    "defaultMode": "acceptEdits"
+  },
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://llm.ai.e-infra.cz/",
+    "ANTHROPIC_AUTH_TOKEN": "sk-...",
+    "ANTHROPIC_MODEL": "qwen3-coder",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "qwen3-coder",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "qwen3-coder",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "gpt-oss-120b",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+  }
+}
 ```
 
 **Variable description:**
@@ -113,6 +133,7 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL="gpt-oss-120b"
 - `ANTHROPIC_DEFAULT_OPUS_MODEL` – Default model to use when running Claude Code for reasoning and complex tasks.
 - `ANTHROPIC_DEFAULT_SONNET_MODEL` – Default model to use when running Claude Code for reasoning and less complex tasks.
 - `ANTHROPIC_DEFAULT_HAIKU_MODEL` – Default model to use for simple tasks.
+- `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` – Disables to send telemetry and various reporting (not used with non-anthropics API).
 
 ### Running Claude Code
 
