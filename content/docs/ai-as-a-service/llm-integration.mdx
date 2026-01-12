@@ -92,6 +92,115 @@ First, install Claude Code for your operating system by following the official i
 
 Make sure the `claude` CLI is available in your `$PATH` after installation.
 
+#### Linux Installation (including Windows WSL)
+
+These instructions apply to both native Linux and Windows Subsystem for Linux (WSL).
+
+---
+
+##### 1. Install Claude Code
+
+Install Claude Code using the official installation script:
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+After installation completes successfully, you should see output similar to the following:
+
+```
+Setting up Claude Code...
+
+✔ Claude Code successfully installed!
+
+  Version: 2.1.5
+  Location: ~/.local/bin/claude
+
+  Next: Run claude --help to get started
+
+✅ Installation complete!
+```
+
+---
+
+##### 2. Start Claude and Exit During Onboarding
+
+Run Claude for the first time:
+
+```bash
+claude
+```
+
+- Proceed through the syntax scheme selection.
+- When you reach the **“Select login method”** screen, exit the application by pressing **Ctrl+C three times**.
+
+This step generates the initial configuration file without completing onboarding.
+
+---
+
+##### 3. Manually Complete Onboarding
+
+Open the Claude configuration file:
+
+```bash
+vim ~/.claude.json
+```
+
+At the **end of the file**, add the following property:
+
+```json
+"hasCompletedOnboarding": true
+```
+
+<Callout type="warn">
+- Ensure the previous last property ends with a comma.
+- The JSON must remain valid.
+</Callout"
+
+Example of a correctly updated `~/.claude.json` file:
+
+```json
+{
+  "installMethod": "native",
+  "autoUpdates": false,
+  "cachedGrowthBookFeatures": {
+    "tengu_1p_event_batch_config": {
+      "scheduledDelayMillis": 5000,
+      "maxExportBatchSize": 200,
+      "maxQueueSize": 8192
+    },
+    "tengu_mcp_tool_search": false,
+    "tengu_scratch": false,
+    "tengu_log_segment_events": false,
+    "tengu_log_datadog_events": true,
+    "tengu_event_sampling_config": {},
+    "tengu_tool_pear": false,
+    "tengu_thinkback": false,
+    "tengu_sumi": false
+  },
+  "userID": "xxx",
+  "firstStartTime": "2026-01-12T12:59:53.117Z",
+  "sonnet45MigrationComplete": true,
+  "opus45MigrationComplete": true,
+  "thinkingMigrationComplete": true,
+  "changelogLastFetched": 1768222793309,
+  "autoUpdatesProtectedForNative": true,
+  "hasCompletedOnboarding": true
+}
+```
+
+Save the file and exit the editor.
+
+##### 4. Run Claude Normally
+
+Start Claude again:
+
+```bash
+claude
+```
+
+Claude should now launch without triggering the onboarding flow and run smoothly.
+
 ### Configuration
 
 Claude Code is configured using environment variables. Export the following variables in your shell:
@@ -140,7 +249,7 @@ Alternatively, you can define these environment variables in the settings file `
 Once the environment variables are set, start Claude Code with:
 
 ```bash
-claude --model qwen3-coder
+claude [project-dir]
 ```
 
 You should now be able to interact with Claude Code using our backend and selected model.
