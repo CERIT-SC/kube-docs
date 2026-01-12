@@ -1,9 +1,11 @@
 {
-  "title": "AI as a Service (AIaaS)",
+ "title": "AI as a Service (AIaaS)",
   "pages": [
+    "introduction",
     "chat-ai",
+    "llm-integration",
     "deepsite",
-    "introduction"
-  ]
+    "n8n-agents"
+  ] 
 }
 
