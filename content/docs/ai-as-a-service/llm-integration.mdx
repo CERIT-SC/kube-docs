@@ -96,8 +96,6 @@ Make sure the `claude` CLI is available in your `$PATH` after installation.
 
 These instructions apply to both native Linux and Windows Subsystem for Linux (WSL).
 
----
-
 ##### 1. Install Claude Code
 
 Install Claude Code using the official installation script:
@@ -121,8 +119,6 @@ Setting up Claude Code...
 ✅ Installation complete!
 ```
 
----
-
 ##### 2. Start Claude and Exit During Onboarding
 
 Run Claude for the first time:
@@ -135,8 +131,6 @@ claude
 - When you reach the **“Select login method”** screen, exit the application by pressing **Ctrl+C three times**.
 
 This step generates the initial configuration file without completing onboarding.
-
----
 
 ##### 3. Manually Complete Onboarding
 
@@ -256,4 +250,8 @@ You should now be able to interact with Claude Code using our backend and select
 
 <Callout type="idea">
 You can choose any of our available models, e.g., `devstral-2`. However, not all models are guaranteed to work correctly with Claude Code, esp. DeepSeek-R1 currently does not work and returns error: `Internal server error: can only concatenate str (not "dict") to str.`
+</Callout>
+
+<Callout type="warn">
+If Claude Code stops responding or terminates unexpectedly, the most common cause is that the model’s context size has been exceeded. To resolve this, switch to a different model with a larger context window or reduce the amount of text being processed at once.
 </Callout>
