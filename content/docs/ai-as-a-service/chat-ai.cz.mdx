@@ -99,9 +99,19 @@ Ačkoliv jsou modely **Deepseek R1 0528** a **Qwen 3 Coder** označeny jako **ga
 
 #### Embedding Modely
 
-Open WebUI v současnosti nepodporuje přístup k embedding modelům prostřednictvím API (i když jsou kompatibilní s API OpenAI). Z tohoto důvodu momentálně nejsou přes API Open WebUI dostupné žádné embedding modely.  
+Embedding modely jsou dostupné přes API endpoint:  `https://llm.ai.e-infra.cz/v1 ` pomocí API tokenů z Open WebUI.
 
-Uživatelé však mohou požádat o přístup na základě IP adresy k systému **vLLM**, který podporuje embedding modely.
+| Model                          | Description |
+|--------------------------------|-------------|
+| qwen3-embedding-4b             | Embedding model QWen3 s kontextem o velikosti 40 960 tokenů a embedding vektorem o velikosti 2560. Vícejazyčný model s podporou více než 100 jazyků. |
+| qwen3-reranker-4b              | Reranker model QWen3 s kontextem o velikosti 40 960 tokenů.                              |
+| nomic-embed-text-v1.5          | Embedding model Nomic AI s kontextem o velikosti 512 tokenů a embedding vektorem o velikosti 768. Pouze angličtina.|
+| mxbai-embed-large:latest       | Embedding model Mixedbread-AI s kontextem o velikosti 512 tokenů a embedding vektorem o velikosti 1024. Pouze angličtina. |
+| multilingual-e5-large-instruct | Embedding model Intfloat s kontextem o velikosti 514 tokenů a embedding vektorem o velikosti 1024. Vícejazyčný. |
+
+
+
+
 
 #### Znalost češtiny
 Vybrané modely jsme vyhodnotili pomocí benchmarku [BenCzechMark](https://huggingface.co/blog/benczechmark). Úplné výsledky jsou dostupné na uvedeném odkazu.
