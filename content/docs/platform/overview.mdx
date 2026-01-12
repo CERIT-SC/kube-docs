@@ -3,7 +3,9 @@ title: Welcome to the CERIT-SC Kubernetes Container Platform
 ---
 
 import Image from 'next/image';
-import Kubernetes from '@/public/img/ceritsc/Kubernetes_logo.svg';
+import Kubernetes from '@/public/img/ceritsc/menu-logos/Kubernetes-icon.svg';
+import Interactive from '@/public/img/ceritsc/menu-logos/Interactive-icon.svg';
+import AI-llm from '@/public/img/ceritsc/menu-logos/AI-icon.svg';
 
 ## Your Gateway to High-Performance Research & AI
 
@@ -30,7 +32,7 @@ Our flagship service offers a managed Kubernetes Container Platform powered by [
 </Card>
 
 
-<Card title="Interactive Apps">
+<Card title="Interactive Apps" icon={<Image src={Interactive} alt="Interactive Apps" width="160"/>}>
 
 We host managed web applications that require no installation on your site.
 
@@ -39,7 +41,7 @@ We host managed web applications that require no installation on your site.
 * [Foldify](../web-apps/foldify): A web-based UI for AlphaFold to predict protein structures.
 </Card>
    
-<Card title="AI as a Service (AIaaS)">
+<Card title="AI as a Service (AIaaS)"icon={<Image src={AI-llm} alt="AIaaS" width="160"/>}>
 
 Unlock the power of [Artificial Intelligence](../ai-as-a-service/introduction) with secure, on-premise access to LLMs and related tools.
 
