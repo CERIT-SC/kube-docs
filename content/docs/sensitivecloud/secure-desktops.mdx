@@ -1,0 +1,181 @@
+---
+title: Secure Desktops
+---
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Card, Cards } from 'fumadocs-ui/components/card';
+
+Secure Desktops is SensitiveCloud’s Virtual Desktop Infrastructure (VDI) solution built on top of Kubernetes. It provides a secure, browser‑based desktop experience for processing sensitive data without ever leaving the SensitiveCloud perimeter.
+
+## Benefits
+
+<Cards>
+  <Card
+    href="#"
+    title="Secure data handling"
+  >
+    Users can access and work with their data through a full desktop environment that runs inside SensitiveCloud’s protected perimeter.
+  </Card>
+
+  <Card
+    href="#"
+    title="Zero‑client access"
+  >
+    No special software is required; users connect directly from their browsers.
+  </Card>
+
+  <Card
+    href="#"
+    title="Fine‑grained access control"
+  >
+    Principal investigators define who can access which data and which desktop configurations team members can use.
+  </Card>
+
+  <Card
+    href="#"
+    title="Flexible image management"
+  >
+    Use prepared desktop images, extend them to meet your needs, or bring your own custom images.
+  </Card>
+
+  <Card
+    href="#"
+    title="Native integration with SensitiveCloud storage"
+  >
+    Seamlessly mount SensitiveCloud S3 buckets directly on the desktop using the management GUI (no S3 client needed).
+  </Card>
+</Cards>
+
+## Getting Started
+
+<Steps>
+
+<Step>
+### Create a desktop configuration
+
+_A desktop configuration is a reusable template that defines the Docker image and CPU & RAM limits for a Secure Desktop._
+
+You can either define a new configuration **or** pick an existing one. If you choose an existing configuration, simply skip to the next step.
+
+1. Open the **Configurations** tab.  
+2. Click **Add configuration**.  
+3. Provide the necessary parameters (i.e., Docker image, resource limits, etc.)
+4. Press **Create configuration** to save the new desktop configuration.
+</Step>
+
+<Step>
+### Add storage
+
+1. Open the **Storage** tab → **Add storage**.  
+2. Choose a storage type:
+   <Cards>
+     <Card
+       href="#"
+       title="New NFS"
+     >
+       Create a new NFS volume.
+     </Card>
+     
+     <Card
+       href="#"
+       title="Existing persistent volume claim (PVC)"
+     >
+       Use an existing Kubernetes PVC from your project.
+     </Card>
+
+     <Card
+       href="#"
+       title="SensitiveCloud S3"
+     >
+       Attach an existing SensitiveCloud S3 bucket.
+     </Card>
+   </Cards>
+3. Specify the necessary parameters based on the storage type.
+4. Click **Confirm**.
+</Step>
+
+<Step>
+### Create a desktop instance
+
+1. Open the **Desktops** menu and click **Add Desktop**.  
+2. Specify a name and pick a desktop configuration.
+3. Optionally attach a storage.
+4. Click **Create desktop**.
+
+</Step>
+
+<Step>
+### Connect & start working
+
+The newly‑created Desktop appears in the **Desktops** list. Click **Connect** to open the browser‑based session, then you can:
+
+- **Access** data mounted at `/mnt`.  
+- **Run** your secure processing workflows.
+
+When finished, simply close the browser tab. The Desktop can be **suspended** via the **Stop** button and later **resumed** with the **Resume** button—both actions are available from the desktop‑list view.
+</Step>
+
+</Steps>
+
+## Storage
+Virtual desktops are **ephemeral**—they may be terminated and recreated at any time. To retain data across cycles, use **storage objects**, which provide persistent volumes mounted at **`/mnt`** on your desktop. Any files saved outside these mounted volumes are not persisted and will be lost when the desktop is terminated.
+
+Secure Desktops support multiple storage back‑ends:
+
+<Cards>
+  <Card
+    href="#"
+    title="NFS"
+  >
+    Ideal for shared, high‑throughput file systems.
+  </Card>
+
+  <Card
+    href="#"
+    title="Existing persistent volume claim (PVC)"
+  >
+    Use your existing Kubernetes PVC from your project. The PVC must be made available in the Secure Desktops namespace manually.
+  </Card>
+
+  <Card
+    href="#"
+    title="SensitiveCloud S3"
+  >
+    Mount your S3 bucket directly on the desktop without needing to install an S3 client.
+  </Card>
+</Cards>
+
+## Adding new users
+
+To grant a user access to Secure Desktops, the administrator (typically the project’s principal investigator) must add the user in the Secure Desktops UI.
+
+<Steps>
+  <Step>
+    <strong>Open the Users console</strong>  
+    From the top‑navigation bar select **Users**.
+  </Step>
+
+  <Step>
+    <strong>Start the add‑user flow</strong>  
+    Click the **Add User** button in the upper‑right corner.
+  </Step>
+
+  <Step>
+    <strong>Enter the required information</strong>  
+
+    - **Username** – Unique username.  
+    - **OIDC Subject Identifier** – Unique identifier from Perun.  
+    - **Admin User** checkbox – Enable this to grant the new user full administrative privileges across your Secure Desktops platform instance.  
+
+    You can retrieve the OIDC Subject Identifier from **Perun**:  
+
+    1. Go to the [Perun portal](https://perun.e-infra.cz/organizations/3898/groups/15034/subgroups).  
+    2. Select your group → **Members** → pick the desired member.  
+    3. Open the **Attributes** tab → **User** → locate **e‑INFRA CZ ID**.  
+    4. Click the attribute field to copy the identifier.  
+  </Step>
+
+  <Step>
+    <strong>Confirm the addition</strong>  
+    After filling the fields, click **Add User**.
+  </Step>
+</Steps>
