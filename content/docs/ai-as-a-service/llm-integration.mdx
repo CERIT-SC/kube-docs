@@ -11,7 +11,7 @@ This chapter describes how to configure two popular tools to communicate with ou
 Prerequisite: Before proceeding, ensure you have generated an API key from the [AI Chat WebUI](../ai-as-a-service/chat-ai). You will need this key to authenticate your client. 
 </Callout>
 
-## Integrate with Visual Studio Code
+## Visual Studio Code
 
 The AI chatbot can be integrated with Visual Studio Code. For this purpose, a 3rd part extension [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) is used. With this extension, you can engage AI in miscellaneous roles that can help you while coding in Visual Studio Code. The roles include simple chat, agent mode, or autocomplete. While the chat can provide a familiar conversation, the agent mode lets you analyze or edit files opened in your project. Finally, the autocomplete role suggests code as you write.
 
@@ -260,6 +260,47 @@ If Claude Code stops responding or terminates unexpectedly, the most common caus
 
 ---
 
+## Codex
+
+You can deploy [Codex](https://github.com/openai/codex?tab=readme-ov-file) and configure it to work with our models by pointing it to our API endpoint.
+
+### Installation
+
+First, install Codex for your operating system by following the official instructions in the upstream repository:
+
+- [Codex – Installing and running Codex CLI](https://github.com/openai/codex?tab=readme-ov-file#installing-and-running-codex-cli)
+
+Make sure the `codex` CLI is available in your `$PATH` after installation.
+
+<Callout type="idea">
+For Linux or Windows, it is recommended to visit the [Releases](https://github.com/openai/codex/releases) page and download the appropriate precompiled binary for your platform..
+<Callout>
+
+### Configuration
+
+Set the environment variables:
+
+```bash
+export OPENAI_BASE_URL=https://llm.ai.e-infra.cz
+export OPENAI_API_KEY=sk-...
+```
+
+Replace `sk-...` with your API key obtained from: https://chat.ai.e-infra.cz
+
+Run the application with the following command:
+
+```bash
+codex --model qwen3-coder --full-auto
+```
+
+When prompted to sign in:  
+1. Select **Provide your own API key**.  
+2. Confirm **Use your own OpenAI API key for usage-based billing**.  
+
+After this, the setup is complete and ready to use.
+
+---
+
 ## Open Code
 
 You can deploy [Open Code](https://github.com/anomalyco/opencode) and configure it to work with our models by pointing it to our API endpoint.
@@ -314,8 +355,7 @@ Make sure the `opencode` CLI is available in your `$PATH` after installation.
 
 4. From the list of available providers, scroll to the end and select **LiteLLM**.
 
-5. When prompted, paste your API key obtained from:  
-   https://chat.ai.e-infra.cz
+5. When prompted, paste your API key obtained from: https://chat.ai.e-infra.cz
 
 6. Select the model:
    ```
