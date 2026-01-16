@@ -80,6 +80,8 @@ context:
 
 Disable all other Visual Studio Code extensions that provide AI autocomplete features. Otherwise, the `Continue` extension may not work properly.
 
+---
+
 ## Claude Code
 
 You can deploy [Claude Code](https://github.com/anthropics/claude-code) and configure it to work with our models by pointing it to our API endpoint.
@@ -255,3 +257,77 @@ You can choose any of our available models, e.g., `devstral-2`. However, not all
 <Callout type="warn">
 If Claude Code stops responding or terminates unexpectedly, the most common cause is that the model’s context size has been exceeded. To resolve this, switch to a different model with a larger context window or reduce the amount of text being processed at once.
 </Callout>
+
+---
+
+## Open Code
+
+You can deploy [Open Code](https://github.com/anomalyco/opencode) and configure it to work with our models by pointing it to our API endpoint.
+
+### Installation
+
+First, install Open Code for your operating system by following the official instructions in the upstream repository:
+
+- [Open Code – Installation](https://github.com/anomalyco/opencode?tab=readme-ov-file#installation)
+
+Make sure the `opencode` CLI is available in your `$PATH` after installation.
+
+### Configuration
+
+1. Save the configuration below to the file `~/.config/opencode/opencode.json`:
+
+```json title="~/.config/opencode/opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "litellm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "LiteLLM",
+      "options": {
+        "baseURL": "https://llm.ai.e-infra.cz/v1"
+      },
+      "models": {
+        "deepseek-r1": {
+          "name": "deepseek-r1"
+        },
+        "gpt-oss-120b": {
+          "name": "gpt-oss-120b"
+        },
+        "qwen3-coder": {
+          "name": "qwen3-coder"
+        }
+      }
+    }
+  }
+}
+```
+
+2. Start the application by running:
+   ```bash
+   opencode
+   ```
+
+3. Inside `opencode`, type:
+   ```
+   /connect
+   ```
+
+4. From the list of available providers, scroll to the end and select **LiteLLM**.
+
+5. When prompted, paste your API key obtained from:  
+   https://chat.ai.e-infra.cz
+
+6. Select the model:
+   ```
+   qwen3-coder
+   ```
+
+Once completed, the setup is ready to use.
+
+<Callout type="info">
+- The model `deepseek-r1` is currently **not supported**.
+- The model `gpt-oss-120b` has **partial support** and may not work as expected.
+- The model `devstral-2` should work as well as `qwen3-coder`.
+</Callout>
+
+---
