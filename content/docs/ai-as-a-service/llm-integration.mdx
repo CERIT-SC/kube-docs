@@ -303,7 +303,7 @@ Once completed, the setup is ready to use.
 
 ## Visual Studio Code
 
-The AI chatbot can be integrated with Visual Studio Code. For this purpose, a 3rd part extension [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) is used. With this extension, you can engage AI in miscellaneous roles that can help you while coding in Visual Studio Code. The roles include simple chat, agent mode, or autocomplete. While the chat can provide a familiar conversation, the agent mode lets you analyze or edit files opened in your project. Finally, the autocomplete role suggests code as you write.
+The AI chatbot can be integrated with Visual Studio Code. For this purpose, 3rd party extensions such as [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) or [Roo Code](https://marketplace.visualstudio.com/items?itemName=RooCode.roocode) can be used. These extensions allow you to engage AI in various roles that can help you while coding in Visual Studio Code. The roles include simple chat, agent mode, or autocomplete. While the chat can provide a familiar conversation, the agent mode lets you analyze or edit files opened in your project. Finally, the autocomplete role suggests code as you write.
 
 ### Install the Continue extension
 
@@ -365,6 +365,67 @@ context:
 * The chat can be accessed by pressing the `Continue` icon in the left sidebar.
 * In the chat, you can engage the agent mode by asking to analyze, explain, or edit the file in the currently open project. This action will require additional permissions, such as read/write permissions to the related files. You need to grant the necessary permissions to get the agent to do the job.
 * Autocomplete feature will continuously suggest new code as you write. Once you see a suggestion, pressing `Tab` accepts the suggestion. The responsiveness of the suggestions depends on the model's speed. You can change the model `qwen3-coder` in the autocomplete config section to `gpt-oss-120b` to get a bit faster responses, but the default model performs better in coding tasks.
+
+### Roo Code
+[Roo Code](https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline) is a Visual Studio Code extension providing AI assistance with enhanced agent and code understanding capabilities.
+
+#### Install the Roo Code extension
+With Visual Studio Code running:
+1. Open the Extensions tab (`Ctrl+Shift+X`)
+2. Search for `Roo Code`
+3. Select the extension and click `Install`
+4. After installation, access Roo Code via its icon in the left sidebar
+
+#### Configure the Roo Code extension
+To use self-hosted models:
+1. Open Roo Code using the sidebar icon
+2. Click the ⚙️ **Settings** icon (top-right corner)
+3. In the **Providers** section:
+   - **API Provider**: `OpenAI Compatible`
+   - **Base URL**: `https://llm.ai.e-infra.cz/v1`
+   - **API Key**: Your key from [AI Chat WebUI](../ai-as-a-service/chat-ai)
+   - **Model**: `qwen3-coder` (or alternative)
+4. Set **Context Window Size** using [this table](../ai-as-a-service/chat-ai#guaranteed-models)
+5. Save settings
+
+#### Using Roo Code
+- Select agents via the button in the extension's bottom-left corner
+- After submitting a prompt, agents work autonomously until intervention is needed
+- For advanced usage, consult the [Roo Code documentation](https://docs.roocode.com/)
+
+#### Codebase Indexing
+
+Indexing the codebase using one of our [embedding models](../ai-as-a-service/chat-ai#embedding-models) helps the agents better search and understand your codebase.
+For storing the index a local Qdrant database has to be set up. Here is an example `docker-compose.yaml`:
+
+```
+services:
+  qdrant:
+    image: qdrant/qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+volumes:
+  qdrant_storage:
+```
+
+To configure codebase indexing, follow these steps:
+
+1. Launch a new database instance by running `docker compose up -d` in the same directory, where the provided `docker-compose.yaml` file is stored.
+2. In the Roo Code extension interface, click on the database icon in the bottom right corner.
+3. Open the `Setup` section.
+4. Set the following values:
+   - **Embedder Provider**: `OpenAI Compatible`
+   - **Base URL**: `https://llm.ai.e-infra.cz/v1`
+   - **API Key**: Your API key from [AI Chat WebUI](../ai-as-a-service/chat-ai)
+   - **Model**: One of out [embedding models](https://docs.cerit.io/en/docs/ai-as-a-service/chat-ai#embedding-models) e.g. `qwen3-embedding-4b`
+   - **Model Dimension**: The embedding vector size of the selected model e.g. `2560` for `qwen3-embedding-4b`.
+   - **Qdrant URL**: `http://localhost:6333`
+   - **Qdrant API Key**: Leave empty if the provided docker compose was used.
+5. Create the index by clicking on `Start Indexing`.
+6. After the indexing is finished, the agents will have access to the database and be able to better search and understand the codebase.
+---
 
 ### Caveats
 
