@@ -234,6 +234,10 @@ In this case, ensure that the corresponding LoadBalancer Service has the `extern
 If this field is not set or is set to `Cluster`, the network policy will not function as expected. This is because the client source IP address (the one specified in the `ipBlock` → `cidr`) will be masked and replaced by a cluster node's IP address. As a result, it becomes impossible to effectively restrict access based on the original client IP.
 </Callout>
 
+<Callout type="warn" icon="⚠️ ">
+Network policies must allow ingress from the `cloudnativepg` namespace. Without this access, the operator cannot monitor database pods or perform failover operations.
+</Callout>
+
 ## Data Backups
 
 Postgres operator offers automatic backups to S3 storage implemented via periodic wal streaming and regular backups (basically `pgdump` equivalent) using `CronJobs`.
