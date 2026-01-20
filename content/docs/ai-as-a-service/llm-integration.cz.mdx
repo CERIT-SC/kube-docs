@@ -126,9 +126,9 @@ claude
 
 Claude by se nyní měl spustit bez spuštění průvodce nastavením a fungovat plynule.
 
-### Configuration
+### Konfigurace
 
-Claude Code is configured using environment variables. Export the following variables in your shell:
+Claude Code se konfiguruje pomocí proměnných prostředí. Exportujte následující proměnné ve svém shellu:
 
 ```bash
 export ANTHROPIC_BASE_URL="https://llm.ai.e-infra.cz/"
@@ -140,7 +140,7 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL="gpt-oss-120b"
 export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
 ```
 
-Alternatively, you can define these environment variables in the settings file `~/.claude/settings.json`:
+Alternativně můžete tyto proměnné prostředí definovat v souboru nastavení `~/.claude/settings.json`:
 
 ```json title="settings.json"
 {
@@ -159,15 +159,15 @@ Alternatively, you can define these environment variables in the settings file `
 }
 ```
 
-**Variable description:**
+**Popis proměnných::**
 
-- `ANTHROPIC_BASE_URL` – Base URL of our LLM API.
-- `ANTHROPIC_AUTH_TOKEN` – Your API token obtained from [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
-- `ANTHROPIC_MODEL` – Default model to use when running Claude Code.
-- `ANTHROPIC_DEFAULT_OPUS_MODEL` – Default model to use when running Claude Code for reasoning and complex tasks.
-- `ANTHROPIC_DEFAULT_SONNET_MODEL` – Default model to use when running Claude Code for reasoning and less complex tasks.
-- `ANTHROPIC_DEFAULT_HAIKU_MODEL` – Default model to use for simple tasks.
-- `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` – Disables to send telemetry and various reporting (not used with non-anthropics API).
+- `ANTHROPIC_BASE_URL` – Základní URL naší LLM API.
+- `ANTHROPIC_AUTH_TOKEN` – Váš API token získaný z [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
+- `ANTHROPIC_MODEL` – Výchozí model používaný při spuštění Claude Code.
+- `ANTHROPIC_DEFAULT_OPUS_MODEL` – Výchozí model používaný pro odvozování a složité úkoly v Claude Code.
+- `ANTHROPIC_DEFAULT_SONNET_MODEL` – Výchozí model používaný pro odvozování a méně složité úkoly v Claude Code.
+- `ANTHROPIC_DEFAULT_HAIKU_MODEL` – Výchozí model používaný pro jednoduché úkoly.
+- `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` – Zakáže odesílání telemetrie a různého reportingu (nepoužívá se s ne-anthropics API).
 
 ### Running Claude Code
 
