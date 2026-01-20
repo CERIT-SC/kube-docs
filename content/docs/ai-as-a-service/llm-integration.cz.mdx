@@ -169,35 +169,35 @@ Alternativně můžete tyto proměnné prostředí definovat v souboru nastaven�
 - `ANTHROPIC_DEFAULT_HAIKU_MODEL` – Výchozí model používaný pro jednoduché úkoly.
 - `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` – Zakáže odesílání telemetrie a různého reportingu (nepoužívá se s ne-anthropics API).
 
-### Running Claude Code
+### Spuštění Claude Code
 
-Once the environment variables are set, start Claude Code with:
+Jakmile jsou proměnné prostředí nastavené, spusťte Claude Code pomocí:
 
 ```bash
 claude [project-dir]
 ```
 
-You should now be able to interact with Claude Code using our backend and selected model.
+Nyní byste měli být schopni pracovat s Claude Code pomocí našeho backendu a zvoleného modelu.
 
 <Callout type="idea">
-You can choose any of our available models, e.g., `devstral-2`. However, not all models are guaranteed to work correctly with Claude Code, esp. DeepSeek-R1 currently does not work and returns error: `Internal server error: can only concatenate str (not "dict") to str.`
+Můžete si zvolit kterýkoliv z našich dostupných modelů, např.  `devstral-2`. Ne všechny modely ale zaručeně fungují správně s Claude Code.
 </Callout>
 
 <Callout type="warn">
-If Claude Code stops responding or terminates unexpectedly, the most common cause is that the model’s context size has been exceeded. To resolve this, switch to a different model with a larger context window or reduce the amount of text being processed at once.
+Pokud Claude Code přestane reagovat nebo se neočekávaně ukončí, nejčastější příčinou je překročení velikosti kontextu modelu. Chcete-li problém vyřešit, přepněte na jiný model s větším kontextovým oknem nebo zmenšete množství textu zpracovávaného najednou.
 </Callout>
 
 ---
 
 ## Codex
 
-You can deploy [Codex](https://github.com/openai/codex?tab=readme-ov-file) and configure it to work with our models by pointing it to our API endpoint.
+Můžete nasadit [Codex](https://github.com/openai/codex?tab=readme-ov-file) a nakonfigurovat jej tak, aby pracoval s našimi modely tím, že jej nasměrujete na náš API endpoint.
 
-### Installation
+### Instalace
 
-First, install Codex for your operating system by following the official instructions in the upstream repository:
+Nejprve nainstalujte Codex pro váš operační systém podle oficiálních pokynů v upstream repozitáři:
 
-- [Codex – Installing and running Codex CLI](https://github.com/openai/codex?tab=readme-ov-file#installing-and-running-codex-cli)
+- [Codex – Instalace a spuštění Codex CLI](https://github.com/openai/codex?tab=readme-ov-file#installing-and-running-codex-cli)
 
 Make sure the `codex` CLI is available in your `$PATH` after installation.
 
