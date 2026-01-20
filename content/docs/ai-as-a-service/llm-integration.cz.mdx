@@ -63,26 +63,26 @@ claude
 
 Tento krok vygeneruje počáteční konfigurační soubor bez dokončení úvodního nastavení.
 
-##### 3. Manually Complete Onboarding
+##### 3. Ručně dokončete úvodní nastavení
 
-Open the Claude configuration file:
+Otevřete konfigurační soubor Claude:
 
 ```bash
 vim ~/.claude.json
 ```
 
-At the **end of the file**, add the following property:
+Na **konec souboru** přidejte následující vlastnost:
 
 ```json
 "hasCompletedOnboarding": true
 ```
 
 <Callout type="warn">
-- Ensure the previous last property ends with a comma.
-- The JSON must remain valid.
+- Ujistěte se, že předchozí poslední vlastnost končí čárkou.
+- JSON musí zůstat platný.
 </Callout>
 
-Example of a correctly updated `~/.claude.json` file:
+Příklad správně aktualizovaného souboru `~/.claude.json`:
 
 ```json
 {
@@ -114,17 +114,17 @@ Example of a correctly updated `~/.claude.json` file:
 }
 ```
 
-Save the file and exit the editor.
+Uložte soubor a ukončete editor.
 
-##### 4. Run Claude Normally
+##### 4. Spusťte Claude standardně
 
-Start Claude again:
+Spusťte Claude znovu:
 
 ```bash
 claude
 ```
 
-Claude should now launch without triggering the onboarding flow and run smoothly.
+Claude by se nyní měl spustit bez spuštění průvodce nastavením a fungovat plynule.
 
 ### Configuration
 
