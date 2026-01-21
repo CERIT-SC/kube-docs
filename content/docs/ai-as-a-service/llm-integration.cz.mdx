@@ -232,19 +232,20 @@ Po dokončení tohoto kroku je nastavení hotové a aplikace připravená k pou�
 
 ## Open Code
 
-You can deploy [Open Code](https://github.com/anomalyco/opencode) and configure it to work with our models by pointing it to our API endpoint.
+Můžete nasadit [Open Code](https://github.com/anomalyco/opencode)  a nakonfigurovat jej tak, aby pracoval s našimi modely tím, že jej nasměrujete na náš API endpoint.
 
-### Installation
 
-First, install Open Code for your operating system by following the official instructions in the upstream repository:
+### Instalace
 
-- [Open Code – Installation](https://github.com/anomalyco/opencode?tab=readme-ov-file#installation)
+Nejprve nainstalujte Open Code pro váš operační systém podle oficiálních pokynů v upstream repozitáři:
 
-Make sure the `opencode` CLI is available in your `$PATH` after installation.
+- [Open Code – Instalace](https://github.com/anomalyco/opencode?tab=readme-ov-file#installation)
 
-### Configuration
+Ujistěte se, že CLI `opencode je po instalaci k dispozici ve vašem `$PATH`.
 
-1. Save the configuration below to the file `~/.config/opencode/opencode.json`:
+### Konfigurace
+
+1. Uložte následující konfiguraci do souboru `~/.config/opencode/opencode.json`:
 
 ```json title="~/.config/opencode/opencode.json"
 {
@@ -272,38 +273,38 @@ Make sure the `opencode` CLI is available in your `$PATH` after installation.
 }
 ```
 
-2. Start the application by running:
+2. Spusťte aplikaci příkazem:
    ```bash
    opencode
    ```
 
-3. Inside `opencode`, type:
+3. V prostředí `opencode` zadejte:
    ```
    /connect
    ```
 
-4. From the list of available providers, scroll to the end and select **LiteLLM**.
+4. Ze seznamu dostupných poskytovatelů sjeďte na konec a vyberte **LiteLLM**.
 
-5. When prompted, paste your API key obtained from: https://chat.ai.e-infra.cz
+5. Po výzvě vložte svůj API klíč získaný z: https://chat.ai.e-infra.cz
 
-6. Select the model:
+6. Vyberte model:
    ```
    qwen3-coder
    ```
 
-Once completed, the setup is ready to use.
+Po dokončení je nastavení připraveno k použití.
 
 <Callout type="info">
-- The model `deepseek-r1` is currently **not supported**.
-- The model `gpt-oss-120b` has **partial support** and may not work as expected.
-- The model `devstral-2` should work as well as `qwen3-coder`.
+- Model `gpt-oss-120b` má **částečnou podporu** a nemusí fungovat podle očekávání.
+- Model `devstral-2` by měl fungovat stejně dobře jako `qwen3-coder`.
 </Callout>
 
 ---
 
 ## Visual Studio Code
 
-The AI chatbot can be integrated with Visual Studio Code. For this purpose, 3rd party extensions such as [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) or [Roo Code](https://marketplace.visualstudio.com/items?itemName=RooCode.roocode) can be used. These extensions allow you to engage AI in various roles that can help you while coding in Visual Studio Code. The roles include simple chat, agent mode, or autocomplete. While the chat can provide a familiar conversation, the agent mode lets you analyze or edit files opened in your project. Finally, the autocomplete role suggests code as you write.
+
+AI chatbota lze integrovat do Visual Studio Code. K tomu lze využít rozšíření třetích stran, například [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) nebo [Roo Code](https://marketplace.visualstudio.com/items?itemName=RooCode.roocode). Tato rozšíření umožňují využít AI v různých rolích, které vám pomohou při programování ve Visual Studio Code. Role zahrnují jednoduchý chat, agentní režim nebo automatické doplňování kódu. Chat poskytuje známou konverzační zkušenost, agentní režim umožňuje analyzovat nebo upravovat soubory otevřené ve vašem projektu a role automatického doplňování navrhuje kód při jeho psaní.
 
 ### Install the Continue extension
 
