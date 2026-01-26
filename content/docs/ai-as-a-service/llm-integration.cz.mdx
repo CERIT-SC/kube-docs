@@ -370,26 +370,28 @@ context:
 * Funkce automatického doplňování bude při psaní průběžně nabízet nové návrhy kódu. Jakmile se návrh zobrazí, přijmete jej stisknutím klávesy `Tab`. Rychlost odezvy návrhů závisí na výkonu modelu. V konfiguraci autocomplete můžete změnit model `qwen3-coder` na `gpt-oss-120b`, který může být o něco rychlejší, ale výchozí model má lepší výsledky při programovacích úlohách.
 
 ### Roo Code
-[Roo Code](https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline) is a Visual Studio Code extension providing AI assistance with enhanced agent and code understanding capabilities.
+[Roo Code](https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline) je rozšíření pro Visual Studio Code, které poskytuje asistenci AI s vylepšenými schopnostmi agenta a porozuměním kódu.
 
-#### Install the Roo Code extension
-With Visual Studio Code running:
-1. Open the Extensions tab (`Ctrl+Shift+X`)
-2. Search for `Roo Code`
-3. Select the extension and click `Install`
-4. After installation, access Roo Code via its icon in the left sidebar
+#### Instalace rozšíření Roo Code
+Se spuštěným Visual Studio Code:
+1. Otevřete kartu Rozšíření (`Ctrl+Shift+X`)
+2. Vyhledejte `Roo Code`
+3. Vyberte rozšíření a klikněte na `Install`
+4. Po instalaci získáte přístup k Roo Code pomocí jeho ikony v levém postranním panelu
 
-#### Configure the Roo Code extension
-To use self-hosted models:
-1. Open Roo Code using the sidebar icon
-2. Click the ⚙️ **Settings** icon (top-right corner)
-3. In the **Providers** section:
+
+
+#### Nakonfigurujte rozšíření Roo Code
+Chcete-li používat self-hosted modely:
+1. Otevřete Roo Code pomocí ikony v postranním panelu
+2. Klikněte na ikonu ⚙️ **Settings** (vpravo nahoře)
+3. V sekci **Providers**:
    - **API Provider**: `OpenAI Compatible`
    - **Base URL**: `https://llm.ai.e-infra.cz/v1`
-   - **API Key**: Your key from [AI Chat WebUI](../ai-as-a-service/chat-ai)
-   - **Model**: `qwen3-coder` (or alternative)
-4. Set **Context Window Size** using [this table](../ai-as-a-service/chat-ai#guaranteed-models)
-5. Save settings
+   - **API Key**: Váš klíč z [AI Chat WebUI](../ai-as-a-service/chat-ai)
+   - **Model**: `qwen3-coder` (nebo alternativní)
+4. Nastavte **Context Window Size** podle [této tabulky](../ai-as-a-service/chat-ai#guaranteed-models)
+5. Uložte nastavení
 
 #### Using Roo Code
 - Select agents via the button in the extension's bottom-left corner
