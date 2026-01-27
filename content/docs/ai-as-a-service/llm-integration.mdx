@@ -150,9 +150,9 @@ Alternatively, you can define these environment variables in the settings file `
   "env": {
     "ANTHROPIC_BASE_URL": "https://llm.ai.e-infra.cz/",
     "ANTHROPIC_AUTH_TOKEN": "sk-...",
-    "ANTHROPIC_MODEL": "qwen3-coder",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "qwen3-coder",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "qwen3-coder",
+    "ANTHROPIC_MODEL": "glm-4.7",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-4.7",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-4.7",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "gpt-oss-120b",
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
   }
@@ -180,7 +180,7 @@ claude [project-dir]
 You should now be able to interact with Claude Code using our backend and selected model.
 
 <Callout type="idea">
-You can choose any of our available models, e.g., `devstral-2`. However, not all models are guaranteed to work correctly with Claude Code.
+You can choose any of our available models, e.g., `qwen3-coder`. However, not all models are guaranteed to work correctly with Claude Code.
 </Callout>
 
 <Callout type="warn">
@@ -288,14 +288,14 @@ Make sure the `opencode` CLI is available in your `$PATH` after installation.
 
 6. Select the model:
    ```
-   qwen3-coder
+   glm-4.7
    ```
 
 Once completed, the setup is ready to use.
 
 <Callout type="info">
 - The model `gpt-oss-120b` has **partial support** and may not work as expected.
-- The model `devstral-2` should work as well as `qwen3-coder`.
+- The model `qwen3-coder` should work as well as `glm-4.7`.
 </Callout>
 
 ---
