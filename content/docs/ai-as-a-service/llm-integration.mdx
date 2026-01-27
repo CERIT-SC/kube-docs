@@ -133,9 +133,9 @@ Claude Code is configured using environment variables. Export the following vari
 ```bash
 export ANTHROPIC_BASE_URL="https://llm.ai.e-infra.cz/"
 export ANTHROPIC_AUTH_TOKEN="sk-..."
-export ANTHROPIC_MODEL="qwen3-coder"
-export ANTHROPIC_DEFAULT_OPUS_MODEL="qwen3-coder"
-export ANTHROPIC_DEFAULT_SONNET_MODEL="qwen3-coder"
+export ANTHROPIC_MODEL="glm-4.7"
+export ANTHROPIC_DEFAULT_OPUS_MODEL="glm-4.7"
+export ANTHROPIC_DEFAULT_SONNET_MODEL="glm-4.7"
 export ANTHROPIC_DEFAULT_HAIKU_MODEL="gpt-oss-120b"
 export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
 ```
@@ -265,6 +265,9 @@ Make sure the `opencode` CLI is available in your `$PATH` after installation.
         },
         "qwen3-coder": {
           "name": "qwen3-coder"
+        },
+        "glm-4.7": {
+          "name": "glm-4.7"
         }
       }
     }
