@@ -69,11 +69,11 @@ Model names are case-sensitive and may include version tags like `:latest` or sp
 | Model                | Description | Context Size |
 |----------------------|-------------|--------------|
 | **GPT-OSS-120B**     | A 120B language model from OpenAI. Superior performance. |  128k  |
+| **DeepSeek V3.2**    | A 685B reasoning and instruct (selectable) language model from Deepseek AI. Excels at complex tasks including mathematics, logical reasoning, and code generation. | 160k | 
 | **Qwen 3 Coder**     | A 480B language model from Qwen. Succeeds the Qwen 2.5 Coder with significantly enhanced performance in coding tasks. | 64k   |
-| **Qwen 2.5 Coder**   | A 32B Q8 variant specialized in code comprehension and generation. Ideal for developers seeking programming assistance. |     |
 
 <Callout type="info">
-Although **Deepseek R1 0528** and **Qwen 3 Coder** are designated as **guaranteed** models, please note:
+Although **Deepseek V3.2** and **Qwen 3 Coder** are designated as **guaranteed** models, please note:
 - Their underlying hardware may require maintenance, and we lack backup infrastructure of comparable scale
 - During urgent priority tasks requiring this hardware, model availability may be temporarily suspended
 - Advance notice of such interruptions will be provided on this page and within the chat interface
@@ -88,15 +88,11 @@ Although **Deepseek R1 0528** and **Qwen 3 Coder** are designated as **guarantee
 | **Phi-4**            | A 14B Q8 model from Microsoft, trained on a mix of synthetic datasets, filtered public web content, academic books, and Q&A datasets. It represents the current state of the art in open-access models. |
 | **GPT OSS 120B with Memory**            | The 120B GPT OSS model for retaining key facts (e.g., preferences, project details). Enabling the memory feature personalises responses across conversations.  To enable `Memory`, Click your username (down-left), go to `Settings` → `Personalization` → `Memory` tab. Toggle `Memory` on. To add memories, use either method: 1) Manage Button: In the Memory tab, click Manage to add/edit memories (e.g., "My project: CFD optimization") or 2) During chats, type "remember [fact]" (e.g., "remember My MetaCentrum login is xnovak12"). The model confirms storage. *Important: When enabled, memories are used across all supported models*.|
 
-
-
-
 #### Deprecated Models
 
 | Model              | Description |
 |--------------------|---------------|
 | **Command-A**      | A 111B model from Cohere. Though slower in response time, it is particularly strong in programming tasks and manifest generation. |
-| **DeepSeek&nbsp;R1**    | A 32B Qwen-distilled model from DeepSeek (China), designed with a focus on reasoning. It excels at complex tasks such as mathematics and code generation. |
 | **Gemma 3**        | A 27B FP16 language model from Google, part of the lightweight Gemma family built on Gemini technology. |
 | **LLaMA 3.3**      | A 70B language model from Meta. Its efficiency and versatility make it well-suited for a wide range of natural language processing tasks. |
 | **Mistral&#8209;Small&nbsp;3.1**| A 24B language model from Mistral AI, featuring built-in vision capabilities. |
@@ -135,13 +131,15 @@ Mistral-Small exhibits compatibility issues with this Czech benchmark.
 
 We evalated selected models using [Aider Polyglot Benchmark](https://aider.chat/2024/12/21/polyglot.html#the-polyglot-benchmark). For reference, key scores are summarized below:
 
-| Model             | C++ Score | Go Lang Score | Java Score | Javascript Score | Python Score | Rust Score |
-|-------------------|-----------|---------------|------------|------------------|--------------|------------|
-|Qwen3-Coder-30B    |  23.1     | 23.1          | 36.2       | 34.7             | 38.2         | 26.7       |
-|Qwen3-Coder-480B   |  **61.5** | **59.0**      | **63.8**   | 53.1             | 50.0         | 53.3       |
-|Devstral 2 123B    |  50.0     | 35.9          | 40.4       | 32.7             | 38.2         | 36.7       |
-|GPT-OSS-120B       |  50.0     | **59.0**      | 40.4       | 61.2             | 70.6         | 53.3       |
-|DeepSeek-R1-0528   |   7.7     | 56.4          | 55.3       | **69.4**         | **73.5**     | **70.0**   |
+| Model                  | C++ Score | Go Lang Score | Java Score | Javascript Score | Python Score | Rust Score |
+|------------------------|-----------|---------------|------------|------------------|--------------|------------|
+|Qwen3-Coder-30B         |  23.1     | 23.1          | 36.2       | 34.7             | 38.2         | 26.7       |
+|Qwen3-Coder-480B        |  61.5     | 59.0          | **63.8**   | 53.1             | 50.0         | 53.3       |
+|Devstral 2 123B         |  50.0     | 35.9          | 40.4       | 32.7             | 38.2         | 36.7       |
+|GPT-OSS-120B            |  50.0     | 59.0          | 40.4       | 61.2             | 70.6         | 53.3       |
+|DeepSeek-R1-0528        |   7.7     | 56.4          | 55.3       | 69.4             | 73.5         | 70.0       |
+|DeepSeek V3.2 (think)   |  88.5     | **84.6**      | 66.0       | **89.9**         | **82.4**     | **76.7**   |
+|DeepSeek V3.2 (nothink) | **92.3**  | 82.1          | 59.6       | 79.6             | 79.4         | 66.7       |
 
 ## Examples 
 Below is step-by-step guide for leveraging LLM models in Open WebUI across various scenarios. 
