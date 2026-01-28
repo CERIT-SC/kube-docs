@@ -7,28 +7,26 @@ To connect CESNET S3 storage, at least the **Veeam ENTERPRISE edition** is requi
 </Callout>
 
 VEEAM itself cannot create buckets; it can only connect to existing ones.  
-To create a bucket, use [aws-cli](cs:navody:object_storage:cesnet_s3:start#ovladani_aws_cli_-_high-level_s3) or [s3cmd](cs:navody:object_storage:cesnet_s3:start#pouziti_s3cmd_prikazu), or during storage configuration let us create the bucket(s) for you.
+To create a bucket, use **[aws tool](./aws-cli)** or **[s3cmd](./s3cmd)**, or during storage configuration let us create the bucket(s) for you.
 
 ---
 
 ## Procedure for Connecting in Veeam
 
 <Callout type="warn" icon="⚠️">  
-For operational reasons, it is very important to set a limit on the number of concurrent connections.  
-Otherwise, you risk temporary suspension of your account, because without this limitation Veeam behaves too aggressively and limits other users using the same S3 access gateways.  
-Instructions on how to correctly set this limit can be found in step 4.  
-If you already have an S3 connection configured, do not forget to adjust it.
+For operational reasons, it is very important to set a limit on the number of concurrent connections. Otherwise, you risk temporary suspension of your account, because without this limitation Veeam behaves too aggressively and limits other users using the same S3 access gateways.  
+Instructions on how to correctly set this limit can be found in step 4. If you already have an S3 connection configured, do not forget to adjust it.
 </Callout>
 
-### Steps
+### Setup
 
-1. In the left menu, select **"Backup Infrastructure"**
+1. In the left menu, select **Backup Infrastructure**
 
-2. Click the **"Add Repository"** button
+2. Click the **Add Repository** button
 
 ![veeam_s3](/img/data-care/veeam-backup/Veeam_s3-1.png)
 
-3. Select **"Object storage"**
+3. Select **Object storage**
 
 ![veeam_s3](/img/data-care/veeam-backup/Veeam_s3-3.png)
 
@@ -36,27 +34,16 @@ If you already have an S3 connection configured, do not forget to adjust it.
 
 ![veeam_s3](/img/data-care/veeam-backup/Veeam_s3-4.png)
 
----
-
-## Storage Name (Name)
-
-5. Fill in the repository **Name** and **Description**, then check **"Limit concurrent tasks to"** and set the value to **5**
+5. Fill in the repository **Name** and **Description**, then check **Limit concurrent tasks to** and set the value to **5** then Click **Next**.
 
 <Callout type="warn" icon="⚠️">  
-For operational reasons, it is very important to set a limit on the number of concurrent connections.  
-Without this limitation, Veeam behaves too aggressively and limits other users using the same S3 access gateways, which may lead to temporary account suspension.
+For operational reasons, it is very important to set a limit on the number of concurrent connections. Without this limitation, Veeam behaves too aggressively and limits other users using the same S3 access gateways, which may lead to temporary account suspension.
 </Callout>
-
-Click **"Next"**
 
 ![veeam_s3](/img/data-care/veeam-backup/Veeam_s3-5.png)
 
----
-
-## Access Credentials Configuration (Account)
-
-6. Fill in the **"Service point"** according to the provided information.  
-   In the **"Region"** field, enter: `storage`
+6. Fill in the **Service point** according to the provided information.  
+   In the **Region** field, enter: `storage`
 
 <Callout type="warn" icon="⚠️"> 
 The "Service point" URL has the form `https://s3.clX.du.cesnet.cz` and represents the name of the S3 object storage.
@@ -72,107 +59,85 @@ The "Service point" URL has the form `https://s3.clX.du.cesnet.cz` and represent
 
 8. Fill in the provided **Access key** and **Secret key**
 
-9. Click **"Next"**
+9. Click **Next**
 
 ![veeam_s3](/img/data-care/veeam-backup/Veeam_s3-6.png)
 
----
-
-## Bucket Selection (Bucket)
-
-10. Select the **Bucket** and **Folder** using the **"Browser"** buttons
+10. Select the **Bucket** and **Folder** using the **Browser** buttons.
 
 11. The **Limit** setting can be filled in optionally (not required)
 
-12. Do **not** check **"Make recent backups immutable"**, unless you want to use the WORM model:  
+12. Do **not** check **Make recent backups immutable**, unless you want to use the WORM model:  
     https://du.cesnet.cz/cs/navody/object_storage/cesnet_s3/veeam_worm/start  
 
     Veeam allows you to prevent deletion of data from object storage by making the data temporarily immutable, protecting it from malware activity by maintaining multiple versions of a single backup.
 
 ![veeam_s3](/img/data-care/veeam-backup/Veeam_s3-13.png)
 
----
-
-## Mount Server Configuration (Mount Server)
-
 13. Select a server
 
 The list of Mount Servers contains only Microsoft Windows servers that have been added to the backup infrastructure.  
-If the server is not yet added, click **"Add New"** on the right to open the **"New Windows Server wizard"**:  
+If the server is not yet added, click **Add New** on the right to open the **New Windows Server wizard**:  
 https://helpcenter.veeam.com/docs/backup/vsphere/add_windows_server.html?ver=120
 
-14. Select the **"Instant recovery write cache folder"**, where the cache created during mount operations will be stored
+14. Select the **Instant recovery write cache folder**, where the cache created during mount operations will be stored
 
-15. Check the recommended option **"Enable vPower NFS"**  
+15. Check the recommended option **Enable vPower NFS**  
     https://helpcenter.veeam.com/docs/backup/vsphere/vpower_nfs_service.html?ver=120
 
 ![veeam_s3](/img/data-care/veeam-backup/Veeam_s3-10.png)
 
----
+Next, review which components will be processed on the mount server and their status.
 
-## Settings Review (Review)
+After review, click **Apply**
 
-Here, review which components will be processed on the mount server and their status.
-
-After review, click **"Apply"**
-
----
-
-## Configuration Confirmation (Apply)
-
-A validation check will run, which should be allowed to complete.  
-Your settings will be saved to the configuration database and backup infrastructure objects will be created.
+Configuration Confirmation (Apply). A validation check will run, which should be allowed to complete. Your settings will be saved to the configuration database and backup infrastructure objects will be created.
 
 ![veeam_s3](/img/data-care/veeam-backup/Veeam_s3-11.png)
 
----
-
-## Configuration Summary (Summary)
-
-Review the details of the newly created repository and click **"Finish"** to complete the setup.
+Review the details of the newly created repository and click **Finish** to complete the setup.
 
 ![veeam_s3](/img/data-care/veeam-backup/Veeam_s3-12.png)
 
 
-# Configuring Larger Block Sizes in Veeam
+## Configuring Larger Block Sizes in Veeam
 
 Thanks to backup technology, backed-up data is divided into data blocks, which are then stored in S3 as individual objects. A large amount of backed-up data is therefore converted into a large number of objects in S3. This can cause issues with the S3 endpoint.
 
 To mitigate this issue, it is recommended to configure backups to use larger block sizes.
 
----
+### Registry Configuration
 
-## Registry Configuration
-
-In the search field, type **“Registry Editor”** and launch it.
+In the search field, type **Registry Editor** and launch it.
 
 ![v_reg](/img/data-care/veeam-backup/V_reg1.png)
 
-In the **“Veeam Backup and Replication”** directory (the path is  
-`\HKEY_LOCAL_MACHINE\SOFTWARE\Veeam\Veeam Backup and Replication`), right-click and select **“New”**, then choose **“DWORD”** and create a new registry key.
+In the **Veeam Backup and Replication** directory - the path is:
+
+`\HKEY_LOCAL_MACHINE\SOFTWARE\Veeam\Veeam Backup and Replication`
+
+then right-click and select **New**, then choose **DWORD** and create a new registry key.
 
 ![v_reg](/img/data-care/veeam-backup/V_reg3.png)
 
-Next, edit the newly created registry key, rename it to **`UIShowLegacyBlockSize`**, and set the **Value data** to **`1`**. Click **OK**.
+Next, edit the newly created registry key, rename it to **UIShowLegacyBlockSize**, and set the **Value data** to **1**. Click **OK**.
 
 ![v_reg](/img/data-care/veeam-backup/V_reg4.png)
 
----
-
-## Configuring Block Size in Veeam
+### Configuring Block Size in Veeam
 
 Connect to Veeam and set the object size to **8 MB**.  
 Proceed as follows:
 
-In **Jobs**, right-click the job and select **"Edit"**.
+In **Jobs**, right-click the job and select **Edit**.
 
 ![veeam](/img/data-care/veeam-backup/veeam01.png)
 
-Click on **"Storage"**.
+Click on **Storage**.
 
 ![veeam](/img/data-care/veeam-backup/veeam03.png)
 
-Then select **"Advanced"**.
+Then select **Advanced**.
 
 ![veeam](/img/data-care/veeam-backup/veeam04.png)
 
@@ -180,47 +145,42 @@ In the **Storage optimization** field, switch the value to **8 MB**.
 
 ![veeam](/img/data-care/veeam-backup/veeam05.png)
 
-Confirm by clicking **"OK"**.
+Confirm by clicking **OK**.
 
----
 
-Storing an excessively large amount of data in a single bucket is not recommended.  
-As a general guideline, around **100 TB** and **50 million objects** can be considered a reasonable maximum.
+<Callout type="warn" icon="⚠️">  
+Storing an excessively large amount of data in a single bucket is not recommended. As a general guideline, around **100 TB** and **50 million objects** can be considered a reasonable maximum.<br/>
 
-If larger data volumes are required, it is advisable to use multiple buckets and distribute the data across them.  
-By default, up to **1000 buckets** are allowed. If necessary, this limit can be increased.
+If larger data volumes are required, it is advisable to use multiple buckets and distribute the data across them. By default, up to **1000 buckets** are allowed. If necessary, this limit can be increased.
+</Callout>
 
----
 
-# Recommendations for Monitoring Configuration in Veeam
+## Recommendations for Monitoring Configuration in Veeam
 
 To provide an overview of storage utilization, we operate an **accounting service**.  
 Through the web interface, you can view information about your storage, including quota, utilization, and the number of objects per tenant and user.
 
-The service is available at:  
+<Callout type="info" emoji="ℹ️">
+**Accounting service** <br/>
 https://accounting.du.cesnet.cz/
+</Callout>
 
-In the **"user selector"** drop-down menu, you can browse individual users, or click the **"Vo"** button in the top-right corner and then select **"Members overview"** in the central panel to see an overview of all users.
+In the **user selector** drop-down menu, you can browse individual users, or click the **VO** button in the top-right corner and then select **Members overview** in the central panel to see an overview of all users.
 
 <Callout type="warn" icon="⚠️">   
-It is recommended to configure notifications below the agreed quota limit.  
-This gives you sufficient time to adjust Veeam settings before the quota is exceeded and backups are subsequently stopped.  
+It is recommended to configure notifications below the agreed quota limit. This gives you sufficient time to adjust Veeam settings before the quota is exceeded and backups are subsequently stopped.  
 For example, setting alerts at **80–90% capacity** is recommended to allow timely response.
 </Callout>
 
 <Callout type="warn" icon="⚠️">  
-To ensure better management and performance optimization, we recommend creating additional buckets and evenly distributing data among them.  
-This approach helps prevent performance issues that may arise with a large number of objects or a large data volume in a single bucket.  
-Even data distribution also increases the flexibility and scalability of your backup infrastructure.
+To ensure better management and performance optimization, we recommend creating additional buckets and evenly distributing data among them. This approach helps prevent performance issues that may arise with a large number of objects or a large data volume in a single bucket. Even data distribution also increases the flexibility and scalability of your backup infrastructure.
 </Callout>
 
----
 
 To keep your **Veeam Backup & Replication** infrastructure continuously monitored and to ensure timely alerts about potential issues or limits, we recommend the following steps:
 
----
 
-## 1. Monitoring Setup with Veeam ONE Community Edition
+### 1. Monitoring Setup with Veeam ONE Community Edition
 
 **Veeam ONE Community Edition** is a free tool that provides comprehensive monitoring of your backup infrastructure, including real-time monitoring, alerts, and reporting. We recommend configuring it for:
 
@@ -228,29 +188,14 @@ To keep your **Veeam Backup & Replication** infrastructure continuously monitore
 - **Notifications**: Set alerts for events such as storage capacity thresholds, backup failures, or insufficient resources.
 - **Automated reports**: Use reporting features to regularly generate infrastructure health overviews.
 
-### Procedure
-
-- Install and configure **Veeam ONE Community Edition**  
-  https://www.veeam.com/products/free/monitoring-analytics.html
+- Install and configure **[Veeam ONE Community Edition](https://www.veeam.com/products/free/monitoring-analytics.html)**
 - Configure alarms in the **Alarm Management** section to monitor key infrastructure parameters.
 - Set up email notifications in **Options > Email Settings** so the system automatically alerts you to critical events.
 
----
-
-## 2. Using PowerShell Scripts for Monitoring
+### 2. Using PowerShell Scripts for Monitoring
 
 If you prefer scripting or require a lightweight and specific solution, you can create **PowerShell scripts** to monitor storage utilization and other important parameters and send email notifications.
-
-### Recommended Steps
-
 - Create a PowerShell script that checks storage status and run it regularly using **Task Scheduler**.
 - Configure email notifications directly within the script to alert you when issues such as storage capacity limits are detected.
 
----
-
-Configuring monitoring and notifications is essential for managing your backup infrastructure.  
-It helps prevent outages and issues that could impact data recoverability and overall system availability.
-
-
-
-
+Configuring monitoring and notifications is essential for managing your backup infrastructure. It helps prevent outages and issues that could impact data recoverability and overall system availability.
