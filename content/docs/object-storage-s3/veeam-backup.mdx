@@ -26,15 +26,15 @@ If you already have an S3 connection configured, do not forget to adjust it.
 
 2. Click the **"Add Repository"** button
 
-![Veeam_s3-1](/img/data-care/veeam-backup/Veeam_s3-1.png)
+![veeam_s3](/img/data-care/veeam-backup/Veeam_s3-1.png)
 
 3. Select **"Object storage"**
 
-![Veeam_s3-3](/img/data-care/veeam-backup/Veeam_s3-3.png)
+![veeam_s3](/img/data-care/veeam-backup/Veeam_s3-3.png)
 
 4. Select **"S3 Compatible"**
 
-![Veeam_s3-4](/img/data-care/veeam-backup/Veeam_s3-4.png)
+![veeam_s3](/img/data-care/veeam-backup/Veeam_s3-4.png)
 
 ---
 
@@ -49,7 +49,7 @@ Without this limitation, Veeam behaves too aggressively and limits other users u
 
 Click **"Next"**
 
-![Veeam_s3-5](/img/data-care/veeam-backup/Veeam_s3-5.png)
+![veeam_s3](/img/data-care/veeam-backup/Veeam_s3-5.png)
 
 ---
 
@@ -74,7 +74,7 @@ The "Service point" URL has the form `https://s3.clX.du.cesnet.cz` and represent
 
 9. Click **"Next"**
 
-![Veeam_s3-6](/img/data-care/veeam-backup/Veeam_s3-6.png)
+![veeam_s3](/img/data-care/veeam-backup/Veeam_s3-6.png)
 
 ---
 
@@ -89,7 +89,7 @@ The "Service point" URL has the form `https://s3.clX.du.cesnet.cz` and represent
 
     Veeam allows you to prevent deletion of data from object storage by making the data temporarily immutable, protecting it from malware activity by maintaining multiple versions of a single backup.
 
-![Veeam_s3-13](/img/data-care/veeam-backup/Veeam_s3-13.png)
+![veeam_s3](/img/data-care/veeam-backup/Veeam_s3-13.png)
 
 ---
 
@@ -106,7 +106,7 @@ https://helpcenter.veeam.com/docs/backup/vsphere/add_windows_server.html?ver=120
 15. Check the recommended option **"Enable vPower NFS"**  
     https://helpcenter.veeam.com/docs/backup/vsphere/vpower_nfs_service.html?ver=120
 
-![Veeam_s3-10](/img/data-care/veeam-backup/Veeam_s3-10.png)
+![veeam_s3](/img/data-care/veeam-backup/Veeam_s3-10.png)
 
 ---
 
@@ -123,7 +123,7 @@ After review, click **"Apply"**
 A validation check will run, which should be allowed to complete.  
 Your settings will be saved to the configuration database and backup infrastructure objects will be created.
 
-![Veeam_s3-11](/img/data-care/veeam-backup/Veeam_s3-11.png)
+![veeam_s3](/img/data-care/veeam-backup/Veeam_s3-11.png)
 
 ---
 
@@ -131,7 +131,7 @@ Your settings will be saved to the configuration database and backup infrastruct
 
 Review the details of the newly created repository and click **"Finish"** to complete the setup.
 
-![Veeam_s3-12](/img/data-care/veeam-backup/Veeam_s3-12.png)
+![veeam_s3](/img/data-care/veeam-backup/Veeam_s3-12.png)
 
 
 # Configuring Larger Block Sizes in Veeam
@@ -146,16 +146,16 @@ To mitigate this issue, it is recommended to configure backups to use larger blo
 
 In the search field, type **“Registry Editor”** and launch it.
 
-![V_reg1](/img/data-care/veeam-backup/V_reg1.png)
+![v_reg](/img/data-care/veeam-backup/V_reg1.png)
 
 In the **“Veeam Backup and Replication”** directory (the path is  
 `\HKEY_LOCAL_MACHINE\SOFTWARE\Veeam\Veeam Backup and Replication`), right-click and select **“New”**, then choose **“DWORD”** and create a new registry key.
 
-![V_reg3](/img/data-care/veeam-backup/V_reg3.png)
+![v_reg](/img/data-care/veeam-backup/V_reg3.png)
 
 Next, edit the newly created registry key, rename it to **`UIShowLegacyBlockSize`**, and set the **Value data** to **`1`**. Click **OK**.
 
-![V_reg4](/img/data-care/veeam-backup/V_reg4.png)
+![v_reg](/img/data-care/veeam-backup/V_reg4.png)
 
 ---
 
@@ -166,19 +166,19 @@ Proceed as follows:
 
 In **Jobs**, right-click the job and select **"Edit"**.
 
-![veeam01](/img/data-care/veeam-backup/veeam01.png)
+![veeam](/img/data-care/veeam-backup/veeam01.png)
 
 Click on **"Storage"**.
 
-![veeam03](/img/data-care/veeam-backup/veeam03.png)
+![veeam](/img/data-care/veeam-backup/veeam03.png)
 
 Then select **"Advanced"**.
 
-![veeam04](/img/data-care/veeam-backup/veeam04.png)
+![veeam](/img/data-care/veeam-backup/veeam04.png)
 
 In the **Storage optimization** field, switch the value to **8 MB**.
 
-![veeam05](/img/data-care/veeam-backup/veeam05.png)
+![veeam](/img/data-care/veeam-backup/veeam05.png)
 
 Confirm by clicking **"OK"**.
 
