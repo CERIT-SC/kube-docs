@@ -214,10 +214,27 @@ Some of the notebooks (marked with `AI`) are integrated with GPT, in particular 
 Your data will be sent to the third party service -- OpenAI. If you do not agree, do not use AI versions of notebooks.
 </Callout>
 
+
 #### Currently Integrated Notebooks
 
 * Minimal NB AI -- see [https://jupyter-ai.readthedocs.io/en/latest/](https://jupyter-ai.readthedocs.io/en/latest/) for documentation.
 * RStudio with R 4.4.1 and AI -- see [video](https://www.youtube.com/watch?v=rZB0_53Cm1w) for features. Note: the `gptstudio` package is already installed in the image.
+
+
+### Claude Code Integration in Jupyter Notebook
+
+Some of our Jupyter notebooks (specifically those using the cerit.io/hubs/datasciencenb:2026-01-23-ai image) come pre-integrated with **Claude Code**.
+
+Claude Code is not just a chatbot; it is an agentic coding assistant. Unlike standard auto-complete tools, Claude Code acts as a partner that understands the broader context of your project. It can read your notebook, analyze your data structures, and navigate your file system to assist with complex tasks—from data cleaning pipelines to visualization and debugging. This integration fully supports "Vibe Coding."
+
+<Callout type="info"> 
+Security Notice: Your data is secure. All processing is performed using our internal LLM platform. No code or data is sent to public API endpoints. 
+</Callout>
+
+To maintain safety and stability, Claude Code is designed with a "Human-in-the-loop" philosophy.
+* Claude Code is restricted from automatically executing Notebook cells. While it can write, modify, or refactor code, it operates on a permission-first basis. You will be prompted to explicitly approve the execution of any code it suggests.
+* For certain file operations or system-level changes, the agent may pause and request your permission. You may be asked to explicitly "add rights" or approve an action before Claude proceeds. This prevents the AI from accidentally modifying critical files without your oversight.
+
 
 
 ### Conda Environment
