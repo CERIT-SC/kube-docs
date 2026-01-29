@@ -29,6 +29,7 @@ We provide a range of pre-configured Docker images to accommodate various comput
 *	**TensorFlow and Pytorch Images**, optimized for machine learning and deep learning applications
 *	**Matlab Images**, allowing you to access a graphical, interactive instance of Matlab
 *	**Folding images**, specifically designed for special use cases involving Colabfold or ESM Fold
+*    Image with integrated **Claude Code**, AI-powered advanced chat assistance (Harbor: cerit.io/hubs/datasciencenb:2026-01-23-ai)
 *	Alternatively, you can also use your own **custom image** 
 
 > You can choose to build your own image with all dependencies and sotware you need. However, don't forget to include whole jupyter stack, otherwise the the deployment will not work. We recommend building from [existing image](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html) which already incorporates all nexessary software. If you choose custom image, you have to provide image name together with its repo and optional tag --- input text in format `repo/imagename:tag`. If you build your own image, you have to make sure repository is public. If you don't know what repository to choose, we maintain our own docker registry which you can freely use and does not require any further configuration. More information on registry is available [at a harbor site](../docker/harbor).
