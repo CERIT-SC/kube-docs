@@ -194,31 +194,32 @@ flare tunnel --port 8888 --name myapp
 
 ## Special Features
 
-### New Feature Requests
-
+<Callout type="info">
 Any tips for features or new notebook types are welcomed at <a href="mailto:k8s@cerit-sc.cz">IT Service desk</a>.
-
-### AI GPT Chat Support
-
-Some of the notebooks (marked with `AI`) are integrated with GPT, in particular the gpt-4o-mini model. Each user has access to prepaid the model with the following restrictions:
-
-* The model can only be used from the jupyterhub (the API key will not work anyway).
-
-* The user can currently spend $1 per month (for the gpt-4o-mini model, the limit is for 1.3M input+output tokens).
-
-* Using the GPT requires the user to agree to the [OpenAI terms of use](https://openai.com/policies/terms-of-use/). 
-
-* Only the `gpt-4o-mini` and `gpt-4o` models are supported.
-
-<Callout type="warning">
-Your data will be sent to the third party service -- OpenAI. If you do not agree, do not use AI versions of notebooks.
 </Callout>
 
 
-#### Currently Integrated Notebooks
+### Notebook Intelligence Support in Jupyter Notebooks
 
-* Minimal NB AI -- see [https://jupyter-ai.readthedocs.io/en/latest/](https://jupyter-ai.readthedocs.io/en/latest/) for documentation.
-* RStudio with R 4.4.1 and AI -- see [video](https://www.youtube.com/watch?v=rZB0_53Cm1w) for features. Note: the `gptstudio` package is already installed in the image.
+Our platform offers specialized Jupyter Notebook images pre-configured with Generative AI capabilities. These images are designed to streamline your workflow by embedding coding assistants directly into your environment.
+
+When spawning a new server, look for images marked with the AI tag (e.g., Minimal NB AI, Datascience NB AI). These images contain the necessary dependencies and pre-configured extensions to communicate with our internal LLM infrastructure.
+
+**Currently Integrated Notebooks**
+
+The `Minimal NB with AI` is a lightweight environment that comes with the official Jupyter AI extension pre-installed. This integration provides a powerful interface for interacting with Large Language Models (LLMs) directly from your notebook cells or via a dedicated chat panel.
+
+![Minimal NB with AI] (/img/ceritsc/apps/jupyterhub/jupyter-intelligence.png)
+
+**Features**
+
+* Chat Interface: A sidebar chat assistant (Jupyternaut) that can answer questions, generate snippets, and learn from your local files.
+* For a full guide on syntax and capabilities, please refer to the official [Jupyter AI documentation](https://jupyter-ai.readthedocs.io/en/latest/).
+
+
+<Callout type="info"> 
+Security Notice: Your data is secure. All processing is performed using our internal LLM platform. No code or data is sent to public API endpoints. 
+</Callout>
 
 
 ### Claude Code Integration in Jupyter Notebook
