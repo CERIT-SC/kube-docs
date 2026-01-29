@@ -456,4 +456,192 @@ aws s3api list-object-versions --bucket "bucket name" --profile "profil name" --
 ```
 
 ## Set Up Bucket Policies for Sharing (AWS-CLI S3 plugin)
-Coming soon...
+
+The **[aws-plugin-bucket-policy](https://github.com/CESNET/aws-plugin-bucket-policy)** plugin is a cli tool for generating and setting bucket policies.
+
+<Callout type="warn" icon="⚠️">
+Before installing the plugin, install and configure the **[AWS tool](https://docs.du.cesnet.cz/en/docs/object-storage-s3/aws-cli)**.
+</Callout>
+
+### Plugin installation aws-plugin-bucket-policy
+
+```bash
+pip install --upgrade pip setuptools awscli aws-plugin-bucket-policy awscli_plugin_endpoint
+```
+
+### Plugin and endpoint configuration
+
+In the configuration file `/home/your-username/.aws/config`, add the missing settings to the profile
+
+```bash
+[profile test_user]
+output = text
+s3 =
+endpoint_url = https://s3.cl4.du.cesnet.cz
+s3api =
+endpoint_url = https://s3.cl4.du.cesnet.cz
+s3bucket-policy =
+endpoint_url = https://s3.cl4.du.cesnet.cz
+
+[plugins]
+s3bucket-policy = aws_plugin_bucket_policy
+endpoint = awscli_plugin_endpoint
+```
+
+### Creating a bucket policy for sharing a bucket
+<Callout type="warn" icon="⚠️">
+Only the bucket owner can modify policies!
+</Callout>
+
+<Callout type="info" emoji="ℹ️">
+The group identifier can be obtained from the Gatekeeper service: **https://access.du.cesnet.cz/**.
+</Callout>
+
+Before modifying the bucket policy settings, check whether a policy is already configured
+
+```bash
+aws s3bucket-policy --profile test_user get-policy --bucket your-bucket
+```
+
+<Callout type="warn" icon="⚠️">
+If a bucket policy already exists, it will be overwritten.
+</Callout>
+
+Creating a shared folder for a tenant
+
+```bash
+aws s3bucket-policy --profile test_user new-policy --bucket your-bucket --newpol-type share-w-tenant --newpol-spec tenant=c6efffff_1581_hhhh_879d_1616agtgtgtg,action=rw
+```
+
+Command output:
+
+```bash
+Bucket "your-bucket" old policy: No policy defined
+---
+Bucket "your-bucket" new policy:
+{
+  "Id": "policy-260115-150636-1111",
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "statement-260114-150636-6251",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "c6efffff_1581_hhhh_879d_1616agtgtgtg"
+        ]
+      },
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::your-bucket",
+        "arn:aws:s3:::your-bucket/*"
+      ]
+    }
+  ]
+}
+....
+```
+
+Creating a shared folder with a user
+
+```bash
+aws s3bucket-policy --profile test_user new-policy --bucket your-bucket --newpol-type share-w-user --newpol-spec tenant=c6efffff_1581_hhhh_879d_1616agtgtgtg,user=62cbgbgbgbgbg03aa144c327279eenhnhnhnhnhe,action=rw
+```
+
+Command output:
+
+```bash
+Bucket "your-bucket" old policy: No policy defined
+---
+Bucket "your-bucket" new policy:
+{
+  "Id": "policy-260114-151333-4614",
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "statement-260114-151333-1193",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "arn:aws:iam::c6efffff_1581_hhhh_879d_1616agtgtgtg:user/ahhhhhhhhhha554c0206319caa7mnmnmnmnmn0ea",
+          "arn:aws:iam::c6efffff_1581_hhhh_879d_1616agtgtgtg:user/62cbgbgbgbgbg03aa144c327279eenhnhnhnhnhe"
+        ]
+      },
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::your-bucket",
+        "arn:aws:s3:::your-bucket/*"
+      ]
+    }
+  ]
+}
+```
+
+Creating a shared folder with a user who has write permissions, while also configuring sharing for a second user with read-only access.
+
+```bash
+aws s3bucket-policy --profile test_user new-policy --bucket your-bucket --newpol-type share-w-user --newpol-spec tenant=5fd7687c_9874_497d_bb99_6ebb56987e23,user=62bgtsrdjhrd203aa144c32725dr9v3fldtds79e,action=rw user=62c159778887203rt144c327279ee0854f96d79f,action=ro
+```
+
+```bash
+Bucket "your-bucket" new policy:
+{
+  "Id": "policy-260128-134711-5519",
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "statement-260128-134711-7294",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "arn:aws:iam::5fd7687c_9874_497d_bb99_6ebb56987e23:user/62bgtsrdjhrd203aa144c32725dr9v3fldtds79e",
+          "arn:aws:iam::5fd7687c_9874_497d_bb99_6ebb56987e23:user/62c159778887203rt144c327279ee0854f96d79e"
+        ]
+      },
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::your-bucket",
+        "arn:aws:s3:::your-bucket/*"
+      ]
+    },
+    {
+      "Sid": "statement-260128-134711-6339",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "arn:aws:iam::5fd7687c_9874_497d_bb99_6ebb56987e23:user/62c159778887203aa144c327279ee0854f96d79f"
+        ]
+      },
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::your-bucket",
+        "arn:aws:s3:::your-bucket/*"
+      ]
+    }
+  ]
+}
+```
+
+For creating more complex bucket policies, the `--dryrun` switch can be used. It outputs the configuration without applying it. The resulting summarized bucket policy configuration can then be created and applied using JSON.
+
+Additional **[examples](https://github.com/CESNET/aws-plugin-bucket-policy/blob/main/README.md##examples)** and **[command reference](https://github.com/CESNET/aws-plugin-bucket-policy/blob/main/docs/commands.md)**
+
+If more advanced bucket policy configuration is required, please contact `du-support@cesnet.cz`.
