@@ -3,6 +3,7 @@
   "pages": [
     "introduction",
     "chat-ai",
+    "ai-api",
     "llm-integration",
     "deepsite",
     "n8n-agents"
