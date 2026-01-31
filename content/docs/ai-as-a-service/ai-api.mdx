@@ -33,7 +33,7 @@ API keys serve as authentication tokens to securely access Open-WebUI's API endp
 ### Listing Available Models
 
 Before querying a model, ensure that you use the correct model name. To retrieve a list of all available models on the e-INFRA CZ infrastructure, run the following using `curl` and `jq` commands.
-Replace '${E_INFRA_API_TOKEN}' with your real token.
+Replace `${E_INFRA_API_TOKEN}` with your real token.
 
 ```shell
 curl -H "Authorization: Bearer ${E_INFRA_API_TOKEN}" https://llm.ai.e-infra.cz/v1/models | jq .data[].id
