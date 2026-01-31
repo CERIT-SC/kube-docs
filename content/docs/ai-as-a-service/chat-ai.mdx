@@ -274,91 +274,9 @@ To use Open-WebUI's API, you need to generate an API key.
 6. Use this key in API requests to authenticate and access Open-WebUI services.
 7. Endpoint API is: [https://llm.ai.e-infra.cz/v1/](https://llm.ai.e-infra.cz/v1/).
 
-### Models for API Interface
-
-For API interfaces, you should query exact model names using, e.g., `curl` and `jq` commands, replacing TOKEN with your real token.
-
-```shell
-curl -H "Authorization: Bearer TOKEN" https://llm.ai.e-infra.cz/v1/models | jq .data[].id
-```
-
-You will see output similar to:
-
-```
-"llama3.3:latest"
-"llama3.3:70b-instruct-fp16"
-"deepseek-r1:32b-qwen-distill-fp16"
-"qwen2.5-coder:32b-instruct-q8_0"
-"aya-expanse:latest"
-```
-
-Then use, e.g., the `llama3.3:latest` as the model name in the API.
-
-Example `PydanticAI` configuration for integrating with our API (use similar settings for other frameworks):
-
-```python
-model = OpenAIModel(
-    'deepseek-r1',
-    provider=OpenAIProvider(
-        base_url='https://llm.ai.e-infra.cz/v1',
-        api_key=os.getenv('E_INFRA_API_TOKEN'),
-    ),
-)
-```
-
-### Reasoning Models in the API
-
-Some models are **hybrid**, supporting both *reasoning (thinking)* and *non-reasoning* modes.
-
-In the chat UI, most hybrid models are preconfigured to run in reasoning mode, which means you may see intermediate `thinking` output before the final response is returned. In the API, however, the default behavior depends on the specific model.
-
-#### DeepSeek v3.2
-
-By default, **DeepSeek v3.2** runs *without* reasoning enabled. To enable reasoning, pass additional parameters via `chat_template_kwargs`:
-
-```bash
-curl https://llm.ai.e-infra.cz/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer xxx" \
-  -d '{
-    "model": "deepseek-v3.2",
-    "messages": [
-      {
-        "role": "user",
-        "content": "What are 5 creative things I could do with my kids'' art? I don''t want to throw them away, but it''s also so much clutter."
-      }
-    ],
-    "chat_template_kwargs": {
-      "thinking": true
-    }
-  }'
-```
-
-For convenience—and for environments where `chat_template_kwargs` cannot be used (for example, certain AI agents)—we also provide a dedicated reasoning variant named **`deepseek-v3.2-thinking`**, which is permanently forced into thinking mode.
-
-#### GLM-4.7
-
-In contrast, the **GLM-4.7** model enables reasoning mode by default. To disable reasoning and return only the final response, explicitly turn it off using `chat_template_kwargs`:
-
-```bash
-curl https://llm.ai.e-infra.cz/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer xxx" \
-  -d '{
-    "model": "glm-4.7",
-    "messages": [
-      {
-        "role": "user",
-        "content": "What are 5 creative things I could do with my kids'' art? I don''t want to throw them away, but it''s also so much clutter."
-      }
-    ],
-    "chat_template_kwargs": {
-      "enable_thinking": false
-    }
-  }'
-```
-
-Use these options to control whether intermediate reasoning is included in API responses, depending on your application’s needs.
+<Callout type="info">
+Open-WebUI's API usage is described in the chapter [OpenAI API](../ai-as-a-service/ai-api)
+</Callout>	
 
 ## Knowledge Function (Alpha)
 
