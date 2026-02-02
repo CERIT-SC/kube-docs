@@ -1,1 +1,60 @@
 
+---
+title: Úvod do AIaaS
+---
+
+## AI pro vědu. Vytvořeno pro výzkumníky. Provozováno bezpečně v e-INFRA CZ.
+
+CERIT-SC, klíčová součást e-INFRA CZ, vyvíjí **on-premise AI platformu** zaměřenou na poskytování bezpečných, vysoce výkonných a interoperabilních AI nástrojů pro výzkumníky. Tato platforma je postavena na špičkových systémech třídy NVIDIA DGX H100/B200/B300, které zaručují dostatečný výpočetní výkon jak pro efektivní trénování large-scale modelů, tak pro vysokorychlostní inferenci. Toto robustní prostředí hostí pečlivě vybranou sadu otevřených velkých jazykových a generativních modelů, které jsou snadno dostupné prostřednictvím **rozhraní Open WebUI** nebo standardních **API kompatibilních s OpenAI**.
+
+
+
+#### Rozdíl mezi trénováním AI a inferencí
+
+<div class="w-200">  
+![image-webui](/img/ceritsc/ai-inference.png)  
+</div>  
+
+Trénování je učení a inferenční fáze je aplikování tohoto poznání.
+
+| Koncept                  | Co Dělá                                    | Tok Dat                  | Náš Kontext                                           |
+|---------------------------|--------------------------------------------|--------------------------|------------------------------------------------------|
+| **Trénování AI**         | Fáze "Vzdělávání". Rozvíjení mozku napájením obrovských datových sad. Model se učí vzory, upravuje váhy a minimalizuje chybu pomocí zpětné propagace. | Forward & Backward (Backprop). | Toto je práce, kterou provedli jiní při tvorbě open-source trénovaných modelů, které hostujeme. |
+| **Inference AI**         | Fáze "Aplikace". Použití mozku v praxi. Trénovaný model bere nová, neznámá data a aplikuje své pevné znalosti k tvorbě predikcí nebo rozhodnutí v reálném čase. | Pouze Forward pass. | Toto je naše práce: poskytovat modely a aplikace nad nimi. |
+
+
+
+### Key Features (Inference)
+
+* **Secure, on‑premise LLM & generative‑AI platform** – Our models run securely on the e-INFRA CZ infrastructure. Queries and responses are not logged by external providers, ensuring that your research and sensitive data remain within our environment. With the exception of internet searching, nothing leaves our local infrastructure. 
+* **Supports privacy‑sensitive research** – compliance with institutional and legal requirements. This makes our services ideal for handling sensitive data. 
+
+
+
+### What the Platform Provides
+
+| Category          | Highlights                                                                                                                                 |
+|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| **Compute**       | NVIDIA **DGX‑H100** (Hopper) and **DGX‑B200** (Bergamo). Petaflop‑class GPU performance.                  |
+| **Key Models**        | <p>Full-sized **DeepSeek R1 0528 (685B)**: High-performance reasoning model, excellent for complex tasks and the best for Czech language processing. Operates without internet access for high security. </p> <p> **GPT-OSS-120B**: General reasoning model, equivalent to known mini OpenAI models. </p> <p> **Qwen3 Coder 480B Instruct**: Specialized instruction model optimized for programming and code generation. Additional community models can be added on request. </p>|
+| **Access**        | MUNI students and employees and MetaCentrum users                                                             |
+| **External usage**    |    **OpenAI‑compatible REST API** - use existing `openai` client code, LangChain, or other integrations without modification           | 
+
+
+### Key AI Services (Inference)
+
+| Service                   | Link                                                    | Description                                                |
+|---------------------------|---------------------------------------------------------|----------------------------------------------------------|
+| **Chat (Open-WebUI)**     | [WebUI chat](../ai-as-a-service/chat-ai)                             | <p>A full-featured conversational interface (similar to ChatGPT) offering advanced features and explicit language model selection.</p> <p> **Text Work**: Translations, summaries, analysis, and generation of program code.</p> <p>**Multimodality**: Image generation (including editing) and content recognition in images (e.g., extracting a serial number from a photo).</p> <p>**Tools**: Searching the internet, GitHub, arXiv, and a Python sandbox for running code in the browser and data analytics. </p> <p>**RAG (Knowledge)**: Searching within a document attached to the chat works very well.</p>                                     |
+| **Call the API**          | [Using AI models – API docs](../ai-as-a-service/chat-ai#using-ai-models) | Use the OpenAI‑compatible endpoint to integrate AI into your scripts, pipelines, or services.                                            |
+| **DeepSite**              | [DeepSite (vibe‑coding)](../ai-as-a-service/deepsite)                | A generative tool that creates webpages and applications (HTML/CSS/JS) based on a simple text description. Excellent for design proposals, mockups, or quick web concepts. |
+| **AI in Jupyter Notebooks** | [JupyterHub integration](../web-apps/jupyterhub)                     | Integration of an AI Assistant directly into the Jupyter Lab environment (Notebook Intelligence). Used for fixing code, generating new snippets, and conversational assistance within your coding projects. |
+| **n8n platform** | [n8n Agents]../ai-as-a-service/n8n-agents)                      | In8n is an open-source, low-code workflow automation platform with AI Agent functionality |
+| **Documentation ChatBot** | docs.e-infra.cz and other documentation sites                      | A Retrieval-Augmented Generation (RAG) system implemented across e-INFRA CZ documentation. Answers specific questions and acts as a problem solver based on our knowledge base (e.g., "How to run MATLAB?"). |
+
+
+
+## Reference 
+Read more details on our e-INFRA Blog at https://blog.e-infra.cz/
+
+Picture used from https://blogs.nvidia.com/blog/difference-deep-learning-training-inference-ai/
