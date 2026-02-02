@@ -422,26 +422,26 @@ volumes:
   qdrant_storage:
 ```
 
-To configure codebase indexing, follow these steps:
+Pro nastavení indexování codebase postupujte podle těchto kroků:
 
-1. Launch a new database instance by running `docker compose up -d` in the same directory, where the provided `docker-compose.yaml` file is stored.
-2. In the Roo Code extension interface, click on the database icon in the bottom right corner.
-3. Open the `Setup` section.
-4. Set the following values:
+1. Spusťte novou instanci databáze příkazem `docker compose up -d` ve stejném adresáři, kde je uložen poskytnutý soubor `docker-compose.yaml`.
+2. V rozhraní rozšíření Roo Code klikněte na ikonu databáze v pravém dolním rohu.
+3. Otevřete sekci `Setup`.
+4. Nastavte následující hodnoty:
    - **Embedder Provider**: `OpenAI Compatible`
    - **Base URL**: `https://llm.ai.e-infra.cz/v1`
-   - **API Key**: Your API key from [AI Chat WebUI](../ai-as-a-service/chat-ai)
-   - **Model**: One of out [embedding models](https://docs.cerit.io/en/docs/ai-as-a-service/chat-ai#embedding-models) e.g. `qwen3-embedding-4b`
+   - **API Key**: Váš API klíč z [AI Chat WebUI](../ai-as-a-service/chat-ai)
+   - **Model**: Model: Jeden z našich  [embedding modelů](https://docs.cerit.io/en/docs/ai-as-a-service/chat-ai#embedding-models) např. `qwen3-embedding-4b`
    - **Model Dimension**: The embedding vector size of the selected model e.g. `2560` for `qwen3-embedding-4b`.
    - **Qdrant URL**: `http://localhost:6333`
-   - **Qdrant API Key**: Leave empty if the provided docker compose was used.
-5. Create the index by clicking on `Start Indexing`.
-6. After the indexing is finished, the agents will have access to the database and be able to better search and understand the codebase.
+   - **Qdrant API Key**: Ponechte prázdné, pokud byl použit poskytnutý docker compose.
+5. Vytvořte index kliknutím na `Start Indexing`.
+6. Po dokončení indexování budou mít agenti přístup k databázi a budou schopni lépe vyhledávat a porozumět codebase.
 ---
 
-### Caveats
+### Upozornění
 
-Disable all other Visual Studio Code extensions that provide AI autocomplete features. Otherwise, the `Continue` extension may not work properly.
+Vypnite všetky ostatné rozšírenia pre Visual Studio Code, ktoré poskytujú AI funkcie automatického dopĺňania. V opačnom prípade nemusí rozšírenie `Continue` fungovať správne.
 
 ---
 
