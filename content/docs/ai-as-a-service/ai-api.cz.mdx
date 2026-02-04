@@ -58,10 +58,10 @@ Tento seznam obsahuje identifikátory modelů (`id`), na které lze dotazovat p�
 * Označení kvantizace (např. `fp16`, `q8_0`), které udává, jak je model optimalizován pro inferenci (důležité pro výkon a spotřebu zdrojů).
 * Variantu nebo revizi (např. `:latest`, `:70b-instruct-fp16`).
 
+### Příklad API požadavku 
 
-### Example API Request
+Níže je uveden příklad, jak použít API klíč k dotazování modelu LLama 3.3 (llama3.3:latest) pomocí chat completions požadavku:
 
-Below is an example of how to use the API key to query the LLama 3.3 model (llama3.3:latest) with a chat completions request:
 
 ```
 curl https://llm.ai.e-infra.cz/v1/chat/completions \
@@ -78,7 +78,7 @@ curl https://llm.ai.e-infra.cz/v1/chat/completions \
   }'
 ```
 
-Expected Output (example):
+Očekávaný výstup (příklad):
 
 ```bash
 {
@@ -98,15 +98,23 @@ Expected Output (example):
 }
 ```
 
-## Framework Integration
 
-The e-INFRA CZ LLM API is designed to be compatible with the OpenAI API specification, meaning that it can be integrated into frameworks originally built for OpenAI's services.
 
-**PyDanticAI Integration Example**
+## Integrace s frameworky
 
-PyDanticAI is a framework that simplifies LLM interactions using OpenAI-compatible models. Use the following configuration to authenticate with the e-INFRA CZ LLM endpoint:
+API e-INFRA CZ LLM je navrženo tak, aby bylo kompatibilní se specifikací OpenAI API, což znamená, že jej lze integrovat do frameworků původně vytvořených pro služby OpenAI.
 
-Example `PydanticAI` configuration for integrating with our API (use similar settings for other frameworks):
+**Příklad integrace s PyDanticAI**
+
+PyDanticAI je framework, který zjednodušuje práci s LLM pomocí modelů kompatibilních s OpenAI. Pro autentizaci vůči e-INFRA CZ LLM endpointu použijte následující konfiguraci:
+
+Příklad konfigurace `PydanticAI` pro integraci s naším API (pro ostatní frameworky použijte obdobné nastavení):
+
+
+
+
+
+
 
 ```python
 from pydantic_ai_provider import OpenAIModel, OpenAIProvider
