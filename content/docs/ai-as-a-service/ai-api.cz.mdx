@@ -2,44 +2,47 @@
 title: OpenAI API
 ---
 
-## API Introduction
+## Úvod do API
 
-This documentation provides detailed instructions for generating and using **API keys** to access locally running Large Language Models (LLMs) on the e-INFRA CZ infrastructure, specifically through the Open-WebUI interface [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz). The guide is tailored for researchers and scientists who aim to integrate these models into their applications, scripts, or AI workflows via API.
+Tato dokumentace poskytuje podrobné pokyny pro generování a používání **API klíčů** pro přístup k lokálně běžícím velkým jazykovým modelům (LLM) na infrastruktuře e-INFRA CZ, konkrétně přes rozhraní Open-WebUI [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz). Průvodce je určen pro výzkumníky a vědce, kteří chtějí tyto modely integrovat do svých aplikací, skriptů nebo AI workflow prostřednictvím API.
 
-To access the Open-WebUI service and generate an API key, you must meet the following prerequisites:
+Pro přístup k službě Open-WebUI a generování API klíče musíte splnit následující předpoklady:
 
-* A valid MetaCentrum account (for Czech research institutions) 
-* or an active Masaryk University account (if affiliated).
+* Platný účet MetaCentrum (pro české výzkumné instituce)  
+* nebo aktivní účet Masarykovy univerzity (pokud jste její součástí).
 
-For a comprehensive description of available models, see the [Chat AI documentation](../ai-as-a-service/chat-ai)
+Pro podrobný popis dostupných modelů viz [dokumentace Chat AI](../ai-as-a-service/chat-ai)
 
 
-## Creating an API Key
+## Vytvoření API klíče
 
-API keys serve as authentication tokens to securely access Open-WebUI's API endpoint. Follow these steps to generate and use your API key:
+API klíče slouží jako autentizační tokeny pro bezpečný přístup k API endpointu Open-WebUI. Postupujte podle následujících kroků pro generování a použití API klíče:
 
-**Step-by-Step Instructions**
+**Postup krok za krokem**
 
-1. Go to the Settings section of the Open-WebUI interface [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
-2. Nagigate to the Account (Účet).
-3. Click on API keys (display).
-4. Ignore JWT token and select API key and either generate new or display existing.
-5. Copy the generated API key and store it securely.
-6. Use this key in API requests to authenticate and access Open-WebUI services.
-7. The base endpoint for the Open-WebUI API is: [https://llm.ai.e-infra.cz/v1/](https://llm.ai.e-infra.cz/v1/). This endpoint follows the OpenAI API specification, enabling compatibility with many existing LLM frameworks and applications.
+1. Přejděte do sekce Nastavení v rozhraní Open-WebUI [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).  
+2. Přejděte do části Účet (Account).  
+3. Klikněte na API klíče (zobrazit).  
+4. Ignorujte JWT token a vyberte možnost API key – buď vytvořte nový, nebo zobrazte existující.  
+5. Zkopírujte vygenerovaný API klíč a uložte jej bezpečně.  
+6. Použijte tento klíč v API požadavcích pro autentizaci a přístup ke službám Open-WebUI.  
+7. Základní endpoint pro Open-WebUI API je: [https://llm.ai.e-infra.cz/v1/](https://llm.ai.e-infra.cz/v1/). Tento endpoint dodržuje specifikaci OpenAI API, což zajišťuje kompatibilitu s mnoha existujícími frameworky a aplikacemi pro LLM.
 
-## Using the API Key
 
-### Listing Available Models
 
-Before querying a model, ensure that you use the correct model name. To retrieve a list of all available models on the e-INFRA CZ infrastructure, run the following using `curl` and `jq` commands.
-Replace `${E_INFRA_API_TOKEN}` with your real token.
+## Použití API klíče
+
+### Výpis dostupných modelů
+
+Před dotazováním modelu se ujistěte, že používáte správný název modelu. Chcete-li získat seznam všech dostupných modelů na infrastruktuře e-INFRA CZ, spusťte následující příkaz pomocí `curl` a `jq`.  
+Nahraďte `${E_INFRA_API_TOKEN}` vaším skutečným tokenem.
+
 
 ```shell
 curl -H "Authorization: Bearer ${E_INFRA_API_TOKEN}" https://llm.ai.e-infra.cz/v1/models | jq .data[].id
 ```
 
-Expected Output (example):
+Očekávaný výstup (příklad):
 
 ```
 "llama3.3:latest"
@@ -48,11 +51,13 @@ Expected Output (example):
 "qwen2.5-coder:32b-instruct-q8_0"
 "aya-expanse:latest"
 ```
-This list reflects the model identifiers (`id`) that can be queried via the API. The identifiers follow a naming convention, typically including:
 
-* The model name (e.g., `llama3.3`, `qwen2.5-coder`).
-* A quantization tag (e.g., `fp16`, `q8_0`) that indicates how the model is optimized for inference (important for performance and resource consumption).
-* A variant or revision (e.g., `:latest`, `:70b-instruct-fp16`).
+Tento seznam obsahuje identifikátory modelů (`id`), na které lze dotazovat přes API. Identifikátory se řídí konvencí pojmenování, která obvykle zahrnuje:
+
+* Název modelu (např. `llama3.3`, `qwen2.5-coder`).
+* Označení kvantizace (např. `fp16`, `q8_0`), které udává, jak je model optimalizován pro inferenci (důležité pro výkon a spotřebu zdrojů).
+* Variantu nebo revizi (např. `:latest`, `:70b-instruct-fp16`).
+
 
 ### Example API Request
 
