@@ -6,6 +6,7 @@
     "ai-api",
     "llm-integration",
     "deepsite",
-    "n8n-agents"
+    "n8n-agents",
+    "mcp"
   ]
 }
