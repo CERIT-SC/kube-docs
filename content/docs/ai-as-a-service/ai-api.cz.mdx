@@ -137,12 +137,11 @@ Kromě PyDanticAI lze podobné konfigurace použít také pro:
 * Jakékoli další frameworky nebo klienty, které podporují custom endpointy OpenAI API.
 
 
+## Reasoning modely v API
 
-## Reasoning Models in the API
+Některé modely jsou **hybridní** a podporují jak *reasoning (thinking)*, tak *non-reasoning* režimy .
 
-Some models are **hybrid**, supporting both *reasoning (thinking)* and *non-reasoning* modes.
-
-In the chat UI, most hybrid models are preconfigured to run in reasoning mode, which means you may see intermediate `thinking` output before the final response is returned. In the API, however, the default behavior depends on the specific model.
+V chatovacím rozhraní je většina hybridních modelů přednastavena pro režim reasoning, což znamená, že můžete vidět mezivýstupy `thinking` před tím, než je vrácena finální odpověď. V API však výchozí chování závisí na konkrétním modelu.
 
 ### DeepSeek v3.2
 
