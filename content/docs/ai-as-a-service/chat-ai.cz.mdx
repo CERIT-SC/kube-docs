@@ -1,5 +1,5 @@
 ---
-title: Chat AI (LLM modely + API)
+title: Chat AI (LLM modely)
 ---
 
 ## Úvod
@@ -48,7 +48,7 @@ Open-WebUI poskytuje přístup k různým modelům umělé inteligence pro gener
 </div>
 </center>
 
-### Aktuálně dostupné modely (k 07/31/2025)
+### Aktuálně dostupné modely (k 01/26/2026)
 
 Naše modely rozdělujeme do tří skupin::
 
@@ -82,20 +82,22 @@ Ačkoliv jsou modely **Deepseek R1 0528** a **Qwen 3 Coder** označeny jako **ga
 
 | Model              | Popis      |
 |-------------------|-------------|
-| **Aya&nbsp;Expanse**      | Model s 32 miliardami parametrů, varianta Q8, vícejazyčný, od společnosti Cohere. Byl vyškolen pro vynikající výkon ve 23 jazycích, včetně češtiny.|
-| **Mistral&#8209;Small&nbsp;3.2**| Jazykový model s 24 miliardami parametrů od společnosti Mistral AI, vybavený vestavěnými vizuálními schopnostmi. |
-| **Phi-4**            | Model s 14 miliardami parametrů, varianta Q8, od společnosti Microsoft, vyškolený na kombinaci syntetických datasetů, filtrovaného veřejného webového obsahu, akademických knih a Q&A datasetů.Představuje současný špičkový stav ve volně dostupných modelech. |
-| **GPT OSS 120B with Memory**            |  Model GPT OSS 120B slouží k uchovávání klíčových informací (např. preferencí nebo detailů o projektech). Zapnutí funkce paměti personalizuje odpovědi napříč konverzacemi. Pro aktivaci funkce `Paměť` klikněte na své uživatelské jméno (vlevo dole), přejděte do `Nastavení` → `Personalizace` → záložka `Paměť`. Přepínačem funkci zapněte. K přidání položek do paměti můžete použít jednu ze dvou metod: 1) Tlačítko Spravovat: V záložce Paměť klikněte na Spravovat a přidejte/upravte položky (např. „Můj projekt: CFD optimalizace“). alebo 2) Během chatu: Napište „remember [informace]“ (např. „remember Moje MetaCentrum přihlašovací jméno je xnovak12“). Model potvrdí uložení. Důležité: Po zapnutí se uložené informace používají napříč všemi podporovanými modely.|
+| **GLM 4.7** | Jazykový model GLM 4.7 s 385B parametry od Z.ai s volitelnými režimy uvažování a instrukcí, vynikající v programování, volání nástrojů a agentních úlohách. | 200k |
+| **GPT OSS 120B with Memory**            |  Model GPT OSS 120B slouží k uchovávání klíčových informací (např. preferencí nebo detailů o projektech). Zapnutí funkce paměti personalizuje odpovědi napříč konverzacemi. Pro aktivaci funkce `Paměť` klikněte na své uživatelské jméno (vlevo dole), přejděte do `Nastavení` → `Personalizace` → záložka `Paměť`. Přepínačem funkci zapněte. K přidání položek do paměti můžete použít jednu ze dvou metod: 1) Tlačítko Spravovat: V záložce Paměť klikněte na Spravovat a přidejte/upravte položky (např. „Můj projekt: CFD optimalizace“). alebo 2) Během chatu: Napište „remember [informace]“ (např. „remember Moje MetaCentrum přihlašovací jméno je xnovak12“). Model potvrdí uložení. Důležité: Po zapnutí se uložené informace používají napříč všemi podporovanými modely.| 128k |
+| **Mistral 3 Large** | Jazykový model Mistral 3 Large Instruct s 675B parametry od Mistral, nabízející multimodální (vision-language) schopnosti; jde o největší dostupný multimodální model, běžící ve variantě NVFP4. | 128k |
 
 #### Zastaralé modely
 
 | Model              |  Popis        |
 |--------------------|---------------|
+| **Aya&nbsp;Expanse**      | Model s 32 miliardami parametrů, varianta Q8, vícejazyčný, od společnosti Cohere. Byl vyškolen pro vynikající výkon ve 23 jazycích, včetně češtiny.|
 | **Command-A**      | Model s 111 miliardami parametrů od společnosti Cohere. I když reaguje pomaleji, je mimořádně silný v programovacích úlohách a generování manifestů.|
 | **DeepSeek&nbsp;R1**    | Model s 32 miliardami parametrů, odvozený z modelu Qwen společností DeepSeek (Čína), navržený s důrazem na logické uvažování. Vyniká v komplexních úlohách, jako je matematika a generování kódu.|
 | **Gemma 3**        | Jazykový model s 27 miliardami parametrů (FP16) od Google, patřící do Lightweight rodiny Gemma postavené na technologii Gemini. |
 | **LLaMA 3.3**      | Jazykový model se 70 miliardami parametrů od Meta. Díky své efektivitě a všestrannosti se hodí pro širokou škálu úloh zpracování přirozeného jazyka. |
 | **Mistral&#8209;Small&nbsp;3.1**| Jazykový model s 24 miliardami parametrů od Mistral AI, který má integrované vizuální schopnosti. |
+| **Mistral&#8209;Small&nbsp;3.2**| Jazykový model s 24 miliardami parametrů od společnosti Mistral AI, vybavený vestavěnými vizuálními schopnostmi. |
+| **Phi-4**            | Model s 14 miliardami parametrů, varianta Q8, od společnosti Microsoft, vyškolený na kombinaci syntetických datasetů, filtrovaného veřejného webového obsahu, akademických knih a Q&A datasetů.Představuje současný špičkový stav ve volně dostupných modelech. |
 
 #### Embedding Modely
 
@@ -282,37 +284,12 @@ Pro používání API Open-WebUI je potřeba vygenerovat API klíč.
 4. Ignorujte JWT token a zvolte API klíč – buď vygenerujte nový, nebo zobrazte existující.
 5. Zkopírujte vygenerovaný API klíč a bezpečně si ho uložte.
 6. Tento klíč používejte v API požadavcích k ověření a přístupu ke službám Open-WebUI.
-7. Adresa koncového bodu (endpoint) API je: [https://chat.ai.e-infra.cz/api/](https://chat.ai.e-infra.cz/api/).
+7. Adresa koncového bodu (endpoint) API je: [https://llm.ai.e-infra.cz/v1/](https://llm.ai.e-infra.cz/v1/).
 
-Pro rozhraní API byste měli zjistit přesné názvy modelů pomocí příkazů jako např. `curl` a `jq`, přičemž TOKEN nahraďte svým skutečným tokenem.
+<Callout type="info">
+Použití API v Open-WebUI je popsáno v kapitole [OpenAI API](../ai-as-a-service/ai-api)
+</Callout>
 
-```shell
-curl -H "Authorization: Bearer TOKEN" https://chat.ai.e-infra.cz/api/models | jq .data[].id
-```
-
-Uvidíte výstup podobný tomuto:
-
-```
-"llama3.3:latest"
-"llama3.3:70b-instruct-fp16"
-"deepseek-r1:32b-qwen-distill-fp16"
-"qwen2.5-coder:32b-instruct-q8_0"
-"aya-expanse:latest"
-```
-
-Poté použijte například `llama3.3:latest` jako název modelu v API.
-
-Níže je uveden příklad konfigurace PydanticAI pro integraci s naším API (podobné nastavení použijte i pro jiné frameworky):
-
-```python
-model = OpenAIModel(
-    'deepseek-r1',
-    provider=OpenAIProvider(
-        base_url='https://chat.ai.e-infra.cz/api',
-        api_key=os.getenv('E_INFRA_API_TOKEN'),
-    ),
-)
-```
 
 ## Funkce Knowledge (Alpha)
 
