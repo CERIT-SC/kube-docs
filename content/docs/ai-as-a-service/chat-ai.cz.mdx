@@ -50,6 +50,8 @@ Open-WebUI poskytuje přístup k různým modelům umělé inteligence pro gener
 
 ### Aktuálně dostupné modely (k 01/26/2026)
 
+Aktualita od 26. ledna 2026 bude model **DeepSeekR1** **nahrazen** modelem **DeepSeek V3.2**. Model DeepSeekR1 již nebude k dispozici.
+
 Naše modely rozdělujeme do tří skupin::
 
 1. **Garantované modely** – Stabilní modely udržované pro dlouhodobou dostupnost. Jakékoli aktualizace nebo náhrady budou oznámeny na této stránce a prostřednictvím bannerů ve WebUI.
@@ -62,14 +64,17 @@ Pro zjištění přesných názvů modelů si zobrazte seznam modelů, jak je uv
 Názvy modelů rozlišují velká a malá písmena a mohou obsahovat verzní označení jako `:latest` nebo specifické formáty kvantizace.
 </Callout>
 
+
+
 #### Garantované modely
 
-| Model                | Popis       |
-|----------------------|-------------|
-| **DeepSeek&nbsp;R1&nbsp;0528** | Jazykový model s 685 miliardami parametrů, optimalizovaný pro logické uvažování, vyvinutý společností Deepseek AI. Vyniká v řešení složitých úloh, včetně matematiky, logického úsudku a generování kódu. |
-| **GPT-OSS-B120**     |Jazykový model s 120 miliardami parametrů od společnosti OpenAI. Poskytuje vynikající výkon.|
-| **Qwen 3 Coder**     | Jazykový model s 480 miliardami parametrů od společnosti Qwen. Navazuje na model Qwen 2.5 Coder a nabízí výrazně lepší výkon při programovacích úlohách. |
-| **Qwen 2.5 Coder**   | Model s 32 miliardami parametrů, varianta Q8, specializovaný na porozumění a generování kódu. Ideální pro vývojáře hledající asistenci při programování.|
+| Model                | Popis | Velikost kontextu |
+|----------------------|-------|-------------------|
+| **GPT-OSS-120B**     | Jazykový model s 120B parametry od OpenAI. Špičkový výkon. | 128k |
+| **DeepSeek V3.2**    | Jazykový model s 685B parametry od Deepseek AI s volitelnými režimy reasoning a instruct. Vyniká ve složitých úlohách včetně matematiky, logického uvažování a generování kódu. | 160k |
+| **Qwen 3 Coder**     | Jazykový model s 480B parametry od Qwen. Nástupce Qwen 2.5 Coder se výrazně vylepšeným výkonem v programovacích úlohách. | 90k |
+
+
 
 <Callout type="info">
 Ačkoliv jsou modely **Deepseek R1 0528** a **Qwen 3 Coder** označeny jako **garantované**, mějte prosím na paměti:
@@ -80,8 +85,8 @@ Ačkoliv jsou modely **Deepseek R1 0528** a **Qwen 3 Coder** označeny jako **ga
 
 #### Experimentální modely
 
-| Model              | Popis      |
-|-------------------|-------------|
+| Model              | Popis      |Context Size |
+|------------------------------|-------------|--------------|
 | **GLM 4.7** | Jazykový model GLM 4.7 s 385B parametry od Z.ai s volitelnými režimy uvažování a instrukcí, vynikající v programování, volání nástrojů a agentních úlohách. | 200k |
 | **GPT OSS 120B with Memory**            |  Model GPT OSS 120B slouží k uchovávání klíčových informací (např. preferencí nebo detailů o projektech). Zapnutí funkce paměti personalizuje odpovědi napříč konverzacemi. Pro aktivaci funkce `Paměť` klikněte na své uživatelské jméno (vlevo dole), přejděte do `Nastavení` → `Personalizace` → záložka `Paměť`. Přepínačem funkci zapněte. K přidání položek do paměti můžete použít jednu ze dvou metod: 1) Tlačítko Spravovat: V záložce Paměť klikněte na Spravovat a přidejte/upravte položky (např. „Můj projekt: CFD optimalizace“). alebo 2) Během chatu: Napište „remember [informace]“ (např. „remember Moje MetaCentrum přihlašovací jméno je xnovak12“). Model potvrdí uložení. Důležité: Po zapnutí se uložené informace používají napříč všemi podporovanými modely.| 128k |
 | **Mistral 3 Large** | Jazykový model Mistral 3 Large Instruct s 675B parametry od Mistral, nabízející multimodální (vision-language) schopnosti; jde o největší dostupný multimodální model, běžící ve variantě NVFP4. | 128k |
