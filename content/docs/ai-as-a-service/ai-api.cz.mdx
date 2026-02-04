@@ -143,9 +143,11 @@ Některé modely jsou **hybridní** a podporují jak *reasoning (thinking)*, tak
 
 V chatovacím rozhraní je většina hybridních modelů přednastavena pro režim reasoning, což znamená, že můžete vidět mezivýstupy `thinking` před tím, než je vrácena finální odpověď. V API však výchozí chování závisí na konkrétním modelu.
 
+
 ### DeepSeek v3.2
 
-By default, **DeepSeek v3.2** runs *without* reasoning enabled. To enable reasoning, pass additional parameters via `chat_template_kwargs`:
+Ve výchozím nastavení **DeepSeek v3.2** běží *bez* povoleného reasoning. Chcete-li reasoning povolit, předávejte další parametry přes `chat_template_kwargs`:
+
 
 ```bash
 curl https://llm.ai.e-infra.cz/v1/chat/completions \
