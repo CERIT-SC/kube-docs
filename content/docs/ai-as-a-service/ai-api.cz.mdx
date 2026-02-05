@@ -172,7 +172,7 @@ Pro pohodlí — a pro prostředí, kde nelze použít `chat_template_kwargs` (n
 
 ### GLM-4.7
 
-In contrast, the **GLM-4.7** model enables reasoning mode by default. To disable reasoning and return only the final response, explicitly turn it off using `chat_template_kwargs`:
+Na rozdíl od toho model **GLM-4.7** ve výchozím nastavení zapíná režim reasoning. Pokud chcete režim reasoning vypnout a vrátit pouze finální odpověď, explicitně jej deaktivujte pomocí `chat_template_kwargs`:
 
 ```bash
 curl https://llm.ai.e-infra.cz/v1/chat/completions \
@@ -192,7 +192,7 @@ curl https://llm.ai.e-infra.cz/v1/chat/completions \
   }'
 ```
 
-Use these options to control whether intermediate reasoning is included in API responses, depending on your application’s needs.
+Tyto možnosti použijte k řízení toho, zda jsou v odpovědích API zahrnuty mezikroky reasoning, podle potřeb vaší aplikace.
 
 
 
