@@ -198,7 +198,6 @@ flare tunnel --port 8888 --name myapp
 Any tips for features or new notebook types are welcomed at <a href="mailto:k8s@cerit-sc.cz">IT Service desk</a>.
 </Callout>
 
-
 ### Notebook Intelligence Support in Jupyter Notebooks
 
 Our platform offers specialized Jupyter Notebook images pre-configured with Generative AI capabilities. These images are designed to streamline your workflow by embedding coding assistants directly into your environment.
@@ -220,16 +219,9 @@ Security Notice: Your data is secure. All processing is performed using our inte
 </Callout>
 
 
-### Claude Code Integration in Jupyter Notebook
+## Claude Code Integration 
 
-Some of our Jupyter notebooks (specifically those using the `cerit.io/hubs/datasciencenb:2026-01-23-ai` image) come pre-integrated with **Claude Code**.
-
-
-<Callout type="info"> 
-See our [e-INFRA CZ Blog](https://blog.cerit.io/blog/claude-jupyter/) for more information and examples.
-</Callout>
-
-Claude Code is not just a chatbot; it is an agentic coding assistant. Unlike standard auto-complete tools, Claude Code acts as a partner that understands the broader context of your project. It can read your notebook, analyze your data structures, and navigate your file system to assist with complex tasks—from data cleaning pipelines to visualization and debugging. This integration fully supports "Vibe Coding."
+Claude Code is not just a chatbot; it is an agentic coding assistant. It can read your notebook, analyze your data structures, and navigate your file system to assist with complex tasks—from data cleaning pipelines to visualization and debugging. This integration fully supports "Vibe Coding."
 
 <Callout type="info"> 
 Security Notice: Your data is secure. All processing is performed using our internal LLM platform. No code or data is sent to public API endpoints. 
@@ -239,14 +231,72 @@ To maintain safety and stability, Claude Code is designed with a "Human-in-the-l
 * Claude Code is restricted from automatically executing Notebook cells. While it can write, modify, or refactor code, it operates on a permission-first basis. You will be prompted to explicitly approve the execution of any code it suggests.
 * For certain file operations or system-level changes, the agent may pause and request your permission. You may be asked to explicitly "add rights" or approve an action before Claude proceeds. This prevents the AI from accidentally modifying critical files without your oversight.
 
+### Claude Code in Jupyter Notebook
+This guide outlines the steps to launch and initialize the Claude Code AI assistant within the JupyterNotebook.
+
+Supported image: `cerit.io/hubs/datasciencenb:2026-01-23-ai`
+
+<Callout type="info"> 
+See our [e-INFRA CZ Blog](https://blog.cerit.io/blog/claude-jupyter/) for more information and examples.
+</Callout>
+
+
 ### Claude Code Integration in RStudio 
 
-RStudio with Claude Code support image: `cerit.io/hubs/rstudio:4.5.2-ai`
+This guide outlines the steps to launch and initialize the Claude Code AI assistant within the RStudio environment on JupyterHub.
+
+Supported image: `cerit.io/hubs/rstudio:4.5.2-ai`
+
+To access Claude Code, you must start your session using the specific custom image that contains the necessary AI dependencies.
+
+1. Log in to your JupyterHub dashboard, start a new server
+
+2. Select Custom Image: `cerit.io/hubs/rstudio:4.5.2-ai`
+
+TODO image
+
+<Callout type="info"> 
+It is recommended to run Claude Code within a specific project context to help it understand your file structure.
+</Callout>
+
+**Initialize a New Project**
+
+1. Once RStudio loads, go to File -> New Project
+
+2. Choose New Directory -> New Project
+
+3. Name your directory and ensure it is created in your Home
+
+4. Click Create Project
+
+**Activate Claude Code**
+
+1. Locate the Terminal tab in RStudio
+
+2. Type the following command and press Enter:
+
+```bash
+claude
+```
+
+3. Upon running the command, Claude may ask for permissions or authentication. Follow the on-screen prompts and confirm all requests (e.g., allowing device code login or accepting terms).
+
+TODO image
 
 
 ### Claude Code Integration in VSCode
 
-VScode with Claude Code support image: `cerit.io/hubs/minimalnb-cs:06-02-2026-ai`
+This guide outlines the steps to launch and initialize the Claude Code AI assistant within the VS Code environment on JupyterHub.
+
+Supported image: `cerit.io/hubs/minimalnb-cs:06-02-2026-ai`
+
+To access Claude Code, you must start your session using the specific custom image that contains the necessary AI dependencies.
+
+1. Log in to your JupyterHub dashboard, start a new server
+
+2. Select Custom Image: cerit.io/hubs/minimalnb-cs:06-02-2026-ai
+
+
 
 
 ### Conda Environment
