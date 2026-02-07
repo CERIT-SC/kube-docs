@@ -222,7 +222,8 @@ Security Notice: Your data is secure. All processing is performed using our inte
 
 ### Claude Code Integration in Jupyter Notebook
 
-Some of our Jupyter notebooks (specifically those using the cerit.io/hubs/datasciencenb:2026-01-23-ai image) come pre-integrated with **Claude Code**.
+Some of our Jupyter notebooks (specifically those using the `cerit.io/hubs/datasciencenb:2026-01-23-ai` image) come pre-integrated with **Claude Code**.
+
 
 <Callout type="info"> 
 See our [e-INFRA CZ Blog](https://blog.cerit.io/blog/claude-jupyter/) for more information and examples.
@@ -238,6 +239,14 @@ To maintain safety and stability, Claude Code is designed with a "Human-in-the-l
 * Claude Code is restricted from automatically executing Notebook cells. While it can write, modify, or refactor code, it operates on a permission-first basis. You will be prompted to explicitly approve the execution of any code it suggests.
 * For certain file operations or system-level changes, the agent may pause and request your permission. You may be asked to explicitly "add rights" or approve an action before Claude proceeds. This prevents the AI from accidentally modifying critical files without your oversight.
 
+### Claude Code Integration in RStudio 
+
+RStudio with Claude Code support image: `cerit.io/hubs/rstudio:4.5.2-ai`
+
+
+### Claude Code Integration in VSCode
+
+VScode with Claude Code support image: `cerit.io/hubs/minimalnb-cs:06-02-2026-ai`
 
 
 ### Conda Environment
