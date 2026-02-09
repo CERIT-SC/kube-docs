@@ -174,59 +174,56 @@ Vezměte prosím na vědomí následující infrastrukturní omezení:
 ![image-api](/img/ceritsc/chat-ai-api-setting.png)  
 </div> 
 
+## Jak vytvořit agenta
 
+**Krok 1: Trigger**
 
-
-## How to build an agent
-
-**Step 1: The trigger**
-
-To interact with your agent, you need a trigger. For testing and building chatbots, the Chat Trigger is the standard starting point.
+Pro interakci s vaším agentem potřebujete trigger. Pro testování a vytváření chatbotů je standardním výchozím bodem **Chat Trigger**.
 
 <Callout type="info">
-For backend automation (like processing emails), you would use a Webhook or Email Trigger instead.
+Pro backendovou automatizaci (např. zpracování e-mailů) byste místo toho použili Webhook nebo Email Trigger.
 </Callout>
 
+**Krok 2: Připojení „mozku“**
 
-**Step 2: Connecting the brain**
+Připojte uzel Chat Model (např. OpenAI) ke vstupu "Model" uzlu agenta. [K našim lokálnym modelom je možné pristupovať](./chat-ai#creating-an-api-key) pomocou tokenu vygenerovaného v predchádzajúcej kapitole.
 
-Connect a Chat Model node (e.g., OpenAI) to the "Model" input of the Agent node. Our [local models can be used](./chat-ai#creating-an-api-key), use the token generated in the previous chapter. 
-
-* Credential: You will need an API key from the provider
-* Model Selection: Choose a model capable of reasoning
-
+* Přihlašovací údaje: Budete potřebovat API klíč od poskytovatele  
+* Výběr modelu: Vyberte model schopný uvažování (reasoning)
 
 
 
-**Step 3: Configuring the agent**
+**Krok 3: Konfigurace agenta**
 
-The AI Agent Node requires specific configuration to function correctly:
+Uzel **AI Agent** vyžaduje specifickou konfiguraci, aby správně fungoval:
 
-| Setting   | Recommendation |
-|------------|----------------|
-| Agent Type  | Select `Tools Agent`. This is the most versatile type that can use external tools. |
-| Prompt Source | Usually `Connected Chat Trigger` or `Define below` if using a webhook.  |
-| System Message | CRITICAL. This is where you define the persona. Ex: "You are a helpful math assistant. Always use the calculator tool."  |
-
-**Step 4: Empowering with tools**
-
-Without tools, an LLM is just a text generator. Tools give it hands. You can connect:
-* **Pre-built Tools**: Calculator, Wikipedia, Bing Search
-* **Custom Tools**: Any n8n workflow can be converted into a tool using the "Call Workflow" tool
+| Nastavení       | Doporučení |
+|-----------------|------------|
+| Agent Type  | Vyberte `Tools Agent`. Toto je nejvšestrannější typ, který může používat externí nástroje. |
+| Prompt Source | Obvykle `Connected Chat Trigger` nebo `Define below`, pokud používáte webhook. |
+| System Message | KRITICKÉ. Zde definujete personu. Např.: "You are a helpful math assistant. Always use the calculator tool." |
 
 
-**Step 5: Managing memory**
+**Krok 4: Posílení pomocí nástrojů**
 
-**Window Buffer Memory**: Keeps a "sliding window" of the last K messages. Best for: Keeping token costs low while maintaining immediate context.
+Bez nástrojů je LLM jen generátor textu. Nástroje mu dávají schopnosti. Můžete připojit:  
 
-**Simple Memory**: Stores the entire conversation history in execution RAM. Best for: Short, complex sessions where every detail matters.
+* **Předpřipravené nástroje:** Kalkulačka, Wikipedia, Bing Search  
+* **Vlastní nástroje:** Jakýkoli n8n workflow lze převést na nástroj pomocí nástroje **Call Workflow**
+
+
+
+**Krok 5: Správa paměti**
+
+**Window Buffer Memory:** Uchovává „posuvné okno“ posledních K zpráv. Nejvhodnější pro: Nízké náklady na tokeny při zachování okamžitého kontextu.
+
+**Simple Memory:** Ukládá celou historii konverzace do paměti RAM během vykonávání. Nejvhodnější pro: Krátké, složité relace, kde záleží na každém detailu.
 
 <Callout type="info">
-Without a memory node connected, the agent treats every message as a brand new conversation.
+Bez připojeného uzlu paměti agent považuje každou zprávu za zcela novou konverzaci.
 </Callout>
 
-
-## Example: Adding a calculator to an OpenAI‑powered chat agent (with our local models)
+## Příklad: Přidání kalkulačky do OpenAI-powered chat agenta (s našimi lokálními modely)
 
 <div class="w-200">  
 ![image-api2](/img/ceritsc/n8n-choose-LLM-2.png)  
@@ -237,23 +234,28 @@ Without a memory node connected, the agent treats every message as a brand new c
 * Open the Nodes panel → click Add Node → search for AI Agent.  
 * Drag the node onto the canvas.
 
+1. Přidejte AI agenta  
+
+* Otevřete panel Nodes → klikněte na Add Node → vyhledejte AI Agent  
+* Přetáhněte uzel na plátno
+
 <div class="w-200">  
 ![image-api](/img/ceritsc/n8n-choose-LLM-1.png)  
 </div> 
 
-2. Connect an OpenAI Chat model
+2. Připojte OpenAI Chat model
 
 <div class="w-200">  
 ![image-api](/img/ceritsc/n8n-choose-LLM-2a.png)  
 </div> 
 
-3. Configure the authentication for a local model 
+3. Nakonfigurujte autentizaci pro lokální model
 
-| Field | Value                                   | 
-|--------|----------------------------------------|
-| API Key | Paste the token you generated earlier |
-| Base URL | https://llm.ai.e-infra.cz/v1         |
-| Model | Pick the desired model (e.g., GPT‑OSS‑120b)  |
+| Pole       | Hodnota                                  | 
+|------------|-----------------------------------------|
+| API Key | Vložte token, který jste vygenerovali dříve |
+| Base URL | https://llm.ai.e-infra.cz/v1           |
+| Model  | Vyberte požadovaný model (např. GPT‑OSS‑120b) |
 
 <div class="w-200">  
 ![image-api](/img/ceritsc/n8n-choose-LLM-3.png)  
@@ -263,29 +265,30 @@ Without a memory node connected, the agent treats every message as a brand new c
 ![image-api](/img/ceritsc/n8n-choose-LLM-4.png)  
 </div> 
 
-4. Add a `Chat trigger` 
-The trigger starts the workflow when a user sends a message.  
-* From the Nodes panel, add Chat Trigger.  
-* Connect its output to the AI Agent node’s input.
+
+4. Přidejte `Chat Trigger`  
+Trigger spustí workflow, když uživatel odešle zprávu.  
+* Z panelu Nodes přidejte Chat Trigger  
+* Připojte jeho výstup ke vstupu uzlu AI Agent
 
 <div class="w-200">  
 ![image-api](/img/ceritsc/n8n-trigger.png)  
 </div> 
 
-5. Similarly, add `Simple memory` and `Calculator`
-* Simple Memory stores the conversation context so the model can reference previous messages.
-* Calculator handles arithmetic requests coming from the LLM.
-Wire them in the order: Chat Trigger → AI Agent → Simple Memory → Calculator → (optional) response node.
+5. Podobně přidejte `Simple Memory` a `Calculator`  
+* Simple Memory uchovává kontext konverzace, aby model mohl odkazovat na předchozí zprávy.  
+* Calculator zpracovává aritmetické požadavky přicházející od LLM.  
+Propojte je v tomto pořadí: Chat Trigger → AI Agent → Simple Memory → Calculator → (volitelný) response node.
 
-6. Test the workflow
+6. Otestujte workflow
 
-*  Open the Chat Trigger interface (or use the integrated test panel).  
-*  Type a straightforward math request, e.g. What is 5 × 5?.  
-*  The workflow should route the request to the Calculator, return the answer, and display it in the chat window.
+- Otevřete rozhraní **Chat Trigger** (nebo použijte integrovaný testovací panel).  
+- Zadejte jednoduchý matematický požadavek, např. „What is 5 × 5?“  
+- Workflow by měl požadavek předat kalkulačce, vrátit odpověď a zobrazit ji v chatovacím okně.
 
 <div class="w-200">  
 ![image-api](/img/ceritsc/n8n-result.png)  
 </div> 
 
-If the answer appears correctly, the integration is successful!  
+Pokud se odpověď zobrazí správně, integrace byla úspěšná! 
 
