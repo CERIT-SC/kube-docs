@@ -13,17 +13,6 @@ Zatímco standardní n8n workflows sledují lineární postup (Trigger → Actio
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 ### Co je AI agent?
 
 <div class="w-150">  
@@ -45,43 +34,47 @@ Místo dodržování pevně definované sady kroků používá agent velký jazy
 </div> 
 
 
-## Accessing n8n
+## Přístup k n8n
 
-n8n is hosted on our Kubernetes/Rancher infrastructure.  
+n8n je hostováno na naší infrastruktuře Kubernetes/Rancher. 
 
 
-**Prerequisites**
+**Prerekvizity**
 
-* Account: A valid MetaCentrum account is required.
-* Platform: Access via Rancher [https://rancher.cloud.e-infra.cz/](https://rancher.cloud.e-infra.cz/).
+* Účet: Je vyžadován platný účet MetaCentrum.
+* Platforma: Přístup přes Rancher [https://rancher.cloud.e-infra.cz/](https://rancher.cloud.e-infra.cz/).
 
 <Callout type="info">
 Need an Account? If you are a member of an academic or research institution in the Czech Republic (within e-INFRA CZ) and do not have an account, please request a MetaCentrum account [here](https://metavo.metacentrum.cz/cs/application/index.html).
 </Callout>
 
-For issues or assistance, please contact support at k8s@cerit-sc.cz.
+
+<Callout type="info">
+Potřebujete účet? Pokud jste členem akademické nebo výzkumné instituce v České republice (v rámci e-INFRA CZ) a nemáte účet, požádejte o účet MetaCentrum [zde](https://metavo.metacentrum.cz/cs/application/index.html).
+</Callout>
+
+Při problémech nebo potřebe pomoci prosím kontaktujte podporu na k8s@cerit-sc.cz.
 
 
+## Průvodce nasazením: Spusťte vlastní instanci
 
-## Deployment guide: Start your own instance
+**Přihlášení do Rancheru**
 
-**Log in to Rancher**
-
-1. Navigate to the Rancher Dashboard https://rancher.cloud.e-infra.cz/dashboard/
-2. Click `Log in with Shibboleth`
-3. Select `e-INFRA CZ AAI` and choose `e-INFRA CZ password` among the organisations. Logi in using your MetaCentrum credentials.
+1. Přejděte na Rancher Dashboard: https://rancher.cloud.e-infra.cz/dashboard/
+2. Klikněte na `Log in with Shibboleth`
+3. Vyberte `e-INFRA CZ AAI` a mezi organizacemi zvolte `e-INFRA CZ password`. Přihlaste se pomocí svých přihlašovacích údajů MetaCentrum.
 
 
-**Locate the n8n application**
-1. Once on the RANCHER dashboard
+**Vyhledejte aplikaci n8n**
+1. Jakmile jste na dashboardu Rancher
 
 <div class="w-200">  
 ![image-n8n1](/img/ceritsc/rancher-welcome.png)  
 </div> 
 
-2. Select KA --> Apps/Charts 
+2. Vyberte **KA → Apps/Charts**
 
-3. Search for or select `n8n` 
+3. Vyhledejte nebo vyberte `n8n`
 
 
 <div class="w-200">  
@@ -89,50 +82,50 @@ For issues or assistance, please contact support at k8s@cerit-sc.cz.
 </div> 
 
 
-**Configure the instance**
-1. Click `Install`
+**Nakonfigurujte instanci**
+1. Klikněte na `Install`
 
 <div class="w-200">  
 ![image-n8n3](/img/ceritsc/n8n-install.png)  
 </div> 
 
-
-2. Name your instance: Enter `Namespace` (username-ns) and a unique `Name` for your deployment (e.g., username-n8n), remember it and click on `Next`
+2. Pojmenujte svou instanci: Zadejte `Namespace` (username-ns) a jedinečný `Name` pro nasazení (např. username-n8n), zapamatujte si ho a klikněte na `Next`
 
 <div class="w-200">  
 ![image-n8n4](/img/ceritsc/n8n-name.png)  
 </div> 
 
-3. Set the URL: You may enter a specific URL suffix or leave it empty for an automatically generated URL. Click `Install`.
+3. Nastavte URL: Můžete zadat konkrétní příponu URL nebo ji nechat prázdnou pro automaticky generovanou URL. Klikněte na `Install`.
 
 <div class="w-200">  
 ![image-n8n5](/img/ceritsc/n8n-url.png)  
 </div> 
 
-**Finalize installation**
 
+**Dokončení instalace**
 
-Watch the installation logs. This process may take several minutes depending on available resources.
+Sledujte instalační logy. Tento proces může trvat několik minut v závislosti na dostupných prostředcích.
 
 <Callout type="info">
-Important: When the installation completes, the logs will display your unique Access URL. Copy and save this URL immediately.
+Důležité: Po dokončení instalace logy zobrazí vaši jedinečnou přístupovou URL. Okamžitě ji zkopírujte a uložte.
 </Callout>
-
 
 <div class="w-200">  
 ![image-n8n6](/img/ceritsc/n8n-log.png)  
 </div> 
 
-## First run configuration
 
-1. Open your browser and navigate to the Access URL you saved in the previous step.
-2. Create an Admin Account: You will be prompted to set up an email and password.
+## První spuštění a konfigurace
+
+1. Otevřete svůj prohlížeč a přejděte na přístupovou URL, kterou jste si uložili v předchozím kroku.  
+2. Vytvořte administrátorský účet: Budete vyzváni k zadání e-mailu a hesla.
+
 
 <Callout type="info">
-Note: This account is local to your n8n instance and is separate from your MetaCentrum login.
+Poznámka: Tento účet je lokální pro vaši instanci n8n a je oddělený od vašeho přihlášení do MetaCentra.
 </Callout>
 
-Once logged in, you will see the n8n canvas. You can now start building workflows.
+Po přihlášení uvidíte plátno n8n. Nyní můžete začít vytvářet workflows.
 
 
 <div class="w-150">  
