@@ -109,6 +109,7 @@ Embedding models are available via API endpoint: `https://llm.ai.e-infra.cz/v1` 
 | qwen3-embedding-4b             | QWen3 embedding model with context size 40960 tokens and embedding vector size 2560. Multilingual model with support for more than 100 languages. |
 | qwen3-reranker-4b              | QWen3 reranker model with context size 40960 tokens                              |
 | nomic-embed-text-v1.5          | Nomic AI embedding model with context size 512 tokens and embedding vector size 768. English only. |
+| nomic-embed-text-v2-moe        | Nomic AI embedding model with context size 512 tokens and embedding vector size 768. English only. Updated version. |
 | mxbai-embed-large:latest       | Mixedbread-AI embedding model with context size 512 tokens and embedding vector size 1024. English only. |
 | multilingual-e5-large-instruct | Intfloat embedding model with context size 514 tokens and embedding vector size 1024. Multiple languages. |
 
@@ -135,8 +136,8 @@ We evalated selected models using [Aider Polyglot Benchmark](https://aider.chat/
 
 | Model                  | C++ Score | Go Lang Score | Java Score | Javascript Score | Python Score | Rust Score |
 |------------------------|-----------|---------------|------------|------------------|--------------|------------|
-|Qwen3-Coder-30B         |  23.1     | 23.1          | 36.2       | 34.7             | 38.2         | 26.7       |
 |Qwen3-Coder-480B        |  61.5     | 59.0          | 63.8       | 53.1             | 50.0         | 53.3       |
+|Qwen3-Coder-Next        |  69.2     | 51.3          | 51.1       | 75.5             | 70.6         | 46.7       |
 |GPT-OSS-120B            |  50.0     | 59.0          | 40.4       | 61.2             | 70.6         | 53.3       |
 |DeepSeek-R1-0528        |   7.7     | 56.4          | 55.3       | 69.4             | 73.5         | 70.0       |
 |DeepSeek V3.2 (think)   |  88.5     | **84.6**      | 66.0       | 89.9             | 82.4         | 76.7       |
