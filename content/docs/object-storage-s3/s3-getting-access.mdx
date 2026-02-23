@@ -2,7 +2,15 @@
 title: Getting Access to CESNET S3
 ---
 
+### Obtaining a User Account
+
 The procedure to get access to the service depends on your needs.
+
+#### Access to an Existing Virtual Organisation
+
+You may have been invited to an existing Virtual Organisation (VO) by the
+VO manager. In that case, follow instructions given to you by the VO
+manager to register.
 
 #### Personal S3 Access
 
@@ -14,15 +22,22 @@ Provided you are seeking an S3 service that
   employee or a student of a Czech public university, the AS CR, or an employee of a CESNET customer; you are expected to declare your eligibility using the identity federation),
 you are invited to register at https://einfra.cesnet.cz/allfed/registrar/?vo=VO_s3&group=s3_cl4.
 
+
 #### Group S3 Access, aka “Virtual Organisation”
 
-In case you need access to S3, and any of the conditions above doesn't fit your needs, we will typically prepare a “Virtual Organisation” and appropriate S3 service for you individually.
+In case you need access to S3 and the conditions of Personal S3 Access above don't fit your needs, we will typically prepare a “Virtual Organisation” and appropriate S3 service for you individually.
 
 Contact our support at `support@cesnet.cz` and we'll discuss your expectations with you.
 
 You can also refer to [common S3 use cases](s3-use-cases) for inspiration about serving typical use cases.
 
-#### Accessing the Storage
+### Accessing the Storage
+
+When you finished your registration (or your brand new VO has been set up
+for you), you will be notified by mail. Then you need to get credentials to
+access the storage itself.
+
+#### Use Account Management
 
 You will need a suitable [S3 client](s3-clients), and to configure it with
 your storage access credentials.
@@ -34,4 +49,12 @@ your storage access credentials.
 
 Kindly note that personal S3 appears as “Personal Account” in the system; other Virtual Organisations are listed individually. We recommend using separate access/secret key pair for each and every specific tool you access the storage with.
 
+It is useful to distinguish following systems:
+  - Perun ([https://einfra.cesnet.cz/](https://einfra.cesnet.cz)) is a
+    system managing which users have access to particular services (based
+    on your membership in Virtual Organisations and groups)
+  - Gatekeeper ([https://access.du.cesnet.cz](https://access.du.cesnet.cz)]
+    will give you credentials to the storage based on what Perun says
+  - and finally, the storage itself is accessed with those credentials by a
+    client you prefer.
 
