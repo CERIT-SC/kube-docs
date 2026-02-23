@@ -1,0 +1,87 @@
+---
+title: Argo Workflows
+---
+
+Argo Workflows je workflow engine nativní pro Kubernetes navržený pro orchestraci paralelních úloh. Je zvláště užitečný pro úkoly jako dávkové zpracování, CI/CD pipeline, workflow strojového učení a jakoukoli automatizaci úloh, která profituje ze spouštění kroků jako DAG (Directed Acyclic Graph).
+
+Díky využití Kubernetes jako podkladového plánovače umožňuje Argo škálovatelné a odolné provádění workflow pomocí známých nástrojů Kubernetes.
+
+<Callout type="info">
+Workflow objekty musí být vytvořeny ve **stejném namespace**, kde běží Argo kontroler. To také znamená, že zdroje `ClusterWorkflow` nejsou podporovány.
+Toto je omezení nastavení spravovaného clusteru v CERIT-SC. V současné době není **podporováno** nasazení kontroléru, který sleduje více namespace.
+</Callout>
+
+## Požadavky na přístup
+
+Spuštění Argo Workflows vyžaduje **zvýšená oprávnění**, protože nezbytná oprávnění RBAC (Role-Based Access Control) nejsou součástí výchozího nastavení uživatele.
+
+<Callout type="info">
+Pro získání přístupu kontaktujte administrátory na **k8s@cerit-sc.cz**. Po schválení budou pro váš Project namespace nakonfigurovány příslušná pravidla RBAC. Tento model přístupu pomáhá omezit nadměrné vazby rolí v rámci clusteru.
+</Callout>
+
+## Repozitář s manifesty starter-kitu
+
+Toto nastavení je poskytnuto v repozitáři [https://github.com/CERIT-SC/argo-workflows-example](https://github.com/CERIT-SC/argo-workflows-example), který slouží jako **ukázka starter-kit** pro použití Argo Workflows ve spravovaném clusteru Kubernetes v CERIT-SC. Je určen k rozšíření a přizpůsobení vašim konkrétním potřebám.
+
+Repozitář je organizován následovně:
+```
+.
+├── controller-manifests/ # Konfigurace kontroléru Argo Workflow
+│ ├── controller-install.yaml
+│ └── workflow-controller-configmap.yaml
+└── example/
+  ├── runner-rbac.yaml # Nastavení servisního účtu a RBAC
+  └── hello-world.yaml # Ukázková definice workflow
+```
+
+### 1. Instalace kontroléru Argo Workflow
+
+Pro nasazení kontroléru Argo aplikujte manifesty v adresáři `controller-manifests`:
+
+```bash
+kubectl apply -f controller-manifests/ -n [your-namespace]
+```
+
+Nasazení kontroléru se skládá z:
+
+- `controller-install.yaml`: Instaluje kontrolér Argo a požadované komponenty.
+- `workflow-controller-configmap.yaml`: Definuje chování kontroléru. Možná budete muset toto nastavit tak, aby odpovídalo vašemu konkrétnímu případu použití.
+
+<Callout type="warn">
+Soubor `controller-install.yaml` používá fixní verzi Argo Workflows `v3.6.7`. Tato verze může v průběhu času zastarat. Ujistěte se, že sledujete [Argo Releases](https://github.com/argoproj/argo-workflows/releases) pro aktualizace a v případě potřeby upravte manifest.
+</Callout>
+
+### 2. Nastavení RBAC pro provádění workflow
+
+Aplikujte zásadu RBAC, která umožňuje workflow běžet pomocí konkrétního servisního účtu:
+
+```bash
+kubectl apply -f example/runner-rbac.yaml -n [your-namespace]
+```
+
+Ujistěte se, že vaše YAML soubory workflow odkazují na správný název servisního účtu (stejný název jako v `runner-rbac.yaml`). Můžete také přizpůsobit role a oprávnění na základě potřeb přístupu vašeho namespace.
+
+### 3. Spuštění ukázkového workflow
+
+Po nasazení kontroléru a nastavení RBAC otestujte nastavení nasazením ukázkového workflow:
+
+```bash
+kubectl create -f example/hello-world.yaml -n [your-namespace]
+```
+
+Tento minimální příklad "Hello World" by měl ověřit, že vaše nastavení контролéru a RBAC funguje správně.
+
+<Callout type="warn">
+V namespace, kde **jsou vynuceny kvóty zdrojů** (což platí pro všechny uživatelské namespace v CERIT-SC), workflow může **selhat**, pokud pod vytvořený workflow (workflow runner) **nespecifikuje požadavky/limity zdrojů**. Pokud váš namespace nemá definované výchozí zdroje kontejneru, musíte buď:
+
+1. Nakonfigurovat **výchozí požadavky/limity zdrojů na úrovni namespace**, nebo
+2. Přidat výslovnou sekci `resources:` do definice workflow (CPU, paměť).
+
+Tento problém je vzácný, ale může se vyskytnout v nových nebo vlastních namespace.
+</Callout>
+
+## Další zdroje
+
+- [Dokumentace Argo Workflows](https://argoproj.github.io/argo-workflows/)
+- [GitHub Argo Workflows](https://github.com/argoproj/argo-workflows)
+

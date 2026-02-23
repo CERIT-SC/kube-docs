@@ -5,7 +5,7 @@ title: Samba Server
 ## Samba Server
 Samba server can be used to expose Persistent Volume Claim via CIFS/SMB protocol as a network drive reachable at specified **URL** in the form of `\\[namespace]-[samba_name].dyn.cloud.e-infra.cz\data` . Persistent Volume Claim (PVC) is used as a storage for running applications in Kubernetes. If you want to upload/download data to/from PVC using GUI, Samba server is a convenient way to do so.
 
-### Prerequisities
+### Prerequisites
 Samba server works only when you want to expose already existing PVC! Therefore, make sure your PVC already exists.
 
 ### Installation
@@ -32,10 +32,10 @@ Samba server works only when you want to expose already existing PVC! Therefore,
 5. Wait, until samba server is installed, it should take a couple of seconds. 
 
 ### Connection
-The final URL is composed of selected namespace and samba application name. In our case, we can see name (samba-matlab) and namespace (spisakova-ns) next to green `Deployed` (which is a sign of successfull installation together with SUCCESS message in the logs boxs at the bottom of the page). Therefore, the final url is `spisakova-ns-samba-matlab.dyn.cloud.e-infra.cz`.  **Username is always user, password is the one you chose while setting up the application.** 
+The final URL is composed of selected namespace and samba application name. In our case, we can see name (samba-matlab) and namespace (spisakova-ns) next to green `Deployed` (which is a sign of successful installation together with SUCCESS message in the logs boxes at the bottom of the page). Therefore, the final url is `spisakova-ns-samba-matlab.dyn.cloud.e-infra.cz`.  **Username is always user, password is the one you chose while setting up the application.** 
 
 
-1. Linux --- Firstly, install `cifs-utils` on Ubunutu/Debian OS. After installation,  enter command `mount.cifs //[namespace]-[samba_name].dyn.cloud.e-infra.cz\data [mount_location] -o username=user`. Provide password. Then, you can change directory to location chisen as mountpoint and work with network drive as regular directory. 
+1. Linux --- Firstly, install `cifs-utils` on Ubuntu/Debian OS. After installation,  enter command `mount.cifs //[namespace]-[samba_name].dyn.cloud.e-infra.cz\data [mount_location] -o username=user`. Provide password. Then, you can change directory to location chisen as mountpoint and work with network drive as regular directory. 
 
 ![samba-linux-command](/img/ceritsc/apps/samba-images/linux-command.png)
 

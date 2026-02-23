@@ -1,0 +1,86 @@
+---
+title: Dokumentace SensitiveCloud
+---
+[SensitiveCloud](https://www.cerit-sc.cz/infrastructure-services/sensitivecloud) je bezpečné výpočetní a úložné prostředí poskytované CERIT-SC (součást e-INFRA CZ) pro zpracování a výzkum citlivých dat. Primárně přizpůsobené akademickému výzkumu (zejména v oblasti životních věd a medicíny), jeho design vyhovuje bezpečnostním standardům jako ISO 27000, C5, ISO 15189 a ECRIN. SensitiveCloud využívá kontejnerovou technologii prostřednictvím Kubernetes (K8s).
+
+
+## Začínáme - Žádost o projekt
+
+Zdroje SensitiveCloud musí být vyžádány vedoucím výzkumným pracovníkem (Principal Investigator - PI). PI nese odpovědnost za správu dat a alokaci zdrojů během životnosti projektu.
+
+- Kontaktujte nás na trusted@e-infra.cz se svou žádostí.
+- Zahrňte v zprávě následující informace:
+       *  název a zkratku projektu (pro interní identifikaci).
+       *  požadavky na zdroje: přibližný čas CPU, RAM, kapacitu úložiště a potřeby GPU.
+       *  krátký popis projektu/činnosti.
+       *  očekávanou dobu alokace zdrojů.
+       *  jména a e-mailové adresy členů týmu.
+
+
+
+
+Příklad žádosti e-mailem:
+```
+Předmět: Žádost o nový projekt SensitiveCloud
+
+Vážená podpora SensitiveCloud,
+Naše skupina "Projekt XYZ (XYZ2023)" provádí výzkum na ABC a vyžaduje bezpečnou
+platformu pro ukládání a zpracování dat. Odhadujeme počáteční potřebu
+zhruba 10TB úložiště (očekávané zvětšení 1TB/rok), 20 CPU, 30GB RAM a
+1 NVIDIA A100 GPU, přibližně na 10 měsíců.
+Naše výzkumná skupina zahrnuje:
+* John Wick; john.wick@example.com
+* Luke Skywalker; luke.skywalker@example.com
+
+Děkujeme,
+Jméno PI (Digitálně podepsáno)
+```
+
+Po přezkoumání vaší žádosti domluvíme krátkou schůzku, abychom se ujistili, že SensitiveCloud vyhovuje požadavkům vašeho projektu. Poté obdrží váš tým školení pokrývající bezpečné pracovní postupy a efektivní využití prostředí SensitiveCloud.
+
+## Připojení k SensitiveCloud
+
+Přístup ke zdrojům SensitiveCloud je zabezpečen prostřednictvím:
+
+- [manažerského portálu Rancher](https://rancher.cloud.trusted.e-infra.cz/)
+- bezpečného VPN připojení (povinné pro přístup ke zdrojům). [Nastavení VPN](./vpn)
+- vícefázového ověřování (MFA) nastaveného prostřednictvím jednotného přihlášení e-INFRA CZ (SSO). [Návod na nastavení MFA](https://docs.account.e-infra.cz/en/docs/access/mfa).
+
+
+
+### Správa vašeho projektu a přístupu uživatelů
+
+Vedoucí výzkumní pracovníci mají administrativní kontrolu nad:
+
+   - oprávněními uživatelů: udělení nebo odvolání přístupu ke zdrojům projektu.
+   - změnami alokovaných zdrojů: v současné době je tento postup manuální; kontaktujte trusted@e-infra.cz pro úpravu alokace vašich zdrojů.
+
+
+Přístup k SensitiveCloud závisí na uživatelských skupinách definovaných v systému Perun Identity Management. Identifikátor vaší skupiny obvykle začíná předponou `sc_` (například: `sc_project-acronym`).
+
+<Callout type="info" title="Přidávání uživatelů">
+Buďte opatrní při výběru správné skupiny při přidávání/odebírání členů. Všechny skupiny lze nalézt na následujícím odkazu: [https://perun.e-infra.cz/organizations/3898/groups/15034/subgroups](https://perun.e-infra.cz/organizations/3898/groups/15034/subgroups).
+</Callout>
+
+
+#### Přidávání uživatelů
+
+1. Přihlaste se na [perun.e-infra.cz](https://perun.e-infra.cz/organizations/3898/groups/15034/subgroup).
+2. Vyberte svou skupinu (s předponou sc_: `sc_project-acronym`).
+3. Klikněte na dlaždici `Members` → vyberte `Invite`.
+4. Zadejte jméno a e-mailovou adresu vašeho kolegy, pak odešlete pozvánku.
+     - Obdržíte e-mail a musíte dokončit registraci prostřednictvím přihlášení své domovské organizace.
+
+
+#### Odebírání uživatelů
+
+ 1. Otevřete rozhraní pro správu členů vaší skupiny v [Perunu](https://perun.e-infra.cz/organizations/3898/groups/15034/subgroups).
+ 2. Vyberte členy skupiny, které chcete odebrat.
+ 3. Klikněte na Odebrat. Tito uživatelé okamžitě ztratí přístup k SensitiveCloud prostřednictvím projektové skupiny.
+
+
+## Další kroky a další dokumentace
+
+Dokumentace o používání Rancher v SensitiveCloud je společná s standardní [dokumentací Kubernetes](../rancher/rancher).
+
+

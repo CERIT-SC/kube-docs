@@ -1,0 +1,136 @@
+---
+title: WireGuard
+---
+
+## Spuštění Podu s WireGuard rozhraním
+
+Tento návod vysvětluje, jak bezpečně připojit WireGuard rozhraní k Podu pomocí Kubernetes Secretu pro správu klíčů.
+
+**Proč použít WireGuard?**
+WireGuard vytváří šifrované tunely mezi Podem a uzlem mimo Kubernetes cluster, což umožňuje zabezpečenou komunikaci napříč sítěmi (např. připojení mezi clustery, obcházení NATu nebo šifrování provozu).
+
+### Krok 1: Vytvoření Secretu pro privátní klíč WireGuardu
+
+Vytvořte soubor `config.json` s následujícím obsahem:
+```json
+{
+  "address": "1.2.3.4/32",
+  "privateKey": "AAev16ZVYhmCQliIYKXMje1zObRp6TmET0KiUx7MJXc=",
+  "peers": [
+    {
+      "endpoint": "5.6.7.8:51820",
+      "publicKey": "+gXCSfkib2xFMeebKXIYBVZxV/Vh2mbi1dJeHCCjQmg=",
+      "allowedIPs": [
+        "9.10.11.12/24"
+      ],
+      "persistentKeepalive": "25s"
+    }
+  ]
+}
+```
+
+Nahraďte všechny tři IP adresy a oba klíče skutečným obsahem.
+
+<Callout type="info" icon="&#9757;" title="Aktuální omezení">
+- I když koncový bod podporuje více adres klientů, současná implementace v Kubernetes podporuje pouze jednu adresu.
+- Název souboru musí být striktně `config.json`.
+- `address` a `allowedIPs` nesmí být ze stejné sítě. Např. `"address": "10.1.2.3/32"` a `"allowedIPs": ["10.1.2.0/24"]` **nebudou** fungovat.
+</Callout>
+
+Vytvořte secret:
+
+```bash
+kubectl create secret generic wireguard-config --from-file ./config.json
+```
+
+---
+
+### Krok 2: Vytvoření Podu s WireGuard rozhraním
+Nasaďte Pod s WireGuard rozhraním, které bude pojmenováno `net1` (připojeno pomocí anotace `k8s.v1.cni.cncf.io/networks`).
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: wireguard-pod
+  annotations:
+    k8s.v1.cni.cncf.io/networks: default/wgnet    # Připojí WireGuard rozhraní `net1`
+    wgcni.schu.io/configsecret: wireguard-config  # odkazuje na vytvořený secret
+spec:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: main
+      image: your-application-image
+      command:
+      - as-needed
+      securityContext:
+        runAsUser: 1000
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: [ALL]
+```
+
+---
+
+### Ověření
+1. **Zkontrolujte, zda rozhraní `net1` existuje** (vyžaduje příkaz `ip` v Podu):
+   ```bash
+   kubectl exec wireguard-pod -n [namespace] -- ip a show net1
+   ```
+   Očekávaný výstup zobrazující WireGuard rozhraní s IP adresou.
+
+2. **Otestujte připojení** (vyžaduje příkaz `ping` v Podu):
+   ```bash
+   kubectl exec wireguard-pod -n [namespace] -- ping <PEER_IP>
+   ```
+   Nahraďte `<PEER_IP>` WireGuard IP adresou protějšku z `config.json`.
+
+---
+
+## Omezení
+
+WG CNI aktuálně podporuje přiřazení pouze jedné IP adresy, což znamená, že může nakonfigurovat buď IPv4 **nebo** IPv6 adresu – ale ne obě současně. Toto představuje omezení při cílení na duální-stackové koncové body, jako například:
+
+```bash
+$ host kubas-pub.cloud.trusted.e-infra.cz
+kubas-pub.cloud.trusted.e-infra.cz has address 10.16.48.119
+kubas-pub.cloud.trusted.e-infra.cz has IPv6 address 2001:718:801:42bf:8:4:0:1
+```
+
+V takových scénářích může Pod používající WireGuard zažívat přerušovanou konektivitu. K tomu dochází, protože DNS rozlišení může vrátit buď IPv4 nebo IPv6 adresu, a pouze jedna z nich bude fungovat v konfiguraci WireGuardu. Výsledkem je, že připojení se může střídavě obnovovat a přerušovat v závislosti na tom, která rodina adres je použita.
+
+### Doporučení
+
+Abychom se tomuto problému vyhnuli, doporučujeme nakonfigurovat Pod pro **single-stack síťování**. Vyberte buď IPv4 nebo IPv6 a používejte tuto rodinu konzistentně:
+
+- Nastavte pole `address` i `allowedIPs` tak, aby odpovídala zvolené IP rodině v konfiguraci WireGuardu.
+- Ujistěte se, že připojení k vzdálenému WireGuard protějšku používá stejnou rodinu.
+- Sladěte rodinu používanou pro komunikaci s rodinou adres specifikovanou v konfiguraci WireGuardu.
+
+### Příklad: IPv6-Only reverzní proxy s NGINX
+
+Níže je příklad konfigurace pro NGINX, kde reverzní proxy se připojuje přímo k IPv6 adrese, čímž se vyhne DNS rozlišení. Hlavička `Host` je explicitně nastavena pro zajištění správného směrování virtuálního hostitele:
+
+```nginx
+location / {
+    proxy_pass https://[2001:718:801:42bf:8:4:0:1];
+    proxy_buffering off;
+    proxy_set_header Host vllm.cloud.trusted.e-infra.cz;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+```
+
+## Více Podů
+
+Podle návrhu nelze jednu WireGuard konfiguraci **používat současně** napříč více Pody nebo zařízeními. Každý Pod vyžaduje **unikátní WireGuard konfiguraci**, která nesmí být sdílena nebo znovu použita jinde.
+
+Toto omezení vzniká, protože WireGuard efektivně vytváří síť podobnou Layer 2 mezi protějšky. Pokud více klientů používá stejnou IP adresu v této síti, vede to ke **kolizím IP adres**, což má za následek nestabilní chování.
+
+### Symptom
+
+Častým symptomem tohoto problému je **přerušování konektivity** v pravidelných intervalech – typicky každých 10 sekund. Například připojení může být stabilní po dobu 10 sekund, pak se přerušit na dalších 10 sekund a opakovat se v cyklu.

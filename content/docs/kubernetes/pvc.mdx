@@ -1,11 +1,11 @@
 ---
-title: Storage                                                                  
+title: Storage
 ---
 
-Kubernetes orchestrator offers several ways to utilize infrastructure storages. There are three important Kubernetes objects related to storage: *Storage Class*, *Physical Volume (PV)*, *Persistent Volume Claim (PVC)*.
+The Kubernetes orchestrator offers several ways to utilize infrastructure storage. There are three important Kubernetes objects related to storage: *StorageClass*, *PersistentVolume (PV)*, and *PersistentVolumeClaim (PVC)*.
 
 ## Storage Class
-[Storage class](https://kubernetes.io/docs/concepts/storage/storage-classes/) provides a way for administrators to describe the "classes" of storage they offer. We differentiate between static and dynamic classes. Static class means that storage representation in Kubernetes (PV+PVC) must be created in advance by administrator or some controller to be used by Pod. Dynamic class means that volumes can be created on demand, as user requests them, usually via creating PVC. 
+[StorageClass](https://kubernetes.io/docs/concepts/storage/storage-classes/) provides a way for administrators to describe the classes of storage they offer. We differentiate between static and dynamic classes. A static class means that the storage representation in Kubernetes (PV+PVC) must be created in advance by an administrator or a controller to be used by a Pod. A dynamic class means that volumes can be created on demand as users request them, usually by creating a PVC.
 
 Different classes might map to quality-of-service levels. 
 
@@ -85,38 +85,33 @@ We offer the following storage classes:
    - Please send your request via email to: **k8s@cerit-sc.cz**
 
 ## Persistent Volume (PV)
-PV represents physical volume that is responsible for storage connection. Only administrator can create PV and it is cluster wide resource (not namespaced). 
+A PV represents a physical volume that provides storage connectivity. Only administrators can create PVs, and PVs are cluster-wide resources (not namespaced).
 
 ## Persistent Volume Claim (PVC)
-The [PVC](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) is an object that represents persistent storage in Kubernetes. This object can be mounted into
-a *pod*. PVCs can be restricted to only one Pod or can be mounted to many pods simultaneously thus making it a shared
-storage among pods.
+The [PVC](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) is an object that represents persistent storage in Kubernetes. This object can be mounted into a *Pod*. PVCs can be restricted to only one Pod or can be mounted to many Pods simultaneously, making it a shared storage among Pods.
 
-* User can create an ad-hoc PVC of `nfs-csi` storage class using [pvc.yaml](/examples/ceritsc/manifests/pvc.yaml)
-  template. Download it, fill in `name` and `storage` size and
-  issue command:
+* Users can create an ad-hoc PVC of the `nfs-csi` storage class using the [pvc.yaml](/examples/ceritsc/manifests/pvc.yaml) template. Download it, fill in `name` and `storage` size, and issue the command:
 
 ```bash
 kubectl create -f pvc.yaml -n [namespace]
 ```
 
-  where `namespace` is user namespace as can be seen in Rancher GUI, usually *surname-ns*. Such newly created PVC does not contain any data, the user needs to populate the data on his/her own. PVC name is the exactly the same you fill in the `name` value. User can choose different storage class
-  according to description above.
+  where `namespace` is the user namespace as seen in the Rancher GUI, usually *surname-ns*. The newly created PVC does not contain any data; the user needs to populate the data. The PVC name is exactly the same as the `name` value you fill in. Users can choose a different storage class according to the description above.
 
-* Another option is to request admins to create special PVC according to your needs, e.g. PV will point to specific folder on a storage server. You can request it at [k8s@cerit-sc.cz](mailto\:k8s@cerit-sc.cz).
+* Another option is to request administrators to create a special PVC according to your needs, for example, a PV that points to a specific folder on a storage server. You can request this at [k8s@cerit-sc.cz](mailto:k8s@cerit-sc.cz).
 
-You see your PVCs in Rancher GUI in `Storage` → `PersistentVolumeClaims` ![Volumes](/img/ceritsc/pvc.jpg) or use kubectl
-``` bash
+You can view your PVCs in the Rancher GUI under `Storage` → `PersistentVolumeClaims` ![Volumes](/img/ceritsc/pvc.jpg) or use kubectl:
+```bash
 kubectl get pvc -n [namespace]
 ```
 
 ## Tutorials
 
-This section provides tutorials on how to create PVC of each storage class. Every `yaml` snippet can be saved into a file and then created as `kubectl create -f [that yaml] -n [your namespace]`. You can always check if PVC has been created by issuing `kubectl get pvc -n [your namespace]` and looking for PVC's name. If PVC is in Pending state for too long, there might be some problem. Normally, you should see in few moments PVC in `Bound` state.
+This section provides tutorials on how to create a PVC of each storage class. Every YAML snippet can be saved into a file and then created with `kubectl create -f [that yaml] -n [your namespace]`. You can always check if a PVC has been created by issuing `kubectl get pvc -n [your namespace]` and looking for the PVC name. If a PVC remains in the Pending state for too long, there might be a problem. Normally, you should see the PVC in a `Bound` state within a few moments.
 
 ### NFS
 
-It is important to configure `metadata.name`,`resources.requests.storage` and if necessary, [`spec.accessModes`](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes-1). It is necessary to deploy to namespace.
+It is important to configure `metadata.name`, `resources.requests.storage`, and if necessary, [`spec.accessModes`](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes-1). Deploy to the appropriate namespace.
 
 ``` yaml
 kind: PersistentVolumeClaim
@@ -135,9 +130,9 @@ spec:
 
 ### beegfs-csi
 
-It is important to configure `metadata.name`,`resources.requests.storage` and if necessary, [`spec.accessModes`](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes-1). It is necessary to deploy to namespace.
+It is important to configure `metadata.name`, `resources.requests.storage`, and if necessary, [`spec.accessModes`](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes-1). Deploy to the appropriate namespace.
 
-``` yaml
+```yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -154,7 +149,7 @@ spec:
 
 ### zfs-csi
 
-It is important to configure `metadata.name`,`resources.requests.storage` and if necessary, [`spec.accessModes`](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes-1). It is necessary to deploy to namespace.
+It is important to configure `metadata.name`, `resources.requests.storage`, and if necessary, [`spec.accessModes`](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes-1). Deploy to the appropriate namespace.
 
 ``` yaml
 apiVersion: v1
@@ -174,7 +169,7 @@ spec:
 
 ### s3-csi
 
-You need S3 endpoint, bucket, access key and secret key. 
+You need the S3 endpoint, bucket, access key, and secret key. 
 
 <Callout type="info" icon="&#9757;" title="Current limitations">
 If you don't have any S3 bucket, you can create one at [https://s3-ui.cloud.e-infra.cz](https://s3-ui.cloud.e-infra.cz).
@@ -182,7 +177,7 @@ If you don't have any S3 bucket, you can create one at [https://s3-ui.cloud.e-in
 - Endpoint name in the secret will be `https://s3.cloud.e-infra.cz`
 </Callout>
 
-First, create a secret in a namespace with some name `[secret-name]`. The secret **must** have the following format.
+First, create a secret in a namespace with a name `[secret-name]`. The secret **must** have the following format:
 
 ``` yaml
 apiVersion: v1
@@ -197,7 +192,7 @@ stringData:
   bucketName: [bucket]
 ```
 
-Then create PVC which **must** have the same name as the secret therefore in `metadata.name` use secret's name.
+Then create a PVC which **must** have the same name as the secret; therefore, in `metadata.name`, use the secret's name.
 ``` yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -215,17 +210,17 @@ spec:
 
 ### sshfs
 
-This demonstrates how to make your MetaCentrum home available as PVC in Kubernetes. 
+This demonstrates how to make your MetaCentrum home directory available as a PVC in Kubernetes.
 
-First, you need to create ssh keypair
+First, create an SSH key pair:
 
-``` bash
+```bash
 ssh-keygen -b 4096 -t rsa -f ~/.ssh/custom_key
 ```
 
-This command will generate public key into `~/.ssh/custom_key.pub` and private key into `~/.ssh/custom_key`. Create directory `.ssh` using `mkdir -p $HOME/.ssh` and copy the **full** contents of public key into your metacentrum home into file `.ssh/authorized_keys`.
+This command generates a public key into `~/.ssh/custom_key.pub` and a private key into `~/.ssh/custom_key`. Create a `.ssh` directory using `mkdir -p $HOME/.ssh` and copy the **full** contents of the public key into your MetaCentrum home directory into the file `.ssh/authorized_keys`.
 
-Second, you need to create a [ssh authentication secret](https://kubernetes.io/docs/concepts/configuration/secret/#ssh-authentication-secrets) in the namespace where you want to have your MetaCentrum available as PVC. The contents of secret is private part of ssh key located in `~/.ssh/custom_key`. The secret **must** have the following form.
+Second, create an [SSH authentication secret](https://kubernetes.io/docs/concepts/configuration/secret/#ssh-authentication-secrets) in the namespace where you want to have MetaCentrum available as a PVC. The contents of the secret are the private part of the SSH key located in `~/.ssh/custom_key`. The secret **must** have the following form:
 
 ``` yaml
 apiVersion: v1
@@ -239,11 +234,11 @@ data:
     [full contents of private part of ssh key]
 ```
 
-As a last step, administrators must create PV (and PVC) for you. Please, email us at ` k8s@cerit-sc.cz` and include information about your metacentrum username, which storage you want to mount, and the namespace in Kubernetes where you want to have the PVC and secret name. 
+As a final step, administrators must create a PV (and PVC) for you. Email us at `k8s@cerit-sc.cz` and include information about your MetaCentrum username, which storage you want to mount, the namespace in Kubernetes where you want to have the PVC, and the secret name.
 
 
 ## Ephemeral Storage
-Ephemeral storage is allocated from node's local storage (disk or memory). Allocation is done through resource requests, see [resources](./resources) and through volume mounts. If a Pod is evicted or moved to another node, content of ephemeral storage is lost.
+Ephemeral storage is allocated from a node's local storage (disk or memory). Allocation is done through resource requests (see [resources](./resources)) and through volume mounts. If a Pod is evicted or moved to another node, the content of ephemeral storage is lost.
 
 Ephemeral storage from local disk:
 
@@ -261,16 +256,16 @@ volumeMounts:
 Ephemeral storage from local memory:
 
 ```yaml copy
-volumes:                                                                        
-- name: mem                                                                     
-  emptyDir:                                                                     
-    medium: Memory                                                              
-    sizeLimit: 1Gi                                                              
-                                                                                
-volumeMounts:                                                                   
-- name: mem                                                                     
-  mountPath: /tmp                                                               
+volumes:
+- name: mem
+  emptyDir:
+    medium: Memory
+    sizeLimit: 1Gi
+
+volumeMounts:
+- name: mem
+  mountPath: /tmp
 ```
 
-In case of local memory, see requirements on [memory resources](./resources).
+For local memory, see the requirements for [memory resources](./resources).
 

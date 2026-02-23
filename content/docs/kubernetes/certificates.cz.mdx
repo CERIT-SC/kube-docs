@@ -2,13 +2,13 @@
 title: Certifikát
 ---
 
-Kubernetes může vydávat a spravovat vlastní důvěryhodné certifikáty pomocí protokolu ACME. Certifikáty jsou uloženy jako tajemství.
+Kubernetes umí vydávat a spravovat vlastní důvěryhodné certifikáty pomocí protokolu ACME. Certifikáty jsou uloženy jako tajemství (Secret).
 
-To je obzvlášť důležité pro povolení TLS při vystavování ne-webových aplikací, tedy bez Ingress.
+To je obzvláště důležité pro povolení TLS při vystavování ne-webových aplikací, tedy bez použití Ingressu.
 
-V současnosti jsou k dispozici čtyři vydavatelé:
-* Vydavatel `letsencrypt-prod` je pouze pro web a automaticky kontroluje web na zadaném doménovém jménu během procesu vydávání. Je automaticky používán při vystavování aplikace prostřednictvím [ingress](./expose#web-based-applications).
-* Vydavatel `letsencrypt-prod-dns` je určen pro jiné aplikace. Rozdíl je v kontrole dns. Nicméně, kontrola dns je pomalejší, protože změna dns se musí nejprve propagovat.
+V současné době jsou k dispozici čtyři vydavatelé:
+* Vydavatel `letsencrypt-prod` je pouze pro web a automaticky ověřuje web na zadaném doménovém jménu během procesu vydávání. Automaticky se používá při vystavování aplikace prostřednictvím [ingressu](./expose#web-based-applications).
+* Vydavatel `letsencrypt-prod-dns` je určen pro ostatní aplikace. Rozdíl je v ověření DNS. DNS ověření je však pomalejší, protože změna DNS se musí nejprve propagovat.
 * `letsencrypt-stage` je stejný jako `letsencrypt-prod`, ale používá stagingové servery vhodné pro testování.
 * `letsencrypt-stage-dns` je stejný jako `letsencrypt-prod-dns`, ale používá stagingové servery vhodné pro testování.
 

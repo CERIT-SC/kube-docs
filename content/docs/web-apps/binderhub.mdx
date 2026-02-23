@@ -2,7 +2,7 @@
 title: BinderHub
 ---
 
-BinderHub is a Binder instance running on Kubernetes at [binderhub.cloud.e-infra.cz](https://binderhub.cloud.e-infra.cz/). Binder turns a git repository into a collection of interactive notebooks. It is enough to fill in the git repository name (optionally specific notebook or branch) and binderhub will turn it into a web notebook.
+BinderHub is a Binder instance running on Kubernetes at [binderhub.cloud.e-infra.cz](https://binderhub.cloud.e-infra.cz/). Binder turns a Git repository into a collection of interactive notebooks. Enter the Git repository name (and optionally a specific notebook or branch), and BinderHub will convert it into a web notebook.
 
 ## Authentication
 To use CERIT-SC BinderHub instance you need to authenticate. Authentication is done via SSO federated login.
@@ -27,7 +27,7 @@ memr=1
 meml=4
 ```
 
-Lines starting with `#` are ignored (useful for commens); other stand for:
+Lines starting with `#` are ignored (useful for comments); other stand for:
 - `gpu=[number_of_gpu_request]`
 - `cpur=[number_of_cpu_request]`
 - `cpul=[number_of_cpu_limit]`

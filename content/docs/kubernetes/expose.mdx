@@ -12,7 +12,7 @@ Throughout this documentation, YAML fragments are provided. These YAML definitio
 kubectl create -f file.yaml -n namespace
 ```
 
-where `file.yaml` contains the YAML definitions, and `namespace` is the Namespace where the application is running.
+where `file.yaml` contains the YAML definitions and `namespace` is the Namespace where the application is running.
 
 <Callout title="Prerequisite" icon="✅"> 
 This guide assumes that your application (`Deployment`) is already deployed. If you are unsure, refer to the [Hello World example](../examples/helloworld).
@@ -54,7 +54,7 @@ spec:
 
 In this configuration:
 
-- The `selector: app: application` must match the application label in the `Deployment`.
+- The `selector.app: application` must match the application label in the `Deployment`.
 - The `application-svc` and `application-port` values are arbitrary names.
 
 After creating the Service, we define an Ingress:
@@ -180,7 +180,9 @@ You can secure access to your `Ingress`-exposed application by requiring user au
       auth: password
    ```
 
-   - secretref is an arbitrary name.
+    - secretref is an arbitrary name.
+
+    - The password must be base64-encoded. To generate it:
 
    - The password must be base64-encoded. To generate it:
 
@@ -254,7 +256,7 @@ spec:
   rules:
   - host: "my-name"
     http:
-      paths
+      paths:
       - backend:
           service:
             name: application-svc
@@ -307,7 +309,7 @@ If your configuration is correct but the TLS certificate is not issued, the prob
 
 If quota restrictions are the issue, you may need to:
 
-- Increase the [namespace resource quota](../rancher/quotas#changing-namespace-quotas). Each acme solver requires 100m CPUs and 100MiB of memory.
+- Increase the [namespace resource quota](../rancher/quotas#changing-namespace-quotas). Each ACME solver requires 100m CPUs and 100 MiB of memory.
 - Remove some existing deployments.
 
 You can also view events in the Rancher UI.

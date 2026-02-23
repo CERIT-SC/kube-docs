@@ -5,13 +5,13 @@ title: Dockerfile
 
 ## Docker Image
 
-Docker image is an essential part of container infrastructure. It is an image that contains an application and all its required parts (libraries and other files).
+A Docker image is an essential part of container infrastructure. It is an image that contains an application and all its required parts (libraries and other files).
 
-Docker image is usually created using a `Dockerfile`. The `Dockerfile` contains commands to build the image, environment variables, command to run when the container starts, entry point, and many other items.
+A Docker image is usually created using a `Dockerfile`. The `Dockerfile` contains commands to build the image, environment variables, a command to run when the container starts, an entry point, and many other items.
 
-Docker images are named using the following scheme `registry/name:tag`. If `registry` is omitted, the docker hub registry is used. An example of a docker image name is: `cerit.io/xserver:v1.0`.
+Docker images are named using the following scheme: `registry/name:tag`. If `registry` is omitted, the Docker Hub registry is used. An example of a Docker image name is: `cerit.io/xserver:v1.0`.
 
-Before building your own docker image, it is strongly recommended to search the public registry for an existing image that contains the desired application, but also to check what is the timestamp of the last image, i.e. if someone is making new releases and bug fixes. For example, we can recommend `bitnami` images. There are some limitations to using external docker images on our infrastructure, see [limitations](./limitations).
+Before building your own Docker image, we strongly recommend searching the public registry for an existing image that contains your desired application. Also check the timestamp of the last image to see whether someone is actively maintaining it with new releases and bug fixes. For example, we recommend Bitnami images. Be aware of some limitations when using external Docker images on our infrastructure; see [limitations](./limitations).
 
 ## Creating your own Docker Image
 
@@ -30,7 +30,7 @@ Example for Dockerfile:
 ```docker title="Dockerfile"
 FROM debian:buster
 RUN apt update -y && apt upgrade -y && apt install build-essential libssh-dev git -y
-RUN git clone https://gitlab.con/zvon/iobench && cd iobench && make && make install
+RUN git clone https://gitlab.com/zvon/iobench && cd iobench && make && make install
 USER 1000
 CMD /bin/bash -c "tail -f /dev/null"
 ```
@@ -65,7 +65,7 @@ RUN apt-get update && apt-get -y install curl && apt-get clean && rm -rf /var/li
 ```
 for `conda`:
 ```docker
-RUN conda install package && conda clean --all -f -y && rm -rf "~/.cache
+RUN conda install package && conda clean --all -f -y && rm -rf ~/.cache
 ```
 
 <Callout type="warning">Cleaning must be done within a single **RUN** command.</Callout>
@@ -80,20 +80,20 @@ RUN conda install package && conda clean --all -f -y && rm -rf "~/.cache
 
 ## Building Docker Image
 
-The docker image can be built either manually or by some automated building tools.
+The Docker image can be built either manually or by automated build tools.
 
 ### Manual Build
 
-Once the `Dockerfile` is created, the docker image can be built. The following describes how to build a docker image manually. Manual building can be useful for debugging the build process.
+Once the `Dockerfile` is created, the Docker image can be built. The following describes how to build a Docker image manually. Manual building can be useful for debugging the build process.
 
-To build a docker image locally, you need a machine running Linux with docker installed. To install docker, follow the instructions for your Linux distribution, usually `docker-ce` is the right package. You may need to become a member of the `docker` group to be able to use docker.
+To build a Docker image locally, you need a machine running Linux with Docker installed. To install Docker, follow the instructions for your Linux distribution; usually `docker-ce` is the right package. You may need to become a member of the `docker` group to use Docker.
 
-Put the `Dockerfile` in a directory, e.g. `mydocker`, and run the following, replacing `repo/name:tag` with the correct name and tag
+Put the `Dockerfile` in a directory, for example, `mydocker`, and run the following, replacing `repo/name:tag` with the correct name and tag:
 ```bash
 docker build -t repo/name:tag mydocker
 ```
 
-If the build was successful, the image is built locally and needs to be pushed to a registry. If you are not logged in to the registry, issue `docker login registry`, replacing `registry` with the real registry name.
+If the build succeeds, the image is built locally and needs to be pushed to a registry. If you are not logged in to the registry, issue `docker login registry`, replacing `registry` with the real registry name:
 ```bash
 docker push repo/name:tag
 ```
@@ -101,13 +101,13 @@ The `repo/name:tag` must be exactly the same as in the build case.
 
 ### Automated Build
 
-Automated build can be done using a CI/CD pipeline. The build is done using the *runner* component which is part of many github/gitlab installations. You can use [gitlab.ics.muni.cz](https://gitlab.ics.muni.cz), see [GitLab Containers](../gitops/building_containers) how to do it. This gitlab also provides docker registry, so once built image can be stored here for use from Kubernetes. The registry is public or private depending on the project settings, see [GitLab Containers](../gitops/building_containers#how-to-use-images-from-gitlab-registry).
+Automated builds can be done using a CI/CD pipeline. The build is done using the *runner* component, which is part of many GitHub/GitLab installations. You can use [gitlab.ics.muni.cz](https://gitlab.ics.muni.cz); see [GitLab Containers](../gitops/building_containers) for instructions. This GitLab also provides a Docker registry, so once built, the image can be stored here for use from Kubernetes. The registry is public or private depending on the project settings; see [GitLab Containers](../gitops/building_containers#how-to-use-images-from-gitlab-registry).
 
 The automated build can be slow, so it is not the best option for debugging the build process.
 
 ## Running Docker Images
 
-It can be useful to manually run the built image before running it on Kubernetes, for example to check that all files are in place, important directories are writable, and so on. Running it manually is fast and has no privilege restrictions. However, be careful about running unknown images on your machine. To run a docker image locally, you need a Linux machine with docker installed, see manual build above.
+Manually running the built image before running it on Kubernetes can be useful, for example, to check that all files are in place, important directories are writable, and so on. Running it manually is fast and has no privilege restrictions. However, be careful about running unknown images on your machine. To run a Docker image locally, you need a Linux machine with Docker installed; see the manual build section above.
 
 Running locally can also be useful for inspecting the image, for example, to get the `UID` of the running user if it is not known, as the `UID` may be needed for running in Kubernetes.
 
@@ -116,8 +116,8 @@ For testing purposes, you can run the Docker image using:
 docker run -it --rm registry/name:tag command
 ```
 
-This command will run the `registry/name:tag` image and run the `commend` inside it. You can add `-u uid` to run the image as user `uid`.
+This command will run the `registry/name:tag` image and run the `command` inside it. You can add `-u uid` to run the image as user `uid`.
 
-If the image used has `ENTRYPOINT` set, the `command` will not be executed, but will only be passed as an argument to the `ENTRYPOINT` script. If you need to avoid execution, you can pass the `--entrypoint /bin/bash` option to `docker run`. However, not all images have `/bin/bash` or even `/bin/sh` available. In such a case, you will need to rebuild the image and add/install `bash` or `sh`.
+If the image used has `ENTRYPOINT` set, the `command` will not be executed but will only be passed as an argument to the `ENTRYPOINT` script. If you need to avoid execution, you can pass the `--entrypoint /bin/bash` option to `docker run`. However, not all images have `/bin/bash` or even `/bin/sh` available. In such a case, you will need to rebuild the image and add/install `bash` or `sh`.
 
-Pressing `ctrl-c` or `ctrl-d` will kill the running Docker image. All changes inside the container will be lost unless you use `docker commit`, see the [official docker documentation](https://docs.docker.com/build/), in this case do not use the `--rm` option which automatically removes terminated images.
+Pressing `ctrl-c` or `ctrl-d` will kill the running Docker image. All changes inside the container will be lost unless you use `docker commit`; see the [official Docker documentation](https://docs.docker.com/build/). In this case, do not use the `--rm` option, which automatically removes terminated containers.

@@ -29,7 +29,7 @@ Create the file `config.json` with the following content:
 }
 ```
 
-Replace all three IP adresses and both keys with real content. 
+Replace all three IP addresses and both keys with real content. 
 
 <Callout type="info" icon="&#9757;" title="Current limitations">
 - Even if the endpoint supports multiple client addresses, current implementation in Kubernetes supports only a single address.
@@ -106,7 +106,7 @@ In such scenarios, a Pod using WireGuard may experience intermittent connectivit
 
 To avoid this issue, we recommend configuring the Pod for **single-stack networking**. Choose either IPv4 or IPv6 and consistently use that stack throughout:
 
-- Set both the `address` and `allowedIPs` fields to match the chosen IP family in the WireGUard configuration.
+- Set both the `address` and `allowedIPs` fields to match the chosen IP family in the WireGuard configuration.
 - Ensure that the connection to the remote WireGuard peer uses the same stack.
 - Align the stack used for communication with the address family specified in the WireGuard configuration.
 

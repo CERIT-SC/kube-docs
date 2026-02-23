@@ -2,7 +2,7 @@
 title: Available Hardware
 ---
 
-CERIT-SC operates regular clusters and a secure cluster (more information in upcoming Secure cluster section). Regular clusters include *kuba-cluster* (the biggest one) and *kubh-cluster* (HA cluster). 8 powerful *kub-c* nodes will join kuba-cluster in near future. Secure cluster includes *kubas-cluster*.
+CERIT-SC operates regular clusters and a secure cluster (more information in the upcoming Secure cluster section). Regular clusters include the *kuba-cluster* (the biggest one) and the *kubh-cluster* (HA cluster). Eight powerful *kub-c* nodes will join the kuba-cluster in the near future. The secure cluster includes the *kubas-cluster*.
 
 ## Regular clusters
 ### kuba-cluster
@@ -19,7 +19,7 @@ Kuba-cluster consists of 39 nodes (currently 31 available) and features 22 NVIDI
   </thead>
   <tbody>
     <tr>
-      <td>CPU:</td><td>2x AMD EPYC 7543 32-Core Processor<br/>(in total 64CPU per node):<br/>2x AMD EPYC 9454 48-Core Processor<br/>(in total 96CPU per node):</td><td>All nodes apart from *kub-c*<br/><br/>8 HPC *kub-c* nodes</td>
+      <td>Memory:</td><td>1024 GB:<br/>512 GB:<br/>1.5 TB:</td><td>kub-b15, kub-b16<br/>All remaining nodes apart from *kub-c*<br/>8 HPC *kub-c* nodes</td>
     </tr>
     <tr>
       <td>Memory:</td><td>1024GB:<br/>512GB:<br/>1.5TB:</td><td>kub-b15, kub-b16<br/>All remaining nodes apart from *kub-c*<br/>8 HPC *kub-c* nodes</td>
@@ -40,7 +40,7 @@ Kuba-cluster consists of 39 nodes (currently 31 available) and features 22 NVIDI
 
 #### Storage
 
-Primary network storage consists of four head nodes each equipped with AMD EPYC 7302P, 256GB RAM, 2x 10Gbps NIC (failover only). It offers 500TB all-flash capacity of SSD drives only in RAID 6 equivalent configuration. Used filesystem is IBM Spectrum Scale that is exported via NFS version 3 to the kubernetes cluster.
+Primary network storage consists of four head nodes each equipped with AMD EPYC 7302P, 256 GB RAM, 2x 10 Gbps NIC (failover only). It offers 500 TB of all-flash capacity using SSD drives only in a RAID 6-equivalent configuration. The filesystem used is IBM Spectrum Scale, which is exported via NFS version 3 to the Kubernetes cluster.
 
 #### Data Backup
 
@@ -48,7 +48,7 @@ Storage is not backed up to another location but file system snapshots are made 
 
 ### kubh-cluster
 
-Kubh-cluster consists of 6 nodes that are disperesed in three different locations (2 nodes in locations University Campus Bohunice -- UKB, University Computer Centre -- CPS -- at Komenskeho namesti, Faculty of Informatics at Botanicka) thus is a suitable option for HA setups (more information in upcoming HA setup section).
+The kubh-cluster consists of 6 nodes that are dispersed in three different locations (2 nodes in each location: University Campus Bohunice -- UKB, University Computer Center -- CPS -- at Komenského náměstí, and Faculty of Informatics at Botanická), thus it is a suitable option for HA setups (more information in the upcoming HA setup section).
 
 <table>
   <thead>
@@ -60,7 +60,7 @@ Kubh-cluster consists of 6 nodes that are disperesed in three different location
   </thead>
   <tbody>
     <tr>
-      <td>CPU:</td><td>2x AMD EPYC 7543 32-Core Processor<br/>(in total 64CPU per node)</td><td></td>
+      <td>CPU:</td><td>2x AMD EPYC 7543 32-Core Processor<br/>(in total 64 CPUs per node)</td><td></td>
     </tr>
     <tr>
       <td>Memory:</td><td>512GB</td><td></td>
@@ -85,7 +85,7 @@ Local storage is not backed up, it is up to the user to ensure backing-up.
 ## Secure cluster
 ### kubas-cluster
 
-Kubas-cluster consists of 10 nodes and features 5x NVIDIA A40, 2x NVIDIA A100 (80GB variant), 4x NVIDIA P100, 2x NVIDIA H100 (NVL 94GB variant) and on-demand 4x NVIDIA A100 GPU accelerators. Nodes *kub-cs1, kub-cs2* are physically located at different site than the rest of the cluster therefore it is possible to create HA setup in the secure cluster as well. 
+The kubas-cluster consists of 10 nodes and features 5x NVIDIA A40, 2x NVIDIA A100 (80GB variant), 4x NVIDIA P100, 2x NVIDIA H100 (NVL 94GB variant), and on-demand 4x NVIDIA A100 GPU accelerators. Nodes *kub-cs1* and *kub-cs2* are physically located at a different site from the rest of the cluster, therefore it is possible to create an HA setup in the secure cluster as well. 
 
 <table>
   <thead>
@@ -97,7 +97,7 @@ Kubas-cluster consists of 10 nodes and features 5x NVIDIA A40, 2x NVIDIA A100 (8
   </thead>
   <tbody>
     <tr>
-      <td>CPU:</td><td>2x AMD EPYC 7543 32-Core Processor (in total 64CPU per node):<br/>2x AMD EPYC 9454 48-Core Processor (in total 96CPU per node):<br/>1x Intel(R) Xeon(R) CPU E5-2650 v4 @ 2.20GHz 24-Core Processor:<br/>2x AMD EPYC 9454 48-Core Processor (in total 96CPU per node):</td><td>kub-as1 -- kub-as6<br/>kub-cs1, kub-cs2<br/>kblack<br/>kub-ds1, kub-ds2, kub-ds3</td>
+      <td>CPU:</td><td>2x AMD EPYC 7543 32-Core Processor (in total 64 CPUs per node):<br/>2x AMD EPYC 9454 48-Core Processor (in total 96 CPUs per node):<br/>1x Intel(R) Xeon(R) CPU E5-2650 v4 @ 2.20GHz 24-Core Processor:<br/>2x AMD EPYC 9454 48-Core Processor (in total 96 CPUs per node):</td><td>kub-as1 -- kub-as6<br/>kub-cs1, kub-cs2<br/>kblack<br/>kub-ds1, kub-ds2, kub-ds3</td>
     </tr>
     <tr>
       <td>Memory:</td><td>512GB:<br/>1.5 TB:<br/>1.5 TB:<br/>512GB:</td><td>kub-as1 -- kub-as6<br/>kub-cs1, kub-cs2<br/>kub-ds1, kub-ds2, kub-ds3<br/>kblack</td>
@@ -117,8 +117,8 @@ Kubas-cluster consists of 10 nodes and features 5x NVIDIA A40, 2x NVIDIA A100 (8
 
 #### Storage
 
-Primary network storage consists of two head nodes each equipped with Intel(R) Xeon(R) Silver 4216 CPU @ 2.10GHz, 192GB RAM, 1x 10Gbps NIC. It offers 1700TB capacity of rotational drives only in RAID 6 configuration. Used filesystem is IBM Spectrum Scale that is exported via NFS version 3 to the kubernetes cluster.
+Primary network storage consists of two head nodes each equipped with Intel(R) Xeon(R) Silver 4216 CPU @ 2.10GHz, 192 GB RAM, 1x 10 Gbps NIC. It offers 1700 TB of capacity using rotational drives only in a RAID 6 configuration. The filesystem used is IBM Spectrum Scale, which is exported via NFS version 3 to the Kubernetes cluster.
 
 #### Data Backup
 
-Storage is regularly backed up to the different storage in the different location.
+Storage is regularly backed up to a different storage in a different location.

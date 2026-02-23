@@ -99,9 +99,9 @@ A Service can map any incoming port to a targetPort. By default, the targetPort 
 
 ### 3. Ingress
 
-Lastly, we have to create `Ingress` which exposes HTTP and HTTPS routes from outside world to the cluster world. Traffic is controled by rules set in the resource.
+Lastly, we have to create `Ingress` which exposes HTTP and HTTPS routes from outside world to the cluster world. Traffic is controlled by rules set in the resource.
 It is possible to expose your deployments in [2 ways](../kubernetes/expose) but here we will use cluster LoadBalancer with creation of just new DNS name.
-You can use whatever name you want but it has to fullfill 2 requirements:
+You can use whatever name you want but it has to fulfill 2 requirements:
 - name is composed only from letters, numbers and '-'
 - name ends with `.dyn.cloud.e-infra.cz`
 
@@ -137,7 +137,7 @@ spec:
 This example file is composed of fields:
 - `.metadata`
   - `.name` denotes name
-  - `.annotations` ingress frequently uses annotations to configure options depending on ingress controller. We use `nginx` controller and possible annotations are listed [here](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/). The ones used here are necessary for right functionality and they automatically create TLS ceritificate therefore you don't need to worry about HTTPS - it's provided automatically
+  - `.annotations` ingress frequently uses annotations to configure options depending on ingress controller. We use `nginx` controller and possible annotations are listed [here](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/). The ones used here are necessary for right functionality and they automatically create TLS certificate therefore you don't need to worry about HTTPS - it's provided automatically
  - `.spec` includes all information needed to configure a LB but most importantly, includes rules matched against all incoming requests
   - `.tls` ensures securing `Ingress`
     - `hosts` has to exactly match DNS name which will be used
@@ -155,7 +155,7 @@ ingress.networking.k8s.io/hello-kubernetes-ingress created
 service/hello-kubernetes-svc created
 ```
 
-You can check status of deplyed resources with `kubectl get [pods | services | ingress] -n [namespace]` and when all of them are up and running, you can access the URL and you will be presented with sample page.
+You can check status of deployed resources with `kubectl get [pods | services | ingress] -n [namespace]` and when all of them are up and running, you can access the URL and you will be presented with sample page.
 ![hello](/img/ceritsc/hello.png)
 
 NOTE: in case you are having trouble with 'Config not found' error message, see [here](../kubernetes/kubectl) for further information
@@ -332,7 +332,7 @@ IPs:
 Controlled By:  ReplicaSet/hello-kubernetes-5547c96ddc
 ...
 ```
-- `kubectl get pods -n [namespace]` + `kubectl logs [pod_name] -n [namespace]` shows pod's logs if they were configured or any output occured. This combination is very useful for debugging.
+- `kubectl get pods -n [namespace]` + `kubectl logs [pod_name] -n [namespace]` shows pod's logs if they were configured or any output occurred. This combination is very useful for debugging.
 
 ```bash
 kubectl get pods -n test-ns --context kuba-cluster

@@ -2,119 +2,276 @@
 title: Úložiště
 ---
 
-Orchestrátor Kubernetes nabízí několik způsobů, jak využít infrastrukturu úložišť. Existují tři důležité objekty Kubernetes související s úložištěm: *Třída úložiště*, *Fyzické úložiště (PV)*, *Žádost o trvalé úložiště (PVC)*.
+Orchestrátor Kubernetes nabízí několik způsobů využití infrastrukturních úložišť. Existují tři důležité objekty Kubernetes související s úložištěm: *Třída úložiště*, *Fyzické úložiště (PV)*, *Žádost o trvalé úložiště (PVC)*.
 
 ## Třída úložiště
+[Třída úložiště](https://kubernetes.io/docs/concepts/storage/storage-classes/) poskytuje způsob, jak mohou administrátoři popsat "třídy" úložiště, které nabízejí. Rozlišujeme mezi statickými a dynamickými třídami. Statická třída znamená, že reprezentace úložiště v Kubernetes (PV+PVC) musí být předem vytvořena administrátorem nebo nějakým řadičem, aby mohla být použita Podem. Dynamická třída znamená, že svazky mohou být vytvářeny na požádání, jakmile je uživatel požaduje, obvykle prostřednictvím vytvoření PVC.
 
-[Třída úložiště](https://kubernetes.io/docs/concepts/storage/storage-classes/) poskytuje způsob, jak mohou administrátoři popsat "třídy" úložiště, které nabízejí. Různé třídy mohou odpovídat různým úrovním kvality služby. Nabízíme následující třídy úložiště:
+Různé třídy mohou odpovídat různým úrovním kvality služby.
 
-1. csi-ceph-rbd-du -- třída úložiště, která je podložena blokovými objemy CEPH RBD z DU CESNET. Blokový objem je formátován např. jako `ext4` místní souborový systém, který může být připojen k jednomu Podu.
-2. nfs-csi -- výchozí dynamická třída, která používá NFS jako protokol připojení. Dynamická třída znamená, že objemy mohou být vytvářeny ad-hoc, jakmile je uživatel požaduje.
-3. sshfs -- třída úložiště, která umožňuje použít protokol SSH k připojení k vzdálenému uzlu (ne nutně uzlu úložiště) a poskytuje souborový systém, který je připojen k Podu.
+Nabízíme následující třídy úložiště:
 
-Níže uvedená tabulka popisuje výkonnostní charakteristiky každé třídy úložiště. Kromě těchto tříd poskytujeme charakteristiky úložiště CIFS, které je dostupné mimo *Třídy úložiště*, viz níže.
+1. `nfs-csi` -- výchozí dynamická třída, která používá NFS jako protokol připojení.
 
-|Typ úložiště|Čtení IOPS|Zápis IOPS|Čtení lineárně|Zápis lineárně|
-|:---|---:|---:|---:|---:|
-|Místní SSD|98800|82800|1000MiB/s|947MiB/s|
-|nfs-csi|30700|22000|755MiB/s|1093MiB/s|
-|csi-ceph-rbd-du|496|814|224MiB/s|188MiB/s|
-|sshfs|13400|41200|171MiB/s|179MiB/s|
-|CIFS|19300|16900|372MiB/s|483MiB/s|
+    - I když tato třída funguje jako backendové úložiště pro databáze, uživatelům doporučujeme používat třídu `zfs-csi` pro databáze.
+    - Administrátoři mohou vytvořit statické PVC předem, což je obzvláště užitečné, když k úložišti bude přistupovat skupina uživatelů po delší dobu.
+    - Tato třída úložiště je zálohována all-flash úložným polem, což poskytuje vysoký výkon. Výkon však může být omezen 10 Gbps spojením mezi clusterem a úložným systémem. Při vysokém zatížení to může mít za následek znatelné zpoždění.
+    - Můžeme obnovit omylem smazané soubory až **jeden týden** zpět, s **denní úrovní granularity**. To znamená, že soubory vytvořené a smazané ve stejný den nelze obnovit.
 
-## PV
+      <Callout type="warn">
+      Úložiště nemá žádnou další redundanci. V případě katastrofálního selhání úložného pole **budou všechna data trvale ztracena** bez možnosti obnovy.
+      </Callout>
 
-PV představuje fyzické úložiště, které je zodpovědné za připojení úložiště. Pouze administrátor může vytvořit PV a je to resource na urovni celeho clusteru (není namespaced).
+2. `nfs-csi-backup` — Dynamická třída úložiště používající NFS jako protokol připojení.
 
-## PVC
+   - Tato třída je funkčně stejná jako `nfs-csi`, ale zahrnuje pravidelné, systémové zálohy dat na samostatné fyzické místo.
+   - Data jsou uchovávána po dobu **30 dnů**.
+   - Obnova dat je k dispozici **na vyžádání**; uživatelé nemohou provádět obnovu samostatně.
 
-PVC představuje jakýsi trvalý úložný prostor, který může být připojen do *podu*. PVC jsou obvykle síťové objemy, např. NFS nebo CIFS/SMB. Tyto typy PVC mohou být připojeny k mnoha podům současně, čímž se stávají sdíleným úložištěm mezi pody.
+3. `beegfs-csi` — Vysokovýkonné sdílené úložiště dostupné ze všech uzlů, které podporují BeeGFS.
 
-* Uživatel může vytvořit ad-hoc PVC pomocí [pvc.yaml](/examples/ceritsc/manifests/pvc.yaml) šablony. 
-Stačí ji stáhnout, vyplnit správný název `name` a velikost úložiště `storage` a poté spustit příkaz:
+    - **Vázáno na kvalitu služby:** Všechny fyzické uzly přispívající do poolu `beegfs` musí být funkční, aby jakékoli PVC založené na BeeGFS fungovalo. Pokud jeden uzel v tomto poolu zažije hardwarové selhání (CPU, paměť, základní deska, atd.), **všechna** BeeGFS PVC se stanou nefunkčními, bez ohledu na to, na kterém uzlu byly vytvořeny.
+    - V současné době to zahrnuje všechny uzly `kub-b`. Nicméně, BeeGFS je připojeno a dostupné napříč uzly `kub-b` i `kub-c`.
+    - Ideální, když je vyžadováno ultra-rychlé sdílené úložiště — až **10× rychlejší** než NFS.
+
+    <Callout type="info">
+    - Žádné zálohy ani další redundance.
+    - Snese selhání jednoho disku na uzel, ale žádná další redundance není přítomna.
+    - **Omylem smazané soubory nelze obnovit.**
+    </Callout>
+
+4. `zfs-csi` — Vysokovýkonné lokální úložiště dostupné pouze z uzlu, kde je zřízeno.
+
+   - **Vázáno na kvalitu služby:** PVC je dostupné pouze pokud je fyzický uzel hostující ho plně funkční.
+   - Nabízí nižší latenci a lepší výkon, zejména když přístup k datům je většinou neparalelní.
+   - Ideální pro databáze nebo úlohy zahrnující velké množství souborů, za předpokladu, že paralelní přístup napříč více uzly není vyžadován.
+
+   <Callout type="warn">
+   - Důrazně doporučujeme používat repliky databází, abychom se vyhnuli jedinému bodu selhání.
+   - Snese selhání jednoho disku na uzel, ale úplné selhání uzlu učiní PVC nepřístupným.
+   - Nejsou k dispozici žádné zálohy ani možnosti obnovy dat.
+   </Callout>
+
+5. `s3-csi` — Dynamická třída úložiště, která zřizuje PVC reprezentující váš S3 bucket.
+
+   - Užitečné, když potřebujete interaktivně pracovat s daty uloženými v S3 bucketu, nebo pokud vaše aplikace nemůže nativně použít S3 backend.
+   - Vyžaduje dvoukrokový proces nasazení — podrobné pokyny jsou uvedeny v pozdější podsekci.
+
+   <Callout type="info">
+   - Redundance a ochrana dat jsou určeny podkladovým poskytovatelem S3 úložiště.
+   </Callout>
+
+6. `sshfs` — Třída úložiště, která používá protokol SSH pro připojení ke vzdálenému uzlu (ne nutně úložnému uzlu) a připojení souborového systému.
+
+   - Užitečné pro připojení dat uložených na úložišti MetaCentrum.
+   - Vyžaduje koordinaci se systémovými administrátory — kroky nastavení jsou popsány v pozdější podsekci.
+   - Protože je souborový systém emulován přes SSH spojení, **výkon je omezený**.
+
+7. Dočasné úložiště — Rychlé lokální úložiště alokované z disku nebo paměti uzlu.
+
+   - **Vázáno na kvalitu služby:** Pokud je Pod používající toto úložiště přesunut na jiný fyzický uzel, všechna data jsou ztracena.
+   - Užitečné pro účely ukládání do mezipaměti — kroky nastavení jsou popsány v pozdější podsekci.
+   - Pokud je potřeba větší množství lokálního úložiště, uživatelé jsou povzbuzováni, aby jej deklarovali jako dočasné úložiště a požádali o odpovídající prostředky. To umožňuje plánovači koordinovat umístění Podů s ohledem na kapacitu úložiště uzlu.
+   - Na rozdíl od použití adresáře `/tmp` může dočasné úložiště být sdíleno mezi kontejnery uvnitř stejného Podu (např. sidecars).
+   - Dočasné úložiště **nelze** sdílet mezi různými Pody, i když běží na stejném uzlu.
+
+   <Callout type="warn">
+   - Neexistuje žádná další ochrana dat.
+   </Callout>
+
+8. `cvmfs` — Specializovaná třída úložiště pro připojení softwarových repozitářů, jako jsou ty od CERN nebo MetaCentrum.
+
+   - Vyžaduje koordinaci se systémovými administrátory.
+   - Prosím pošlete svůj požadavek emailem na: **k8s@cerit-sc.cz**
+
+## Trvalý svazek (PV)
+PV představuje fyzický svazek, který je zodpovědný za připojení úložiště. Pouze administrátor může vytvořit PV a je to prostředek na úrovni celého clusteru (není namespaced).
+
+## Žádost o trvalý svazek (PVC)
+[PVC](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) je objekt, který představuje trvalé úložiště v Kubernetes. Tento objekt může být připojen do *podu*. PVC mohou být omezeny na pouze jeden Pod nebo mohou být připojeny k mnoha podům současně, čímž se stávají sdíleným úložištěm mezi pody.
+
+* Uživatel může vytvořit ad-hoc PVC třídy `nfs-csi` pomocí šablony [pvc.yaml](/examples/ceritsc/manifests/pvc.yaml). Stáhněte ji, vyplňte `name` a velikost úložiště `storage` a spusťte příkaz:
+
 ```bash
-kubectl create -f pvc.yaml -n namespace
+kubectl create -f pvc.yaml -n [namespace]
 ```
 
-    kde namespace je `namespace` uživatele, jak je vidět v Rancher GUI, obvykle ve formátu *příjmení-ns*. Ad-hoc pod neobsahuje žádná data předem, uživatel musí data naplnit sám. Název PVC musí být stejný jako hodnota, kterou vyplníte do pole `name`. Uživatel si může vybrat jinou třídu úložiště podle výše uvedeného popisu.
+kde `[namespace]` je uživatelský namespace, jak je vidět v Rancher GUI, obvykle ve formátu *příjmení-ns*. Ad-hoc Pod neobsahuje žádná data předem, uživatel musí data naplnit sám. Název PVC musí být stejný jako hodnota, kterou vyplníte do pole `name`. Uživatel si může vybrat jinou třídu úložiště podle výše uvedeného popisu.
 
-* Další možností je vytvořit PVC jako CIFS úložiště z CERIT-SC. V takovém případě uživatel musí stáhnout [secret.yaml](/examples/ceritsc/manifests/secret.yaml), vyplnit správné `name` a následující dvě anotace: `cerit.io/storage`, `cerit.io/share`. Tyto hodnoty z příkladu fungují pro *storage-brno12-cerit* tak, jak jsou, umožňují přístup k domovskému adresáři uživatele. Pro sdílené `project` složky musí být `cerit.io/share` nastaveno na: `cerit.io/share: 'export/nfs4/projects/project_name'`. Uživatel také musí vyplnit `mount_flags`. `mount_flags` je base64 kódovaný řetězec, který lze získat pomocí následujícího příkazu:
+* Další možností je vytvořit PVC jako CIFS úložiště z CERIT-SC. V takovém případě musí uživatel stáhnout [secret.yaml](/examples/ceritsc/manifests/secret.yaml), vyplnit správné `name` a následující dvě anotace: `cerit.io/storage`, `cerit.io/share`. Tyto hodnoty z příkladu fungují pro *storage-brno12-cerit* tak, jak jsou, umožňují přístup k domovskému adresáři uživatele. Pro sdílené `project` složky musí být `cerit.io/share` nastaveno na: `cerit.io/share: 'export/nfs4/projects/project_name'`. Uživatel také musí vyplnit `mount_flags`. `mount_flags` je base64 kódovaný řetězec, který lze získat pomocí následujícího příkazu:
+
 ```bash
 echo -n "username=USER,password=PASS,uid=1000,gid=1000,nosetuids,vers=3.11,noserverino" | base64
 ```
-    kde `USER` a `PASS` jsou uživatelské jméno a heslo pro přístup k *storage-brno12-cerit*, resp. V případě, že je `USER` UČO, je třeba přidat `domain=UCN` do příkazu `echo` jako další hodnotu oddělenou čárkou, tj.
+
+kde `USER` a `PASS` jsou uživatelské jméno a heslo pro přístup k *storage-brno12-cerit*, resp. V případě, že je `USER` UČO, je třeba přidat `domain=UCN` do příkazu `echo` jako další hodnotu oddělenou čárkou, tj.
+
 ```bash
 echo -n "username=USER,password=PASS,uid=1000,gid=1000,nosetuids,vers=3.11,noserverino,domain=UCN" | base64
 ```
 
-    Pokud neznáte heslo CIFS pro úložiště CERIT-SC, jednoduše si o něj požádejte na support@cerit-sc.cz. Není to **stejné** heslo, které používáte pro přihlášení do infrastruktury!
+Pokud neznáte heslo CIFS pro úložiště CERIT-SC, jednoduše si o něj požádejte na support@cerit-sc.cz. Není to **stejné** heslo, které používáte pro přihlášení do infrastruktury!
 
-    Mějte na paměti, že base64 kódovaný řetězec není šifrovaný, takže si ho uchovejte v tajnosti!
+Mějte na paměti, že base64 kódovaný řetězec není šifrovaný, takže si ho uchovejte v tajnosti!
 
-    Jakmile uživatel vytvoří soubor secret.yaml, musí být nahrán do Kubernetes pomocí následujícího příkazu:
+Jakmile uživatel vytvoří soubor secret.yaml, musí být nahrán do Kubernetes pomocí následujícího příkazu:
+
 ```bash
-kubectl create -f secret.yaml -n namespace
+kubectl create -f secret.yaml -n [namespace]
 ```
-    `namespace` je stejný jako v předchozím případě. Název PVC je odvozen od hodnoty `name` a bude: `pvc-name`. V tomto případě PVC nebude prázdné, obsahuje data z vašeho domova z úložiště-brno12-cerit.
+
+`[namespace]` je stejný jako v předchozím případě. Název PVC je odvozen od hodnoty `name` a bude: `pvc-name`. V tomto případě PVC nebude prázdné, obsahuje data z vašeho domovského adresáře z úložiště-brno12-cerit.
 
 * Poslední možností je požádat administrátory, aby pro vás vytvořili speciální PVC podle vašich potřeb. Můžete o to požádat na k8s@ics.muni.cz.
 
 Své PVC vidíte v GUI Rancher v `Úložiště` &rarr; `PersistentVolumeClaims` ![Objemy](/img/ceritsc/pvc.jpg)
 
-## Vlastní PVC třídy
+## Výukové návody
 
-V naší infrastruktuře poskytujeme několik vlastních tříd PVC úložiště pro použití s úložnými službami, které poskytujeme. V této části uvádíme tyto třídy a vysvětlujeme, jak je používat.
+### NFS
 
-### WebDAV
+Je důležité nakonfigurovat `metadata.name`, `resources.requests.storage` a pokud je to nutné, [`spec.accessModes`](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes-1). Je třeba nasadit do namespace.
 
-Tato třída úložiště vám umožňuje přístup k úložišti WebDAV. Například někteří poskytovatelé cloudového úložiště mají tuto funkci. WebDAV přistupuje k souborovému úložišti prostřednictvím protokolu HTTP a je proto poměrně pomalý, pokud máte jinou možnost, jak přistupovat k vašim datům, doporučujeme použít tuto možnost pro zajištění výkonu.
-
-K přístupu k úložišti WebDAV budete potřebovat::
-  - WebDAV URL
-  - adresář pro připojení
-  - uživatelské jméno
-  - heslo
-
-Existují dva způsoby, jak zadat heslo. Buď jej přidáte přímo do specifikace PVC (DŮRAZNĚ NEDOPORUČENO), nebo heslo uložíte do secret a následně uvedete jeho název ve specifikaci PVC. Ukážeme si příklad druhého přístupu.
-
-```yaml title="manifests.yaml"
-apiVersion: v1
-kind: Secret
-metadata:
-  name: my-webdav-secret
-  namespace: my-ns
-type: Opaque
-stringData:
-  password: SuperSecretPassword
----
+``` yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: my-webdav-pvc
-  namespace: my-ns
-  annotations:
-    url: "https://my.webdav.url/remote.php/dav/files/123456789"
-    dir: "directory_to_mount"
-    user: "my_username"
-    passwordSecret: "my-webdav-secret" # this is the name of the secret created a few lines above
+  name: test-pvc-nfs
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: nfs-csi
+```
+
+### beegfs-csi
+
+Je důležité nakonfigurovat `metadata.name`, `resources.requests.storage` a pokud je to nutné, [`spec.accessModes`](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes-1). Je třeba nasadit do namespace.
+
+``` yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-pvc-beegfs
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1000Gi
+  storageClassName: "beegfs-csi"
+```
+
+### zfs-csi
+
+Je důležité nakonfigurovat `metadata.name`, `resources.requests.storage` a pokud je to nutné, [`spec.accessModes`](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes-1). Je třeba nasadit do namespace.
+
+``` yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-pvc-zfs
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: "zfs-csi"
+```
+
+### s3-csi
+
+Potřebujete S3 endpoint, bucket, access key a secret key.
+
+<Callout type="info" icon="&#9757;" title="Aktuální omezení">
+Pokud nemáte žádný S3 bucket, můžete si vytvořit jeden na [https://s3-ui.cloud.e-infra.cz](https://s3-ui.cloud.e-infra.cz).
+- Povolené názvy bucketů jsou `[your-einfra-login]` nebo `[your-einfra-login]-*`, např. `viktorias-test`
+- Název endpointu v secretu bude `https://s3.cloud.e-infra.cz`
+</Callout>
+
+Nejprve vytvořte secret v namespace s nějakým názvem `[secret-name]`. Secret **musí** mít následující formát.
+
+``` yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: [secret-name]
+type: Opaque
+stringData:
+  accessKeyID: [your-access-key-id]
+  secretAccessKey: [your-secret-key]
+  endpoint: [endpoint]
+  bucketName: [bucket]
+```
+
+Poté vytvořte PVC, které **musí** mít stejný název jako secret, proto v `metadata.name` použijte název secretu.
+
+``` yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: [secret-name]
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: s3-csi
+```
+
+### sshfs
+
+Tento návod demonstruje, jak zpřístupnit váš domovský adresář MetaCentrum jako PVC v Kubernetes.
+
+Nejprve musíte vytvořit ssh keypair
+
+``` bash
+ssh-keygen -b 4096 -t rsa -f ~/.ssh/custom_key
+```
+
+Tento příkaz vygeneruje veřejný klíč do `~/.ssh/custom_key.pub` a privátní klíč do `~/.ssh/custom_key`. Vytvořte adresář `.ssh` pomocí `mkdir -p $HOME/.ssh` a zkopírujte **celý** obsah veřejného klíče do vašeho metacentrum domovského adresáře do souboru `.ssh/authorized_keys`.
+
+Za druhé, musíte vytvořit [ssh authentication secret](https://kubernetes.io/docs/concepts/configuration/secret/#ssh-authentication-secrets) v namespace, kde chcete mít vaše MetaCentrum dostupné jako PVC. Obsahem secretu je privátní část ssh klíče umístěná v `~/.ssh/custom_key`. Secret **musí** mít následující formu.
+
+``` yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secret-ssh-auth
+type: kubernetes.io/ssh-auth
+data:
+  # data jsou v tomto příkladu zkrácena
+  ssh-privatekey: |
+    [plný obsah privátní části ssh klíče]
+```
+
+Poté vytvořte PVC následujícím způsobem.
+
+``` yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: secret-ssh-auth
 spec:
   accessModes:
   - ReadWriteMany
   resources:
     requests:
       storage: 100Gi
-  storageClassName: webdav
+  storageClassName: sshfs
 ```
 
-Nahraďte `password`, `url`, `dir`, `user`, `passwordSecret` a všechny názvy a prostory názvů vašimi hodnotami. S tímto yaml souborem byste měli být schopni úspěšně vytvořit PVC, které může být připojeno uvnitř vašich podů.
+## Dočasné úložiště
 
-## Ephemeral Storage
+Dočasné úložiště je alokováno z místního uzlu úložiště. Alokace se provádí prostřednictvím požadavků na zdroje, viz [resources](./resources) a prostřednictvím připojení volume.
 
-Ephemeral typ skladování je alokován z místního uzlu úložiště. Alokace se provádí prostřednictvím požadavků na zdroje, viz [resources](./resources) a prostřednictvím připojení volume.
+Dočasné úložiště může být alokováno z místního disku nebo místní paměti. Pokud je Pod odstraněn nebo přesunut na jiný uzel, obsah dočasného úložiště je ztracen.
 
-Ephemeral úložiště může být alokováno z místního disku nebo místní paměti. Pokud je Pod odstraněn nebo přesunut na jiný uzel, obsah ephemeral úložiště je ztracen.
-
-Ephemeral úložiště z místního disku:
+Dočasné úložiště z místního disku:
 
 ```yaml copy
 volumes:

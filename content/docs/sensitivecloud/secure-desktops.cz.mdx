@@ -1,0 +1,181 @@
+---
+title: Secure Desktops
+---
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Card, Cards } from 'fumadocs-ui/components/card';
+
+Secure Desktops je řešení virtuální infrastruktury desktopů (VDI) SensitiveCloud postavené nad Kubernetes. Poskytuje bezpečný, založený na prohlížeči desktop zážitek pro zpracování citlivých dat, které nikdy neopouštějí obvod SensitiveCloud.
+
+## Výhody
+
+<Cards>
+  <Card
+    href="#"
+    title="Bezpečné zpracování dat"
+  >
+    Uživatelé mohou přistupovat k datům a pracovat s nimi prostřednictvím plného desktopového prostředí, které běží v chráněném obvodu SensitiveCloud.
+  </Card>
+
+  <Card
+    href="#"
+    title="Přístup bez klienta"
+  >
+    Není vyžadován žádný speciální software; uživatelé se připojují přímo ze svých prohlížečů.
+  </Card>
+
+  <Card
+    href="#"
+    title="Detailní řízení přístupu"
+  >
+    Vedoucí výzkumníci definují, kdo může přistupovat ke kterým datům a které konfigurace desktopu mohou členové týmu používat.
+  </Card>
+
+  <Card
+    href="#"
+    title="Flexibilní správa obrazů"
+  >
+    Používejte připravené obrazy desktopů, rozšiřte je tak, aby vyhovovaly vašim potřebám, nebo přineste vlastní vlastní obrazy.
+  </Card>
+
+  <Card
+    href="#"
+    title="Nativní integrace s úložištěm SensitiveCloud"
+  >
+    Bezproblémově připojte S3 buckety SensitiveCloud přímo na desktop pomocí management GUI (není třeba klient S3).
+  </Card>
+</Cards>
+
+## Začínáme
+
+<Steps>
+
+<Step>
+### Vytvoření konfigurace desktopu
+
+_Konfigurace desktopu je opakovaně použitelná šablona, která definuje Docker obraz a limity CPU & RAM pro Secure Desktop._
+
+Můžete buď definovat novou konfiguraci **nebo** vybrat existující. Pokud zvolíte existující konfiguraci, jednoduše přeskočte na další krok.
+
+1. Otevřete záložku **Configurations**.
+2. Klikněte na **Add configuration**.
+3. Zadejte nezbytné parametry (tj. Docker obraz, limity zdrojů atd.)
+4. Stiskněte **Create configuration** pro uložení nové konfigurace desktopu.
+</Step>
+
+<Step>
+### Přidání úložiště
+
+1. Otevřete záložku **Storage** → **Add storage**.
+2. Vyberte typ úložiště:
+   <Cards>
+     <Card
+       href="#"
+       title="Nový NFS"
+     >
+       Vytvořte nový svazek NFS.
+     </Card>
+
+     <Card
+       href="#"
+       title="Existující persistent volume claim (PVC)"
+     >
+       Použijte existující Kubernetes PVC z vašeho projektu.
+     </Card>
+
+     <Card
+       href="#"
+       title="SensitiveCloud S3"
+     >
+       Připojte existující S3 bucket SensitiveCloud.
+     </Card>
+   </Cards>
+3. Zadejte nezbytné parametry na základě typu úložiště.
+4. Klikněte na **Confirm**.
+</Step>
+
+<Step>
+### Vytvoření instance desktopu
+
+1. Otevřete nabídku **Desktops** a klikněte na **Add Desktop**.
+2. Zadejte název a vyberte konfiguraci desktopu.
+3. Volitelně připojte úložiště.
+4. Klikněte na **Create desktop**.
+
+</Step>
+
+<Step>
+### Připojení & začátek práce
+
+Nově vytvořený Desktop se objeví v seznamu **Desktops**. Klikněte na **Connect** pro otevření relace založené na prohlížeči, pak můžete:
+
+- **Přistupovat** k datům připojeným na `/mnt`.
+- **Spouštět** vaše bezpečné workflow pro zpracování.
+
+Po dokončení jednoduše zavřete kartu prohlížeče. Desktop může být **suspendován** prostřednictvím tlačítka **Stop** a později **obnoven** pomocí tlačítka **Resume** — obě akce jsou k dispozici v náhledu seznamu desktopů.
+</Step>
+
+</Steps>
+
+## Úložiště
+Virtuální desktopové prostředí jsou **efemérní** — mohou být ukončeny a znovu vytvořeny kdykoli. Pro zachování dat napříč cykly použijte **objekty úložiště**, které poskytují trvalé svazky připojené na ***`/mnt`** na vašem desktopu. Jakékoliv soubory uložené mimo tyto připojené svazky nejsou perzistentně uloženy a budou ztraceny při ukončení desktopu.
+
+Secure Desktops podporují více backend úložiště:
+
+<Cards>
+  <Card
+    href="#"
+    title="NFS"
+  >
+    Ideální pro sdílené souborové systémy s vysokou propustností.
+  </Card>
+
+  <Card
+    href="#"
+    title="Existující persistent volume claim (PVC)"
+  >
+    Použijte existující Kubernetes PVC z vašeho projektu. PVC musí být ručně zpřístupněno v namespace Secure Desktops.
+  </Card>
+
+  <Card
+    href="#"
+    title="SensitiveCloud S3"
+  >
+    Připojte S3 bucket přímo na desktop bez nutnosti instalovat klienta S3.
+  </Card>
+</Cards>
+
+## Přidávání nových uživatelů
+
+Pro udělení přístupu uživateli k Secure Desktops musí administrátor (obvykle vedoucí výzkumný pracovník projektu) přidat uživatele v UI Secure Desktops.
+
+<Steps>
+  <Step>
+    <strong>Otevření konzole Users</strong>
+    Z horní navigační lišty vyberte **Users**.
+  </Step>
+
+  <Step>
+    <strong>Začátek toku přidání uživatele</strong>
+    Klikněte na tlačítko **Add User** v pravém horním rohu.
+  </Step>
+
+  <Step>
+    <strong>Zadání nezbytných informací</strong>
+
+    - **Username** – unikátní uživatelské jméno.
+    - **OIDC Subject Identifier** – unikátní identifikátor z Perunu.
+    - **checkbox Admin User** – povolte toto, chcete-li udělit novému uživateli úplná administrativní oprávnění v napříč instancí platformy Secure Desktops.
+
+    OIDC Subject Identifier můžete získat z **Perunu**:
+
+    1. Přejděte na [portál Perun](https://perun.e-infra.cz/organizations/3898/groups/15034/subgroups).
+    2. Vyberte svou skupinu → **Members** → vyberte požadovaného člena.
+    3. Otevřete záložku **Attributes** → **User** → vyhledejte **e-INFRA CZ ID**.
+    4. Klikněte na pole atributu pro zkopírování identifikátoru.
+  </Step>
+
+  <Step>
+    <strong>Potvrzení přidání</strong>
+    Po vyplnění polí klikněte na **Add User**.
+  </Step>
+</Steps>

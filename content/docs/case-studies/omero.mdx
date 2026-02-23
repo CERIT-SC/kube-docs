@@ -2,7 +2,7 @@
 title: Use case Omero
 ---
 
-We have got a task to run [Omero](https://www.openmicroscopy.org/omero/) application in Kubernetes. Basically, we need two things: Docker container of the application and deployment manifest. The application may have some depencencies like database, in this case we need to deploy those as well.
+We have got a task to run [Omero](https://www.openmicroscopy.org/omero/) application in Kubernetes. Basically, we need two things: Docker container of the application and deployment manifest. The application may have some dependencies like database, in this case we need to deploy those as well.
 
 Searching for the term `omero docker`, we got the result [https://github.com/ome/omero-server-docker](https://github.com/ome/omero-server-docker) which explains how to deploy the Omero server. It has two options:
  
@@ -160,7 +160,7 @@ value: omero-root-password
 kubectl create -f omero-server.yaml -n [namespace]
 ```
 
-Now, we should have the `omero-server` running. However, to be accessible from the cluster, another manifest needs to be ddeployed---service.
+Now, we should have the `omero-server` running. However, to be accessible from the cluster, another manifest needs to be deployed—service.
 
 ```yaml
 apiVersion: v1

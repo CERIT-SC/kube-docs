@@ -2,6 +2,7 @@
   "pages": [
     "nextflow",
     "teswes",
-    "snakemake"
+    "snakemake",
+    "argo"
   ]
 }

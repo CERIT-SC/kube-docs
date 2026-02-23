@@ -2,13 +2,13 @@
 title: MPI Operator
 ---
 
-While [MPI](https://www.open-mpi.org/) jobs are traditional domain in High Performance Computing, our platform is capable of running MPI Jobs easily using MPI Operator from [kubeflow](https://www.kubeflow.org/). The [MPI Operator](https://github.com/kubeflow/mpi-operator) makes it easy to run allreduce-style distributed training on Kubernetes. We have deployed cluster-wide MPI Operator which allpws you to create an MPI job by defining a Kuberntes kind `MPIJob`, full documentation on kind's structure is available [here](https://github.com/kubeflow/mpi-operator/blob/master/manifests/base/kubeflow.org_mpijobs.yaml). Some documentation on MPI Operator can be found at [kubeflow site](https://www.kubeflow.org/docs/components/training/mpi/#creating-an-mpi-job) or [this blogpost](https://medium.com/kubeflow/introduction-to-kubeflow-mpi-operator-and-industry-adoption-296d5f2e6edc).
+While [MPI](https://www.openmpi.org/) jobs are a traditional domain in High-Performance Computing, our platform is capable of running MPI jobs easily using the MPI Operator from [Kubeflow](https://www.kubeflow.org). The [MPI Operator](https://github.com/kubeflow/mpi-operator) makes it easy to run allreduce-style distributed training on Kubernetes. We have deployed a cluster-wide MPI Operator which allows you to create an MPI job by defining a Kubernetes kind `MPIJob`. Full documentation on the kind's structure is available [here](https://github.com/kubeflow/mpi-operator/blob/master/manifests/base/kubeflow.org_mpijobs.yaml). Some documentation on the MPI Operator can be found at the [Kubeflow site](https://www.kubeflow.org/docs/components/training/mpi/#creating-an-mpi-job) or [this blog post](https://medium.com/kubeflow/introduction-to-kubeflow-mpi-operator-and-industry-adoption-2965f2e6edc).
 
-To be able to run MPI job, there are two steps required: prepare specific Docker image and create MPIJob manifest.
+To be able to run an MPI job, there are two steps required: prepare a specific Docker image and create an MPIJob manifest.
 
 ## MPI Job Docker Image
 
-MPIJob expects specific Docker Image, the image must contain openssh server and this server needs to be configured. Also creating some user in docker image is required. However, user needs to add the following fragment for Debian family distributions ([download here](/examples/ceritsc/docker/Dockerfile-mpi)):
+MPIJob expects a specific Docker image; the image must contain an OpenSSH server and this server needs to be configured. Also, creating a user in the Docker image is required. However, you need to add the following fragment for Debian family distributions ([download here](/examples/ceritsc/docker/Dockerfile-mpi)):
 
 ```dockerfile
 RUN apt-get update && \
@@ -35,16 +35,16 @@ RUN chown 1000:1000 /etc/ssh/ssh_config
 CMD /usr/sbin/sshd -De
 ```
 
-Of course, you need to add your application and base proper image like `tensorflow` or `pytorch`. The same image should be used for both `Launcher` and `Worker` Pods.
+Of course, you need to add your application and base a proper image like `tensorflow` or `pytorch`. The same image should be used for both `Launcher` and `Worker` Pods.
 
 ## MPI Job Manifest
 
-You can [download](/examples/ceritsc/manifests/mpijob.yaml) example of MPI Job manifest. This example is **not working** as is. You need to specify `IMAGE` and `COMMAND`. User in the attribute `sshAuthMountPath` must match user name created in the docker image. The attribute `Worker.replicas` denotes how many workers to spawn, i.e., how many paralel jobs will run. Also the parameter `-n "2"` for `Launcher` needs to match `Worker.replicas`. Note, the number `2` must always be quoted `"2"`.
+You can [download](/examples/ceritsc/manifests/mpijob.yaml) an example of an MPI Job manifest. This example is **not working** as is. You need to specify `IMAGE` and `COMMAND`. The user in the attribute `sshAuthMountPath` must match the user name created in the Docker image. The attribute `Worker.replicas` denotes how many workers to spawn, that is, how many parallel jobs will run. Also the parameter `-n "2"` for `Launcher` needs to match `Worker.replicas`. Note, the number `"2"` must always be quoted.
 
 ## Running the MPI Job
 
-Once you have the docker image and the manifest ready, you run the MPI Job using:
-```
+Once you have the Docker image and the manifest ready, you run the MPI Job using:
+```bash
 kubectl create -f mpijob.yaml -n namespace
 ```
-replacing `namespace` with your namespace. The *Launcher* jobs might be failing for a while, this is expected and normal. 
+replacing `namespace` with your namespace. The *Launcher* jobs might be failing for a while; this is expected and normal.

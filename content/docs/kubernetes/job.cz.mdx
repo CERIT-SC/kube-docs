@@ -1,0 +1,97 @@
+---
+title: Úlohy (Jobs)
+---
+
+Joby v clusteru nemají žádnou speciální konfiguraci kromě nezbytného kontextu zabezpečení. Pro vaše pohodlí poskytujeme vzorovou konfiguraci. Pokud začnete z níže uvedeného příkladu, nezapomeňte změnit následující podle vašich potřeb:
+
+- název Jobu v sekci `metadata.name`
+- Popisky (Volitelné)
+  - sekce `metadata.labels` a `spec.template.metadata.labels` (v obou je možné mít několik párů klíč:hodnota)
+  - viz níže uvedenou sekci o významu popisků a rozhodněte, zda chcete nějaké přidat
+- Zásada restartování
+  - sekce `spec.template.spec.restartPolicy`
+  - lze definovat jako `"Never"` nebo `"OnFailure"`, obě mají svůj specifický význam a důrazně doporučujeme zkontrolovat [oficiální dokumentaci](https://kubernetes.io/docs/concepts/workloads/controllers/job/#completion-mode)
+- Obraz kontejneru
+  - sekce `spec.template.spec.containers[].image` (pole, může být více kontejnerů)
+  - pokud nemáte připravený obraz, můžete si vytvořit vlastní podle naší [dokumentace](../docker/dockerfile), která uvádí tipy, jak vytvořit funkční obraz
+  - pokud si nejste jisti vytvořením obrazu kontejneru, [kontaktujte nás](../platform/contacts) s dotazy
+- Uživatel
+  - sekce `spec.template.spec.containers[].securityContext.runAsUser` (nastaveno pro každý kontejner)
+  - váš obraz kontejneru může definovat jiného uživatele než `1000`
+- Požadavky na prostředky
+  - sekce `spec.template.spec.containers[].resources`
+  - definujte požadavky a limity pro CPU i paměť
+  - volitelně můžete požádat o GPU podle [sekce dokumentace GPU](../kubernetes/resources#gpu)
+- Svazky a připojení svazků
+  - Svazky
+    - sekce `spec.template.spec.volumes[]` (pole, může být více svazků)
+    - pole **VŠECH** svazků, které mohou být připojeny ke kontejnerům `Jobu`
+    - svazky mohou být [mnoha typů](https://kubernetes.io/docs/concepts/storage/volumes/#volume-types), nejčastěji používané jsou `PersistentVolumeClaim, ConfigMap, Secret`
+  - Připojení svazků
+    - sekce `spec.template.spec.containers[].volumeMounts[]` (pole, může být více připojení svazků)
+    - pole svazků, které mají být připojeny v konkrétním kontejneru (je definováno pro každý kontejner individuálně)
+    - v kontejneru lze připojit pouze položky uvedené v `spec.template.spec.volumes[]`
+      <Callout type="info">
+      název svazku v sekci `spec.template.spec.volumes[]` je stejný jako `name` při specifikaci připojení svazku.
+      </Callout>
+
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: secure-job-name
+spec:
+  template:
+    metadata:
+      labels:
+        app: secure-job
+    spec:
+      securityContext: # Pod bezpečnostní kontext
+        fsGroupChangePolicy: OnRootMismatch
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: secure-container
+        image: nginx:latest
+        securityContext: # Kontejner bezpečnostní kontext
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+          runAsUser: 1000
+        resources: # Požadavky a limity prostředků
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        volumeMounts: # Připojení svazku pro kontejner
+        - name: config-volume
+          mountPath: /etc/config
+          readOnly: true
+      restartPolicy: Never
+      volumes: # Definice svazků
+      - name: config-volume
+        configMap:
+          name: example-configmap
+```
+
+
+K dispozici je více možností konfigurace, doporučujeme zkontrolovat [oficiální dokumentaci Kubernetes](https://kubernetes.io/docs/concepts/workloads/controllers/job/), která vysvětluje objekt `Job` a jeho možnosti.
+
+## Něco k popiskům
+Pole popisků (`metadata.labels`, `spec.template.metadata.labels`) nejsou povinné, ale doporučujeme je používat pro lepší organizaci objektů.
+
+Více o `metadata.labels`:
+- Tyto popisky se vztahují na samotný `Job` a slouží k organizaci objektů `Job`, což usnadňuje identifikaci a filtrování jobů pomocí příkazové řádky (např. `kubectl get jobs --selector`) nebo programově
+
+
+Více o `spec.template.metadata.labels`:
+- Když Kubernetes vytvoří `Pod` pro `Job`, `Pod` zdědí popisky definované v `spec.template.metadata.labels`, což usnadňuje identifikaci a filtrování podů pomocí příkazové řádky (např. `kubectl get pods --selector`) nebo programově
+- Popisky pomáhají logicky uspořádat zdroje, například můžete označit všechny zdroje patřící k určité aplikaci nebo prostředí
+- Některé funkce Kubernetes (jako `Network Policies, Services` nebo monitorovací systémy) se spoléhají na popisky při identifikaci, na které Pody se vztahují, a bez nich tyto funkce nemusí fungovat správně
+- `Jobs, Deployments` a další vyšší řadiče obvykle používají popisky ve své šabloně pro konzistentnost napříč vytvořenými zdroji
+
+

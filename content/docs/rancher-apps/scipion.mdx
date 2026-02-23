@@ -6,7 +6,7 @@ title: Scipion
 
 If you are not already logged in, log in to [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz), see [Rancher](../rancher/rancher) section.
 
-Following the steps below, you can run Scipion application. While installing the application you will be prompt to enter information to mount Onedata. This application has not persistent data, except mounted Onedata storages. It means, that if you delete the application and later install the application again, the data you saved outside the Onedata mounts will be lost. Behaviour behind the Onedata mounts is described bellow.
+Following the steps below, you can run Scipion application. While installing the application you will be prompted to enter information to mount Onedata. This application has no persistent data, except mounted Onedata storages. It means, that if you delete the application and later install the application again, the data you saved outside the Onedata mounts will be lost. Behaviour behind the Onedata mounts is described bellow.
 
 ### Notes
 
@@ -34,11 +34,11 @@ Now you can install the Scipion application. Select `Namespace` (1) except `defa
 
 ![appinst](/img/ceritsc/apps/scipion/rancher-scipion-form.png)
 
-The first intem to fill in the form is the `noVNC password`, which you will need to access remote desktop of the Scipion application. Onedata related items in the form are described below.
+The first item to fill in the form is the `noVNC password`, which you will need to access remote desktop of the Scipion application. Onedata related items in the form are described below.
 
 #### Onedata
 
-The `Scipion-in-kubernetes` application requires access credentails to the `Onedata` `spaces` that will be mounted. Two different `Onedata` `spaces` are required:
+The `Scipion-in-kubernetes` application requires access credentials to the `Onedata` `spaces` that will be mounted. Two different `Onedata` `spaces` are required:
 * `source` -- this `space` should contain a source data to be processed (e.g. data scanned by CryoEM).
 * `project` -- this `space` should be empty or contain an existing project, you want to work with.
 
@@ -80,7 +80,7 @@ When connecting to the remote desktop of the application, you will be asked to e
 
 ## Scipion
 
-When the instance is running, you can connect to the remote desktop, but you may still not be able to use the Scipion because the instance synchronizes `source` and `project` data. The time depends on the size of the data. For very large `source` data (terabytes) it can take many hours. If this *synchronization phase* is still in progress, you will see its progress instead of the desktop environment. The desktop environmet will start after the *synchronization stage* is complete.
+When the instance is running, you can connect to the remote desktop, but you may still not be able to use the Scipion because the instance synchronizes `source` and `project` data. The time depends on the size of the data. For very large `source` data (terabytes) it can take many hours. If this *synchronization phase* is still in progress, you will see its progress instead of the desktop environment. The desktop environment will start after the *synchronization stage* is complete.
 
 ![app](/img/ceritsc/apps/scipion/desktop-cloning.png)
 ![app](/img/ceritsc/apps/scipion/desktop-xfce.png)

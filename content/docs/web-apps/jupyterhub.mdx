@@ -2,10 +2,10 @@
 title: JupyterHub
 ---
 
-**JupyterHub** is an open-source platform designed to provide multi-user access to Jupyter Notebook environments. 
-It allows to manage and scale the deployment of interactive computational environments for multiple users, making it ideal for educational institutions, research labs, and enterprises that need to support collaborative data science and scientific computing.
+**JupyterHub** is an open-source platform that provides multi-user access to Jupyter Notebook environments.
+It manages and scales the deployment of interactive computational environments for multiple users, making it ideal for educational institutions, research labs, and enterprises that need to support collaborative data science and scientific computing.
 
-**JupyterLab / Jupyter Notebooks** are web applications that enable you to create and share documents containing live code, equations, visualizations, and narrative text. They are widely used in data analysis, machine learning, and other computational tasks due to their interactive nature and ability to combine code execution with rich text explanations.
+**JupyterLab / Jupyter Notebooks** are web applications that let you create and share documents containing live code, equations, visualizations, and narrative text. Researchers widely use them for data analysis, machine learning, and other computational tasks because of their interactive nature and ability to combine code execution with rich text explanations.
 
 ## Accessing JupyterHub 
 To access JupyterHub on the [hub.cloud.e-infra.cz](https://hub.cloud.e-infra.cz/) platform, you must be a valid member of MetaCentrum.
@@ -15,10 +15,10 @@ To access JupyterHub on the [hub.cloud.e-infra.cz](https://hub.cloud.e-infra.cz/
 
 ### Starting Server
 
-To launch a default JupyterLab environment, simply click on the `My Server` button.
-If you prefer to create a custom JupyterLab with a personalized name, follow these steps: 
-* Choose short, unique and descriptive name for your server to ensure easy identification. 
-* Click on `Add new server` to proceed with the creation of your customized JupyterLab environment.
+To launch a default JupyterLab environment, click the `My Server` button.
+To create a custom JupyterLab with a personalized name:
+* Choose a short, unique, and descriptive name for your server.
+* Click `Add new server` to create your customized JupyterLab environment.
 
 ### Choosing Image
 
@@ -32,12 +32,12 @@ We provide a range of pre-configured Docker images to accommodate various comput
 *    Image with integrated **Claude Code**, AI-powered advanced chat assistance (Harbor: cerit.io/hubs/datasciencenb:2026-01-23-ai)
 *	Alternatively, you can also use your own **custom image** 
 
-> You can choose to build your own image with all dependencies and sotware you need. However, don't forget to include whole jupyter stack, otherwise the the deployment will not work. We recommend building from [existing image](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html) which already incorporates all nexessary software. If you choose custom image, you have to provide image name together with its repo and optional tag --- input text in format `repo/imagename:tag`. If you build your own image, you have to make sure repository is public. If you don't know what repository to choose, we maintain our own docker registry which you can freely use and does not require any further configuration. More information on registry is available [at a harbor site](../docker/harbor).
+> You can choose to build your own image with all dependencies and software you need. However, don't forget to include whole jupyter stack, otherwise the the deployment will not work. We recommend building from [existing image](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html) which already incorporates all necessary software. If you choose custom image, you have to provide image name together with its repo and optional tag --- input text in format `repo/imagename:tag`. If you build your own image, you have to make sure repository is public. If you don't know what repository to choose, we maintain our own docker registry which you can freely use and does not require any further configuration. More information on registry is available [at a harbor site](../docker/harbor).
 
 ### Choosing Storage 
 #### Default Persistent Storage
 
-By default, every notebook runs with persistent storage mounted to `/home/jovyan`. Therefore, we recommend to save the data to `/home/jovyan` directory to have them accessible every time notebook is spawned. 
+By default, every notebook runs with persistent storage mounted to `/home/jovyan`. We recommend saving data to the `/home/jovyan` directory so it remains accessible every time you spawn a notebook. 
 
 You can create a new one or choose to mount any already existing storage (to /home/jovyan) instead of creating a new one which enables sharing data across spawns and instances.
 However, you can choose to delete existing storage which will result in losing all the data from it. 
@@ -66,7 +66,7 @@ It is possible to utilize GPU in your notebook, you can request whole GPU or MIG
 
 - For whole GPU, **using GPU requires particular setting (e.g. drivers, configuration) so it can be effectively used only in images with GPU support.** (marked as `...with GPU...` in the selection menu). If you assign GPU with any other image, it will not be truly functional.
 
-- For MIG GPU, see [NVIDIA MIG](https://www.nvidia.com/en-us/technologies/multi-instance-gpu/) documentation about MIG technology. It is possible to request up to 4 parts of 10GB MIG of NVIDIA A100/80GB card using `10GB part A100` option and up to 4 parts of 20GB MIG of NVIDIA A100/80GB card using `120GB part A100` optino. GPU memory is HW limited so there is no problem that someone else could overutilize requested amount of the resource. Individual MIG parts (up to 4) act as isolated GPUs so to utilize more than one MIG part, multi-GPU computation has to be setup in an application.
+- For MIG GPU, see [NVIDIA MIG](https://www.nvidia.com/en-us/technologies/multi-instance-gpu/) documentation about MIG technology. It is possible to request up to 4 parts of 10GB MIG of NVIDIA A100/80GB card using `10GB part A100` option and up to 4 parts of 20GB MIG of NVIDIA A100/80GB card using `120GB part A100` option. GPU memory is HW limited so there is no problem that someone else could over utilize requested amount of the resource. Individual MIG parts (up to 4) act as isolated GPUs so to utilize more than one MIG part, multi-GPU computation has to be setup in an application.
 
 - Actually free GPU resources are shown for information.
 
@@ -116,7 +116,7 @@ If the notebook is marked for deletion, you will receive an e-mail informing abo
 
 ## Managing JupyterHub
 
-All of your named server are accessible under `Hub Control panel` where you can manipulate with them (create, delete, log in to).
+All your named servers are accessible under `Hub Control Panel`, where you can manage them (create, delete, and log in).
 
 Whenever you need to manage your notebooks from JupyterLab environmnent, start JupyterHub environment accessing   `File` &rarr; `Hub Control Panel` in the top left corner.
 Here you can add new notebooks, stop, or delete them.
@@ -125,7 +125,7 @@ Alternatively, you can manage running instances at [https://hub.cloud.e-infra.cz
 
 ### Deleting JupyterNotebook Instance
 
-In the top left corner, go to `File ` &rarr; `Hub Control Panel`. If you have multiple instances, click on `Stop` next to the instance name you want to delete. Wait till blue button `Delete` appears and click on it. If you have only one server, there will be big `Stop My Server` button in the upper part of the page. Click on it. In a couple of seconds, your container notebook instance will be deleted (stop button disapperas). If you need to spin notebook instance again, fill in the `Server name` and click on `Add new server`, you will be presented with input form page. 
+In the top left corner, go to `File ` &rarr; `Hub Control Panel`. If you have multiple instances, click on `Stop` next to the instance name you want to delete. Wait till blue button `Delete` appears and click on it. If you have only one server, there will be big `Stop My Server` button in the upper part of the page. Click on it. In a couple of seconds, your container notebook instance will be deleted (stop button disappears). If you need to spin notebook instance again, fill in the `Server name` and click on `Add new server`, you will be presented with input form page. 
 
 ### Add Servers
 
@@ -368,13 +368,13 @@ SSH access works only from IPv6 enabled networks. It will not work from IPv4 onl
 
 It is possible to enable SSH access at notebook startup, you need to use an image that contains `sshd` with correct settings, currently `Minimal NB with SSH access` image is available.
 
-As shown below, ssh enpoint address will be displayed, `jovyan@jupyter-xhejtman---54est.dyn.cloud.e-infra.cz` in this example. Write this address because Jupyterhub UI will not display this address again. It can be obtained by `kubectl get svc -n jupyterhub-[yourlogin]-prod-ns -o yaml | grep external-dns.alpha.kubernetes.io/hostname`, if the `kubectl` tool is installed in the notebook.
+As shown below, ssh endpoint address will be displayed, `jovyan@jupyter-xhejtman---54est.dyn.cloud.e-infra.cz` in this example. Write this address because Jupyterhub UI will not display this address again. It can be obtained by `kubectl get svc -n jupyterhub-[yourlogin]-prod-ns -o yaml | grep external-dns.alpha.kubernetes.io/hostname`, if the `kubectl` tool is installed in the notebook.
 
 ![ssh](/img/ceritsc/apps/jupyterhub/ssh.png)
 
 ### SSH Keys
 
-Additionally, you need to add your (from your laptop) *public* ssh key into the Jupyter Notebbok, into the file `/home/jovyan/.ssh/authorized_keys` file. If the directory `.ssh` does not exist in the jovyan home, create it using `mkdir .ssh`. Do not omit the dot at the beginning of the name. Also note, `ls` does not display doted files, to see `.ssh` directory, you need to use `ls -a`. 
+Additionally, you need to add your (from your laptop) *public* ssh key into the Jupyter Notebook, into the file `/home/jovyan/.ssh/authorized_keys` file. If the directory `.ssh` does not exist in the jovyan home, create it using `mkdir .ssh`. Do not omit the dot at the beginning of the name. Also note, `ls` does not display doted files, to see `.ssh` directory, you need to use `ls -a`. 
 
 If you don't have ssh key-pair generated on your laptop, you can use command `ssh-keygen -b 4096 -t rsa`. Generated keys will be saved in `[HOME]/.ssh/id_rsa` (private part) and `[HOME]/.ssh/id_rsa.pub` (public part).
 
@@ -459,9 +459,9 @@ exec /usr/local/bin/start-notebook.py "$@"
 
 Jupyter Notebooks are great tool for interactive computing but sometimes your scripts can include a portion that is more resource-intensive. In this case, it is preferred to run this portion as a `Job` rather than inside the Notebook. Some of the reasons are:
 1. You have to allocate a lot of resources for notebook even though most of the time, you don't need them. 
-2. If the computation is too demanding, you might not be able to interact with the notebook environment because allocated reosurces are consumed by the computation &rarr; you can't interactively analyse the data from the notebook
+2. If the computation is too demanding, you might not be able to interact with the notebook environment because allocated resources are consumed by the computation &rarr; you can't interactively analyze the data from the notebook
 
-### Neccesary Tools
+### Necessary Tools
 
 <Callout type="info" emoji="ℹ️">
   We are actively working on reducing the amount of steps that must be taken. 
@@ -499,7 +499,7 @@ It is probable that you would like to reuse the data (or script) located in your
 
 Your notebook can mount two different so-called `volumes` that are shareable:
 1. Your notebook has a persistent volume mounted to `/home/jovyan` (or `/home/rstudio`) which is internally realized by an object called `PersistentVolumeClaim`. This object has a nice feature - it can be reused and mounted to any other Notebook or Job to any path.
-2. If you chose to mount your metacentrum home (mounted to `/home/meta/[your_meta_username]`), another `PersistentVolumeClaim` object has been created for the home. This object can be reused and mounted to any other Notebook or Job to any path too.
+2. If you chose to mount your Metacentrum home (mounted to `/home/meta/[your_meta_username]`), another `PersistentVolumeClaim` object has been created for the home. This object can be reused and mounted to any other Notebook or Job to any path too.
 
 
 To later use these two objects (`PersistentVolumeClaims` = PVCs) , you need to know their names:
@@ -546,7 +546,7 @@ In the `Job`, you will need to provide 4 things:
 4. Volumes to Mount
 
 #### Image
-Job must start with some image. You should create a Docker image that will include all necesarry libraries  your script requires or software you want to run to process the data.
+Job must start with some image. You should create a Docker image that will include all necessary libraries your script requires or software you want to run to process the data.
 
 #### Script
 Script can be built into the image or you can run script located in the mounted volumes (so from the PVCs we mentioned above).

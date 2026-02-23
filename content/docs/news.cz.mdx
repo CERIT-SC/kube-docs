@@ -1,0 +1,90 @@
+---
+title: Aktuality
+keywords: Aktuality, CERIT-SC, Platforma Kubernetes
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+
+## 02/08/2026
+
+### Integrace Claude Code v Jupyter Hub
+
+Vylepšete své notebooky pomocí Claude Code. Nyní můžete přistupovat k Claude Code přímo v Jupyter Noteboocích, stejně jako v RStudio a VSCode. Naučte se, jak povolit a používat tuto novou integraci v naší dokumentaci. [Přečtěte si více](../docs/web-apps/jupyterhub#claude-code-integration).
+
+## 01/26/2026
+
+S radostí oznamujeme obecnou dostupnost modelu **DeepSeek V3.2**, poháněného novou platformou NVIDIA DGX B300. Toto nasazení přináší zvýšení přesnosti inference ve srovnání se standardními implementacemi.
+
+## 01/21/2026
+
+### Změny LLM
+
+S účinností od 26. ledna 2026 bude model **DeepSeekR1** **nahrazen** modelem **DeepSeek V3.2**. DeepSeekR1 již nebude k dispozici.
+
+## 10/06/2025
+
+### Nové stabilní AI modely
+
+AI modely DeepSeek  R1 0528, Qwen3-Coder-480B a GPT-OSS-120B jsou veřejně dostupné prostřednictvím služby [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
+
+## 10/04/2025
+
+### Aktualizace `nextflow-go`
+
+Byla vydána opravená verze [https://github.com/CERIT-SC/nextflow-go](nextflow-go) (release v0.5) a Nextflow nyní běží správně na Kubernetes.
+
+## 06/27/2025
+
+### Nový lesklý hardware: NVIDIA DGX B200 dorazil 🚀
+
+Sledujte další podrobnosti a informace o přístupu.
+
+<Cards>
+  <Card title="Co je v krabici">
+  ![box](/img/ceritsc/nvidia/nvidia-dgx-box.png)
+  </Card>
+  <Card title="Připraven k obsluze">
+  ![server](/img/ceritsc/nvidia/nvidia-dgx.png)
+  </Card>
+</Cards>
+
+## 05/25/2025
+
+### Agent GitLab Kubernetes opět funguje ❤️
+
+Dokumentace [agenta GitLab Kubernetes](./gitops/agentk) byla aktualizována! Je nyní plně funkční a kompatibilní s nejnovější verzí GitLab.
+
+## 05/23/2025
+
+### ❗❗❗ Zásadní změna ve VPN Sensitive Cloud ❗❗❗
+
+Byla provedena kritická aktualizace konfigurace WireGuard. Odkazujte se na sekci [VPN](./sensitivecloud/vpn#connecting-to-the-vpn-with-wireguard) dokumentace, abyste se ujistili, že hodnota `AllowedIPs` je správně nastavena.
+
+Selhání aktualizace může vést ke ztrátě přístupu k Rancher a webovým službám v rámci Sensitive Cloud.
+
+## 03/12/2025
+
+### Nové modely v AI Chatu
+
+Nové modely (Gemma3, Phi4 a QwQ) jsou k dispozici v chatu, viz [Chat AI](./web-apps/chat-ai).
+
+## 02/18/2025
+
+### Nový AI Chat 🔮
+
+Nový web AI chat včetně API je k dispozici, viz [Chat AI](./web-apps/chat-ai).
+
+### Lepší asistent Docs AI 🆘
+
+Nový asistent AI je nyní k dispozici v pravém dolním rohu pro všechny uživatele s platným účtem MetaCentrum (viz [Jak získat přístup](./platform/access)). Můžete tohoto asistenta použít třemi způsoby:
+
+* Lokální -- Odpovídá na otázky výhradně na základě dokumentace pomocí lokální instance modelu LLaMA 4 Scout. Nejsou zapojeny žádné služby třetích stran a data nejsou odesílána externě. Kvalita odpovědi však může být nižší než u OpenAI.
+* Řešení problémů -- Používá lokální instanci modelu Qwen3 Coder pro odpovídání na otázky, řešení chyb a generování Deployments nebo jiných manifestů. Tento režim je specificky kontextualizován pro naši infrastrukturu.
+
+Ve všech případech si uživatelé mohou kladat další otázky pro další vysvětlení.
+
+### Foldify a AlphaFold 3 🧬
+
+Náš webový nástroj Foldify nyní podporuje výpočet AlphaFold 3! 🎉 Podívejte se na to na [Foldify](https://foldify.cloud.e-infra.cz) a vyzkoušejte si to.
+
+Pro použití **AlphaFold 3** budete muset podepsat licenční smlouvu prostřednictvím [registrace Perun](https://signup.e-infra.cz/fed/registrar/?vo=meta&group=lic_alphafold3). Registrace je zdarma pro všechny uživatele MetaCentrum.

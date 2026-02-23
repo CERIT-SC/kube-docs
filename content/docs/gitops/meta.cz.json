@@ -3,6 +3,7 @@
   "pages": [
     "agentk",
     "building_containers",
-    "gitsecrets"
+    "gitsecrets",
+    "gl-runner"
   ]
 }

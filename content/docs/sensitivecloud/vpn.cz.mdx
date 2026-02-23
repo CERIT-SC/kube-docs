@@ -1,59 +1,49 @@
 ---
-title: VPN
+title: Příručka konfigurace VPN pro Sensitive Cloud
 ---
 
-Secure VPN je založen na [WireGuard](https://www.wireguard.com/).
+<Callout icon="⚠️">
+Toto je nová verze VPN Sensitive Cloud, používá nového klienta a metodu získávání konfigurací VPN. Starší podrobnosti služby VPN jsou stále k dispozici [zde](./vpn-old)
+</Callout>
 
-## Připojení k Secure VPN
+Virtuální privátní síť (VPN) umožňuje bezpečný přístup k prostředím, které jsou izolované od veřejného internetu. V CERIT-SC používáme technologii VPN WireGuard. Začít používat VPN musíte nejprve vyžádat přístup a obdržet nezbytné podrobnosti konfigurace.
 
-### Windows
+Podrobné pokyny pro získání přístupu naleznete v následující sekci.
 
-   1. Nainstalujte WireGuard, stáhněte instalační program pro Windows [zde](https://www.wireguard.com/install/)
-   2. Vytvořte konfigurační soubor `sensitive-vpn.conf` ve svém osobním, bezpečném adresáři, např. `C:\Users\<uživatelské_jméno>\Documents\sensitive-vpn.conf` s obsahem, který jste získali od našeho týmu. Příklad konfiguračního souboru:
+Pro získání přístupu ke bezpečným zdrojům prostřednictvím VPN Sensitive Cloud kontaktujte náš tým podpory na adresu:
+[trusted(at)e-infra.cz](mailto:trusted@e-infra.cz). Ve výchozím nastavení je profil VPN dodáván spolu s alokací projektu v kontejnerovém cloud nebo úložišti.
 
-   ```
-    [Interface]
-    PrivateKey = DESKTOP_CLIENT_PRIVATE_KEY
-    Address = 10.0.0.2/24
+## Připojení k VPN pomocí VPN Sensitive Cloud
 
-    [Peer]
-    PublicKey = SERVER_PUBLIC_KEY
-    Endpoint = SERVER_IP_ADDRESS:PORT
-    AllowedIPs = 0.0.0.0/0
-   ```
-   3. Spusťte aplikaci `WireGuard`.
-   4. V aplikaci `WireGuard` vyberte `Import tunnel(s) from file` a vyberte `sensitive-vpn.conf`, který jste uložili ve 2. kroku.   
-   ![wg1](/img/ceritsc/wg1.jpg)   
-   5. Pro aktivaci tunelu `(1) Vyberte tunel, který chcete aktivovat` a `(2) Aktivujte tunel`
-   ![wg2](/img/ceritsc/wg2.jpg)
-   6. Tunel je aktivován, pro deaktivaci tunelu použijte tlačítko `Deactivate`.
-   ![wg3](/img/ceritsc/wg3.jpg)
+1. **Instalace klienta eduVPN**
+   Stáhněte instalační program eduVPN pro preferovanou platformu [zde](https://www.eduvpn.org/client-apps/) a postupujte podle instalačních pokynů.
 
-### Linuxové operační systémy
+2. Spusťte `eduVPN Client` na vašem počítači.
+3. Zadejte instituci pro připojení: `vpn.trusted.e-infra.cz`
+  ![ev1](/img/ceritsc/sensitivecloud/eduvpn1.png)
+3. Po výběru `vpn.trusted.e-infra.cz` budete přesměrováni do prohlížeče pro přihlášení k vašemu účtu e-INFRA CZ. Budete muset autorizovat klienta k navázání připojení k VPN Sensitive Cloud.
+   ![ev2](/img/ceritsc/sensitivecloud/eduvpn2.png)
+4. Přepínač pro navázání připojení a je to!
+   ![ev3](/img/ceritsc/sensitivecloud/eduvpn3.png)
 
-   1. Nainstalujte WireGuard, stáhněte pro Linux [zde](https://www.wireguard.com/install/)
-   2. Vytvořte konfigurační soubor `/etc/wireguard/wg0.conf` s obsahem, který jste získali od našeho týmu.   
-   Příklad:
+## O VPN Sensitive Cloud
+- Vaše IP adresa se může změnit - není to statické přidělení IP adresy pro vašeho klienta.
+- Můžete používat tolik zařízení, kolik chcete, souběžně s VPN.
+- Každý projekt VPN Sensitive Cloud (vázaný na projekt výpočt nebo úložiště) podporuje až 64 souběžných připojení<sup>1</sup>
 
-   ```
-    [Interface]
-    PrivateKey = DESKTOP_CLIENT_PRIVATE_KEY
-    Address = 10.0.0.2/24
+<sup>1</sup> - výjimky se mohou vztahovat na větší výzkumné skupiny
 
-    [Peer]
-    PublicKey = SERVER_PUBLIC_KEY
-    Endpoint = SERVER_IP_ADDRESS:PORT
-    AllowedIPs = 0.0.0.0/0
-   ```
-   3. Pro aktivaci tunelu zadejte do `terminálu` a použijte následující příkaz:   
-   ```
-   wg-quick up wg0
-   ```
-   4. Pro kontrolu statistik tunelu (pokud je tunel aktivní) použijte:
-   ```
-   wg-quick show
-   ```
-   5. Pro deaktivaci tunelu použijte:
-   ```
-   wg-quick down wg0
-   ```
+## Více instancí eduVPN ve stejnou dobu?
+
+Vzhledem k omezením softwaru eduVPN není možné spustit dvě instance eduVPN a mít aktivní více než jeden VPN tunel.
+Můžete ale používat Wireguard + eduVPN ve stejnou dobu, proto je možné získat "statickou konfiguraci" na portálu eduVPN vaší organizace a použít ji ručně pro software Wireguard.
+Statická konfigurace pro `vpn.trusted.e-infra.cz` není v současné době možné získat prostřednictvím eduVPN.
+
+## Přechod z eduVPN mé organizace
+
+Pokud vaše organizace používá eduVPN, budete nejprve muset přepnout organizace z vaší na `vpn.trusted.e-infra.cz`.
+   ![ev4](/img/ceritsc/sensitivecloud/eduvpn4.png)
+
+## Přístup stroj ke stroji?
+
+V případě, že potřebujete statické přidělení IP adresy pro VPN tunelování do Sensitive Cloud, je možné předat statický profil připojení `Wireguard`. Toto lze domluvit na vaší žádosti na e-mailu [trusted@e-infra.cz](mailto:trusted@e-infra.cz).

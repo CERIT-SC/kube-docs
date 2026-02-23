@@ -1,0 +1,123 @@
+---
+title: Foldify
+---
+
+Foldify je webová aplikace využívající nástroje [AlphaFold](https://deepmind.google/technologies/alphafold/). Je k dispozici na adrese [https://foldify.cloud.e-infra.cz](https://foldify.cloud.e-infra.cz) po přihlášení prostřednictvím e-INFRA CZ AAI (vyžaduje se platný účet MetaCenter).
+
+<Callout type="info">
+*AlphaFold3* je nyní dostupný. Před použitím softwaru si přečtěte [podmínky užití modelu AlphaFold3](https://github.com/google-deepmind/alphafold3/blob/main/WEIGHTS_TERMS_OF_USE.md).
+Dále [zažádejte o přístup do odpovídající skupiny](https://signup.e-infra.cz/fed/registrar/?vo=meta&group=lic_alphafold3) a potvrďte, že jste podmínky přečetli a přijali.
+</Callout>
+
+## Dashboard
+
+Po úspěšném přihlášení budete přesměrováni na dashboard s úvodní sekcí o platformě. Posunutím dolů naleznete tři hlavní části:
+1. Sekce nástrojů pro skládání proteinů
+2. Tabulka výpočtů
+3. Příkladové sekvence
+
+### 1. Sekce nástrojů pro skládání proteinů
+Tato sekce obsahuje karty s dostupnými nástroji – AlphaFold 3, AlphaFold 2, ColabFold, OmegaFold a ESMFold.
+Kliknutím na kartu s požadovaným nástrojem budete přesměrováni na formulář, kde můžete nastavit parametry včetně sekvence proteinu a spustit predikci.
+
+### 2. Tabulka výpočtů
+Tato sekce obsahuje tabulku s přehledem nedávno dokončených i právě běžících výpočtů a jejich stavů.
+
+U běžících výpočtů můžete vidět stav úlohy, který může být `Queued`, `Running`, `Succeeded` nebo `Failed`.
+
+U dokončených výpočtů naleznete název proteinu a kliknutím na tlačítko `View Result` zobrazíte výsledek v prohlížeči. Výsledky si také můžete stáhnout pomocí tlačítka `Download`. Tabulka úloh je rozdělena na dvě části – `My Jobs` a `Public Jobs`. Veřejná část obsahuje všechny veřejné výsledky, zatímco sekce My Jobs jen vaše výpočty.
+
+![dashboard](/img/ceritsc/apps/foldify/dashboard.png)
+
+### 3. Příkladové sekvence
+Tato sekce obsahuje předem vypočítané sekvence proteinů, které ilustrují možnosti využití platformy Foldify. Detaily každého příkladu si zobrazíte kliknutím na tlačítko `View Details`.
+
+![examples](/img/ceritsc/apps/foldify/examples.png)
+
+## Spuštění výpočtu
+
+Po výběru nástroje budete přesměrováni na formulář, kde vyplníte parametry výpočtu.
+
+### Multifold – podání více výpočtů
+Pokud chcete stejnou strukturu proteinu predikovat pomocí více nástrojů s cílem porovnat výsledky, využijte funkci `Multifold`. Na dashboardu klikněte na kartu `Multifold`.
+Budete přesměrováni na formulář `Multifold Submission`, kde zadáte sekvenci proteinu (samotnou sekvenci bez hlavičky FASTA), název úlohy a vyberete požadované nástroje. Můžete vybrat libovolnou kombinaci nástrojů: AlphaFold3, AlphaFold 2, ColabFold, OmegaFold a ESMFold.
+Po zadání parametrů klikněte na tlačítko `Submit Job` pro spuštění výpočtu. Úlohy se vytvoří pro každý vybraný nástroj a po dokončení vás informujeme e-mailem. Název každé úlohy bude obsahovat předponu "MULTIFOLD-" pro označení, že byla podána přes funkci Multifold.
+
+![multifoldform](/img/ceritsc/apps/foldify/multifold-form.png)
+
+### AlphaFold 2, ColabFold, OmegaFold a ESMFold
+Povinné parametry jsou pouze **Protein Sequence** a **Job Name**, ostatní volby můžete ponechat ve výchozím nastavení. Název úlohy můžete změnit, ale musí být jedinečný (více výpočtů s jedním názvem nelze), jinak budete vyzváni
+k zadání jiného názvu nebo zaškrtnutí checkboxu `Force Computation`.
+
+Formulář je pro všechny čtyři nástroje obdobný, liší se jen drobně v pokročilých možnostech. Pokročilé volby jsou ve výchozím stavu skryté v rozbalovacích sekcích, potřebnou sekci můžete rozbalit a parametry případně upravit. Žádná pokročilá volba není povinná, pokud si nejste jisti jejím významem, nechte ji ve výchozím nastavení.
+
+![form](/img/ceritsc/apps/foldify/af-form.png)
+
+### AlphaFold 3
+AlphaFold 3 je nejnovější verze modelu pro predikci struktury proteinů AlphaFold.
+Foldify nabízí pro AlphaFold 3 dva režimy podání: `Basic Submission` a `JSON Submission`.
+
+#### Basic Submission
+Podobně jako u ostatních nástrojů vyžaduje základní podání parametry **Protein Sequence** a **Job Name**, AlphaFold 3 navíc vyžaduje **Model Seed(s)** a **ID(s)** pro každou molekulu. Počet ID určuje počet kopií každé entity. Pokročilé volby jsou skryté v rozbalovacích sekcích a umožňují například zadat vlastní ligandy, vazby atomů nebo nahrát soubor CCD.
+
+![basicaf3form](/img/ceritsc/apps/foldify/alphafold3-form-basic.png)
+
+#### JSON Submission
+Tento režim je určen uživatelům, kteří chtějí odeslat soubor JSON obsahující sekvenci proteinu a další parametry. Vhodný je pro pokročilá podání, vlastní MSA nebo opětovné podání výpočtů z AlphaFold Server.
+<Callout type="warning">
+Zajistěte, aby soubor JSON byl **správně naformátovaný** a **obsahoval všechna požadovaná pole**. Více informací o formátu JSON naleznete v [dokumentaci vstupu AlphaFold 3](https://github.com/google-deepmind/alphafold3/blob/main/docs/input.md#top-level-structure). Doporučeným postupem pro zajištění správnosti formátu je provést malý testovací výpočet pomocí AlphaFold 3 ve Foldify, stáhnout vstupní soubor JSON, upravit pole a hodnoty a upravený soubor JSON nahrát pro podání.
+</Callout>
+
+![jsonaf3form](/img/ceritsc/apps/foldify/alphafold3-form-json.png)
+
+#### Rychlejší predikce pomocí MMSeqs2
+Foldify podporuje rychlejší predikce s využitím MMSeqs2. Skripty přidávají MMseqs2 **MSA/templates** do vstupního souboru JSON AlphaFold 3. Více informací o MMSeqs2 naleznete v [GitHub MMseqs2](https://github.com/hlasimpk/af3_mmseqs_scripts).
+
+Pro použití MMSeqs2 zaškrtněte ve formuláři checkbox `Use Generated MSA` – je ve výchozím nastavení zaškrtnutý. Pokud chcete zadat **počet šablon**, zaškrtněte checkbox `Use Generated Templates` a v poli `Number of Templates`, které se objeví, uveďte počet. Výchozí hodnota je **20**, lze ji však změnit.
+
+![mmseqs2](/img/ceritsc/apps/foldify/MMseqs2.png)
+
+#### Podání výpočtu
+
+Ve výchozím nastavení jsou všechny výsledky výpočtů soukromé, vidí je pouze vy. Pokud chcete výsledky sdílet s kolegy, zaškrtněte checkbox `Make results public`. V takovém případě se výsledek zobrazí v `Public Jobs Table` a výpočet lze sdílet prostřednictvím odkazu. Viditelnost lze změnit po dokončení výpočtu na stránce `Results` nebo přímo v tabulce `My Jobs` ve sloupci `Visibility`.
+
+Po vyplnění parametrů spusťte výpočet kliknutím na tlačítko `Submit Job`. Po dokončení výpočtu obdržíte **e-mailové oznámení**. Stav úlohy můžete sledovat v sekci `Computations Table Section` na dashboardu. Chcete-li ukončit běžící úlohu, kontaktujte nás e-mailem [k8s@ics.muni.cz](mailto:k8s@ics.muni.cz).
+
+## Zobrazení a stažení výsledků
+
+![jobstable](/img/ceritsc/apps/foldify/jobs-table.png)
+
+### Porovnání více výsledků
+
+U dokončených výpočtů nabízí Foldify porovnání více výsledků. Pro přístup postupujte následovně:
+1. Na dashboardu přejděte do tabulky `Jobs Table`.
+2. Vyberte požadované úlohy zaškrtnutím checkboxů v levém sloupci tabulky.
+3. Klikněte na tlačítko `Compare Results`, které se objeví nad tabulkou.
+
+Budete přesměrováni na stránku `Multi-result Comparison`, kde si můžete prohlédnout vybrané výsledky v jednom okně Mol* vedle tabulky s RMSD a TM-skóry.
+
+![multiresult](/img/ceritsc/apps/foldify/multiresult.png)
+
+### Zobrazení jednotlivého výsledku
+
+Náhled vypočítaných výsledků si zobrazíte z tabulky `Jobs Table` na dashboardu. Najděte název proteinu a klikněte na tlačítko `View Result` pro zobrazení výsledku v prohlížeči.
+Budete přesměrováni na stránku `Single Result`. Vizualizaci poskytuje nástroj [Mol* Viewer](https://molstar.org/), což je webový nástroj pro molekulární vizualizaci. Umožňuje zobrazit 3D strukturu proteinu a s ní interagovat.
+
+Stránka `Results` obsahuje tři záložky:
+1. **Graphical Output**: zde vidíte 3D strukturu proteinu a další grafické údaje, pokud jsou z výpočtu dostupné.
+2. **Files**: zde si můžete stáhnout vstupní a výstupní soubory výpočtu zvlášť nebo jako jeden archiv. Vstupní soubory zahrnují sekvenci proteinu ve formátu FASTA a pro AlphaFold 3 také vstupní soubor JSON. Výstupní soubory zahrnují předpovězené struktury ve formátu PDB, soubory MSA, protokoly a další soubory vygenerované během výpočtu.
+3. **Technical Output**: zde se nacházejí protokoly výpočtu.
+
+![singleresult](/img/ceritsc/apps/foldify/singleresult.png)
+
+#### Skóre Plddt
+
+Skóre Plddt je rovněž zobrazeno na stránce `Results` a představuje míru spolehlivosti modelu. Čím vyšší skóre, tím větší je jistota modelu. Data pro každý model jsou zobrazena jako graf. V případě OmegaFold, ESMFold a AlphaFold 3 nejsou data plddt dostupná.
+
+![plddt](/img/ceritsc/apps/foldify/plddt.png)
+
+
+## FAQ
+
+### Proč výpočet selhal?
+Důvod selhání výpočtu zjistíte zobrazením protokolů, kde naleznete chybové varování. Chcete-li protokoly zobrazit, přejděte na stránku `Results` a klikněte na záložku `Technical Output`. Zde najdete protokoly výpočtu. Pokud zjistíte chybovou zprávu, můžete ji opravit a výpočet spustit znovu. Při nejistotě o významu chybové zprávy nás kontaktujte na [k8s@ics.muni.cz](mailto:k8s@ics.muni.cz).

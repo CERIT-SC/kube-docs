@@ -2,29 +2,29 @@
 title: GitLab Runner in Kubernetes
 ---
 
-GitLab runner is used to run jobs listed in `.gitlab-ci.yaml` in the GitLab repositories. GitLab runner is different from GitLab Kubernetes agent which is utilized to deploy containers into Kubernetes clusters for e.g., e2e tests, CI/CD etc. 
+GitLab runner is used to run jobs listed in `.gitlab-ci.yaml` in the GitLab repositories. GitLab runner differs from the GitLab Kubernetes agent, which deploys containers into Kubernetes clusters for e2e tests, CI/CD, and other purposes. 
 
-The following tutorial describes how to set up GitLab runner in our Kubernetes cluster for your project or group. This tutorial was created with the help of our colleagues Pavel Břoušek, Štěpán Řihák, and Adrián Rošinec. 
+The following tutorial describes how to set up GitLab runner in our Kubernetes cluster for your project or group. We created this tutorial with help from our colleagues Pavel Břoušek, Štěpán Řihák, and Adrián Rošinec. 
 
 ## Prerequisites
 - GitLab repository
 - Namespace where you want to run the runners
 - `kubectl` installed on your laptop
 - `helm` installed in your laptop
-- `kubeseal` for securly storing secrets
+- `kubeseal` for securely storing secrets
 
 
 ## Getting the Namespace
 
-Throught these instructions, you need to replace `<YOUR NAMESPACE>` with the name of your personal or group namespace. You can chcek what namespaces are available to you via [Rancher GUI](../kubernetes/ns).
+Throughout these instructions, you need to replace `<YOUR NAMESPACE>` with the name of your personal or group namespace. You can check what namespaces are available to you via [Rancher GUI](../kubernetes/ns).
 
 ## Kubectl - Interaction with the Cluster
 
-To interact with the cluster, you need to install `kubectl` tool and dowload your `kubeconfig` file. Follow the instructions on how obtain the file [here](../kubernetes/kubectl).
+To interact with the cluster, you need to install `kubectl` tool and download your `kubeconfig` file. Follow the instructions on how to obtain the file [here](../kubernetes/kubectl).
 
 ## Helm - Package Manager for Kubernetes
 
-GitLab runner is distributed as a Helm package. Helm is a package manager for Kubernetes and to be able to use Helm packages, you need to install `helm` cmdl tool. See official instructions [here](https://helm.sh/docs/intro/install/)
+GitLab runner is distributed as a Helm package. Helm is a package manager for Kubernetes and to be able to use Helm packages, you need to install `helm` command line tool. See official instructions [here](https://helm.sh/docs/intro/install/)
 
 ## Kubeseal - Storing Encrypted Secrets
 
@@ -76,11 +76,11 @@ If you do not set up a shared cache, there will be no caching at all because eac
 3. Download [values.yaml](/examples/ceritsc/values/values.yaml) which is used as a configuration file for helm package. This file has been already tailored to run in our cluster and should run out of the box. The [official documentation](https://docs.gitlab.com/runner/install/kubernetes.html#configure-gitlab-runner-with-the-helm-chart) explains the fields and we recommend checking it out.
 
 
-You should update the GitLab runner version to the newest available or to the version matching the version of the GitLab instance. It might happen that an image is not available for the latest version. In that case, installation will run, but the gitlab-runner in Rancher will be in the state `Imagepullbackoff`, which means that the image does not exist. You may need to adjust values for CPU, memory and concurrent troughout the file in order to fit into your project's quotas.
+You should update the GitLab runner version to the newest available or to the version matching the version of the GitLab instance. It might happen that an image is not available for the latest version. In that case, installation will run, but the gitlab-runner in Rancher will be in the state `Imagepullbackoff`, which means that the image does not exist. You may need to adjust values for CPU, memory and concurrent throughout the file in order to fit into your project's quotas.
 
 4. Start your runner. Once you have configured `values.yaml`, you are ready to start your runner by issuing `helm install -n <YOUR NAMESPACE> gitlab-runner -f values.yaml gitlab/gitlab-runner`. You can check if the deployment has been successful by issuing command `kubectl get pods -n <YOUR NAMESPACE>` where there should be a pod in a Running state (Ready 1/1).
 
-If there a Pod is in `ImagePullbackOff` state, it means that the image either has wrong name, tag, is not pushed to the registry or genereally doesn't exist. The image is specified in `values.yaml`, section `image:` so you can check the tag and verify on the [official site](https://gitlab.com/gitlab-org/ci-cd/gitlab-runner-ubi-images/container_registry/1766421?after=MjAyNC0xMC0yMlQyMDoxMjowOS45NTU1MThafGFtZDY0LXYxNy4yLjM%3D) that the tag exists. If not choose, some tag. 
+If there a Pod is in `ImagePullbackOff` state, it means that the image either has wrong name, tag, is not pushed to the registry or generally doesn't exist. The image is specified in `values.yaml`, section `image:` so you can check the tag and verify on the [official site](https://gitlab.com/gitlab-org/ci-cd/gitlab-runner-ubi-images/container_registry/1766421) that the tag exists. If not, choose some tag. 
 
 5. If you created a *group runner*, you should see it as active in *Build → Runners*. If you created a *project runner*, you should see it in *Settings* → *CI/CD* → *Project Runners*.
 
@@ -98,7 +98,7 @@ This section describes some problems and solutions you might experience when fil
 
 ### Fixed number of services
 
-The helm chart does not directly support setting the required security parameters of our clusters ([security context, non-root user](../kubernetes/securitycontext)) directly, they need to be overriden using a beta feature called [pod_spec](https://docs.gitlab.com/runner/executors/kubernetes/index.html#overwrite-generated-pod-specifications). The downside is that each container needs to be patched individually, so there needs to be a fixed number of containers.
+The helm chart does not directly support setting the required security parameters of our clusters ([security context, non-root user](../kubernetes/securitycontext)) directly, they need to be overridden using a beta feature called [pod_spec](https://docs.gitlab.com/runner/executors/kubernetes/index.html#overwrite-generated-pod-specifications). The downside is that each container needs to be patched individually, so there needs to be a fixed number of containers.
 
 Unless you are using [services](https://docs.gitlab.com/ee/ci/services/) in your CI, the number of containers is constant and you can use the default `values.yaml`.
 

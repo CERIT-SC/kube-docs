@@ -8,7 +8,7 @@ Pokud chce uživatel využít základní autentizaci nebo oauth na ingress, mů�
 
 Tento přístup má jednu velkou bezpečnostní chybu. Autentizace je vyžadována pouze při připojení přes ingress, tj. zvenčí Kubernetes clusteru. Uživatel platformy se však může také připojit přímo z vnitřku clusteru k odpovídající službě (musí však uhodnout její IP) a v takovém případě není autentizace vyžadována.
 
-Tato chyba může být zmírněna pomocí [síťové politiky](https://kubernetes.io/docs/concepts/services-networking/network-policies/), která může omezit původ síťového provozu. V tomto případě je užitečné povolit příchozí provoz na server pouze z *kube-system* namespace.Namespace *kube-system* hostuje instanci Ingress Nginx, proto je vyžadováno připojení pouze z tohoto a žádného jiného namespace.
+Tato chyba může být zmírněna pomocí [síťové politiky](https://kubernetes.io/docs/concepts/services-networking/network-policies/), která může omezit původ síťového provozu. V tomto případě je užitečné povolit příchozí provoz na server pouze z *kube-system* namespace. Namespace *kube-system* hostuje instanci Ingress Nginx, proto je vyžadováno připojení pouze z tohoto a žádného jiného namespace.
 
 Příklad síťové politiky lze [stáhnout zde](/examples/ceritsc/manifests/netpolicy.yaml). Tato politika povoluje příchozí provoz z *kube-system* do Podu s názvem `myapp`. Tato politika je aplikována na *namespace*, kde se Pod `myapp` nachází.
 
@@ -25,10 +25,10 @@ kind: Ingress
 metadata:
   name: ingress-name
   annotations:
-    kubernetes.io/ingress.class: "nginx"
     kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
+  ingressClassName: nginx
   tls:
     - hosts:
         - "hostname.dyn.cloud.e-infra.cz"
@@ -48,18 +48,18 @@ spec:
 
 Nejprve musíme přidat několik anotací do samotného ingressu:
 
-```yaml {9,10}
+```yaml {8,9}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress-name
   annotations:
-    kubernetes.io/ingress.class: "nginx"
     kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 +   nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth?allowed_emails=email1@ics.muni.cz, email2@ics.muni.cz, email3@ics.muni.cz"
 +   nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$scheme%3A%2F%2F$host$escaped_request_uri"
 spec:
+  ingressClassName: nginx
   tls:
     - hosts:
         - "hostname.dyn.cloud.e-infra.cz"
@@ -106,9 +106,10 @@ kind: Ingress
 metadata:
   name: ingress-name-oauth
   annotations:
-    kubernetes.io/ingress.class: "nginx"
     kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
+  kubernetes.io/ingress.class: "nginx"
   tls:
     - hosts:
         - "hostname.dyn.cloud.e-infra.cz"

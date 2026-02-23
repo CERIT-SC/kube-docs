@@ -56,7 +56,7 @@ Uživatel může požadovat GPU výhradně pomocí nvidia.com/gpu: x, kde x je �
 Uživatel může také požadovat pouze část GPU pomocí nvidia.com/mig-1g.10gb: x, nebo nvidia.com/mig-2g.20gb: x , kde x je číslo takových částí GPU. 
 nvidia.com/mig-1g.10gb požaduje část GPU s velikostí paměti 10GB, nvidia.com/mig-2g.20gb požaduje část GPU s velikostí paměti 20GB. Více informací o frakcích GPU (MIG) lze nalézt [zde](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/index.html).
 
-## Požadování konkrétního typu GPU
+### Požadování konkrétního typu GPU
 
 Při nasazování Podu je možné požádat o specifický typ GPU. To lze provést pomocí [node selector](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector) labels. Každý uzel vybavený GPU má label nvidia.com/gpu.product, který může aktuálně nabývat následujících hodnot: `NVIDIA-A10`, `NVIDIA-A100-80GB-PCIe`, `NVIDIA-A40`, `NVIDIA-H100-PCIe`, and `NVIDIA-L4`.
 
@@ -103,7 +103,7 @@ Požadování konkrétního typu GPU snižuje šanci na spuštění Podu. Všech
 </Callout>
 
 
-## Požadování vlastností GPU
+### Požadování vlastností GPU
 
 Je také možné požadovat určité vlastnosti GPU, například velikost paměti. Tento postup je podobný požadování konkrétního typu GPU, ale používá se jiný node selector: `nvidia.com/gpu.memory`. V tomto případě je však nutné použít složitější popis `afinity`, protože node selector může porovnávat pouze přesné hodnoty a nelze jej použít k porovnání menší nebo větší hodnoty.
 

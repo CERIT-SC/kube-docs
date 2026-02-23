@@ -4,7 +4,7 @@ title: GPU and other Resources
 
 ## Requests and Limits
 
-As described in [kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/), platform uses two kinds of resource "limits". One is called *Requests*, and provides guaranteed amount of resource, the other one is called *Limits* and specifies never exceed limit of resource. User could specify *Requests* only, which enables guarantees without limit (which forbidden in our platform), or *Limits* only and in this case, *Requests* and *Limits* are equal. All resources are allocated from a single computing node, it means that they cannot be larger than capacity of a single node, e.g., requesting 1000 CPUs will never be satisfied. Resources between *Requests* and *Limits* are not guaranteed. Kubernetes scheduler consider only *Requests* when planning Pods to nodes, so it can happen that node receives disk or memory pressure caused by overbooking these kinds of resources. In this case, a Pod can be evicted from the node. For CPU resources between *Requests* and *Limits*, slow down can happen if node does not have free CPUs anymore.
+As described in the [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/), the platform uses two kinds of resource limits: *Requests*, which provides a guaranteed amount of a resource, and *Limits*, which specifies that a resource must never exceed a limit. Users can specify *Requests* only, which enables guarantees without a limit (forbidden in our platform), or *Limits* only, in which case *Requests* and *Limits* are equal. All resources are allocated from a single computing node, which means they cannot be larger than the capacity of a single node; for example, requesting 1000 CPUs will never be satisfied. Resources between *Requests* and *Limits* are not guaranteed. The Kubernetes scheduler considers only *Requests* when planning Pods to nodes, so disk or memory pressure can occur on the node caused by overbooking these kinds of resources. In this case, a Pod can be evicted from the node. For CPU resources between *Requests* and *Limits*, slowdown can occur if the node does not have free CPUs anymore.
 
 General YAML fragment looks like this:
 ```yaml
@@ -17,23 +17,23 @@ resources:
 
 ## CPU
 
-CPU resource can be requested in whole CPU units such as `2` for two CPUs, or in milli units such as `100m` for 0.1 CPU. See complete example below.
+CPU resources can be requested in whole CPU units such as `2` for two CPUs, or in milli units such as `100m` for 0.1 CPU. See the complete example below.
 
 ## Memory
 
-Memory resource can be requested in bytes or multiples of binary bytes. Notation is `1000Mi` or `1Gi` for 1GB of memory. Amount of this resource comprises shared memory (see below) and all memory `emptyDir` volumes. The example below consumes up to 1GB of memory resource and if application requires e.g., 2GB of memory, user needs to request 3GB of memory resource.
+Memory resources can be requested in bytes or multiples of binary bytes. The notation is `1000Mi` or `1Gi` for 1 GB of memory. The amount of this resource comprises shared memory (see below) and all memory `emptyDir` volumes. The example below consumes up to 1 GB of memory resource; if an application requires, for example, 2 GB of memory, the user needs to request 3 GB of memory resource.
 
 ```yaml
 volumes:
 - name ramdisk
   emptyDir:
-   medium: Memory
-   sizeLImit: 1Gi
+    medium: Memory
+    sizeLimit: 1Gi
 ```
 
 ### Shared Memory
 
-By default, each container runs with 64MB limit on [shared memory](https://man7.org/linux/man-pages/man7/shm_overview.7.html). For many cases, this limit is enough but for some GPU applications or GUI applications this amount is not enough. In such a case, SHM size needs to be increased. This cannot be done in `resource` section, the only possibility is to mount additional memory volume using the following YAML fragment that increases SHM size to 1GB:
+By default, each container runs with a 64 MB limit on [shared memory](https://man7.org/linux/man-pages/man7/shm_overview.7.html). For many cases, this limit is enough, but for some GPU applications or GUI applications, this amount is not enough. In such a case, the SHM size needs to be increased. This cannot be done in the `resource` section; the only possibility is to mount an additional memory volume using the following YAML fragment that increases the SHM size to 1 GB:
 
 ```yaml
 volumes:
@@ -47,14 +47,14 @@ volumeMounts:
   mountPath: /dev/shm
 ```
 
-`Name` of the volume is not important and can be anything valid, the `mountPath` must be `/dev/shm`.
+The `name` of the volume is not important and can be anything valid; the `mountPath` must be `/dev/shm`.
 
 ## GPU
- 
-GPU resource can be requested in two distinct ways. 
-User can request GPU(s) exclusively using nvidia.com/gpu: x where x is a number denoting number of requested GPUs. 
-User can request also only a fraction of GPU using nvidia.com/mig-1g.10gb: x or nvidia.com/mig-2g.20gb: x  where x is a number of such GPU parts. 
-The nvidia.com/mig-1g.10gb requests GPU part with 10GB memory size, the nvidia.com/mig-2g.20gb requests GPU part with 20GB memory size. More information about the GPU fractions (MIG) can be found [here](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/index.html). 
+
+GPU resources can be requested in two distinct ways.
+Users can request GPU(s) exclusively using `nvidia.com/gpu: x` where x is a number denoting the number of requested GPUs.
+Users can also request only a fraction of a GPU using `nvidia.com/mig-1g.10gb: x` or `nvidia.com/mig-2g.20gb: x` where x is a number of such GPU parts.
+The `nvidia.com/mig-1g.10gb` requests a GPU part with 10 GB of memory size; the `nvidia.com/mig-2g.20gb` requests a GPU part with 20 GB of memory size. More information about GPU fractions (MIG) can be found [here](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/index.html). 
 
 ### Requesting Specific GPU Type
 
@@ -106,7 +106,7 @@ Requesting a specific GPU type reduces the chances of the Pod running. All GPUs 
 
 It is also possible to request some GPU properties, such as GPU memory. This is similar to requesting a specific GPU type, but the different node selector is used: `nvidia.com/gpu.memory`. However, in this case, more complicated `affinity` description must be used, because the node selector can only match an exact value, it cannot compare the value to less or greater.
 
-The following example will allocate any GPU type with at least 80000MB of GPU memory:
+The following example allocates any GPU type with at least 80000 MB of GPU memory:
 
 ```yaml title="pod.yaml"
 apiVersion: v1
@@ -147,7 +147,7 @@ spec:
         - ALL
 ```
 
-For more about operators (`Gt`) see [operators](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#operators) description.
+For more about operators (`Gt`), see the [operators](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#operators) description.
 
 <Callout type="warning">
 Although the amount of GPU memory is a number, it must be defined as a string, i.e., '80000' and not 80000.
@@ -155,11 +155,11 @@ Although the amount of GPU memory is a number, it must be defined as a string, i
 
 ## Storage
 
-User should specify also required `ephemeral-storage` resource. Units are the same as for the `memory` resource. This resource denotes limit on a local storage that comprises size of running container and all local files created. Those files includes all temporary files within container such as files in `/tmp` or `/var/tmp` directories and also all `emptyDir` volumes that are not in memory.
+Users should also specify the required `ephemeral-storage` resource. Units are the same as for the `memory` resource. This resource denotes a limit on local storage that comprises the size of the running container and all local files created. Those files include all temporary files within a container, such as files in `/tmp` or `/var/tmp` directories, and also all `emptyDir` volumes that are not in memory.
 
 ## Full Resource Example
 
-The following example requests 1 GPU, 2 CPUs and 4GB of memory guaranteed, and 3 CPUs and 6GB of memory hard limit.
+The following example requests 1 GPU, 2 CPUs, and 4 GB of memory guaranteed, and 3 CPUs and 6 GB of memory as a hard limit.
 
 ```yaml
 resources:
@@ -173,7 +173,7 @@ resources:
     nvidia.com/gpu: 1
 ```
 
-The following example requests 10 GB of GPU memory, 0.5 CPU and 4GB of memory guaranteed and also as hard limit.
+The following example requests 10 GB of GPU memory, 0.5 CPU, and 4 GB of memory guaranteed and also as a hard limit.
 
 ```yaml
 resources:

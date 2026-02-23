@@ -1,26 +1,28 @@
 ---
-title: NBGrader Docs
+title: Dokumentace NBGrader
 ---
 
-## URL Adresy
+## URL adresy
 
-Primární instance: jupytul.cloud.e-infra.cz
+Instance JupyterHubu pro TUL: jupytul.cloud.e-infra.cz
 
 ## Přístup na jupytul
 
-Přístup je zabezpečený přes členství instruktorů i studentů ve skupině. Existující skupiny:
-- `ald-students`  [Perun skupina ALD students](https://perun.e-infra.cz/organizations/3898/groups/15920)
+Přístup je zabezpečený prostřednictvím členství instruktorů a studentů ve skupinách. Existující skupiny:
+- `ald-students`  [Perun skupina ALD studenů](https://perun.e-infra.cz/organizations/3898/groups/15920)
 - `ald-instructors`
-- `zap-students`  [Perun skupina ZAP students](https://perun.e-infra.cz/organizations/3898/groups/15924)
+- `zap-students`  [Perun skupina ZAP studentů](https://perun.e-infra.cz/organizations/3898/groups/15924)
 - `zap-instructors`
-- `pav-students` [Perun skupina PAV students](https://perun.e-infra.cz/organizations/3898/groups/15922)
+- `pav-students` [Perun skupina PAV studentů](https://perun.e-infra.cz/organizations/3898/groups/15922)
 - `pav-instructors`
+- `cfd-students` [Perun skupina CFD studentů](https://perun.e-infra.cz/organizations/3898/groups/24742)
+- `cfd-instructors`
 
-Do skupiny se posílá přihláška. Přihláška má nějakou expiraci (default 1 měsíc), je na studentech/instruktorech, aby ji přijali. Pokud student:
-- vidí `Access denied`, tak na 100% není členem *žádné* skupiny
-- může se přihlásit, ale nevidí správný kurz - je členem nesprávné skupiny
+Do skupiny se odesílá přihláška. Přihláška má určitou expiraci (výchozí hodnota je 1 měsíc), je na studentech/instruktorech, aby ji přijali. Pokud student:
+- po přihlášení do hubu vidí hlášku `Access denied`, s jistotou není členem *žádné* skupiny
+- se může přihlásit, ale nevidí správný kurz – je členem nesprávné skupiny
 
-V perunu (linky výše) si můžete zkontrolovat, kdo je členem skupiny a kdo má Pending pozvánku. Pokud osobu nenajdete ani v jednom ze seznamů, nebyla jí poslána pozvánka. 
+V Perunu (odkazy výše) si můžete zkontrolovat, kdo je členem skupiny a kdo má čekající pozvánku (Pending). Pokud osobu nenajdete ani v jednom ze seznamů, nebyla jí odeslána pozvánka. 
 
 ![mainmenu](/img/ceritsc/apps/nbgrader/mainmenu.png)
 
@@ -29,62 +31,70 @@ V perunu (linky výše) si můžete zkontrolovat, kdo je členem skupiny a kdo m
 ![pending](/img/ceritsc/apps/nbgrader/pending.png)
 
 
-## Přihlašování do jupytul
+## Přihlašování na jupytul
 
-Přihlašování je zabezpečeno přes jednotné přihlášení spravované Perun týmem pod hlavičkou e-INFRA CZ. Instruktoři i studenti musí patřit do správných skupin. 
+Přihlašování je zabezpečeno prostřednictvím jednotného přihlášení spravovaného týmem Perun pod záštitou e-INFRA CZ. Instruktoři i studenti musí patřit do správných skupin.
 
 ### Student
 
-Student si po přihlášení vybere kurz, se kterým chce pracovat, zda chce přepsat home a klikne na start. Po spuštění notebooku uvidí tuto stránku. Většinou nejsou kurzy vidět hned, je třeba kliknout na refresh button a v seznamu se objeví. 
+Student si po přihlášení vybere kurz, se kterým chce pracovat, zda chce přepsat home a klikne na tlačítko Start. Po spuštění notebooku uvidí tuto stránku. Kurzy obvykle nejsou viditelné hned, je třeba kliknout na tlačítko Refresh a objeví se v seznamu. 
 
 ![coursesrefresh](/img/ceritsc/apps/nbgrader/courses_refresh.png)
 
 ### Instruktor
 
-Instruktor po přihlášení uvidí (jednoduchý) klikací list s kurzy, kde je instruktor. Po kliknutí na název kurzu bude přesměrován do známého prostředí nbgraderu. 
+Instruktor po přihlášení uvidí (jednoduchý) klikací seznam kurzů, ve kterých je instruktorem. Po kliknutí na název kurzu bude přesměrován do známého prostředí NBGraderu. 
 
 ![instructorlist](/img/ceritsc/apps/nbgrader/instructor_list.png)
 
 ![formgradert](/img/ceritsc/apps/nbgrader/formgrader.png)
 
 
-## Kurzy - přidávání a správa
+## Kurzy – přidání a správa
 
-Pro přidání/odebrání celého kurzu je nutné komunikovat s námi. 
+Pro přidání nebo odebrání celého kurzu je nutné komunikovat s námi.
 
 ### Přidání studentů do kurzu
 
-Člověk je studentem, pokud je členem Perun subgroup `{kurz}-students` pod group `NBGrader Tulhub`.  Pro přidání studenta do skupiny potřebuji jeho email, ideálně ve formátu `mail, jméno studenta`. Studentovi přijde pozvánka, je na něm, aby to odklikl. Dokud to neudělá, nevidí kurz.
+Osoba je studentem, pokud je členem podskupiny (subgroup) Perun `{kurz}-students` ve skupině `NBGrader Tulhub`. K přidání studenta do skupiny potřebujeme jeho e-mail, ideálně ve formátu `mail, jméno studenta`. studentovi přijde pozvánka, je na něm, aby ji přijal. Dokud tak neučiní, kurz neuvidí.
+
+Osoba zodpovědná za rozesílání pozvánek musí být nastavena jako manažer skupiny – je třeba dopředu vědět, kdo bude pro jednotlivé studentské skupiny rozesílat pozvánky, abychom tuto osobu mohli přiradit.
 
 ![membersnav](/img/ceritsc/apps/nbgrader/membersnav.png)
 
 ![invnav](/img/ceritsc/apps/nbgrader/invnav.png)
 
-Pokud vyberete možnost poslat pozvánku jen 1 člověku, tak se zobrazí:
+Pokud vyberete možnost odeslat pozvánku pouze 1 osobě, zobrazí se:
 
 ![single](/img/ceritsc/apps/nbgrader/single.png)
 
-Pokud se rozhodnete poslat pozvánku více lidem najednou, tak se zobrazí:
+Pokud se rozhodnete poslat pozvánku více osobám najednou, zobrazí se:
 
 ![multiple](/img/ceritsc/apps/nbgrader/multiple.png)
 
 ### Přidání instruktorů do kurzu
 
-Člověk je instruktorem, pokud je členem Perun subgroup `{kurz}-instructors` pod group `NBGrader Tulhub`.  Pro přidání instruktora do skupiny potřebuji jeho email, ideálně ve formátu `mail, jméno instruktora`. Instruktorovi přijde pozvánka, je na něm, aby to odklikl. Dokud to neudělá, nevidí kurz.
+Osoba je instruktorem, pokud je členem podskupiny (subgroup) Perun `{kurz}-instructors` ve skupině `NBGrader Tulhub`. K přidání instruktora do skupiny potřebujeme jeho e-mail, ideálně ve formátu `mail, jméno instruktora`. Instruktorovi přijde pozvánka, je na něm, aby ji přijal. Dokud tak neučiní, kurz neuvidí.
+
+Přidávání instruktorů může být také pod vaší správou a funguje identicky jako přidávání studentů.
 
 <Callout type="info">
-Pokud byl instruktor přidán jako instruktor dodatečně (už se někdy přihlásil na jupytul a zůstal přihlášený), tak se musí odhlásit a přihlásit. 
+Pokud byl instruktor přidán jako instruktor dodatečně (už se někdy přihlásil na jupytul a zůstal přihlášený), musí se odhlásit a znovu přihlásit.
 </Callout>
 
 <Callout type="warning">
-Nemělo by se stát, že instruktor nějakého kurzu je zároveň i studentem jiného. To zatím vede k mixu práv a nbgrader tak nefunguje dobře. Pokud by to bylo v budoucnu nutné, podíváme se na to, ale zatím to nefunguje.
+Nemělo by se stát, že instruktor jednoho kurzu je zároveň studentem jiného. Toto momentálně vede k míšení práv a nbgrader tak nefunguje správně. Pokud by byla v budoucnu tato situace nutná, podíváme se na ni, ale v současnosti to nefunguje.
 </Callout>
 
-### Přidávání assignments
+### Přidávání úkolů (assignments)
 
-ASSIGNMENTS NESMÍ BÝT V HOME!!! Assignments patří JEDINĚ A POUZE do `/mnt/exchange/{kurz}/source`. Pokud se vyrobí `gradebook.db` jinde než v  `/mnt/exchange/{kurz}/`, tak je něco špatně.
 
-ODPOUČÍME vytvářet assignments přes UI (protože si ten nbgrader možná vytváří ještě nějaké jiné relace než jen dir) a do vytvořeného diru potom nakopírovat to, co už máte vytvořené. 
+<Callout type="warning">
+ASSIGNMENTS NESMÍ BÝT V HOME!!! Assignments patří JEN A POUZE do `/mnt/exchange/{kurz}/source`. Pokud se `gradebook.db` vytvoří jinde než v `/mnt/exchange/{kurz}/`, je něco špatně.
+</Callout>
+
+
+DOPORUČUJEME vytvářet assignments prostřednictvím UI (nbgrader si pravděpodobně vytváří ještě další relace, nejen adresář) a do vytvořeného adresáře pak nakopírovat obsah, který už máte připravený. 
 
 
 ![image](/img/ceritsc/apps/nbgrader/image.png)
@@ -95,64 +105,67 @@ ODPOUČÍME vytvářet assignments přes UI (protože si ten nbgrader možná vy
 
 ![image3](/img/ceritsc/apps/nbgrader/image3.png)
 
-### Custom konfigurace nbgrader_config.py
+### Vlastní konfigurace nbgrader_config.py
 
-Pokud se releasne assignment s nějakým configem, výsledek už nejde změnit. Pokud změníte config, další release už se udělá s tím změněným configem.
+Pokud je assignment (úkol) uvolněn s nějakým configem, výsledek už nelze změnit. Pokud změníte config, další release se provede s již změněným configem.
 
 ## Konfigurace notebookového prostředí
 
-Notebooky studentů jsou spouštěny jako samostatné kontejnery. Instruktoři pracují ve stejném jednom kontejneru, který navíc slouží jako samotné hub prostředí (tak to má nbgrader, dá se to přeprogramovat, pokud by to bylo nutné).
-## Notebooky studentů
+Notebooky studentů jsou spouštěny jako samostatné kontejnery. Instruktoři pracují v jednom stejném kontejneru, který navíc slouží jako samotné prostředí hubu (takto je to v nbgraderu nastaveno, lze to přeprogramovat, pokud by bylo nutné).
 
-Studenti mají k dispozici perzistentní home v `/home/jovyan`, který se dá přepsat, pokud je to potřeba (volba při spouštění notebooku). Podle dohody mají studenti CPU request=1 a CPU limit=2. Memory request=memory limit=4GB.
+### Notebooky studentů
 
-Studenti si mohou spustit až 3 notebooky (jeden na předmět) současně. Používá se 1 image, protože užíváte stejné knihovny. Přes `fakeroot apt-get install ...` se dají nainstalovat systémové knihovny přímo do notebooku. `pip` funguje, conda ne.
+Studenti mají k dispozici perzistentní home v `/home/jovyan`, který lze přepsat, pokud je to nutné (volba při spouštění notebooku). Podle dohody mají studenti CPU request=1 a CPU limit=2. Memory request=memory limit=4 GB.
 
+Studenti si mohou spustit až 3 notebooky (jeden na předmět) současně. Používá se 1 image, protože používají stejné knihovny. Přes `fakeroot apt-get install ...` lze nainstalovat systémové knihovny přímo do notebooku. `pip` funguje, `conda` nikoliv.
 
-Pokud byl student dodatečně přidán do kurzu, stačí si spustit nový notebook a vybrat, s kterým předmětem chce pracovat, případně reload na domovskou stránku.
+Pokud byl student přidán do kurzu dodatečně, stačí si spustit nový notebook a vybrat, s kterým předmětem chce pracovat, případně provést reload na home stránce. 
 
 ### Prostředí instruktora
 
-Jelikož instruktoři pracují přímo v hub kontejneru, nemají možnost si po přihlášení nakonfigurovat prostředí, protože hub již existuje a jsou v něm.
+Protože instruktoři pracují přímo v kontejneru hubu, nemají po přihlášení možnost si nakonfigurovat prostředí, protože hub již existuje a jsou v něm.
 
-Na přání jsem doinstalovala balíčky, nastavila `HOME=/mnt/exchange/{kurz}/home`. Home je persistentní.
+Na přání jsem nainstalovala balíčky, nastavila `HOME=/mnt/exchange/{kurz}/home`. Home je perzistentní.
 
 <Callout type="warning">
-HOME NEPOUŽÍVEJTE NA NIC JINÉHO NEŽ NA UKLÁDÁNÍ NĚJAKÝCH EXTRA SOUBORŮ NESOUVISEJÍCÍCH S ASSIGNMENTS A NBGRADREM. NEBUDE TO FUNGOVAT!!!!
+HOME NEPOUŽÍVEJTE K NIČEMU JINÉMU NEŽ K UKLÁDÁNÍ NĚJAKÝCH DALŠÍCH SOUBORŮ NESOUVISEJÍCÍCH S ASSIGNMENTS A NBGRADEREM. NEBUDE TO FUNGOVAT!!!!
 </Callout>
 
 ## Vytvoření pojmenovaných kontejnerů
 
-Studenti mají možnost si vyrobit až tři různé notebookové servery, což jsou samostatné kontejnery. Toto se jim hodí, pokud by byli studenty několika předmětů najednou, protože by v jednom menu mohli přistupovat ke každému kurzu samostatně, když by měli 1 kontejner na předmět.
+Studenti mají možnost si vytvořit až tři různé notebook servery, což jsou samostatné kontejnery. To se jim hodí, pokud by byli studenty několika předmětů najednou, protože by v jednom menu mohl mít každý student přístup ke každému kurzu samostatně, protože by měl 1 kontejner na předmět.
 
-Z pohledu studenta, první kontejner je možné vyrobit hned po přihlášení, když klikne na start, a to mu stačí, pokud je zapsán jen v 1 předmětu. Tento notebook ale není pojmenovaný a pokud by student chtěl další server, tak se dá přejít do části `Home`.
+Z pohledu studenta je první kontejner možné vytvořit ihned po přihlášení, když klikne na Start, a to mu stačí, pokud je zapsán pouze v 1 předmětu. Tento notebook ale není pojmenován a pokud by student chtěl další server, lze přejít do sekce `Home`.
 
 ![homenamed](/img/ceritsc/apps/nbgrader/homenamed.png)
 
-V této části se dají naklikat názvy notebooků a tak vytvořit. Do panelu home se dá přejít vždy, takže si student může vyrobit jeden notebook, spustit ho a když bude chtít další, může přejít buď do home nebo z notebooku přes `Hub Control Panel` do toho samého menu (obr v další sekci).
+V této sekci lze kontejnery pojmenovat a tím je vytvořit. Do panelu Home lze přejít vždy, tedy si student může vytvořit kontejner pro předmět X, spustit si ho a když bude chtít další, může přejít buď do Home nebo z notebooku přes `Hub Control Panel` do stejného menu (obrázek v další sekci).
 
 ![add](/img/ceritsc/apps/nbgrader/add.png)
 
-## Mazání notebooků po skončení práce
+## Mazání kontejnerů po skončení práce
 
-Pokud první notebook nebyl vyroben přes seznam, ale hned po přihlášení, nemá jméno a maže se velkým červeným tlačítkem `Stop My Server` v části Home (případně se sem dá přejít z `Hub Control Panel`).
+Pokud první kontejner nebyl vytvořen prostřednictvím seznamu, ale ihned po přihlášení, nemá název a maže se velkým červeným tlačítkem `Stop My Server` v sekci Home ( případně se sem lze dostat z `Hub Control Panel`).
 
 ![stopmyserver](/img/ceritsc/apps/nbgrader/stopmyserver.png)
 
-Spuštěné pojmenované notebooky se dají vymazat přes `Hub Control Panel - Stop`.
+Spuštěné pojmenované kontejnery lze smazat přes `Hub Control Panel - Stop`.
 
 ![controlpanel](/img/ceritsc/apps/nbgrader/controlpanel.png)
 
 ![stop](/img/ceritsc/apps/nbgrader/stop.png)
 
-To vede k smazání reálného kontejneru v Kubernetách. Není nutné kliknout na Delete, ale doporučujeme, protože studenti mají pak přehled.
+Toto vede ke smazání skutečného kontejneru v Kubernetes. Není nutné kliknout na Delete, ale doporučujeme to, protože studenti mají pak přehled. 
 
 ![startdelete](/img/ceritsc/apps/nbgrader/startdelete.png)
 
 ## Výpočetní zdroje
 
-Dohodnuto na vymazání notebooků o půlnoci.
+Dohodnuto na odstranění kontejnerů o půlnoci.
 
 <Callout type="warning">
-Po skončení semestru bude asi potřebná nějaká zpráva o používání zdrojů - na co byly potřebné.
+Na konci semestru bude pravděpodobně nutná nějaká zpráva o používání zdrojů – k čemu byly potřeba.
 </Callout>
+
+
+
