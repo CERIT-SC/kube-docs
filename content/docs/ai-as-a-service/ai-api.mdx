@@ -54,6 +54,15 @@ This list reflects the model identifiers (`id`) that can be queried via the API.
 * A quantization tag (e.g., `fp16`, `q8_0`) that indicates how the model is optimized for inference (important for performance and resource consumption).
 * A variant or revision (e.g., `:latest`, `:70b-instruct-fp16`).
 
+To simplify referencing LLM models, we provide **category aliases** for users who prefer not to update specific model designations in their tools. Please note that calling specific models by their exact names continues to work as before.
+
+|  alias name | model |
+|--------------|---------|
+| mini | gpt-oss-120b |
+| coder | qwen3.5 |
+I agentic | glm-4.7 |
+| thinker | kimi-k2.5 |
+
 ### Example API Request
 
 Below is an example of how to use the API key to query the LLama 3.3 model (llama3.3:latest) with a chat completions request:
