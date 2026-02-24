@@ -10,16 +10,17 @@ The same models are accessible via a [documented REST API](#creating-an-api-key)
 ## Accessing Open-WebUI
 
 You can access **Open-WebUI** at [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).  
-A valid **MetaCentrum** and **e-INFRA CZ** or **Masaryk University** account is required to use this service.
+
+A valid **MetaCentrum** or **Masaryk University** account is required to use this service.
 
 ### Getting Access
 
 #### For Masaryk University Members
-If you are an active member of **Masaryk University Brno** (employee or student), follow [this link](https://signup.e-infra.cz/registrar/?vo=e-infra.cz&group=projects%3Achat-ai&targetnew=https%3A%2F%2Fchat.ai.e-infra.cz&targetexisting=https%3A%2F%2Fchat.ai.e-infra.cz&targetextended=https%3A%2F%2Fchat.ai.e-infra.cz) to request access.  
+If you are an active member of **Masaryk University Brno** (employee or student), follow [request access here](https://signup.e-infra.cz/registrar/?vo=e-infra.cz&group=projects%3Achat-ai&targetnew=https%3A%2F%2Fchat.ai.e-infra.cz&targetexisting=https%3A%2F%2Fchat.ai.e-infra.cz&targetextended=https%3A%2F%2Fchat.ai.e-infra.cz).
 Your access will be **automatically approved**, and you should be able to log in immediately after completing the process.
 
 #### For Other Academic and Research Users
-If you are a member of another academic or research institution in the Czech Republic (within **e-INFRA CZ**), please follow [this link](https://metavo.metacentrum.cz/en/application/form) to request a **MetaCentrum account**.
+If you are a member of another academic or research institution in the Czech Republic (within **e-INFRA CZ**), please follow [this link](https://metavo.metacentrum.cz/en/application/form) to **request a MetaCentrum account**.
 
 ---
 
@@ -66,11 +67,12 @@ Model names are case-sensitive and may include version tags like `:latest` or sp
 
 #### Guaranteed Models
 
-| Model                | Description | Context Size |
-|----------------------|-------------|--------------|
-| **GPT-OSS-120B**     | A 120B language model from OpenAI. Superior performance. |  128k  |
-| **DeepSeek V3.2**    | A 685B reasoning and instruct (selectable) language model from Deepseek AI. Excels at complex tasks including mathematics, logical reasoning, and code generation. | 160k | 
-| **Qwen 3 Coder**     | A 480B language model from Qwen. Succeeds the Qwen 2.5 Coder with significantly enhanced performance in coding tasks. | 90k   |
+| Model                | Model Name  |Description | Context Size |
+|----------------------|----|---------|--------------|
+| **GPT-OSS-120B**     |  gpt-oss-120b  |A 120B language model from OpenAI. Superior performance. |  128k  |
+| **DeepSeek V3.2**    |  deepseek-v3.2-thinking  |A 685B reasoning and instruct (selectable) language model from Deepseek AI. Excels at complex tasks, including mathematics, logical reasoning, and code generation. | 160k | 
+| **Qwen 3 Coder**     |  qwen3-coder  |  A 480B language model from Qwen. Succeeds the Qwen 2.5 Coder with significantly enhanced performance in coding tasks. | 90k   |
+
 
 <Callout type="info">
 Although **Deepseek V3.2** and **Qwen 3 Coder** are designated as **guaranteed** models, please note:
@@ -81,11 +83,12 @@ Although **Deepseek V3.2** and **Qwen 3 Coder** are designated as **guaranteed**
 
 #### Experimental Models
 
-| Model                        | Description | Context Size |
-|------------------------------|-------------|--------------|
-| **GLM 4.7**                  | The 385B GLM 4.7 language model from Z.ai with selectable reasoning and instruct modes, excelling at coding, tool calling, and agentic tasks. | 200k |
-| **GPT OSS 120B with Memory** | The 120B GPT OSS model for retaining key facts (e.g., preferences, project details). Enabling the memory feature personalises responses across conversations.  To enable `Memory`, Click your username (down-left), go to `Settings` → `Personalization` → `Memory` tab. Toggle `Memory` on. To add memories, use either method: 1) Manage Button: In the Memory tab, click Manage to add/edit memories (e.g., "My project: CFD optimization") or 2) During chats, type "remember [fact]" (e.g., "remember My MetaCentrum login is xnovak12"). The model confirms storage. *Important: When enabled, memories are used across all supported models*.| 128k |
-| **Mistral 3 Large**          | The 675B Mistral 3 Large Instruct language model from Mistral, featuring multimodal (vision-language) capabilities; this is the largest available multimodal model, running in the NVFP4 variant. | 128k |
+| Model         |      Model Name         | Description | Context Size |
+|---------------|---------------|-------------|--------------|
+| **GLM 4.7**    | glm-4.7              | The 385B GLM 4.7 language model from Z.ai with selectable reasoning and instruct modes, excelling at coding, tool calling, and agentic tasks. | 200k |
+| **GPT OSS 120B with Memory** |  | The 120B GPT OSS model for retaining key facts (e.g., preferences, project details). Enabling the memory feature personalises responses across conversations.  To enable `Memory`, Click your username (down-left), go to `Settings` → `Personalization` → `Memory` tab. Toggle `Memory` on. To add memories, use either method: 1) Manage Button: In the Memory tab, click Manage to add/edit memories (e.g., "My project: CFD optimization") or 2) During chats, type "remember [fact]" (e.g., "remember My MetaCentrum login is xnovak12"). The model confirms storage. *Important: When enabled, memories are used across all supported models*.| 128k |
+| **Kimi K2.5**  | kimi-k2.5   |  Large-scale MoE model with roughly 1 trillion parameters with significantly enhanced performance in coding tasks. | 256k   |
+| **Qwen 3.5**  | qwen3.5   |  397B Multimodal advanced model for coding, tools use and agentic workflows | 262k   |
 
 #### Deprecated Models
 
@@ -93,10 +96,8 @@ Although **Deepseek V3.2** and **Qwen 3 Coder** are designated as **guaranteed**
 |--------------------|---------------|
 | **Aya&nbsp;Expanse**      | A 32B Q8 multilingual model from Cohere, trained to perform well across 23 languages, including Czech. |
 | **Command-A**      | A 111B model from Cohere. Though slower in response time, it is particularly strong in programming tasks and manifest generation. |
-| **DeepSeek&nbsp;R1&nbsp;0528** | A 685B reasoning-optimized language model from Deepseek AI. Excels at complex tasks including mathematics, logical reasoning, and code generation. | 128k  |
 | **Gemma 3**        | A 27B FP16 language model from Google, part of the lightweight Gemma family built on Gemini technology. |
 | **LLaMA 3.3**      | A 70B language model from Meta. Its efficiency and versatility make it well-suited for a wide range of natural language processing tasks. |
-| **Mistral&#8209;Small&nbsp;3.1**| A 24B language model from Mistral AI, featuring built-in vision capabilities. |
 | **Mistral&#8209;Small&nbsp;3.2**| A 24B language model from Mistral AI, featuring built-in vision capabilities. |
 | **Phi-4**            | A 14B Q8 model from Microsoft, trained on a mix of synthetic datasets, filtered public web content, academic books, and Q&A datasets. It represents the current state of the art in open-access models. |
 
