@@ -96,7 +96,7 @@ Pro podporu efektivního výpočtu mohou být nepoužívané poznámkové bloky 
 
 Pokud byl požadován **alespoň 1 GPU**, mechanismus kontroluje využití GPU a nezáleží mu na využití CPU (GPU je *dražším* prostředkem). Po 2 dnech využití &lt;0.005 GPU je instance poznámkového bloku odstraněna. Prahová hodnota `0.005` byla zvolena, protože toto číslo je skutečně bezvýznamné a znamená žádné využití.
 
-Pokud nebylo požadováno **žádné GPU**, mechanismus kontroluje pouze využití CPU. Po 4 dnech využití <0.1 CPU je instance poznámkového bloku odstraněna. Prahová hodnota byla zvolena na základě dat shromážděných monitorováním --- využití CPU pod 0.1 naznačuje, že poznámkový blok pouze existuje a není prováděn žádný výpočet.
+Pokud nebylo požadováno **žádné GPU**, mechanismus kontroluje pouze využití CPU. Po 4 dnech využití &lt;0.1 CPU je instance poznámkového bloku odstraněna. Prahová hodnota byla zvolena na základě dat shromážděných monitorováním --- využití CPU pod 0.1 naznačuje, že poznámkový blok pouze existuje a není prováděn žádný výpočet.
 
 Mechanismus funguje oběma způsoby následovně:
 
