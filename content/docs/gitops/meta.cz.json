@@ -1,9 +1,0 @@
-{
-  "title": "GitOps",
-  "pages": [
-    "agentk",
-    "building_containers",
-    "gitsecrets",
-    "gl-runner"
-  ]
-}
