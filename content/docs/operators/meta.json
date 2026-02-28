@@ -1,10 +1,11 @@
 {
   "pages": [
     "operator-summary",
+    "dragonfly",
+    "logging",
     "minio",
     "mpi",
     "postgres-cnpg",
-    "spark",
-    "logging"
+    "spark"
   ]
 }
