@@ -172,7 +172,7 @@ It is **strongly recommended** to deploy network policies so that the Dragonfly 
 
 It is important that:
 1. Network policies restrict access to only the necessary pods
-2. Access from the `dragonfly-operator` namespace is allowed so the operator can manage the instance
+2. Access from the `dragonfly-operator` namespace to port 9999 is allowed so the operator can manage the instance
 
 ### Access Only from Specific Namespace
 
@@ -193,9 +193,6 @@ spec:
   - from:
     - namespaceSelector:
         matchLabels:
-          kubernetes.io/metadata.name: dragonfly-operator
-    - namespaceSelector:
-        matchLabels:
           kubernetes.io/metadata.name: [namespace]
     - namespaceSelector:
         matchLabels:
@@ -203,6 +200,25 @@ spec:
     ports:
     - protocol: TCP
       port: 6379
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dragonfly-network-policy-operator
+spec:
+  podSelector:
+    matchLabels:
+      app: my-redis
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: dragonfly-operator
+    ports:
+    - protocol: TCP
+      port: 9999
 ```
 
 Replace `[namespace]` with the namespace where Dragonfly is deployed. The `dragonfly-operator` namespace is required for the operator to manage the instance.
@@ -226,9 +242,6 @@ spec:
   - from:
     - namespaceSelector:
         matchLabels:
-          kubernetes.io/metadata.name: dragonfly-operator
-    - namespaceSelector:
-        matchLabels:
           kubernetes.io/metadata.name: [namespace]
       podSelector:
         matchLabels:
@@ -236,6 +249,25 @@ spec:
     ports:
     - protocol: TCP
       port: 6379
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dragonfly-network-policy-operator
+spec:
+  podSelector:
+    matchLabels:
+      app: my-redis
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: dragonfly-operator
+    ports:
+    - protocol: TCP
+      port: 9999
 ```
 
 <Callout type="warn" icon="⚠️ ">
