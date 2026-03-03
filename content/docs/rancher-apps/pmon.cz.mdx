@@ -1,0 +1,39 @@
+---
+title: Osobní monitorování
+---
+
+Někdy chcete sledovat využití prostředků podů nasazených ve vašich jmenných prostorech. Aplikace **Osobní monitorování** vám to umožní v několika snadných krocích. Aplikace vytvoří osobní instanci Prometheus, která sbírá všechny metriky z vašeho jmenného prostoru a zobrazuje je v osobní instanci Grafana na URL `pmon-[namespace].dyn.cloud.e-infra.cz`.
+
+## Instalace
+
+Začněte výběrem aplikace **Osobní monitorování** z menu Rancher aplikací.
+
+![Vyberte aplikaci](/img/ceritsc/apps/pmon/choose.png)
+
+Po výběru klikněte na `Install`.
+
+![Začít instalaci](/img/ceritsc/apps/pmon/startinstall.png)
+
+Klikněte na `Next`.
+
+<Callout type="warn">
+Název nasazeného chartu nelze změnit, protože je povolena pouze jedna monitorovací instance na jmenný prostor.
+</Callout>
+
+![Další krok](/img/ceritsc/apps/pmon/next.png)
+
+Změňte výchozí přihlašovací údaje použité pro ověření v instanci Grafana. Klikněte na `Install`.
+
+![Instalace](/img/ceritsc/apps/pmon/install.png)
+
+Počkejte, dokud spodní panel neukáže `SUCCESS` a nainstalovaná aplikace neukáže zelený stav `Deployed`.
+
+![Úspěch](/img/ceritsc/apps/pmon/success.png)
+
+Nyní můžete přistupovat ke své monitorovací instanci na `pmon-[namespace].dyn.cloud.e-infra.cz` nebo najít konečnou adresu na záložce `Ingress`.
+
+![Ingress](/img/ceritsc/apps/pmon/ingress.png)
+
+Po kliknutí na odkaz budete přesměrováni do své instance Grafana. Ověřte se pomocí přihlašovacích údajů, které jste zadali ve formuláři.
+
+![Grafana](/img/ceritsc/apps/pmon/grafana.png)

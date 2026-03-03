@@ -1,0 +1,286 @@
+---
+title: Snakemake
+keywords: Snakemake, Workflow, Pipeline, Bioinformatics, Python
+---
+
+[Snakemake](https://snakemake.github.io/) je systém pro správu workflow, který umožňuje vytváření a provádění reprodukovatelných a škálovatelných datových analýz. Je obzvláště populární v bioinformatice a výpočetní biologii pro správu komplexních datových zpracovatelských pipeline. Snakemake workflow jsou definována pomocí čitelného jazyka založeného na Pythonu a mohou být prováděna na různých platformách, včetně lokálních strojů, clusterů a cloudových prostředí.
+
+V CERIT-SC lze Snakemake workflow spouštět na Kubernetes clusteru s využitím kontejnerizace a schopností paralelního provádění pro efektivní zpracování pipeline.
+
+## Přehled Snakemake
+
+Snakemake umožňuje definovat workflow jako sadu pravidel, kde každé pravidlo popisuje, jak vytvořit výstupní soubory ze vstupních souborů. Workflow engine pak automaticky určuje pořadí provádění na základě závislostí souborů, což umožňuje paralelní provádění tam, kde je to možné.
+
+Klíčové vlastnosti Snakemake zahrnují:
+- **Reprodukovatelnost**: Každý krok běží v izolovaných prostředích (kontejnerech nebo Conda prostředích)
+- **Škálovatelnost**: Automatická paralelizace napříč jádry, clustery nebo cloudovými prostředky
+- **Přenositelnost**: Workflow mohou běžet na laptopech, HPC clusterech, Kubernetes a cloudových platformách
+- **Flexibilita**: Integrace Pythonu pro komplexní logiku a dynamické generování workflow
+
+## Spouštění Snakemake na Kubernetes
+
+Snakemake podporuje provádění na Kubernetes prostřednictvím svého vestavěného Kubernetes executoru. To umožňuje workflow běžet jako kontejnerizované úlohy na Kubernetes clusteru CERIT-SC s využitím funkcí správy prostředků a škálovatelnosti clusteru.
+
+### Předpoklady
+
+Před spuštěním Snakemake workflow na Kubernetes se ujistěte, že máte:
+
+1. **Lokálně nainstalovaný Snakemake**: `pip install snakemake` (doporučena verze 8.x nebo novější)
+2. **Nakonfigurovaný přístup k Kubernetes**: Platný soubor `kubeconfig` pro cluster CERIT-SC
+3. **Přístup k registru kontejnerů**: Obrazy používané ve vašem workflow musí být přístupné z clusteru
+4. **Nastavení úložiště**: PersistentVolumeClaim (PVC) pro ukládání dat během provádění workflow
+
+### Základní struktura workflow
+
+Minimální Snakemake workflow se skládá ze souboru `Snakefile` obsahujícího pravidla. Zde je jednoduchý příklad:
+
+```python title="Snakefile"
+rule all:
+    input:
+        "output/processed.txt"
+
+rule process_data:
+    input:
+        "input/data.txt"
+    output:
+        "output/processed.txt"
+    shell:
+        "cat {input} | tr 'a-z' 'A-Z' > {output}"
+```
+
+### Provádění na Kubernetes
+
+Pro spuštění Snakemake workflow na Kubernetes použijte příznak `--kubernetes` spolu s dalšími Kubernetes-specifickými volbami:
+
+```bash
+snakemake --kubernetes \
+    --default-remote-provider S3 \
+    --default-remote-prefix my-bucket/workflows \
+    --container-image "cerit.io/snakemake/snakemake:8.0" \
+    --k8s-namespace [váš-jmenný-prostor] \
+    --k8s-pvc-name [váš-pvc] \
+    --k8s-service-account-name [váš-service-account]
+```
+
+**Vysvětlení parametrů:**
+- `--kubernetes`: Povolí režim provádění na Kubernetes
+- `--container-image`: Docker image obsahující Snakemake a závislosti workflow
+- `--k8s-namespace`: Kubernetes jmenný prostor, kde budou úlohy běžet
+- `--k8s-pvc-name`: PersistentVolumeClaim pro ukládání dat workflow
+- `--k8s-service-account-name`: Service account s příslušnými oprávněními
+
+### Konfigurace prostředků
+
+Snakemake umožňuje specifikaci prostředků na pravidlo pro řízení Kubernetes alokací prostředků:
+
+```python title="Snakefile with resources"
+rule align_reads:
+    input:
+        "data/reads.fastq",
+        "data/reference.fasta"
+    output:
+        "results/aligned.bam"
+    resources:
+        mem_mb=8000,
+        cpu=4,
+        disk_mb=10000
+    container:
+        "cerit.io/bioinformatics/bwa:0.7.17"
+    shell:
+        "bwa mem -t {resources.cpu} {input[1]} {input[0]} > {output}"
+```
+
+Sekce `resources` se mapuje na Kubernetes požadavky prostředků:
+- `mem_mb`: Paměť v megabajtech (převádí se na Kubernetes požadavky paměti)
+- `cpu`: CPU jádra
+- `disk_mb`: Dočasné úložiště v megabajtech
+
+## Konkrétní konfigurace pro CERIT-SC
+
+Pro optimální výkon na Kubernetes clusteru CERIT-SC zvažte následující konfiguraci:
+
+### Doporučené kontejnerové obrazy
+
+CERIT-SC udržuje optimalizované kontejnerové obrazy pro běžná bioinformatická workflow:
+
+```
+cerit.io/snakemake/snakemake:8.0          # Základní Snakemake obraz
+cerit.io/bioinformatics/base:latest       # Běžné bioinformatické nástroje
+cerit.io/bioinformatics/nf-core:latest    # nf-core kompatibilní nástroje
+```
+
+### Konfigurace úložiště
+
+Použijte PersistentVolumeClaim (PVC) vašeho projektu pro data workflow:
+
+```bash
+# Připojte PVC na /data v kontejnerech
+snakemake --kubernetes \
+    --k8s-pvc-name my-project-pvc \
+    --k8s-pvc-mount-path /data \
+    --default-resources "tmpdir=/data/tmp"
+```
+
+### Kvóty prostředků
+
+Mějte na paměti kvóty prostředků jmenného prostoru při spouštění velkých workflow:
+
+```bash
+# Zkontrolujte aktuální využití prostředků
+kubectl describe resourcequota -n [váš-jmenný-prostor]
+```
+
+Upravte požadavky prostředků workflow tak, abyste zůstali v rámci limitů kvót.
+
+## Pokročilá konfigurace
+
+### Použití Conda prostředí
+
+Snakemake může spravovat Conda prostředí uvnitř kontejnerů:
+
+```python title="Snakefile with Conda"
+rule analyze_data:
+    input:
+        "data/input.csv"
+    output:
+        "results/analysis.json"
+    conda:
+        "envs/analysis.yaml"
+    container:
+        "cerit.io/snakemake/miniconda:latest"
+    shell:
+        "python scripts/analyze.py {input} {output}"
+```
+
+### Profily workflow
+
+Vytvořte znovupoužitelné konfigurační profily pro různá prováděcí prostředí:
+
+```yaml title="profiles/cerit-kubernetes/config.yaml"
+kubernetes:
+  namespace: "my-project"
+  service_account_name: "snakemake-runner"
+  pvc_name: "project-storage"
+  container_image: "cerit.io/snakemake/snakemake:8.0"
+
+resources:
+  default:
+    mem_mb: 4000
+    cpu: 2
+    disk_mb: 5000
+```
+
+Provedení s profilem:
+```bash
+snakemake --profile profiles/cerit-kubernetes
+```
+
+### Řízení paralelního provádění
+
+Říděte paralelní provádění úloh pro správu zatížení clusteru:
+
+```bash
+# Omezte souběžné úlohy
+snakemake --kubernetes --jobs 20
+
+# Říděte jádra na úlohu
+snakemake --kubernetes --cores 100  # Celková jádra napříč všemi úlohami
+```
+
+## Řešení problémů
+
+### Běžné problémy
+
+1. **Chyby oprávnění**: Ujistěte se, že váš service account má příslušná RBAC oprávnění
+2. **Chyby při stahování obrazů**: Ověřte, že kontejnerové obrazy jsou přístupné z clusteru
+3. **Problémy s úložištěm**: Potvrďte, že PVC existuje a je správně připojeno
+4. **Překročena kvóta prostředků**: Upravte požadavky prostředků nebo požádejte o zvýšení kvóty
+
+### Ladící příkazy
+
+```bash
+# Zobrazte stav úloh Snakemake
+kubectl get jobs -n [váš-jmenný-prostor] -l app=snakemake
+
+# Zkontrolujte logy podů
+kubectl logs -n [váš-jmenný-prostor] [název-podu] -c snakemake
+
+# Sledujte průběh workflow
+snakemake --kubernetes --list
+```
+
+### Získání pomoci
+
+Pokud narazíte na problémy při spouštění Snakemake workflow na Kubernetes clusteru CERIT-SC:
+- Zkontrolujte [dokumentaci Snakemake](https://snakemake.readthedocs.io/)
+- Prohlédněte si logy Kubernetes úloh v Rancher UI
+- Kontaktujte **k8s@cerit-sc.cz** pro problémy specifické pro cluster
+
+## Příklad workflow
+
+Zde je kompletní příklad workflow pro analýzu RNA-seq:
+
+```python title="Snakefile (RNA-seq example)"
+configfile: "config.yaml"
+
+rule all:
+    input:
+        expand("results/{sample}.counts.txt", sample=config["samples"])
+
+rule download_reference:
+    output:
+        "data/reference.fasta",
+        "data/reference.gtf"
+    params:
+        url=config["reference_url"]
+    container:
+        "cerit.io/bioinformatics/base:latest"
+    shell:
+        """
+        wget -O {output[0]} {params.url}.fasta.gz
+        wget -O {output[1]} {params.url}.gtf.gz
+        gunzip {output[0]}.gz
+        gunzip {output[1]}.gz
+        """
+
+rule align_reads:
+    input:
+        reads="data/{sample}.fastq",
+        reference="data/reference.fasta"
+    output:
+        "results/{sample}.bam"
+    resources:
+        mem_mb=16000,
+        cpu=8
+    container:
+        "cerit.io/bioinformatics/hisat2:2.2.1"
+    shell:
+        "hisat2 -x {input.reference} -U {input.reads} -p {resources.cpu} | samtools view -bS - > {output}"
+
+rule count_features:
+    input:
+        bam="results/{sample}.bam",
+        gtf="data/reference.gtf"
+    output:
+        "results/{sample}.counts.txt"
+    container:
+        "cerit.io/bioinformatics/htseq:0.13.5"
+    shell:
+        "htseq-count -f bam {input.bam} {input.gtf} > {output}"
+```
+
+Toto workflow demonstruje:
+1. Použití konfiguračního souboru
+2. Dynamické rozšiřování pravidel
+3. Specifikaci prostředků
+4. Kontejnerizované provádění
+5. Správu závislostí souborů
+
+## Další zdroje
+
+- [Dokumentace Snakemake](https://snakemake.readthedocs.io/)
+- [Snakemake GitHub](https://github.com/snakemake/snakemake)
+- [Registr kontejnerů CERIT-SC](https://cerit.io)
+- [Dokumentace Kubernetes](https://kubernetes.io/docs/)
+
+Pro konkrétní dotazy ohledně spouštění Snakemake na Kubernetes clusteru CERIT-SC kontaktujte **k8s@cerit-sc.cz**.

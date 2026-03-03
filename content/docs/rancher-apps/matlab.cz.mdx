@@ -1,0 +1,115 @@
+---
+title: MATLAB
+---
+
+## Možnost 1: Spuštění MATLAB přes JupyterHub (Doporučeno)
+
+* **Snadné použití**: JupyterHub nabízí přímý způsob spuštění MATLAB přímo z vašeho prostředí Jupyter Notebook.
+* **Integrace dat**: Tato metoda poskytuje bezproblémovou integraci s úložišti MetaCentrum, což je výhodné pro uživatele již pracující v tomto ekosystému.
+* **Podporované verze**: Tímto způsobem je podporováno více verzí MATLAB.
+
+Toto je naše preferovaná metoda kvůli její jednoduchosti a přímočarému nastavení. Pro více informací viz [úvod do JupyterHub](../web-apps/jupyterhub), kde najdete další potřebné informace.
+
+## Možnost 2: Spuštění MATLAB jako Rancher aplikace (lze přizpůsobit)
+
+Pokud nejste již přihlášeni, přihlaste se na [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz). Podrobnosti naleznete v sekci [Rancher](../rancher/rancher).
+
+Podle následujících kroků můžete spustit aplikaci MATLAB. Tato aplikace má trvalý domovský adresář, což znamená, že pokud aplikaci smažete a později ji znovu nainstalujete při zachování jejího názvu, obsah domovského adresáře bude zachován. Je také možné připojit úložiště z e-INFRA CZ.
+
+### Poznámky
+
+* Výchozí projekt má limit kvóty 12 garantovaných CPU a limit 16 CPU celkem. Nevybírejte více než 10 garantovaných CPU nebo nepřekračujte 14 celkových CPU. Pokud potřebujete více, prosím [kontaktujte nás](mailto:k8s@ics.muni.cz). Tento limit může být v budoucnu zvýšen, takže můžete požádat o více CPU.
+
+* Pokud nevyberete `Customize Helm options before install` v kroku `` `Install the Application` ``, instalace se může zdát neúspěšná, ale ve skutečnosti funguje po delší době.
+
+* Od verze MATLAB `v9.11.1` je možné připojit vaše MetaCentrum home bez zadávání hesla. Je však nutné vytvořit sadu specifických Kubernetes objektů. Zjednodušili jsme celý proces a stačí, pokud:
+  * Nejprve projděte [tento krátký návod](../other/storagesecrets), kde se pouze přihlásíte do naší vlastní služby a vyberete jmenný prostor, kde vytvořit objekty.
+  * Za druhé spusťte aplikaci MATLAB z Rancher stejným způsobem jako dříve, pouze vyberete verzi **v9.11.1** nebo vyšší. Instalační formulář obsahuje pole v sekci `Storage`, kde můžete vybrat vaše home.
+
+![selectapp](/img/ceritsc/apps/matlab/matlab-home.png)
+
+### Výběr aplikace ke spuštění
+
+Ujistěte se, že jste nevybrali žádný jmenný prostor a že vidíte `Only User Namespaces` (1) v horní části stránky Rancher.
+
+Přejděte přes `App & Marketplace` (2), `Charts` (3), omezte charts pouze na `cerit-sc` (4) a vyberte `MATLAB` (5). Viz screenshot níže.
+
+![selectapp](/img/ceritsc/apps/matlab/selectapp.png)
+
+### Výběr verze aplikace
+
+Když kliknete na chart, můžete vybrat verzi aplikace, jak je znázorněno níže. Vyberte `Chart Version`; přesnou verzi MATLAB najdete pod `Application Version`. Verze se mohou v čase měnit. Klikněte `Install` pro pokračování.
+
+![selectversion](/img/ceritsc/apps/matlab/selectversion.png)
+
+### Instalace aplikace
+
+Nyní můžete nainstalovat aplikaci MATLAB. Ve většině případů byste měli ponechat `Namespace` (1) i `Name` (2) nezměněné, ale vybrat `Customize Helm options before install` (3). Můžete však vybrat jakýkoli jmenný prostor kromě `default`. Jmenný prostor `default` je dostupný, ale není určen k použití. `Name` bude použit v URL pro přístup k aplikaci.
+
+`Name` musí být jedinečný v rámci `Namespace`, tj. nemůžete spustit dvě nebo více instancí se stejným `Name` ve stejném `Namespace`. Název musí být složen pouze z alfanumerických znaků a musí začínat písmenem. Názvy jako *matlab* nebo *matlab123* jsou dobré, ale *1matlab2* nebo *1234* selžou.
+
+Pokud aplikaci smažete a později ji znovu nainstalujete při zachování jejího `Name`, obsah domovského adresáře bude zachován.
+
+![appinst](/img/ceritsc/apps/matlab/appinst.png)
+
+V první části formuláře vyberete metodu přístupového zobrazení. Výchozí je metoda [VNC](https://cs.wikipedia.org/wiki/Virtual_Network_Computing). Budete potřebovat program VNC viewer, jako je [RealVNC](https://www.realvnc.com/en/connect/download/viewer/) nebo `vncviewer` na většině Linux distribucí. Na macOS stačí zadat `vnc://host` do prohlížeče Safari, nahraďte `host` podle pokynů níže. Neklikejte `Install`, dokud není formulář dokončen. Při použití *VNC* je dostupné pouze softwarové vykreslování; není možné 3D akcelerace.
+
+Pokud VNC není vybráno, použije se metoda *WEBRTC*. Tato volba je stále ve beta verzi a není připravena pro produkční použití; je však dostupná plná 3D OpenGL akcelerace.
+
+![appform1](/img/ceritsc/apps/matlab/appform1.png)
+
+Ve druhé části formuláře vyberete `password`. Toto heslo se používá pro přihlášení přes VNC. Pokud VNC není vybráno, musíte také vyplnit `username`. Tyto přihlašovací údaje se použijí v prohlížeči pro připojení k *WEBRTC* relaci.
+
+![appform2](/img/ceritsc/apps/matlab/appform2.png)
+
+Ve třetí části formuláře vyberete, zda chcete trvalý domovský adresář, tj. home, který bude zachován, i když aplikaci odinstalujete. Poznámka: trvalý domovský adresář je vázán na název aplikace od samého začátku instalačního formuláře. To znamená, že pokud nastavíte název na `matlab`, trvalý domovský adresář bude vázán na název `matlab`. Pokud příště vyberete název `matlab-0`, získáte nový home vázaný na název `matlab-0`.
+
+V této části můžete vybrat úložiště **e-INFRA CZ** pro připojení k aplikaci. Pokud zaškrtnete `External Storage`, objeví se několik dalších možností. Můžete vybrat úložiště a přihlašovací údaje. V současné době je podporováno pouze `storage-brno12-cerit.metacentrum.cz`. Uživatelské jméno je vaše přihlášení e-INFRA CZ ([MetaCentrum](https://metavo.metacentrum.cz/)) a heslo **není** vaše MetaCentrum heslo, ale jiné nastavené administrátorem. [Kontaktujte nás](mailto:k8s@ics.muni.cz), pokud ho potřebujete nastavit. Připravujeme pohodlnější metodu. Toto úložiště je připojeno do adresáře `/storage`.
+
+![appform3](/img/ceritsc/apps/matlab/appform3.png)
+
+Ve čtvrté části formuláře můžete vybrat požadované prostředky. Tento krok je volitelný. `Minimum` CPU nebo RAM je garantované množství CPU a RAM; systém rezervuje tyto prostředky pro aplikaci. Aplikace však může překročit garantované prostředky až do `Maximum`. V tomto případě prostředky nejsou exkluzivní a mohou být sdíleny mezi jinými aplikacemi. Pokud aplikace překročí `Maximum` CPU, bude omezena; pokud překročí `Maximum` RAM, bude ukončena (uvidíte OOMKill report) a restartována. Viz poznámka výše o maximálních hodnotách.
+
+![appform4](/img/ceritsc/apps/matlab/appform4.png)
+
+V páté části formuláře vyberte timeout 1200 sekund; je to kvůli velkým obrazům MATLAB. Nakonec klikněte `Install`.
+
+![appform5](/img/ceritsc/apps/matlab/appform5.png)
+
+### Čekání na spuštění aplikace
+
+Když kliknete `Install`, uvidíte instalační log. Jakmile uvidíte `SUCCESS` (viz screenshot níže), aplikace běží.
+
+#### Poznámky
+
+* Může chvíli trvat, než bude aplikace připravena, protože stahuje 20GB Docker kontejner. Pokud ještě není v cache, první spuštění může trvat až 20 minut.
+* Pokud zadané heslo nebylo správné, aplikace zůstane čekající neomezeně dlouho. V takovém případě aplikaci smažte a začněte znovu.
+
+![apphelm](/img/ceritsc/apps/matlab/apphelm.png)
+
+### Připojení k běžící instanci
+
+Jakmile aplikace běží, pro verzi *VNC* přejděte přes `Service Discovery` (1) a `Services` (2), najeďte myší na `Target` (3) a v závislosti na použitém prohlížeči byste měli vidět cílové URL (4). Prohlížeč Chrome jej zobrazuje v levém dolním rohu. Toto je IP adresa a port, které potřebujete předat vaší aplikaci `vncviewer` nebo zadat do navigačního řádku Safari, např. `vnc://147.251.253.246`.
+
+V případě *WEBRTC* místo `Services` přejděte na `Ingresses` (5) a uvidíte plné URL pro kliknutí a zahájení *WEBRTC* připojení.
+
+*VNC* klient požádá o heslo. Zadejte heslo z formuláře. *WEBRTC* připojení požádá o uživatelské jméno a heslo; toto **nejsou** vaše MetaCentrum uživatelské jméno a heslo, ale ty, které jste zadali na začátku formuláře.
+
+![apphelm](/img/ceritsc/apps/matlab/appservice.png)
+
+## MATLAB
+
+Při prvním přihlášení bude desktop vypadat takto:
+![app](/img/ceritsc/apps/matlab/app.png)
+
+Uvidíte `license checker`, který je navržen pro kontrolu dostupných MATLAB licencí. Můžete vybrat, které licence chcete použít. Pokud nejsou volné licence, bude periodicky kontrolovat a jakmile bude licence volná, začne hladce. Alternativně můžete spustit další části MATLAB pomocí ikon na desktopu nebo pomocí terminálu.
+
+Protože MATLAB je licencovaný produkt, musíte souhlasit, že tento produkt používáte pouze pro akademické účely a že máte nárok používat licenci, tj. jste uživatel MetaCentrum nebo student/zaměstnanec Masarykovy univerzity v Brně, Západočeské univerzity v Plzni nebo Českého vysokého učení technického v Praze.
+
+![legal](/img/ceritsc/apps/matlab/matlab-legal.png)
+
+## Smazání běžící instance
+
+Pokud již aplikaci nepotřebujete, můžete ji smazat. Přejděte na `App & Marketplace` (1), `Installed Apps` (2), vyberte aplikaci (3) a klikněte `Delete` (4). Data v domovském adresáři nejsou smazána, pokud jste zaškrtli trvalý domovský adresář. Spuštění aplikace znovu se stejným `Name` obnoví přístup k domovskému adresáři.
+
+![appdel](/img/ceritsc/apps/matlab/appdel.png)

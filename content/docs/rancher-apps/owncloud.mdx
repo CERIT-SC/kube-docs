@@ -4,67 +4,67 @@ title: ownCloud
 
 ## Running ownCloud Client
 
-If not already logged, log to [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz), see [Rancher](../rancher/rancher) section.
+If not already logged in, log in to [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz). See the [Rancher](../rancher/rancher) section.
 
-Following the steps below, you can run ownCloud client application. This application is meant to share and sync data between a pod (another running application) and ownCloud server, e.g., [owncloud.cesnet.cz](https://owncloud.cesnet.cz).
+By following the steps below, you can run the ownCloud client application. This application is designed to share and sync data between a pod (another running application) and an ownCloud server, such as [owncloud.cesnet.cz](https://owncloud.cesnet.cz).
 
 ### Notes
 
-* Important prerequisite: application pod needs to use [PVC](../kubernetes/pvc) in order to ownCloud client can sync data into the pod. If no PVC is used, no sync is possible.
-  * For most applications here it is possible to select *persistent home* which implies using *PVC*.
+* Important prerequisite: The application pod must use a [PVC](../kubernetes/pvc) for the ownCloud client to sync data to the pod. Without a PVC, sync is not possible.
+  * For most applications, you can select *persistent home*, which implies using a *PVC*.
 
 ### Check your Application
 
-Select your `Namespace` (1),  navigate through `Workload` (2), `Pods` (3), and name of the application (4), e.g., `ansys-0` -- click on the name. See screenshot below.
+Select your `Namespace` (1), navigate through `Workload` (2), `Pods` (3), and the name of the application (4), for example, `ansys-0` — click on the name. See the screenshot below.
 
 ![findpod](/img/ceritsc/apps/owncloud/findpod.png)
 
-Click on vertical dots (1) and select Execute Shell (2). 
+Click on vertical dots (1) and select Execute Shell (2).
 
 ![enterpod](/img/ceritsc/apps/owncloud/enterpod.png)
 
-Issue `df` command in the new *terminal area* (1) and check you see some remote file system connected to home (2) or somewhere else.
+Issue the `df` command in the new *terminal area* (1) and check that you see a remote file system connected to the home directory (2) or elsewhere.
 
 ![inpod](/img/ceritsc/apps/owncloud/inpod.png)
 
 ### Select Application to Run
 
-Ensure, you did not select any namespace and see `Only User Namespaces` (1) at the top of the Rancher page.
+Ensure that you have not selected any namespace and that you see `Only User Namespaces` (1) at the top of the Rancher page.
 
-Navigate through `App & Marketplace` (2), `Charts` (3), limit charts only to `cerit-sc` (4) and select `ownCloud` (5). See screenshot below.
+Navigate through `App & Marketplace` (2), `Charts` (3), limit charts to `cerit-sc` only (4), and select `ownCloud` (5). See the screenshot below.
 
 ![selectapp](/img/ceritsc/apps/owncloud/selectapp.png)
 
 ### Select Version of the Application
 
-When you click on the chart, hit `Install` to continue.
+When you click on the chart, select `Install` to continue.
 
 ![selectversion](/img/ceritsc/apps/owncloud/selectversion.png)
 
 ### Install the Application
 
-Now you can install the ownCloud application. In most cases, keep both `Namespace` (1) and `Name` (2) intact, however, you must select the same namespace as the Pod, from which you want transfer data, is running. The `Name` will be in URL to access the application. The `Name` must be unique in the `Namespace`, i.e., you cannot run two or more instances with the same `Name` in the same `Namespace`.  
+Now you can install the ownCloud application. In most cases, keep both `Namespace` (1) and `Name` (2) intact. However, you must select the same namespace as the Pod from which you want to transfer data. The `Name` will appear in the URL used to access the application. The `Name` must be unique within the `Namespace`; that is, you cannot run two or more instances with the same `Name` in the same `Namespace`.
 
 ![appinst](/img/ceritsc/apps/owncloud/appinst.png)
 
-In the first part of the form, you select ownCloud server, for [owncloud.cesnet.cz](https://owncloud.cesnet.cz) keep default value. Fill in `username` and `password`. You can find [here](https://du.cesnet.cz/en/navody/owncloud/start#access_via_webdav_protocol) (see Access via WebDAV protocol) how to obtain those for `owncloud.cesnet.cz`. Select `PVC` that you want to sync to and from. In most cases, `PVC` containing name `home` is connected to `/home/user` while `PVC` containing name `storage` is connected to `/storage`.
+In the first part of the form, you select the ownCloud server. For [owncloud.cesnet.cz](https://owncloud.cesnet.cz), keep the default value. Fill in the `username` and `password`. You can find instructions on how to obtain these for `owncloud.cesnet.cz` [here](https://du.cesnet.cz/en/navody/owncloud/start#access_via_webdav_protocol) (see "Access via WebDAV protocol"). Select the `PVC` that you want to sync to and from. In most cases, a `PVC` containing the name `home` is connected to `/home/user`, while a `PVC` containing the name `storage` is connected to `/storage`.
 
-Fill in `Local Directory`. This is relative directory to connected `PVC`. E.g., if you set the `Local Directory` to `owncloud-data` and select "home" `PVC`, your data is synced into `/home/user/owncloud-data`. 
+Fill in the `Local Directory`. This is a relative directory within the connected `PVC`. For example, if you set the `Local Directory` to `owncloud-data` and select the "home" `PVC`, your data is synced into `/home/user/owncloud-data`.
 
-Fill in `Remote Directory`, `/` means that all remote files and directories will be synced, or you can type particular directory or path from the ownCloud server such as `documents`.
+Fill in the `Remote Directory`. A value of `/` means that all remote files and directories will be synced. Alternatively, you can type a specific directory or path from the ownCloud server, such as `documents`.
 
 ![appform](/img/ceritsc/apps/owncloud/appform1.png)
 
 ### Wait for Application to Start
 
-When you hit `Install`, you will see installation log. Once you see `SUCCESS` (see screenshot below), the application is running. 
+When you select `Install`, you will see the installation log. Once you see `SUCCESS` (see the screenshot below), the application is running.
 
 ![apphelm](/img/ceritsc/apps/owncloud/apphelm.png)
 
-Once this application is running, you will not see anything special except data is synced.
+Once the application is running, you will not see anything special except that data is being synced.
 
 ## Delete Running Instance
 
-If you feel you do not need the application anymore, you can delete it. Just navigate to `App & Marketplace` (1), `Installed Apps` (2), select the application (3) and hit `Delete` (4). The data in home directory is not deleted in case you check persistent home. Running the application again with the same `Name` restores access to the home directory folder.
+If you no longer need the application, you can delete it. Navigate to `App & Marketplace` (1), `Installed Apps` (2), select the application (3), and select `Delete` (4). The data in the home directory is not deleted if you have selected persistent home. Running the application again with the same `Name` restores access to the home directory folder.
 
 ![appdel](/img/ceritsc/apps/owncloud/appdel.png)

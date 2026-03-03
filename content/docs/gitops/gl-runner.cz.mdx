@@ -1,0 +1,108 @@
+---
+title: GitLab Runner v Kubernetes
+---
+
+GitLab Runner se používá k spouštění úloh uvedených v `.gitlab-ci.yaml` v GitLab repozitářích. GitLab Runner se liší od GitLab Kubernetes agenta, který nasazuje kontejnery do Kubernetes clusterů pro e2e testy, CI/CD a další účely.
+
+Následující návod popisuje, jak nastavit GitLab Runner v našem Kubernetes clusteru pro váš projekt nebo skupinu. Tento návod jsme vytvořili s pomocí našich kolegů Pavla Břouška, Štěpána Řiháka a Adriána Rošince.
+
+## Předpoklady
+- GitLab repozitář
+- Jmenný prostor, ve kterém chcete spouštět runnery
+- `kubectl` nainstalovaný na vašem notebooku
+- `helm` nainstalovaný na vašem notebooku
+- `kubeseal` pro bezpečné ukládání tajemství
+
+## Získání jmenného prostoru
+
+V těchto pokynech musíte nahradit `<YOUR NAMESPACE>` názvem vašeho osobního nebo skupinového jmenného prostoru. Můžete zkontrolovat, jaké jmenné prostory jsou vám k dispozici, prostřednictvím [Rancher GUI](../kubernetes/ns).
+
+## Kubectl - interakce s clusterem
+
+Pro interakci s clusterem potřebujete nainstalovat nástroj `kubectl` a stáhnout si soubor `kubeconfig`. Postupujte podle pokynů, jak soubor získat [zde](../kubernetes/kubectl).
+
+## Helm - správce balíčků pro Kubernetes
+
+GitLab Runner je distribuován jako Helm balíček. Helm je správce balíčků pro Kubernetes a abyste mohli používat Helm balíčky, potřebujete nainstalovat nástroj příkazového řádku `helm`. Viz oficiální pokyny [zde](https://helm.sh/docs/intro/install/).
+
+## Kubeseal - ukládání šifrovaných tajemství
+
+Pro bezpečné ukládání GitLab tokenů použijte Sealed Secrets. Nainstalujte `kubeseal`; pokyny najdete v oficiálním [GitHub repozitáři](https://github.com/bitnami-labs/sealed-secrets). Další zdroje o `kubeseal` najdete v části o Git tajemstvích v [naší dokumentaci](./gitsecrets).
+
+## Příprava GitLab tokenu pro použití v Kubernetes
+
+1. Získejte token pro váš [GitLab projekt](https://docs.gitlab.com/ee/ci/runners/runners_scope.html#create-a-project-runner-with-a-runner-authentication-token) nebo [GitLab skupinu](https://docs.gitlab.com/ee/ci/runners/runners_scope.html#create-a-group-runner-with-a-runner-authentication-token). Po provedení kroků pro daný typ runneru uvidíte stránku, kde *Krok 1* ukazuje váš runner token (s předponou `glrt-`).
+
+2. Vytvořte sealed secret. Nejprve získejte `base64` zakódovaný runner token (`echo <RUNNER TOKEN> | base64`). Za druhé vytvořte YAML soubor sealed secret. Můžete použít příklad níže, kde potřebujete změnit `<YOUR NAMESPACE>, <BASE64 ENCODED RUNNER TOKEN>` a uložit soubor jako `tokenSecret.yaml`. Vytvořte sealed secret provedením příkazu `kubeseal --controller-namespace sealed-secrets-operator <tokenSecret.yaml> sealed-secret.json`.
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitlab-runner-secret
+  namespace: <YOUR NAMESPACE>
+type: Opaque
+data:
+  runner-registration-token: "" # ponechte jako prázdný řetězec z důvodu kompatibility!
+  runner-token: <BASE64 ENCODED RUNNER TOKEN>
+```
+
+3. Vytvořte Secret v clusteru ze sealed secret provedením příkazu `kubectl apply -f sealed-secret.json -n <YOUR NAMESPACE>`. Když je runner vytvořen, automaticky získá runner token z tohoto Secretu.
+
+## Nastavení GitLab Runneru
+
+1. **Volitelné:** Připravte úložiště pro *sdílenou cache* vytvořením PVC. Můžete použít příklad níže, kde potřebujete zadat požadované množství do `<DESIRED-STORAGE-SIZE>` a uložit soubor jako `pvc.yaml`. Poté vytvořte PVC v clusteru provedením příkazu `kubectl create -f pvc.yaml -n <YOUR NAMESPACE>`.
+
+```yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: gitlab-runner-cache
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: <DESIRED-STORAGE-SIZE>Gi
+  storageClassName: nfs-csi
+```
+
+Pokud nenastavíte sdílenou cache, nebude žádná cache vůbec, protože každá úloha běží v novém Podu, který je po dokončení zničen. Aby cache fungovala a urychlila provádění úloh, potřebujete nastavit buď [distribuovanou cache](https://docs.gitlab.com/runner/configuration/speed_up_job_execution.html#use-a-distributed-cache) (např. [CESNET S3](https://du.cesnet.cz/cs/navody/object_storage/cesnet_s3/start)) nebo [sdílený svazek](https://docs.gitlab.com/runner/executors/kubernetes.html#using-the-cache-with-the-kubernetes-executor). Poté upravte `values.yaml` (krok 3) odpovídajícím způsobem.
+
+2. Na svém lokálním počítači spusťte `helm repo add gitlab https://charts.gitlab.io`, abyste získali GitLab balíček z Helm. Dostupné verze chartu můžete zkontrolovat pomocí `helm search repo -l gitlab/gitlab-runner`.
+
+3. Stáhněte si [values.yaml](/examples/ceritsc/values/values.yaml), který se používá jako konfigurační soubor pro Helm balíček. Tento soubor již byl upraven pro běh v našem clusteru a měl by fungovat bez dalších úprav. [Oficiální dokumentace](https://docs.gitlab.com/runner/install/kubernetes.html#configure-gitlab-runner-with-the-helm-chart) vysvětluje pole a doporučujeme si ji prohlédnout.
+
+Měli byste aktualizovat verzi GitLab Runneru na nejnovější dostupnou nebo na verzi odpovídající verzi GitLab instance. Může se stát, že image není dostupná pro nejnovější verzi. V takovém případě se instalace spustí, ale GitLab Runner v Rancheru bude ve stavu `ImagePullBackOff`, což znamená, že image neexistuje. Možná budete muset upravit hodnoty pro CPU, paměť a souběžné úlohy v celém souboru tak, aby odpovídaly kvótám vašeho projektu.
+
+4. Spusťte svůj runner. Jakmile nakonfigurujete `values.yaml`, jste připraveni spustit svůj runner provedením `helm install -n <YOUR NAMESPACE> gitlab-runner -f values.yaml gitlab/gitlab-runner`. Můžete zkontrolovat, zda bylo nasazení úspěšné, provedením příkazu `kubectl get pods -n <YOUR NAMESPACE>`, kde by měl být Pod ve stavu Running (Ready 1/1).
+
+Pokud je Pod ve stavu `ImagePullBackOff`, znamená to, že image má buď špatný název nebo tag, nebyla nahrána do registry, nebo obecně neexistuje. Image je specifikována v `values.yaml`, sekce `image:`, takže můžete zkontrolovat tag a ověřit na [oficiální stránce](https://gitlab.com/gitlab-org/ci-cd/gitlab-runner-ubi-images/container_registry/1766421), že tag existuje. Pokud ne, vyberte jiný tag.
+
+5. Pokud jste vytvořili *group runner*, měli byste ho vidět jako aktivního v *Build → Runners*. Pokud jste vytvořili *project runner*, měli byste ho vidět v *Settings* → *CI/CD* → *Project Runners*.
+
+## Upgrade runneru
+
+Pro aktualizaci runneru na novou verzi:
+
+1. Pozastavte runner v GitLab a ujistěte se, že všechny úlohy jsou dokončeny. Pozastavení runneru zabraňuje problémům vznikajícím s úlohami, jako jsou chyby autorizace při jejich [dokončení](https://docs.gitlab.com/runner/faq/index.html#helm-chart-error--unauthorized).
+
+2. Spusťte `helm upgrade --namespace <YOUR NAMESPACE> -f values.yaml gitlab-runner gitlab/gitlab-runner`
+
+## Známá omezení
+
+Tato část popisuje některé problémy a řešení, se kterými se můžete setkat při vyplňování `values.yaml`. Naše Kubernetes clustery jsou nastaveny specifickým způsobem, který může vyžadovat další konfiguraci, takže nejprve zkontrolujte tuto dokumentaci, pokud máte problémy.
+
+### Pevný počet služeb
+
+Helm chart přímo nepodporuje nastavení požadovaných bezpečnostních parametrů našich clusterů ([security context, non-root user](../kubernetes/securitycontext)); je třeba je přepsat pomocí beta funkce nazvané [pod_spec](https://docs.gitlab.com/runner/executors/kubernetes/index.html#overwrite-generated-pod-specifications). Nevýhodou je, že každý kontejner musí být opraven individuálně, takže musí existovat pevný počet kontejnerů.
+
+Pokud nepoužíváte [služby](https://docs.gitlab.com/ee/ci/services/) ve svém CI, počet kontejnerů je konstantní a můžete použít výchozí `values.yaml`.
+
+Pokud používáte služby, musíte vytvořit nový runner pro každý počet služeb, který používáte, a spouštět úlohy na různých runnerech pomocí [tagů](https://docs.gitlab.com/ee/ci/yaml/#tags), např. pokud máte úlohy s 0 službami a úlohy s 3 službami, budete potřebovat 2 runnery. [values-3s.yaml](/examples/ceritsc/values/values-3s.yaml) je příklad pro runner s přesně 3 službami.
+
+## Další čtení
+
+* https://docs.gitlab.com/runner/install/kubernetes.html
+* https://docs.gitlab.com/runner/executors/kubernetes.html
+* https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests/3907#note_1362921762

@@ -3,43 +3,61 @@ title: Samba Server
 ---
 
 ## Samba Server
-Samba server can be used to expose Persistent Volume Claim via CIFS/SMB protocol as a network drive reachable at specified **URL** in the form of `\\[namespace]-[samba_name].dyn.cloud.e-infra.cz\data` . Persistent Volume Claim (PVC) is used as a storage for running applications in Kubernetes. If you want to upload/download data to/from PVC using GUI, Samba server is a convenient way to do so.
+The Samba server can be used to expose Persistent Volume Claims via the CIFS/SMB protocol as a network drive reachable at a specified **URL** in the form of `\\[namespace]-[samba_name].dyn.cloud.e-infra.cz\data`. Persistent Volume Claims (PVCs) are used as storage for running applications in Kubernetes. If you want to upload or download data to or from a PVC using a GUI, the Samba server provides a convenient way to do so.
 
 ### Prerequisites
-Samba server works only when you want to expose already existing PVC! Therefore, make sure your PVC already exists.
+
+<Callout type="info">
+The Samba server only works with existing PVCs. Therefore, make sure your PVC already exists before proceeding.
+</Callout>
 
 ### Installation
-1. In the Rancher GUI, check the name of the PVC you would like to expose. In the example, we are going to expose PVC with name `matlab-home` in namespace `spisakova-ns`.
+1. In the Rancher GUI, check the name of the PVC you would like to expose. In this example, we will expose a PVC named `matlab-home` in the namespace `spisakova-ns`.
 
-![pvcs](/img/ceritsc/apps/samba-images/pvc.png) 
+![pvcs](/img/ceritsc/apps/samba-images/pvc.png)
 
-2. Navigate to all available applications and select `samba`, then click on install button in the top right corner.
+2. Navigate to all available applications and select `samba`, then click the install button in the top-right corner.
 
-![samba](/img/ceritsc/apps/samba-images/charts.png) 
+![samba](/img/ceritsc/apps/samba-images/charts.png)
 
-3. Select the namespace, where application will be deployed. You must choose **the same** namespace as the namespace of the PVC you want to expose. Therefore, in the example we select namespace `spisakova-ns`. Select a name for your samba application that will form a part of the final url; the name must be unique in the namespace. In the example, we will use `samba-matlab`.
+3. Select the namespace where the application will be deployed. You must choose **the same** namespace as the PVC you want to expose. In this example, we select the namespace `spisakova-ns`. Choose a name for your Samba application that will form part of the final URL; the name must be unique within the namespace. In this example, we will use `samba-matlab`.
 
-![samba-basic](/img/ceritsc/apps/samba-images/basic.png) 
+![samba-basic](/img/ceritsc/apps/samba-images/basic.png)
 
-4. In the server settings, set password for the samba server. Select the PVC you want to expose, in the example we select `matlab-home`.
+4. In the server settings, set a password for the Samba server. Select the PVC you want to expose; in this example, we select `matlab-home`.
 
 ![samba-server-settings](/img/ceritsc/apps/samba-images/serversettings.png)
 
-4.1. Your network drive will be available only in MUNI network or after connecting to MUNI VPN. 
+5. Your network drive will only be available within the MUNI network or after connecting to the MUNI VPN.
+
+<Callout type="warn">
+Your network drive will only be available within the MUNI network or after connecting to the MUNI VPN.
+</Callout>
 
 ![samba-public-expose](/img/ceritsc/apps/samba-images/expose.png)
 
-5. Wait, until samba server is installed, it should take a couple of seconds. 
+6. Wait until the Samba server is installed; it should take a few seconds.
 
 ### Connection
-The final URL is composed of selected namespace and samba application name. In our case, we can see name (samba-matlab) and namespace (spisakova-ns) next to green `Deployed` (which is a sign of successful installation together with SUCCESS message in the logs boxes at the bottom of the page). Therefore, the final url is `spisakova-ns-samba-matlab.dyn.cloud.e-infra.cz`.  **Username is always user, password is the one you chose while setting up the application.** 
+The final URL is composed of the selected namespace and Samba application name. In our case, we can see the name (`samba-matlab`) and namespace (`spisakova-ns`) next to the green `Deployed` status (which indicates successful installation along with the SUCCESS message in the log boxes at the bottom of the page). Therefore, the final URL is `spisakova-ns-samba-matlab.dyn.cloud.e-infra.cz`. **The username is always `user`, and the password is the one you chose when setting up the application.**
 
+1. **Linux** — First, install `cifs-utils` on Ubuntu/Debian OS. After installation, enter the command:
 
-1. Linux --- Firstly, install `cifs-utils` on Ubuntu/Debian OS. After installation,  enter command `mount.cifs //[namespace]-[samba_name].dyn.cloud.e-infra.cz\data [mount_location] -o username=user`. Provide password. Then, you can change directory to location chisen as mountpoint and work with network drive as regular directory. 
+```bash
+mount.cifs //[namespace]-[samba_name].dyn.cloud.e-infra.cz\data [mount_location] -o username=user
+```
+
+Provide the password when prompted. Then, you can change to the location chosen as the mount point and work with the network drive as a regular directory.
 
 ![samba-linux-command](/img/ceritsc/apps/samba-images/linux-command.png)
 
-2. Windows --- Open File Explorer from the taskbar or the Start menu, or press the Windows logo key + E. Select This PC from the left pane. Then, on the Computer tab, select Map network drive. In the Folder box, type the path of the folder or computer `\\[namespace]-[samba_name].dyn.cloud.e-infra.cz\data`. Select logging is as `another account` and provide credentials. 
+2. **Windows** — Open File Explorer from the taskbar or the Start menu, or press the Windows logo key + E. Select This PC from the left pane. Then, on the Computer tab, select Map network drive. In the Folder box, type the path:
+
+```
+\\[namespace]-[samba_name].dyn.cloud.e-infra.cz\data
+```
+
+Select "Log in as another account" and provide credentials.
 
 ![samba-windows-choose](/img/ceritsc/apps/samba-images/windows-choose.png)
 
@@ -49,11 +67,16 @@ The final URL is composed of selected namespace and samba application name. In o
 
 ![samba-windows-in](/img/ceritsc/apps/samba-images/windows-in.png)
 
-3. MacOS --- open Safari and provide url in the form of `smb://[namespace]-[samba_name].dyn.cloud.e-infra.cz\data`; the `\data` part is necessary!  Click on `Allow`, provide the credentials as registered user (username is user, password is the one you set). Connect and nework drive will be available in the Finder. You can later unmount the drive using unmount button. 
+3. **macOS** — Open Safari and enter a URL in the form of:
+
+```
+smb://[namespace]-[samba_name].dyn.cloud.e-infra.cz\data
+```
+
+The `\data` part is required. Click `Allow`, provide the credentials as a registered user (username is `user`, password is the one you set). Connect, and the network drive will be available in Finder. You can later unmount the drive using the unmount button.
 
 ![samba-mac-allow](/img/ceritsc/apps/samba-images/mac-allow.png)
 
 ![samba-mac-connect](/img/ceritsc/apps/samba-images/mac-connect.png)
 
 ![samba-mac-unmount](/img/ceritsc/apps/samba-images/mac-unmount.png)
-

@@ -1,5 +1,286 @@
 ---
 title: Snakemake
+keywords: Snakemake, Workflow, Pipeline, Bioinformatics, Python
 ---
 
-## TBD
+[Snakemake](https://snakemake.github.io/) is a workflow management system that enables the creation and execution of reproducible and scalable data analyses. It is particularly popular in bioinformatics and computational biology for managing complex data processing pipelines. Snakemake workflows are defined using a human-readable, Python-based language and can be executed on various platforms, including local machines, clusters, and cloud environments.
+
+At CERIT-SC, Snakemake workflows can be run on the Kubernetes cluster, leveraging containerization and parallel execution capabilities for efficient pipeline processing.
+
+## Snakemake Overview
+
+Snakemake allows you to define workflows as a set of rules, where each rule describes how to create output files from input files. The workflow engine then automatically determines the execution order based on file dependencies, enabling parallel execution where possible.
+
+Key features of Snakemake include:
+- **Reproducibility**: Each step runs in isolated environments (containers or Conda environments)
+- **Scalability**: Automatic parallelization across cores, clusters, or cloud resources
+- **Portability**: Workflows can run on laptops, HPC clusters, Kubernetes, and cloud platforms
+- **Flexibility**: Python integration for complex logic and dynamic workflow generation
+
+## Running Snakemake on Kubernetes
+
+Snakemake supports execution on Kubernetes through its built-in Kubernetes executor. This allows workflows to run as containerized jobs on the CERIT-SC Kubernetes cluster, benefiting from the cluster's resource management and scalability features.
+
+### Prerequisites
+
+Before running Snakemake workflows on Kubernetes, ensure you have:
+
+1. **Snakemake installed locally**: `pip install snakemake` (version 8.x or later recommended)
+2. **Kubernetes access configured**: Valid `kubeconfig` file for the CERIT-SC cluster
+3. **Container registry access**: Images used in your workflow must be accessible from the cluster
+4. **Storage setup**: PersistentVolumeClaim (PVC) for data storage during workflow execution
+
+### Basic Workflow Structure
+
+A minimal Snakemake workflow consists of a `Snakefile` containing rules. Here's a simple example:
+
+```python title="Snakefile"
+rule all:
+    input:
+        "output/processed.txt"
+
+rule process_data:
+    input:
+        "input/data.txt"
+    output:
+        "output/processed.txt"
+    shell:
+        "cat {input} | tr 'a-z' 'A-Z' > {output}"
+```
+
+### Kubernetes Execution
+
+To run a Snakemake workflow on Kubernetes, use the `--kubernetes` flag along with other Kubernetes-specific options:
+
+```bash
+snakemake --kubernetes \
+    --default-remote-provider S3 \
+    --default-remote-prefix my-bucket/workflows \
+    --container-image "cerit.io/snakemake/snakemake:8.0" \
+    --k8s-namespace [your-namespace] \
+    --k8s-pvc-name [your-pvc] \
+    --k8s-service-account-name [your-service-account]
+```
+
+**Parameter explanation:**
+- `--kubernetes`: Enables Kubernetes execution mode
+- `--container-image`: Docker image containing Snakemake and workflow dependencies
+- `--k8s-namespace`: Kubernetes namespace where jobs will run
+- `--k8s-pvc-name`: PersistentVolumeClaim for workflow data storage
+- `--k8s-service-account-name`: Service account with appropriate permissions
+
+### Resource Configuration
+
+Snakemake allows resource specification per rule to control Kubernetes resource allocations:
+
+```python title="Snakefile with resources"
+rule align_reads:
+    input:
+        "data/reads.fastq",
+        "data/reference.fasta"
+    output:
+        "results/aligned.bam"
+    resources:
+        mem_mb=8000,
+        cpu=4,
+        disk_mb=10000
+    container:
+        "cerit.io/bioinformatics/bwa:0.7.17"
+    shell:
+        "bwa mem -t {resources.cpu} {input[1]} {input[0]} > {output}"
+```
+
+The `resources` section maps to Kubernetes resource requests:
+- `mem_mb`: Memory in megabytes (converted to Kubernetes memory requests)
+- `cpu`: CPU cores
+- `disk_mb`: Ephemeral storage in megabytes
+
+## CERIT-SC Specific Configuration
+
+For optimal performance on the CERIT-SC Kubernetes cluster, consider the following configuration:
+
+### Recommended Container Images
+
+CERIT-SC maintains optimized container images for common bioinformatics workflows:
+
+```
+cerit.io/snakemake/snakemake:8.0          # Base Snakemake image
+cerit.io/bioinformatics/base:latest       # Common bioinformatics tools
+cerit.io/bioinformatics/nf-core:latest    # nf-core compatible tools
+```
+
+### Storage Configuration
+
+Use your project's PersistentVolumeClaim (PVC) for workflow data:
+
+```bash
+# Mount PVC at /data in containers
+snakemake --kubernetes \
+    --k8s-pvc-name my-project-pvc \
+    --k8s-pvc-mount-path /data \
+    --default-resources "tmpdir=/data/tmp"
+```
+
+### Resource Quotas
+
+Be aware of namespace resource quotas when running large workflows:
+
+```bash
+# Check current resource usage
+kubectl describe resourcequota -n [your-namespace]
+```
+
+Adjust workflow resource requests accordingly to stay within quota limits.
+
+## Advanced Configuration
+
+### Using Conda Environments
+
+Snakemake can manage Conda environments within containers:
+
+```python title="Snakefile with Conda"
+rule analyze_data:
+    input:
+        "data/input.csv"
+    output:
+        "results/analysis.json"
+    conda:
+        "envs/analysis.yaml"
+    container:
+        "cerit.io/snakemake/miniconda:latest"
+    shell:
+        "python scripts/analyze.py {input} {output}"
+```
+
+### Workflow Profiles
+
+Create reusable configuration profiles for different execution environments:
+
+```yaml title="profiles/cerit-kubernetes/config.yaml"
+kubernetes:
+  namespace: "my-project"
+  service_account_name: "snakemake-runner"
+  pvc_name: "project-storage"
+  container_image: "cerit.io/snakemake/snakemake:8.0"
+
+resources:
+  default:
+    mem_mb: 4000
+    cpu: 2
+    disk_mb: 5000
+```
+
+Execute with profile:
+```bash
+snakemake --profile profiles/cerit-kubernetes
+```
+
+### Parallel Execution Control
+
+Control parallel job execution to manage cluster load:
+
+```bash
+# Limit concurrent jobs
+snakemake --kubernetes --jobs 20
+
+# Control cores per job
+snakemake --kubernetes --cores 100  # Total cores across all jobs
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Permission errors**: Ensure your service account has appropriate RBAC permissions
+2. **Image pull errors**: Verify container images are accessible from the cluster
+3. **Storage issues**: Confirm PVC exists and is mounted correctly
+4. **Resource quota exceeded**: Adjust resource requests or request quota increase
+
+### Debug Commands
+
+```bash
+# View Snakemake job status
+kubectl get jobs -n [your-namespace] -l app=snakemake
+
+# Check pod logs
+kubectl logs -n [your-namespace] [pod-name] -c snakemake
+
+# Monitor workflow progress
+snakemake --kubernetes --list
+```
+
+### Getting Help
+
+If you encounter issues running Snakemake workflows on the CERIT-SC Kubernetes cluster:
+- Check the [Snakemake documentation](https://snakemake.readthedocs.io/)
+- Review Kubernetes job logs in the Rancher UI
+- Contact **k8s@cerit-sc.cz** for cluster-specific issues
+
+## Example Workflow
+
+Here's a complete example workflow for RNA-seq analysis:
+
+```python title="Snakefile (RNA-seq example)"
+configfile: "config.yaml"
+
+rule all:
+    input:
+        expand("results/{sample}.counts.txt", sample=config["samples"])
+
+rule download_reference:
+    output:
+        "data/reference.fasta",
+        "data/reference.gtf"
+    params:
+        url=config["reference_url"]
+    container:
+        "cerit.io/bioinformatics/base:latest"
+    shell:
+        """
+        wget -O {output[0]} {params.url}.fasta.gz
+        wget -O {output[1]} {params.url}.gtf.gz
+        gunzip {output[0]}.gz
+        gunzip {output[1]}.gz
+        """
+
+rule align_reads:
+    input:
+        reads="data/{sample}.fastq",
+        reference="data/reference.fasta"
+    output:
+        "results/{sample}.bam"
+    resources:
+        mem_mb=16000,
+        cpu=8
+    container:
+        "cerit.io/bioinformatics/hisat2:2.2.1"
+    shell:
+        "hisat2 -x {input.reference} -U {input.reads} -p {resources.cpu} | samtools view -bS - > {output}"
+
+rule count_features:
+    input:
+        bam="results/{sample}.bam",
+        gtf="data/reference.gtf"
+    output:
+        "results/{sample}.counts.txt"
+    container:
+        "cerit.io/bioinformatics/htseq:0.13.5"
+    shell:
+        "htseq-count -f bam {input.bam} {input.gtf} > {output}"
+```
+
+This workflow demonstrates:
+1. Configuration file usage
+2. Dynamic rule expansion
+3. Resource specification
+4. Containerized execution
+5. File dependency management
+
+## Additional Resources
+
+- [Snakemake Documentation](https://snakemake.readthedocs.io/)
+- [Snakemake GitHub](https://github.com/snakemake/snakemake)
+- [CERIT-SC Container Registry](https://cerit.io)
+- [Kubernetes Documentation](https://kubernetes.io/docs/)
+
+For specific questions about running Snakemake on the CERIT-SC Kubernetes cluster, contact **k8s@cerit-sc.cz**.

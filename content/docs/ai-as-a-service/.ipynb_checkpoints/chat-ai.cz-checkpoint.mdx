@@ -1,0 +1,352 @@
+---
+title: Chat AI (LLM modely)
+description: Komplexní průvodce používáním rozhraní Open WebUI chat s velkými jazykovými modely na platformě AI e-INFRA CZ
+---
+
+## Úvod
+
+Open WebUI je rozhraní chatbotu poháněné umělou inteligencí, které poskytuje zabezpečený, lokální přístup k pokročilým jazykovým modelům pro chatování, programování, zpracování dokumentů a generování obrázků. Stejné modely jsou dostupné prostřednictvím [zdokumentovaného REST API](#vytvoření-api-klíče) a lze je připojit k dalším aplikacím, jako je Visual Studio. Tento průvodce poskytuje pokyny k přihlášení, používání modelů, generování obrázků a vytvoření API klíče. Naše AI služby fungují výhradně v rámci zabezpečené infrastruktury e-INFRA CZ – vaše data nikdy neopustí toto prostředí.
+
+## Přístup k AI chat (Open WebUI)
+
+Platforma je dostupná přímo na adrese:
+
+👉 https://chat.ai.e-infra.cz
+
+
+** Prerekvizity
+
+Pro využívání této služby musíte mít platný účet v MetaCentru (e-INFRA CZ).
+
+**Jak získat přístup**
+
+AI služby CERIT-SC jsou integrovány do národní výzkumné infrastruktury MetaCentrum. O přístup můžete požádat prostřednictvím [registračního formuláře MetaCentra](https://metavo.metacentrum.cz/en/application/form).
+
+<Callout type="info">
+Studenti a zaměstnanci Masarykovy univerzity: Pokud nemáte a neplánujete účet v MetaCentru, můžete použít [tento odkaz](https://signup.e-infra.cz/registrar/?vo=e-infra.cz&group=projects%3Achat-ai&targetnew=https%3A%2F%2Fchat.ai.e-infra.cz&targetexisting=https%3A%2F%2Fchat.ai.e-infra.cz&targetextended=https%3A%2F%2Fchat.ai.e-infra.cz).
+Vaše žádost o přístup bude automaticky schválena a můžete začít používat LLM okamžitě.
+**Poznámka:** Tato rychlá registrace poskytuje přístup pouze k službám AI chat + API. Pro využívání všech ostatních služeb (např. Kubernetes) je vyžadován standardní účet MetaCentra.
+</Callout>
+
+
+Pokud narazíte na jakékoli problémy nebo potřebujete pomoc, kontaktujte nás na **[k8s@cerit-sc.cz](mailto:k8s@cerit-sc.cz)**.
+
+## Přihlášení k AI chat
+
+1. Otevřete webový prohlížeč a přejděte na https://chat.ai.e-infra.cz.
+2. Klikněte na tlačítko Login.
+3. Vyberte možnost přihlášení pomocí e-INFRA CZ.
+4. Po přihlášení budete přesměrováni na dashboard Open WebUI.
+
+## Používání AI modelů
+
+Open WebUI poskytuje přístup k různým AI modelům pro generování textu. Pro jejich použití:
+
+1. Po přihlášení přejděte do chatovacího rozhraní.
+2. Vyberte model z dostupných možností v rozevíracím menu.
+3. Napište svůj dotaz nebo požadavek do vstupního pole.
+4. Stiskněte Enter nebo klikněte na Odeslat pro obdržení odpovědi od vybraného modelu.
+5. **Nezapomeňte procházet seznam modelů!** Další modely jsou k dispozici níže. 👇⬇️
+
+<center>
+<div class="w-96">
+![chatscroll](/img/ceritsc/chat-ai-scroll.gif)
+</div>
+</center>
+
+### Aktuálně dostupné modely (k 26. lednu 2026)
+
+Od 26. ledna 2026 bude model **DeepSeekR1** **nahrazen** modelem **DeepSeek V3.2**. DeepSeekR1 již nebude dostupný.
+
+Naše modely kategorizujeme do tří skupin:
+
+1. **Garantované modely** – Stabilní modely udržované pro dlouhodobou dostupnost. Jakékoli aktualizace nebo nahrazení budou oznámeny na této stránce a prostřednictvím bannerů ve WebUI.
+2. **Experimentální modely** – Podléhají změnám během optimalizace zdrojů nebo testování nových schopností.
+3. **Zastaralé modely** – V současné době funkční, ale plánované k vyřazení.
+
+<Callout type="info">
+Pro přesné názvy modelů dotazujte seznam modelů, jak je ukázáno [níže](#názvy-modelů-pro-api-rozhraní). Při externím přístupu musíte používat přesné názvy modelů, jako je `llama3.3:latest`.
+
+Názvy modelů rozlišují velká a malá písmena a mohou obsahovat verze jako `:latest` nebo specifické kvantizační formáty.
+</Callout>
+
+#### Garantované modely
+
+| Model                | Název modelu  |Popis | Velikost kontextu |
+|----------------------|----|---------|--------------|
+| **GPT-OSS-120B**     |  gpt-oss-120b  |120B jazykový model od OpenAI. Vynikající výkon. |  128k  |
+| **DeepSeek V3.2**    |  deepseek-v3.2-thinking  | 685B model pro uvažování a instrukce (volitelný) od DeepSeek AI. Vyniká v komplexních úlohách včetně matematiky, logického uvažování a generování kódu. | 160k |
+| **Qwen 3 Coder**     |  qwen3-coder  |  480B jazykový model od Qwen. Následník Qwen 2.5 Coder s výrazně lepším výkonem v programovacích úlohách. | 90k   |
+
+<Callout type="info">
+Ačkoli **DeepSeek V3.2** a **Qwen 3 Coder** jsou označeny jako **garantované** modely, mějte prosím na vědomí:
+- Jejich základní hardware může vyžadovat údržbu a my nemáme záložní infrastrukturu srovnatelného rozsahu
+- Během urgentních prioritních úloh vyžadujících tento hardware může být dostupnost modelů dočasně pozastavena
+- Předem bude o takových přerušeních informováno na této stránce a v chatovacím rozhraní
+</Callout>
+
+#### Experimentální modely
+
+| Model         |      Název modelu         | Popis | Velikost kontextu |
+|---------------|---------------|-------------|--------------|
+| **GLM 4.7**    | glm-4.7              | 385B jazykový model GLM 4.7 od Z.ai s volitelným režimem uvažování a instrukcí, vynikající v programování, volání nástrojů a agentních úlohách. | 200k |
+| **GPT OSS 120B s pamětí** |  | 120B model GPT OSS pro uchování klíčových faktů (např. preferencí, podrobností projektu). Povolení funkce paměti personalizuje odpovědi napříč konverzacemi. Pro povolení `Paměti` klikněte na své uživatelské jméno (dole vlevo), přejděte do `Nastavení` → `Personalizace` → záložka `Paměť` a přepněte `Paměť` na zapnuto. Pro přidání vzpomínek použijte buď metodu: 1) **Tlačítko Správa**: V záložce Paměť klikněte na Správa pro přidání/úpravu vzpomínek (např. "Můj projekt: CFD optimalizace") nebo 2) **Chat příkaz**: Během chatů napište "remember [fakt]" (např. "remember my MetaCentrum login is xnovak12"). Model potvrdí uložení. *Důležité: Když je povoleno, vzpomínky se používají napříč všemi podporovanými modely.*| 128k |
+| **Kimi K2.5**  | kimi-k2.5   |  Rozsáhlý MoE model s přibližně 1 bilionem parametrů s výrazně lepším výkonem v programovacích úlohách. | 256k   |
+| **Qwen 3.5**  | qwen3.5   |  397B Multimodální pokročilý model pro programování, práci s nástroji a agentní workflow | 262k   |
+
+#### Zastaralé modely
+
+| Model              | Popis |
+|--------------------|---------------|
+| **Aya&nbsp;Expanse**      | 32B Q8 vícejazyčný model od Cohere, trénovaný pro dobrý výkon ve 23 jazycích včetně češtiny. |
+| **Command-A**      | 111B model od Cohere. I když pomalejší v době odezvy, je obzvláště silný v programovacích úlohách a generování manifestů. |
+| **DeepSeek&nbsp;R1&nbsp;0528** | 685B jazykový model optimalizovaný pro uvažování od DeepSeek AI. Vyniká v komplexních úlohách včetně matematiky, logického uvažování a generování kódu. | 128k  |
+| **Gemma 3**        | 27B FP16 jazykový model od Google, součást lehké rodiny Gemma postavené na technologii Gemini. |
+| **LLaMA 3.3**      | 70B jazykový model od Meta. Jeho efektivita a univerzálnost jej činí vhodným pro širokou škálu úloh zpracování přirozeného jazyka. |
+| **Mistral&#8209;Small&nbsp;3.1**| 24B jazykový model od Mistral AI s vestavěnými schopnostmi vidění. |
+| **Mistral&#8209;Small&nbsp;3.2**| 24B jazykový model od Mistral AI s vestavěnými schopnostmi vidění. |
+| **Phi-4**            | 14B Q8 model od Microsoft, trénovaný na směsi syntetických datových sad, filtrovaného veřejného webového obsahu, akademických knih a datových sad otázek a odpovědí. Představuje současný stav otevřených přístupových modelů. |
+
+#### Embedding modely
+
+Embedding modely jsou dostupné prostřednictvím API endpointu: `https://llm.ai.e-infra.cz/v1` pomocí API tokenů z Open WebUI.
+
+| Model                          | Popis |
+|--------------------------------|-------------|
+| qwen3-embedding-4b             | QWen3 embedding model s velikostí kontextu 40960 tokenů a velikostí vektoru embeddingu 2560. Vícejazyčný model s podporou více než 100 jazyků. |
+| qwen3-reranker-4b              | QWen3 reranker model s velikostí kontextu 40960 tokenů                              |
+| nomic-embed-text-v1.5          | Nomic AI embedding model s velikostí kontextu 512 tokenů a velikostí vektoru embeddingu 768. Pouze angličtina. |
+| nomic-embed-text-v2-moe        | Nomic AI embedding model s velikostí kontextu 512 tokenů a velikostí vektoru embeddingu 768. Aktualizovaná verze. Pouze angličtina. |
+| mxbai-embed-large:latest       | Mixedbread-AI embedding model s velikostí kontextu 512 tokenů a velikostí vektoru embeddingu 1024. Pouze angličtina. |
+| multilingual-e5-large-instruct | Intfloat embedding model s velikostí kontextu 514 tokenů a velikostí vektoru embeddingu 1024. Vícejazyčný. |
+
+#### Znalost českého jazyka
+Vyhodnotili jsme vybrané modely pomocí benchmarku [BenCzechMark](https://huggingface.co/blog/benczechmark). Úplné výsledky jsou k dispozici na poskytnutém odkazu. Pro referenci jsou klíčové skóre shrnuty níže:
+
+| Model             | Průměrné skóre |
+|-------------------|------------|
+| DeepSeek-R1-0528  | 85.3       |
+| Command-A         | 82.8       |
+| LLaMA-3.3         | 73.5       |
+| LLaMA-4-Scout     | 71.5       |
+| Aya Expanse       | 63.5       |
+| Gemma 3           | 59.2       |
+| Phi-4             | 58.2       |
+
+<Callout type="info">
+Mistral-Small vykazuje problémy s kompatibilitou s tímto českým benchmarkem.
+</Callout>
+
+#### Znalost programovacích jazyků
+
+Vyhodnotili jsme vybrané modely pomocí [Aider Polyglot Benchmark](https://aider.chat/2024/12/21/polyglot.html#the-polyglot-benchmark). Pro referenci jsou klíčové skóre shrnuty níže:
+
+| Model                  | C++ skóre | Go Lang skóre | Java skóre | Javascript skóre | Python skóre | Rust skóre |
+|------------------------|-----------|---------------|------------|------------------|--------------|------------|
+|Qwen3-Coder-480B        |  61.5     | 59.0          | 63.8       | 53.1             | 50.0         | 53.3       |
+|Qwen3-Coder-Next        |  69.2     | 51.3          | 51.1       | 75.5             | 70.6         | 46.7       |
+|GPT-OSS-120B            |  50.0     | 59.0          | 40.4       | 61.2             | 70.6         | 53.3       |
+|DeepSeek-R1-0528        |   7.7     | 56.4          | 55.3       | 69.4             | 73.5         | 70.0       |
+|DeepSeek V3.2 (think)   |  88.5     | **84.6**      | 66.0       | 89.9             | 82.4         | 76.7       |
+|DeepSeek V3.2 (nothink) | **92.3**  | 82.1          | 59.6       | 79.6             | 79.4         | 66.7       |
+|GLM 4.7 (think)         | 69.2      | 71.8          | 59.6       | 83.7             | 82.4         | 53.3       |
+|GLM 4.7 (nothink)       | 69.2      | 38.5          | 44.7       | 55.1             | 55.9         | 33.3       |
+|Kimi K2.5 (think)       | **92.3**  | **84.6**      | 74.5       | **93.9**         | **91.2**     | **90**     |
+|Kimi K2.5 (nothink)     | **92.3**  | 82.1          | **76.6**   | 89.8             | 82.4         | **90**     |
+
+## Příklady
+
+Níže je podrobný průvodce využíváním LLM modelů v Open WebUI v různých scénářích.
+
+### Generování obrázků
+
+Generujte AI obrázky z textových promptů.
+* **Vyberte** textový generující model (např. `GPT-OSS-120B`) z rozevíracího menu v levém horním rohu.
+* **Klikněte** na **Ikona integrace** pod promptem → přepněte **Obrázek** na **ZAPNUTO**.
+
+<div class="w-110">
+![image-webui](/img/ceritsc/image-webui.png)
+</div>
+
+* Zadejte svůj textový prompt (např. `Nakreslete duhového kotě`).
+* Stiskněte Enter nebo klikněte na Odeslat.
+* Zadejte následné textové instrukce pro úpravu generovaného obrázku. Po každém promptu pro doladění znovu stiskněte Enter.
+* **Výsledek**: Vygenerovaný obrázek se objeví v chatu.
+
+<div class="w-50">
+![image-webui1](/img/ceritsc/kote-ai-chat.png)
+</div>
+
+### Editor obrázků
+
+Upravujte nahrané obrázky pomocí multimodálních modelů.
+
+* Vyberte multimodální model (např. `RedHat AI Scout`) z rozevíracího menu modelů.
+* Klikněte na ikonu **+** → **Nahrát soubory** → vyberte obrázek (JPG/PNG)
+
+<div class="w-110">
+![uploadfiles-webui](/img/ceritsc/uploadfiles-webui.png)
+</div>
+
+* Nahrajte obrázek, který chcete upravit.
+* **Klikněte** na **Ikona integrace** pod promptem → přepněte **Obrázek** na **ZAPNUTO**.
+
+<div class="w-110">
+![image-webui](/img/ceritsc/image-webui.png)
+</div>
+
+* Zadejte svůj příkaz pro úpravu: např. `Přidej útočícího krokodýla`.
+* Stiskněte Enter nebo klikněte na Odeslat.
+* **Výsledek**: Upravený obrázek se objeví v chatu.
+
+<div class="w-200">
+![image-webui2](/img/ceritsc/kotata-ai-chat.png)
+</div>
+
+### Obrázek na text (OCR skener)
+Extrahujte text z obrázků.
+
+* Vyberte textový generující model (např. `Gemma 3` nebo `RedHat AI Scout`)
+* Klikněte na ikonu **+** → **Nahrát soubory** → vyberte obrázek (JPG/PNG)
+
+<div class="w-110">
+![uploadfiles-webui](/img/ceritsc/uploadfiles-webui.png)
+</div>
+
+* Nahrajte obrázek obsahující text (např. naskenovaný dokument, PDF nebo fotografie).
+* Zadejte OCR instrukci: např. `Extrahujte veškerý text z tohoto obrázku doslova, zachovejte zalomení řádků.`
+* Stiskněte Enter nebo klikněte na Odeslat.
+* **Výsledek**: Extrahovaný text se objeví jako odpověď.
+
+<div class="w-200">
+![image-webui3](/img/ceritsc/OCR-chat-ai.png)
+</div>
+
+### Python Sandbox pro matematické/programovací úlohy
+Spouštějte Python pro matematické/programovací úlohy (*nikoli obecné programování*).
+* Vyberte libovolný model podporující nástroje (např. `GPT-OSS-120B`).
+* Klikněte na **Ikona integrace** → **Nástroje** → přepněte **Python Sandbox** na **ZAPNUTO**.
+
+<div class="w-110">
+![python-webui](/img/ceritsc/python-webui.png)
+</div>
+
+* Odešlete svůj požadavek: např. `Vyřešte tuto Sudoku hádanku pomocí Pythonu: [[5][3][0][0][7][0][0][0][0], ...]`.
+* Stiskněte Enter nebo klikněte na Odeslat.
+* **Výsledek**: Textový výstup (např. vyřešená hádanka nebo kód v Pythonu pro analýzu dat)
+
+<Callout type="info">
+Uživatelé mohou snadno nahrávat CSV soubory a žádat o analýzy. Aplikace generuje připravený Python kód pro přímé spuštění v prohlížeči. I když sandbox nevykresluje grafy, produkuje kompletní vizualizační kód, který umožňuje uživatelům SPUSTIT a zobrazit výsledky v jejich preferovaném externím prostředí.
+</Callout>
+
+<div class="w-200">
+![image-python-webui](/img/ceritsc/chat-ai-python.png)
+</div>
+
+<Callout type="info">
+⚠️  **Obecné programování je zakázáno.**  Používejte výhradně pro specifické problémy, kde Python může poskytnout efektivní **textové řešení** (např. matematické výpočty, transformace dat).
+</Callout>
+
+### Zapamatování (Personalizace)
+Ukládejte uživatelsky specifický kontext (např. preference, přihlašovací údaje).
+Příklad: Po uložení "Preferuji Python před MATLABem" budou budoucí návrhy kódu upřednostňovat Python.
+
+* **Povolení paměti**:
+    * Klikněte na své uživatelské jméno (dole vlevo) → **Nastavení** → **Personalizace** → **Záložka Paměť**
+    * Přepněte **Paměť** na zapnuto
+
+<div class="w-110">
+![memory-webui](/img/ceritsc/memory-webui.png)
+</div>
+
+* Vyberte model s podporou paměti: `GPT OSS 120B s pamětí`
+* **Přidávání vzpomínek**:
+    * **Ručně**: Klikněte na **Správa** → přidejte páry klíč/hodnota: *Projekt: CFD optimalizace; Termín: 2025-12-01*
+    * **Chat příkaz**: Napište `remember [fakt]` (např. `remember my MetaCentrum login is xnovak12`).
+* Model potvrdí uložení.
+* Ukládání kontextu funguje pouze s modelem `GPT OSS 120B s pamětí`.
+
+<Callout type="info">
+Vzpomínky se **automaticky aplikují na všechny podporované modely** po povolení.
+</Callout>
+
+## Vytvoření API klíče {#názvy-modelů-pro-api-rozhraní}
+
+Pro použití API Open WebUI musíte vygenerovat API klíč.
+
+1. Přejděte do sekce Nastavení rozhraní Open WebUI.
+2. Přejděte na Účet.
+3. Klikněte na API klíče (zobrazení).
+4. Ignorujte JWT token, vyberte API klíč a buď vygenerujte nový, nebo zobrazte existující.
+5. Zkopírujte vygenerovaný API klíč a uložte jej bezpečně.
+6. Použijte tento klíč v API požadavcích pro autentizaci a přístup ke službám Open WebUI.
+7. Koncový bod API je: [https://llm.ai.e-infra.cz/v1/](https://llm.ai.e-infra.cz/v1/).
+
+<Callout type="info">
+Používání API Open Web UI je popsáno v kapitole [OpenAI API](../ai-as-a-service/ai-api)
+</Callout>
+
+## Funkce znalostí (Alfa)
+
+Open WebUI obsahuje experimentální *Funkci znalostí*, což je v podstatě systém [RAG (Retrieval-Augmented Generation)](https://en.wikipedia.org/wiki/Retrieval-augmented_generation). To umožňuje uživatelům nahrávat vlastní texty a dotazovat model, který generuje odpovědi na základě tohoto obsahu.
+
+V současné době Funkce znalostí podporuje pouze globální konfiguraci, což znamená, že pro všechny uložené texty se používá jediný embedding model. Stále vyhodnocujeme, které embedding modely jsou pro tento účel nejvhodnější. Klíčovým omezením je, že změna embedding modelu vyžaduje opětovné zpracování všech dříve nahraných textů, protože RAG spoléhá na konzistentní embeddinky pro správné fungování. Z tohoto důvodu se tato funkce nedoporučuje pro produkční použití a je určena primárně pro testování a náhled.
+
+Další výzva spočívá v nalezení vhodných embedding modelů, které podporují český jazyk a velké vstupní kontexty. Většina dostupných modelů je omezena na vstup 512 tokenů, což je pro delší texty nevhodné, protože vyžaduje rozdělení obsahu na malé fragmenty – často příliš malé pro poskytnutí kvalitních odpovědí.
+
+I když bychom mohli integrovat externí embedding modely jako OpenAI `text-embedding-3-small`, tento přístup by ohrozil ochranu osobních údajů, protože zahrnuje odesílání dat třetí straně.
+
+## Ochrana osobních údajů
+
+V Open WebUI jsou nyní štítky modelů standardizovány pro přehlednost. Všechny lokální modely jsou správně označeny jako interní, což zajišťuje konzistentní a intuitivní kategorizaci.
+
+Všechny modely přístupné uživatelům běží na naší infrastruktuře a data související s inferencí neopouštějí naše systémy. Můžeme však poskytnout přístup k opravdu externím modelům – jako je GPT-4o – na základě zvláštní dohody. V takových případech jsou data samozřejmě přenášena třetí straně.
+
+Systém inferencí Ollama má kompletně vypnuté logování požadavků/odpovědí. Naproti tomu systém vLLM loguje požadavky a odpovědi pouze během běhu přidruženého Podu.
+
+Open WebUI samotný loguje ve výchozím nastavení na úrovni INFO, což znamená, že data požadavků/odpovědí nejsou logována. Občas, když je vyžadováno řešení problémů, může být úroveň logování dočasně zvýšena na DEBUG. V takových případech jsou data požadavků/odpovědí uložena až do restartování Podu – typicky při nasazení nové verze.
+
+K těmto logům mají přístup pouze správci systému a nejsou přenášeny nikam jinam.
+
+Uložené konverzace jsou uloženy v databázi PostgreSQL hostované v rámci naší infrastruktury. Když je konverzace smazána, měla by být také odstraněna z databáze – i když jsme neověřili, zda WebUI plně implementuje toto chování. Databáze je zálohována do úložiště S3 na CESNET s 30denní dobou uchování, což znamená, že starší zálohy jsou po 30 dnech smazány. Teoreticky bude smazaná konverzace kompletně vymazána v tomto časovém okně. Opět platí, že přístup k tomuto systému je omezen pouze na správce.
+
+Všichni správci podepsali NDA.
+
+## Praktický průvodce používáním AI chatu
+
+Jako vědec pravděpodobně dobře znáte hledání informací a pokynů, které vám pomohou v práci. Při interakci s AI chatbota je efektivní komunikace klíčová pro dosažení požadovaných výsledků. V tomto průvodci vás provedeme osvědčenými postupy pro vytváření kvalitních promptů a zapojení do produktivních konverzací s AI chatbota.
+
+### Proč správné promptování záleží
+Špatně napsaný prompt může vést k podprůměrné odpovědi. AI chatbota jsou jen tak dobré, jak dobrý je vstup, který přijímají. Poskytnutím jasných a stručných promptů můžete odemknout přesnější a relevantnější výsledky.
+
+### Efektivní komunikace s AI
+Interakce s chatbota je podobná komunikaci s lidmi. Kvalita odpovědi závisí na jasnosti a specifičnosti vašeho promptu. Nebojte se složitosti – soustřeďte se na popis vaší úlohy a kladení otázek.
+
+### Základní principy komunikace
+1.	**Definujte svůj cíl**: Jasně uveďte, čeho chcete dosáhnout. Čím konkrétnější budete, tím lepší bude odpověď. Vyhněte se vágním nebo obecným promptům, protože mohou vést ke zklamání z výsledků.
+2.	**Poskytněte kontext**: Nabídněte relevantní podrobnosti, které mohou pomoci AI pochopit úlohu a poskytnout přesnější odpověď. Kontext pomáhá AI pochopit účel a význam úlohy.
+3.	**Specifikujte výstup**: Uveďte, jak chcete, aby byla odpověď formátována, včetně délky, stylu a tónu. Tím zajistíte, že obdržíte odpověď, která splní vaše potřeby.
+4.	**Zvolte vhodný jazykový model**: Vyzkoušejte různé LLM modely a porovnejte výsledky.
+
+### Nechte AI pomoci vám vytvořit prompty
+1.	**Začněte základní myšlenkou**: Místo toho, abyste se snažili přijít s promptem, požádejte AI chatbot, aby vám pomohl vytvořit jeden. Například: "Vytvořte kvalitní prompt pro chatbot, který mi pomůže psát poutavé články na téma produktivity pro mé kolegy."
+2.	**Specifikujte účel**: Přidejte kontext o tom, jak plánujete prompt použít, například: "Budu tento prompt používat k psaní článků na téma produktivity pro mé kolegy."
+3.	**Upravte výsledek**: AI poskytne kompletní prompt, který můžete použít tak, jak je, nebo upravit, aby lépe vyhovoval vašim potřebám.
+
+### Zapojení do produktivních konverzací s AI
+1.	**Začněte silným promptem**: Začněte s nejlepším promptem, který dokážete vytvořit, pomocí výše uvedených technik.
+2.	**Vyhodnoťte odpověď**: Projděte si odpověď a identifikujte oblasti pro zlepšení. AI chatbota ne vždy poskytnou přesně to, co chcete, na první pokus.
+3.	**Upravte svůj požadavek**: Pokračujte v konverzaci poskytnutím konkrétní zpětné vazby, jako například: "Udělejte to stručnější" nebo "Napište to formálnějším tónem."
+4.	**Opakujte proces**: Iterujte, dokud nedosáhnete požadovaného výsledku. Kladejte otázky, poskytujte zpětnou vazbu a upravujte svůj prompt pro dosažení nejlepší možné odpovědi.
+
+### Zlepšování promptů pomocí rolí a podrobností
+1.	**Přiřaďte AI roli**: Poskytněte kontext přiřazením role AI, například: "Chovej se jako expertní copywriter s 15 lety zkušeností." To pomáhá AI poskytovat relevantnější a sofistikovanější odpovědi.
+2.	**Podrobně popište problém**: Jasně vysvětlete problém nebo úlohu, s kterou chcete, aby AI pomohla. Poskytněte co nejvíce kontextu, aby AI pochopila vaše potřeby.
+3.	**Specifikujte formát výstupu**: Uveďte, jak chcete, aby byla odpověď formátována, například jako seznam, tabulka nebo odstavec.
+4.	**Definujte tón a styl**: Specifikujte tón a styl, který chcete, aby AI použila, například: "Pište přátelským, přístupným tónem" nebo "Používejte formální, technický tón."
+
+### Používání příkladů pro lepší výsledky
+1.	**Poskytněte vzorek**: Nabídněte vzorek nebo příklad toho, co hledáte. To pomáhá AI pochopit vaše potřeby a poskytnout přesnější odpověď.
+2.	**Používejte pozitivní instrukce**: Místo toho, abyste AI říkali, co nemá dělat, soustřeďte se na to, co chcete, aby dělala. Například: "Používejte jednoduchý jazyk" místo "Vyhněte se technickému žargonu."
+3.	**Vyhněte se konfliktním instrukcím**: Buďte konzistentní ve svých promptech a vyhněte se protichůdným instrukcím.
+4.	**Nechte AI klást otázky**: Povzbuďte AI, aby kladla otázky, pokud potřebuje upřesnění nebo více informací. To může pomoci zajistit, že obdržíte přesnější a relevantnější odpověď.

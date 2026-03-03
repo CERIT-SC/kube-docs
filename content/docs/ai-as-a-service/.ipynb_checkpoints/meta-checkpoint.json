@@ -1,0 +1,12 @@
+{
+  "title": "AI as a Service (AIaaS)",
+  "pages": [
+    "introduction",
+    "chat-ai",
+    "ai-api",
+    "llm-integration",
+    "deepsite",
+    "n8n-agents",
+    "mcp"
+  ]
+}

@@ -1,0 +1,15 @@
+---
+title: Jmenné prostory
+---
+
+V Kubernetes [jmenné prostory](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) izolují skupiny prostředků v rámci jednoho clusteru. Názvy prostředků musí být jedinečné v rámci jmenného prostoru, nikoliv však napříč jmennými prostory.
+
+Názvy jmenných prostorů musí být jedinečné v rámci clusteru. Vyhněte se vytváření jmenných prostorů s názvy jako *test* nebo podobnými obecnými názvy.
+
+Když se uživatel poprvé přihlásí do grafického rozhraní Rancher, automaticky se vytvoří *Personal Project* a *Namespace*. Pokud je nevidíte, obnovte webovou stránku.
+
+Své jmenné prostory můžete zobrazit v grafickém rozhraní Rancher v záložce `Project/Namespaces` v levém postranním panelu.
+
+![Pohled na jmenné prostory v grafickém rozhraní Rancher](/img/ceritsc/ns.jpg)
+
+Další jmenné prostory můžete vytvořit buď pomocí kubectl, nebo v grafickém rozhraní Rancher. Vytváření jmenných prostorů pomocí kubectl však není doporučeno, protože tyto jmenné prostory nejsou propojeny s uživatelovým *Project*. Místo toho vytvořte jmenný prostor na stránce přehledu jmenných prostorů v grafickém rozhraní Rancher kliknutím na tlačítko `Create Namespace`.

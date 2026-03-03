@@ -7,7 +7,7 @@ Here we provide a short tutorial on how to deploy a custom webserver in Kubernet
 We are going to deploy a simple web that runs from Docker image and displays "Hello world" together with `Pod` name and `node OS` information.
 
 *IMPORTANT*
-Unless agreed beforehand, for personal projects and experiments you can use `kuba-cluster`. Here, you have to work in your namespace and its name is derived from your last name with added `-ns`. However, names are not unique and therefore we recommend to check yours on `Rancher` in the drop-down menu in the upper left corner `kuba-cluster` and `Project/Namespaces`.
+Unless agreed beforehand, for personal projects and experiments you can use `kuba-cluster`. Here, you have to work in your namespace, and its name is derived from your last name with `-ns` added. However, names are not unique, and therefore we recommend checking yours on `Rancher` in the drop-down menu in the upper left corner `kuba-cluster` and `Project/Namespaces`.
 
 ![kube ns](/img/ceritsc/hello-ns.jpg)
 
@@ -16,7 +16,7 @@ Unless agreed beforehand, for personal projects and experiments you can use `kub
 We have to create at least 3 Kubernetes resources to deploy the app -- `Deployment`, `Service`, `Ingress`.
 
 ### 1. Deployment
-Create new directory, e.g. `hello-world` and inside, create new file `deployment.yaml `with content:
+Create a new directory, e.g. `hello-world`, and inside, create a new file `deployment.yaml` with content:
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -74,10 +74,10 @@ This example file is composed of fields:
       -  `.containers.securityContext` defines under what user and optionally group, the container will run. *IMPORTANT* containers must be run under nonRoot user and group because of security. More in part about *PodSecurityPolicy* later
       -  `.containers.env` set environment variables for a container. They can be taken from other fields of the object or from other object types (e.g., Secret)
 
-Complete reference docs for resources and their allowed fields and subfields is available [online](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.30/). Don't forget right indentation!
+Complete reference documentation for resources and their allowed fields and subfields is available [online](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.30/). Don't forget proper indentation!
 
 ### 2. Service
-Secondly, we have to create `Service` which is abstract way to expose an application as a network service.
+Secondly, we have to create a `Service`, which is an abstract way to expose an application as a network service.
 
 ```yaml
 apiVersion: v1
@@ -95,17 +95,17 @@ spec:
 ```
 This file creates a new `Service` object named "hello-kubernetes-svc", which targets TCP port 8080 on any `Pod` labeled `app=hello-kubernetes`.
 
-A Service can map any incoming port to a targetPort. By default, the targetPort is set to the same value as the containerPort field. Default protocol is TCP but other supported protocols can be used too (UDP, HTTP, SCTP, PROXY).
+A Service can map any incoming port to a targetPort. By default, the targetPort is set to the same value as the containerPort field. The default protocol is TCP, but other supported protocols can also be used (UDP, HTTP, SCTP, PROXY).
 
 ### 3. Ingress
 
-Lastly, we have to create `Ingress` which exposes HTTP and HTTPS routes from outside world to the cluster world. Traffic is controlled by rules set in the resource.
-It is possible to expose your deployments in [2 ways](../kubernetes/expose) but here we will use cluster LoadBalancer with creation of just new DNS name.
+Lastly, we have to create an `Ingress`, which exposes HTTP and HTTPS routes from outside the cluster. Traffic is controlled by rules set in the resource.
+It is possible to expose your deployments in [two ways](../kubernetes/expose), but here we will use a cluster LoadBalancer with creation of a new DNS name.
 You can use whatever name you want but it has to fulfill 2 requirements:
 - name is composed only from letters, numbers and '-'
 - name ends with `.dyn.cloud.e-infra.cz`
 
-The name is filled in `spec.rules.host` and in `spec.tls`. Before you use any name, check in browser it doesn't already exist. After creation, it takes a minute to create new DNS entry so your app will not be available right away at specified name, wait one minute.
+The name is filled in `spec.rules.host` and in `spec.tls`. Before you use any name, check in a browser that it doesn't already exist. After creation, it takes about a minute to create a new DNS entry, so your app will not be available immediately at the specified name; wait at least one minute.
 
 ```yaml
 apiVersion: networking.k8s.io/v1
@@ -138,7 +138,7 @@ This example file is composed of fields:
 - `.metadata`
   - `.name` denotes name
   - `.annotations` ingress frequently uses annotations to configure options depending on ingress controller. We use `nginx` controller and possible annotations are listed [here](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/). The ones used here are necessary for right functionality and they automatically create TLS certificate therefore you don't need to worry about HTTPS - it's provided automatically
- - `.spec` includes all information needed to configure a LB but most importantly, includes rules matched against all incoming requests
+ - `.spec` includes all information needed to configure a load balancer, but most importantly, includes rules matched against all incoming requests
   - `.tls` ensures securing `Ingress`
     - `hosts` has to exactly match DNS name which will be used
     - `secretName` has to match DNS name but *all dots are substituted by '-' and -tls is added at the end*
@@ -147,7 +147,7 @@ This example file is composed of fields:
     - `paths` (for example, `/testpath`), each of which has an associated backend defined with a `service.name` and a `service.port.name` or `service.port.number`. `service.port.number` is the port which is exposed by the service therefore in service denoted as `spec.ports.port`, similarly `service.ports.[i].name` is equivalent to `spec.ports.[i].name`. Path type can be specified, more about it [here](https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types)
 
 ### 4. Create
-Now, create all resources with using whole directory as an argument and specify your namespace
+Now, create all resources using the whole directory as an argument and specify your namespace
 ```bash
 kubectl apply -f hello-world -n [namespace]
 deployment.apps/hello-kubernetes created
@@ -155,13 +155,13 @@ ingress.networking.k8s.io/hello-kubernetes-ingress created
 service/hello-kubernetes-svc created
 ```
 
-You can check status of deployed resources with `kubectl get [pods | services | ingress] -n [namespace]` and when all of them are up and running, you can access the URL and you will be presented with sample page.
+You can check the status of deployed resources with `kubectl get [pods | services | ingress] -n [namespace]`. When all of them are up and running, you can access the URL and you will be presented with a sample page.
 ![hello](/img/ceritsc/hello.png)
 
-NOTE: in case you are having trouble with 'Config not found' error message, see [here](../kubernetes/kubectl) for further information
+NOTE: In case you have trouble with a "Config not found" error message, see [here](../kubernetes/kubectl) for further information.
 
 ## Further customization
-You can specify various fields in every resource's file, many of them not used here. One of more wanted features is passing environment variables into `Deployments` in case spawned containers need some. We will use one environment variable in our deployment to change displayed message. At the end, add new section `env` which will forward the value into the pod. Then, run again `kubectl apply -f hello-world -n [namespace]` to apply changes. When you access the website now, new message is displayed!
+You can specify various fields in every resource's file, many of which are not used here. One of the more desired features is passing environment variables into `Deployments` in case spawned containers need them. We will use one environment variable in our deployment to change the displayed message. At the end, add a new `env` section, which will forward the value into the pod. Then, run `kubectl apply -f hello-world -n [namespace]` again to apply the changes. When you access the website now, a new message is displayed!
 
 ```yaml
 apiVersion: apps/v1
@@ -212,15 +212,15 @@ spec:
 
 ![hello2](/img/ceritsc/hello2.png)
 
-Other customization can include:
-- creating a `Secret` (e.g. for password) and mounting it into the pod into the file
-- creating a `ConfigMap` (e.g. for bigger configurations) and mounting into the pod
-- creating a `PersistentVolumeClaim` (storage) from NFS (S3 #TODO) and mounting into the Pod
-- creating resources of other types e.g. ReplicaSet, StatefulSet, DaemonSet
+Other customizations can include:
+- Creating a `Secret` (e.g., for a password) and mounting it into the pod as a file
+- Creating a `ConfigMap` (e.g., for larger configurations) and mounting it into the pod
+- Creating a `PersistentVolumeClaim` (storage) from NFS (S3 #TODO) and mounting it into the Pod
+- Creating resources of other types, e.g., ReplicaSet, StatefulSet, DaemonSet
 
 
 ## Creating PersistentVolumeClaim
-If you need to use some persistent storage, you can create a NFS volume and mount it in `Deployment`.
+If you need to use persistent storage, you can create an NFS volume and mount it in a `Deployment`.
 
 Example: create file `pvc.yaml` and set `[pvc-name]` to desired name and `[capacity]` to desired capacity.
 ```yaml
@@ -244,8 +244,8 @@ NAME                                                               STATUS   VOLU
 ```
 
 The claim is mounted into the `Deployment` (or other objects such as `Job, StatefulSet, DaemonSet`, etc.) in 2 steps:
-- create field `volumes` under `spec.template`
-- create field `volumeMounts` under `spec.template.spec.containers[container_which_will_have_pvc_mounted]`
+- Create a `volumes` field under `spec.template`
+- Create a `volumeMounts` field under `spec.template.spec.containers[container_which_will_have_pvc_mounted]`
 
 `volumes` represents a list of volumes to mount with at least:
 - `name` field

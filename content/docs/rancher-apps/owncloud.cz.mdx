@@ -1,0 +1,70 @@
+---
+title: ownCloud
+---
+
+## Spuštění ownCloud klienta
+
+Pokud nejste již přihlášeni, přihlaste se na [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz). Podrobnosti naleznete v sekci [Rancher](../rancher/rancher).
+
+Podle následujících kroků můžete spustit aplikaci ownCloud klienta. Tato aplikace je navržena pro sdílení a synchronizaci dat mezi podem (jinou běžící aplikací) a ownCloud serverem, jako je [owncloud.cesnet.cz](https://owncloud.cesnet.cz).
+
+### Poznámky
+
+* Důležitý předpoklad: Aplikační pod musí používat [PVC](../kubernetes/pvc), aby ownCloud klient mohl synchronizovat data do podu. Bez PVC není synchronizace možná.
+  * Pro většinu aplikací můžete vybrat *trvalý domovský adresář*, což znamená použití *PVC*.
+
+### Kontrola vaší aplikace
+
+Vyberte svůj `Namespace` (1), přejděte přes `Workload` (2), `Pods` (3) a název aplikace (4), například `ansys-0` — klikněte na název. Viz screenshot níže.
+
+![Hledání podu](/img/ceritsc/apps/owncloud/findpod.png)
+
+Klikněte na vertikální tečky (1) a vyberte Execute Shell (2).
+
+![Vstup do podu](/img/ceritsc/apps/owncloud/enterpod.png)
+
+Zadejte příkaz `df` v nové *terminálové oblasti* (1) a zkontrolujte, že vidíte vzdálený souborový systém připojený k domovskému adresáři (2) nebo jinde.
+
+![Uvnitř podu](/img/ceritsc/apps/owncloud/inpod.png)
+
+### Výběr aplikace ke spuštění
+
+Ujistěte se, že jste nevybrali jmenný prostor a vidíte `Only User Namespaces` (1) v horní části stránky Rancher.
+
+Přejděte přes `App & Marketplace` (2), `Charts` (3), omezte charts pouze na `cerit-sc` (4) a vyberte `ownCloud` (5). Viz screenshot níže.
+
+![Výběr aplikace](/img/ceritsc/apps/owncloud/selectapp.png)
+
+### Výběr verze aplikace
+
+Když kliknete na chart, vyberte `Install` pro pokračování.
+
+![Výběr verze](/img/ceritsc/apps/owncloud/selectversion.png)
+
+### Instalace aplikace
+
+Nyní můžete nainstalovat aplikaci ownCloud. Ve většině případů ponechte `Namespace` (1) i `Name` (2) nezměněné. Musíte však vybrat stejný jmenný prostor jako pod, ze kterého chcete přenášet data. `Name` se objeví v URL použité pro přístup k aplikaci. `Name` musí být jedinečný v rámci `Namespace`; nemůžete spustit dvě nebo více instancí se stejným `Name` ve stejném `Namespace`.
+
+![Instalace aplikace](/img/ceritsc/apps/owncloud/appinst.png)
+
+V první části formuláře vyberte ownCloud server. Pro [owncloud.cesnet.cz](https://owncloud.cesnet.cz) ponechte výchozí hodnotu. Vyplňte `username` a `password`. Návod, jak je získat pro `owncloud.cesnet.cz`, najdete [zde](https://du.cesnet.cz/en/navody/owncloud/start#access_via_webdav_protocol) (viz "Access via WebDAV protocol"). Vyberte `PVC`, který chcete synchronizovat tam a zpět. Ve většině případů je `PVC` obsahující název `home` připojen k `/home/user`, zatímco `PVC` obsahující název `storage` je připojen k `/storage`.
+
+Vyplňte `Local Directory`. Toto je relativní adresář uvnitř připojeného `PVC`. Například pokud nastavíte `Local Directory` na `owncloud-data` a vyberete "home" `PVC`, vaše data se budou synchronizovat do `/home/user/owncloud-data`.
+
+Vyplňte `Remote Directory`. Hodnota `/` znamená, že se budou synchronizovat všechny vzdálené soubory a adresáře. Případně můžete zadat konkrétní adresář nebo cestu z ownCloud serveru, například `documents`.
+
+![Formulář aplikace](/img/ceritsc/apps/owncloud/appform1.png)
+
+### Čekání na spuštění aplikace
+
+Když vyberete `Install`, uvidíte instalační log. Jakmile uvidíte `SUCCESS` (viz screenshot níže), aplikace běží.
+
+![Instalace Helm](/img/ceritsc/apps/owncloud/apphelm.png)
+
+Jakmile aplikace běží, neuvidíte nic speciálního kromě toho, že data se synchronizují.
+
+## Smazání běžící instance
+
+Pokud již aplikaci nepotřebujete, můžete ji smazat. Přejděte na `App & Marketplace` (1), `Installed Apps` (2), vyberte aplikaci (3) a vyberte `Delete` (4). Data v domovském adresáři nebudou smazána, pokud jste vybrali trvalý domovský adresář. Spuštění aplikace znovu se stejným `Name` obnoví přístup k domovské složce.
+
+![Smazání aplikace](/img/ceritsc/apps/owncloud/appdel.png)

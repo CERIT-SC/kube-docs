@@ -2,11 +2,14 @@
 title: Kubectl
 ---
 
-`kubectl` is a powerful tool for interacting with Kubernetes clusters. For installation, see the [official documentation](https://kubernetes.io/docs/tasks/tools/#kubectl). After installation, kubectl requires a `kubeconfig` file to function. The file is located in the cluster overview dashboard (click on the cluster name in the upper left dropdown menu).
+`kubectl` is a powerful tool for interacting with Kubernetes clusters. For installation, see the [official documentation](https://kubernetes.io/docs/tasks/tools/#kubectl). Once installed, kubectl requires a `kubeconfig` file to function. You can download this file from the cluster overview dashboard (click on the cluster name in the upper left dropdown menu).
 
 ![kube config](/img/ceritsc/config.jpg)
 
-Copy the contents of this file into `$HOME/.kube/config` and change permissions to 700 (`chmod 700 $HOME/.kube/config`).
+Copy the downloaded file's contents into `$HOME/.kube/config`, then set the file permissions to 700:
+```bash
+chmod 700 $HOME/.kube/config
+```
 
 <Callout type="info">
 If the file `$HOME/.kube/config` does not exist, create it before copying the contents.

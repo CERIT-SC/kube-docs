@@ -1,0 +1,18 @@
+---
+title: Kubectl
+---
+
+`kubectl` je výkonný nástroj pro práci s Kubernetes clustery. Informace k instalaci naleznete v [oficiální dokumentaci](https://kubernetes.io/docs/tasks/tools/#kubectl). Po instalaci vyžaduje `kubectl` pro fungování soubor `kubeconfig`. Tento soubor si můžete stáhnout z přehledového dashboardu clusteru (klikněte na název clusteru v rozevíracím menu v levém horním rohu).
+
+![konfigurace kube](/img/ceritsc/config.jpg)
+
+Obsah staženého souboru zkopírujte do `$HOME/.kube/config`, poté nastavte práva souboru na 700:
+```bash
+chmod 700 $HOME/.kube/config
+```
+
+<Callout type="info">
+Pokud soubor `$HOME/.kube/config` neexistuje, vytvořte ho před zkopírováním obsahu.
+</Callout>
+
+V jednom konfiguračním souboru můžete uložit konfigurace více clusterů.

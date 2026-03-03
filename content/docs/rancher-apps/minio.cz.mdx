@@ -1,0 +1,81 @@
+---
+title: MinIO
+---
+
+## Spuštění osobního MinIO serveru
+
+Pokud nejste již přihlášeni, přihlaste se na [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz). Podrobnosti naleznete v sekci [Rancher](../rancher/rancher).
+
+Podle následujících kroků můžete spustit osobní aplikaci MinIO server. Tato aplikace je navržena pro zpřístupnění nebo nahrání dat do jiné běžící aplikace, která používá PVC (Persistent Volume Claim). Přenos dat lze provést přes webové rozhraní (pouze pomocí webového prohlížeče) nebo přes protokol [S3](https://en.wikipedia.org/wiki/Amazon_S3) (poznámka: nejedná se o Amazon AWS; jde o jejich protokol pro přístup k datům).
+
+<Callout type="info">
+**Důležitý předpoklad:** Aplikační pod musí používat [PVC](../kubernetes/pvc), aby MinIO server mohl přistupovat k datům z podu. Pokud není použito PVC, není přístup k datům možný.
+
+Pro většinu aplikací je možné vybrat *trvalý domovský adresář*, což znamená použití *PVC*.
+</Callout>
+
+### Zkontrolujte svou aplikaci
+
+Vyberte svůj `jmenný prostor` (1) (zapamatujte si tento `jmenný prostor`; musíte vybrat **stejný** `jmenný prostor` při instalaci MinIO níže). Přejděte přes `Workload` (2), `Pody` (3) a název aplikace (4), např. `ansys-0` – klikněte na název. Viz screenshot níže.
+
+![najít pod](/img/ceritsc/apps/minio/findpod.png)
+
+Klikněte na svislé tečky (1) a vyberte **Execute Shell** (2).
+
+![vstoupit do podu](/img/ceritsc/apps/minio/enterpod.png)
+
+V nové *terminálové oblasti* (1) zadejte příkaz `df` a ověřte, že vidíte vzdálený souborový systém připojený k domovskému adresáři (2) nebo jinde.
+
+![uvnitř podu](/img/ceritsc/apps/minio/inpod.png)
+
+### Vyberte aplikaci ke spuštění
+
+Ujistěte se, že jste nevybrali žádný jmenný prostor a že vidíte `Only User Namespaces` (1) v horní části stránky Rancher.
+
+Přejděte přes `App & Marketplace` (2), `Charts` (3), omezte charts pouze na `cerit-sc` (4) a vyberte `MinIO` (5). Viz screenshot níže.
+
+![vybrat aplikaci](/img/ceritsc/apps/minio/selectapp.png)
+
+### Vyberte verzi aplikace
+
+Když kliknete na chart, klikněte na `Install` pro pokračování.
+
+![vybrat verzi](/img/ceritsc/apps/minio/selectversion.png)
+
+### Nainstalujte aplikaci
+
+Nyní můžete nainstalovat aplikaci MinIO. Ve většině případů ponechte `Namespace` (1) i `Name` (2) beze změny; však musíte vybrat stejný `jmenný prostor`, ve kterém běží pod pro přenos dat. `Name` se objeví v URL pro přístup k aplikaci. `Name` musí být jedinečný v rámci `Namespace`; nemůžete spustit dvě nebo více instancí se stejným `Name` ve stejném `Namespace`.
+
+![instalace aplikace](/img/ceritsc/apps/minio/appinst.png)
+
+V první části formuláře nastavíte `username` a `password` pro MinIO. Tyto přihlašovací údaje se používají pro webový přístup i přístup přes S3.
+
+![aplikační formulář](/img/ceritsc/apps/minio/appform1.png)
+
+Ve druhé části formuláře vyberte PVC (Persistent Volume Claim), tj. trvalý svazek, který chcete zpřístupnit nebo nahrát pomocí osobního MinIO serveru. Měl by to být existující svazek z jiné aplikace již běžící ve stejném `Namespace`, která používá *trvalý domovský adresář*.
+
+Jakmile vyberete vhodné PVC, klikněte na `Install`.
+
+![aplikační formulář](/img/ceritsc/apps/minio/appform2.png)
+
+### Počkejte na spuštění aplikace
+
+Když kliknete na `Install`, uvidíte instalační log. Jakmile uvidíte `SUCCESS` (viz screenshot níže), aplikace běží.
+
+![aplikační helm](/img/ceritsc/apps/minio/apphelm.png)
+
+Jakmile aplikace běží, přejděte přes `Service Discovery` (1) a `Ingresses` (2). Uvidíte `Ingresses`. Pokud uvidíte `cm-acme-http-solver...` (3), počkejte, dokud nezmizí. Jakmile uvidíte `minio` nebo jakýkoli `Name`, který jste použili v předchozích krocích, můžete kliknout na Cíl (4) pro přihlášení k aplikaci. Existují dva cíle pro MinIO. Jeden Cíl (4) začíná názvem aplikace (např. `minio`); tento cíl je pro webový přístup. Druhý cíl začíná `s3-` a slouží jako endpoint S3 API; tato URL se předává nástrojům [`s3cmd`](https://s3tools.org/s3cmd) nebo [`s4cmd`](https://github.com/bloomreach/s4cmd). `Username` a `password` se nazývají **Access key** a **secret key** pro S3 API a jsou stejné jako ty použité pro webový přístup.
+
+![aplikační acme](/img/ceritsc/apps/minio/appacme.png)
+
+Příklad použití `s4cmd` pro výpis dat přes S3 API:
+```bash
+s4cmd --access-key=$USER --secret-key=$PASSWORD --endpoint-url=https://s3-minio-nextflow-ns.dyn.cerit-sc.cz ls
+```
+Nahraďte `$USER`, `$PASSWORD` a `endpoint-url` svými hodnotami.
+
+## Smazání běžící instance
+
+Pokud již aplikaci nepotřebujete, můžete ji smazat. Přejděte na `App & Marketplace` (1), `Installed Apps` (2), vyberte aplikaci (3) a klikněte na `Delete` (4). Data v domovském adresáři nebudou smazána, pokud máte povolený trvalý domovský adresář. Spuštění aplikace znovu se stejným `Name` obnoví přístup k domovské složce.
+
+![smazání aplikace](/img/ceritsc/apps/minio/appdel.png)

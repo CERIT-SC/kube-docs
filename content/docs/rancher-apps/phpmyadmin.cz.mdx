@@ -1,0 +1,51 @@
+---
+title: phpMyAdmin
+---
+
+## Spuštění phpMyAdmin
+
+Pokud nejste již přihlášeni, přihlaste se na [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz). Podrobnosti naleznete v sekci [Rancher](../rancher/rancher).
+
+Tento článek vás provede instalací aplikace phpMyAdmin. phpMyAdmin je webový nástroj pro správu MySQL databází, který podporuje širokou škálu operací na MySQL i MariaDB.
+
+## Výběr aplikace ke spuštění
+
+Přejděte přes `Only User Namespaces` (1), `App & Marketplace` (2), `Charts` (3), `cerit-sc` (4) a vyberte `phpmyadmin` (5). Pro orientaci viz screenshot níže.
+
+![Výběr aplikace phpMyAdmin](/img/ceritsc/apps/phpmyadmin/select.png)
+
+## Instalace aplikace
+
+Klikněte na chart a poté klikněte na `Install` pro pokračování.
+
+Vyberte svůj jmenný prostor a zadejte název pro vaši aplikaci, poté klikněte na `Next`.
+
+![Výběr jmenného prostoru a názvu](/img/ceritsc/apps/phpmyadmin/namespace.png)
+
+Uvidíte dvě možnosti přizpůsobení. V poli `Port` zadejte port vaší databáze a klikněte na `Install`.
+
+![Nastavení portu databáze](/img/ceritsc/apps/phpmyadmin/port.png)
+
+Počkejte, dokud se neobjeví zpráva o úspěchu.
+
+![Zpráva o úspěšné instalaci](/img/ceritsc/apps/phpmyadmin/success.png)
+
+Přejděte na `Service Discovery`, poté `Ingresses` a klikněte na váš hostname.
+
+![Navigace k Ingress](/img/ceritsc/apps/phpmyadmin/ingress.png)
+
+Uvidíte přihlašovací obrazovku aplikace. Zadejte přihlašovací údaje k vaší databázi. V tomto tutoriálu se přihlašujeme k MariaDB databázi Moodle.
+
+V poli `Server` zadejte název služby vaší databáze. V poli `Username` zadejte uživatelské jméno vaší databáze a poté zadejte vaše heslo.
+
+![Přihlašovací obrazovka databáze](/img/ceritsc/apps/phpmyadmin/login.png)
+
+Po úspěšném přihlášení vás přivítá toto okno:
+
+![Hlavní rozhraní phpMyAdmin](/img/ceritsc/apps/phpmyadmin/end.png)
+
+## Odinstalace aplikace
+
+Pro odinstalaci aplikace přejděte na `App & Marketplace`, poté `Installed Apps`, vyberte vaši instanci, klikněte na `Delete` a počkejte, dokud se neobjeví potvrzovací zpráva.
+
+![Odinstalace aplikace](/img/ceritsc/apps/phpmyadmin/uninstall.png)

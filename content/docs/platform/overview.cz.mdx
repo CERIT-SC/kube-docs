@@ -1,0 +1,61 @@
+---
+title: Vítejte na platformě CERIT-SC Kubernetes Container Platform
+---
+
+import Image from 'next/image';
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import Kubernetes from '@/public/img/ceritsc/menu-logos/Kubernetes-icon.svg';
+import Interactive from '@/public/img/ceritsc/menu-logos/Interactive-icon.svg';
+import AIllm from '@/public/img/ceritsc/menu-logos/AI-icon.svg';
+
+## Vaše brána k výkonnému počítání a umělé inteligenci
+
+Vítejte v dokumentaci CERIT-SC. Poskytujeme moderní výpočetní platformu navrženou pro urychlení vašeho výzkumu. Ať už potřebujete nasadit složité datové toky, spustit interaktivní analýzu dat nebo využít nejnovější modely umělé inteligence v zabezpečeném prostředí, naše infrastruktura je postavena tak, aby škálovala s vašimi potřebami.
+
+## Proč CERIT-SC?
+
+* **Uživatelsky orientovaný design:** Zaměřte se na svou vědu, ne na infrastrukturu. Od předpřipravených aplikací po vlastní Docker kontejnery podporujeme všechny úrovně dovedností a zkušeností.
+
+* **Špičkový hardware:** Přístup k výkonným x86_64 clusterům, vysokorychlostnímu NVMe úložišti a NVIDIA GPU akcelerátorům připojeným přes 100/200Gbps InfiniBand sítě.
+
+* **Otevřený & flexibilní:** Postavený na otevřených standardech [Kubernetes orchestrátor](https://kubernetes.io/) s využitím [Docker](https://hub.docker.com/) kontejnerových obrazů.
+
+## Hlavní služby
+
+<Cards className="pt-4 grid-cols-1 gap-4 sm:grid-cols-3">
+
+<Card title="Kubernetes" icon={<Image src={Kubernetes} alt="Kubernetes Logo" width="220"/>}>
+
+Naše vlajková služba nabízí spravovanou Kubernetes Container Platform poháněnou [Rancher](../rancher/rancher).
+
+* Snadná správa: Použijte intuitivní dashboard nebo jednoklikový [katalog aplikací Rancher](../rancher-apps/rancher-applications) k nasazení nástrojů jako Matlab nebo Scipion.
+* Pokročilé schopnosti: Plná podpora [Kubectl](../kubernetes/kubectl), vlastních [Docker kontejnerů](../docker/dockerfile), trvalého úložiště a [GitOps pracovních postupů](../gitops/agentk)
+</Card>
+
+
+<Card title="Interaktivní aplikace" icon={<Image src={Interactive} alt="Interaktivní aplikace" width="220"/>}>
+
+Hostujeme spravované webové aplikace, které nevyžadují instalaci na vašem místě.
+
+* [JupyterHub](../web-apps/jupyterhub): Spouštějte Jupyter Notebooky s přístupem k našim výpočetním prostředkům.
+* [BinderHub](../web-apps/binderhub): Přeměňte své Git repozitáře na interaktivní výpočetní prostředí.
+* [Foldify](../web-apps/foldify): Webové rozhraní pro AlphaFold k predikci proteinových struktur.
+</Card>
+
+<Card title="Umělá inteligence jako služba (AIaaS)" icon={<Image src={AIllm} alt="AIaaS" width="220"/>}>
+
+Odemkněte sílu [umělé inteligence](../ai-as-a-service/introduction) s bezpečným, lokálním (on-premise) přístupem k LLM a souvisejícím nástrojům.
+
+* Chat a RAG: Použijte naše [Chat AI](../ai-as-a-service/chat-ai) k interakci soukromě s velkými jazykovými modely jako GPT-OSS nebo Deepseek.
+* Vývoj: Integrujte AI do vašich skriptů přes naše [OpenAI-kompatibilní API](../ai-as-a-service/chat-ai#creating-an-api-key) nebo vytvářejte pracovní postupy s [n8n Agenty](../ai-as-a-service/n8n-agents) nebo webovým tvůrcem [DeepSite](../ai-as-a-service/deepsite).
+
+</Card>
+</Cards>
+
+## Jak získat přístup
+
+[Přístup](../platform/access) k platformě CERIT-SC je k dispozici české akademické komunitě.
+
+* Přihlášení: Použijte svou existující identitu e-INFRA CZ (MetaCentrum).
+* Pro standardní projekty se základními limity prostředků se můžete přihlásit a začít ihned.
+* Pro náročné požadavky na prostředky jednoduše požádejte o kvótu projektu přes náš portál.

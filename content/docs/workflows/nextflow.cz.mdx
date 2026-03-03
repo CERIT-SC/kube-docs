@@ -1,0 +1,532 @@
+---
+title: Spouštění Nextflow Pipeline v Kubernetes
+keywords: Nextflow, Pipeline, Workflows, Kubernetes, nf-core
+---
+
+Následující návod vysvětluje, jak spouštět [Nextflow](https://nextflow.io) pipeline na Kubernetes clusteru CERIT-SC.
+
+## Přehled Nextflow
+
+Pro spuštění Nextflow pipeline pomocí tohoto návodu ji spustíte ze svého lokálního stroje nebo z jakéhokoli jiného přístupného stroje. Samotná pipeline však bude běžet na **Kubernetes clusteru CERIT-SC**, **nikoli** na stroji, ze kterého ji spouštíte. Tento stroj slouží pouze ke spuštění pipeline a **nemusí** zůstat online poté, co pipeline běží.
+
+<Callout type="info">
+Spouštění pipeline na Kubernetes clusteru **není** obecnou funkcí Nextflow ve výchozím nastavení. Funguje tímto způsobem **pouze při dodržení tohoto konkrétního návodu** a použití poskytnutých nástrojů a konfigurace pro Kubernetes prostředí CERIT-SC.
+</Callout>
+
+Alternativně můžete pipeline spustit také z již běžícího Podu uvnitř Kubernetes clusteru.
+
+## Spouštění Nextflow
+
+### Doporučená metoda: Použití `nextflow-go`
+
+Dříve používaná metoda zahrnovala instalaci oficiálního Nextflow (Java aplikace) a použití ovladače `kuberun`. Tato metoda je nyní zastaralá.
+
+**Doporučujeme** používat náš vlastní binární soubor `nextflow-go`, který je k dispozici na [https://github.com/CERIT-SC/nextflow-go](https://github.com/CERIT-SC/nextflow-go) v sekci **Releases**.
+
+Tento binární soubor je samostatný a funguje na Ubuntu Linux 22.04 nebo novějším, stejně jako na podobných Debian/RedHat-based systémech.
+
+### Proč `nextflow-go`?
+
+Existuje několik výhod použití `nextflow-go` oproti oficiální metodě `kuberun`:
+
+- Ovladač `kuberun` **vyžaduje přímý přístup ke sdílenému úložišti**, což není možné z většiny lokálních strojů.
+- `nextflow-go` vám umožňuje **spustit pipeline z jakéhokoli stroje**, dokonce i bez přístupu ke sdílenému úložišti.
+- Ovladač `kuberun` **vyžaduje explicitní podporu v každé pipeline**, což znamená, že některé pipeline nemusí fungovat vůbec, pokud není `kuberun` specificky adaptován.
+- `kuberun` má **problémy s kompatibilitou u některých konfigurací pipeline**, zejména těch, které používají **funkce uvnitř souboru `nextflow.config`**, což může vést k chybám nebo neočekávanému chování.
+- `nextflow-go` tyto omezení odstraňuje a poskytuje robustnější a flexibilnější způsob spouštění pipeline v Kubernetes prostředí CERIT-SC.
+
+### Instalace
+
+Stáhněte a nastavte binární soubor jako spustitelný:
+
+```shell
+wget https://github.com/CERIT-SC/nextflow-go/releases/latest/download/nextflow-go-linux-amd64 -O nextflow-go
+chmod a+x nextflow-go
+```
+
+Tento příkaz stáhne nejnovější vydání. Všechna vydání najdete na stránce [CERIT-SC nextflow-go GitHub](https://github.com/CERIT-SC/nextflow-go/releases).
+
+### Spuštění binárního souboru
+
+Jednoduše spusťte binární soubor:
+
+```shell
+./nextflow-go
+```
+
+## Spuštění jednoduché `hello` pipeline
+
+Pro spuštění jednoduché ukázkové pipeline, jako je vestavěná `hello` pipeline, ji spustíte pomocí příkazu `nextflow-go` spolu s minimální konfigurací.
+
+<Callout type="info">
+Předpokládá se, že buď:
+- spouštíte příkaz **z Kubernetes clusteru CERIT-SC**, nebo
+- máte již nakonfigurovaný přístup ke clusteru pomocí platného [Kubernetes konfiguračního souboru (`kubeconfig`)](../kubernetes/kubectl).
+</Callout>
+
+### 1. Vytvoření souboru nextflow.config
+
+Uložte následující konfigurační soubor jako `nextflow.config` ve stejném adresáři, kde budete spouštět `nextflow-go`:
+
+```js title="nextflow.config"
+k8s {
+   namespace        = '[váš-jmenný-prostor]'
+   runAsUser        = 1000
+   storageClaimName = '[váš-pvc]'
+   storageMountPath = '/mnt'
+   launchDir        = '${k8s.storageMountPath}'
+   workDir          = '${k8s.storageMountPath}/tmp'
+}
+
+process {
+   executor = 'k8s'
+}
+```
+
+Nahraďte zástupné symboly příslušnými hodnotami pro vaše Kubernetes prostředí:
+
+- `[váš-jmenný-prostor]` — váš Kubernetes [jmenný prostor (Namespace)](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/), který určuje, kde bude workflow běžet. Svůj jmenný prostor najdete v [Rancher UI](https://rancher.cloud.e-infra.cz) nebo postupujte podle pokynů [zde](../kubernetes/ns) pro jeho vyhledání.
+- `[váš-pvc]` — název vašeho [PersistentVolumeClaim (PVC)](https://kubernetes.io/docs/concepts/storage/persistent-volumes/), který definuje sdílené úložiště používané workflow. Existující PVC můžete zobrazit v [Rancher UI](https://rancher.cloud.e-infra.cz) nebo se řiďte návodem [zde](../kubernetes/pvc) pro jejich vytvoření nebo identifikaci.
+
+Tyto hodnoty jsou zásadní pro zajištění, že jak workflow controller, tak pracovní úlohy mají přístup ke stejnému úložišti a běží ve správném Kubernetes prostředí.
+
+### 2. Spuštění pipeline
+
+Jakmile je konfigurační soubor připraven, spusťte `hello` pipeline pomocí:
+
+```shell
+./nextflow-go run hello
+```
+
+Tento příkaz spustí standardní `hello` pipeline, což je jednoduché vestavěné testovací workflow dostupné z veřejného GitHub repozitáře. **Nemusíte** pipeline stahovat ručně – Nextflow ji stáhne automaticky.
+
+### Jak to funguje
+
+Když je pipeline spuštěna, běží ve dvou hlavních komponentách:
+
+- **Workflow Controller** – zodpovědný za správu provádění pipeline.
+- **Workers** – jednotlivé úlohy, které provádějí specifické úkoly definované v pipeline.
+
+Jak controller, tak workers musí mít přístup ke **sdílenému úložišti**. To je definováno vaším `[váš-pvc]` a je připojeno k Kubernetes podům na `/mnt` (jak je specifikováno `storageMountPath` v konfiguraci). Toto sdílené úložiště je nezbytné pro výměnu dat mezi úlohami během provádění.
+
+Ujistěte se, že máte platný a přístupný PVC, a že váš Kubernetes jmenný prostor je správně nastaven s oprávněními k jeho použití.
+
+### Očekávaný výstup
+
+Očekávaný výstup spuštění `hello`:
+
+```
+Running Nextflow K8s Job...
+computeResourceType not defined in configuration, defaulting to Job
+--- Output from pod himalayan-fact-bx8d5 ---
+N E X T F L O W  ~  version 25.04.4
+Pulling nextflow-io/hello ...
+ downloaded from https://github.com/nextflow-io/hello.git
+Launching `https://github.com/nextflow-io/hello` [elegant_panini] DSL2 - revision: 2be824e69a [master]
+[81/765d22] Submitted process > sayHello (2)
+[9f/c26cb7] Submitted process > sayHello (1)
+[c7/1e9f5c] Submitted process > sayHello (3)
+[9a/11f0e3] Submitted process > sayHello (4)
+Ciao world!
+
+Bonjour world!
+
+Hello world!
+
+Hola world!
+
+Kubernetes Job 'himalayan-fact' created successfully.
+```
+
+Tento výstup potvrzuje, že pipeline úspěšně běžela na Kubernetes clusteru. Můžete vidět, že workflow bylo staženo z GitHub repozitáře (`nextflow-io/hello`) a že více procesů (`sayHello`) bylo odesláno a provedeno jako Kubernetes úlohy.
+
+Každý `sayHello` proces vrací pozdrav v jiném jazyce, což ukazuje, že více úloh běželo nezávisle a paralelně, jak se očekává v Nextflow workflow.
+
+Konečná zpráva `Kubernetes Job 'himalayan-fact' created successfully.` indikuje, že hlavní úloha workflow controlleru dokončila své nastavení a koordinaci worker podů. Tento typ výstupu můžete použít k ověření, že základní nastavení (konfigurace, jmenný prostor, PVC a konektivita) funguje správně.
+
+## Pokročilá konfigurace Nextflow pro Kubernetes
+
+Při spouštění pokročilých pipeline v Kubernetes je často potřeba jemnější kontrola nad prováděcím prostředím.
+
+V tomto nastavení je *workflow controller* prováděn jako Kubernetes [Pod](https://kubernetes.io/docs/concepts/workloads/pods/). Spouští další *worker* pody na základě definic procesů ve vaší pipeline. Controller podu obvykle dostane náhodně generovaný čitelný název (např. `naughty-williams`), zatímco worker pody mají hashované názvy (např. `nf-81dae79db8e5e2c7a7c3ad5f6c7d59c6`).
+
+### Konfigurace 🧩
+
+Zde je rozšířený příklad souboru `nextflow.config` s pokročilejšími nastaveními:
+
+```js title="nextflow.config"
+k8s {
+   namespace           = '[váš-jmenný-prostor]'
+   runAsUser           = 1000
+   computeResourceType = 'Job' // explicitně použijte Jobs místo Pods
+   cpuLimits           = true  // potřebné pro správné nastavení cpu prostředků
+   storageClaimName    = '[váš-pvc]'
+   storageMountPath    = '/mnt'
+   launchDir           = '/mnt/cesta/k/spuštění'
+   workDir             = '/mnt/cesta/k/práci'
+}
+
+executor {
+  queueSize = 30 // Maximální počet úloh běžících paralelně
+}
+
+process {
+   executor = 'k8s'
+}
+```
+
+- Použijte jedinečný `launchDir` a `workDir` pro každé spuštění pipeline, pokud spouštíte více workflow paralelně, abyste se vyhnuli konfliktům souborů.
+- Sdílené úložiště definované `storageClaimName` (PVC) musí být zapisovatelné a přístupné všem podům.
+
+### Možnosti přizpůsobení
+
+Nextflow umožňuje další přizpůsobení na úrovni procesu i podu:
+
+- **Připojení dalších svazků**: jako další PVC nebo Kubernetes tajemství.
+- **Nastavení limitů prostředků**: včetně požadavků na CPU a paměť na proces.
+- **Připojení metadat**: jako Kubernetes štítky nebo anotace k podům.
+- **Použití selektivní konfigurace**: prostřednictvím štítků (`withLabel`) nebo názvů procesů (`withName`).
+
+Pro více informací:
+- Podívejte se na [dokumentaci Nextflow process](https://www.nextflow.io/docs/latest/process.html) pro definování možností na úrovni procesu.
+- Podívejte se na sekci [Kubernetes pod customization](https://www.nextflow.io/docs/latest/process.html#pod) pro úpravy na úrovni podu.
+
+### Priorita konfigurace
+
+Při aplikaci konfiguračních nastavení Nextflow používá následující pořadí přednosti (od nejnižší po nejvyšší):
+
+1. Obecná konfigurace `process` v `nextflow.config`
+2. Proces-specifické direktivy ve workflow skriptu
+3. Konfigurace selektoru `withLabel`
+4. Konfigurace selektoru `withName`
+
+To znamená, že konkrétnější nastavení (např. pomocí `withName`) přepíší obecná výchozí nastavení.
+
+### Spuštění ⏱
+
+Pro spuštění pipeline použijte podpříkaz `run` z `nextflow-go` s volitelnými příznaky pro přizpůsobení prováděcího prostředí:
+
+```shell
+-head-image 'cerit.io/nextflow/nextflow:25.04.4' -head-memory 4096Mi -head-cpus 1
+```
+
+Tyto volby nejsou povinné – pouze přepíší výchozí nastavení. Výchozí kontejnerový obraz používaný `nextflow-go` (od verze `v0.3`) je:
+
+```
+cerit.io/nextflow/nextflow:25.04.4
+```
+
+Příznaky `-head-memory` a `-head-cpus` definují paměť a CPU prostředky alokované *workflow controller podu*. Pro pipeline, které generují tisíce úloh, zvažte zvýšení těchto hodnot pro zajištění stability a výkonu.
+
+#### Příklad
+
+Pro spuštění základní `hello` pipeline:
+
+```shell
+nextflow-go run hello -head-image 'cerit.io/nextflow/nextflow:25.04.4' -head-memory 4096Mi -head-cpus 1 -v PVC:/mnt
+```
+
+Tím připojíte zadaný PersistentVolumeClaim (`PVC`) k controller podu na `/mnt`.
+
+#### Spouštění DSL 1 Pipeline
+
+Pokud používáte starší *DSL 1* Nextflow pipeline, použijte vhodný obraz jako:
+
+```
+cerit.io/nextflow/nextflow:22.10.8
+```
+
+Příklad příkazu:
+
+```shell
+nextflow-go run hello -head-image 'cerit.io/nextflow/nextflow:22.10.8' -head-memory 4096Mi -head-cpus 1 -v PVC:/mnt
+```
+
+DSL 1 pipeline obvykle vyžadují podrobnější konfiguraci. Zde je příklad:
+
+```js title="nextflow.config"
+k8s {
+   namespace           = '[váš-jmenný-prostor]'
+   runAsUser           = 1000
+   computeResourceType = 'Job'
+   cpuLimits           = true
+   storageClaimName    = '[váš-pvc]'
+   storageMountPath    = '/mnt'
+   launchDir           = '/mnt/data1'
+   workDir             = '/mnt/data1/tmp'
+}
+
+executor {
+  queueSize = 30
+}
+
+process {
+   executor = 'k8s'
+   memory   = '500M' // Výchozí pro všechny workers, pokud není přepsáno
+   pod = [
+      [securityContext:
+          [fsGroupChangePolicy:'OnRootMismatch',
+           runAsUser:1000,
+           runAsGroup:1,
+           fsGroup:1,
+           seccompProfile:
+           [type:'RuntimeDefault']]],
+      [automountServiceAccountToken:false]]
+
+   withLabel:VEP {
+       memory = { check_resource(14.GB * task.attempt) } // Použito pouze pro procesy se štítkem VEP
+   }
+}
+
+process mdrun {
+  cpus = 20 // Použito pouze pro proces 'mdrun', pokud není nastaveno ve skriptu
+}
+```
+
+Tento příklad demonstruje, jak:
+- Aplikovat výchozí nastavení na všechny procesy (např. paměť, Pod securityContext).
+- Přizpůsobit prostředky podle štítku (`withLabel:VEP`).
+- Cílit na jednotlivé procesy podle názvu (`process mdrun`).
+
+Taková flexibilita je obzvláště důležitá při práci se staršími pipeline nebo těmi, které vyžadují jemně vyladěnou kontrolu prostředků.
+
+### Ladění 🐞
+
+Doporučujeme sledovat váš jmenný prostor v Rancher GUI nebo na příkazovém řádku při odesílání pipeline. Ne všechny problémy se propagují do terminálu, zejména chyby související s Kubernetes, jako je překročení kvóty. Můžete otevřít záložku `Jobs` v Rancher GUI a sledovat úlohy, které jsou `In progress` příliš dlouho nebo jsou ve stavu `Error`. Užitečné příkazy mohou zahrnovat:
+
+```shell
+kubectl get jobs -n [jmenný-prostor] // ZÍSKAT VŠECHNY ÚLOHY V JMENNÉM PROSTORU
+kubectl describe job [název_úlohy] -n [jmenný-prostor] // ZJISTIT VÍCE O ÚLOZE A CO SE S NÍ DĚJE
+
+kubectl get pods -n [jmenný-prostor] // ZÍSKAT VŠECHNY PODS V JMENNÉM PROSTORU
+kubectl describe pod [název_podu] -n [jmenný-prostor] // ZJISTIT VÍCE O PODU A CO SE S NÍM DĚJE
+kubectl logs [název_podu] -n [jmenný-prostor] // ZÍSKAT LOGY PODU (POKUD JSOU DOSTUPNÉ)
+```
+
+Pokud úloha čeká na spuštění příliš dlouho, zkuste popsat úlohu. Může odhalit překročení kvóty ve vašem jmenném prostoru:
+
+```
+  Warning  FailedCreate  18m    job-controller  Error creating: pods "nf-5dd9dc33d33c729b5cd57c818bafba86-lk4tl" is forbidden: exceeded quota: default-kbz9v, requested: requests.cpu=8, used: requests.cpu=16, limited: requests.cpu=20
+```
+
+Pokud se vám to stane, zvažte snížení problematických požadavků prostředků workflow controlleru nebo procesů, které mohou požadovat příliš mnoho. Pokud nevíte, co dělat, <a href="mailto:k8s@cerit-sc.cz">kontaktujte nás</a> a společně najdeme řešení.
+
+### Omezení
+
+* Pokud pipeline běží dlouhou dobu (není to případ `hello` pipeline), příkaz `nextflow-go` skončí s ukončením spojení. To je normální a neznamená to, že pipeline již neběží. Přestává pouze logovat do vašeho terminálu. Logy workflow controlleru stále najdete v Rancher GUI.
+
+* Běžící pipeline lze ukončit z Rancher GUI, stisknutí `ctrl-c` pipeline neukončuje.
+
+* Ladící log pipeline lze najít na PVC v `launchDir/.nextflow.log`. Následná spuštění rotují logy, takže nejsou přepsány.
+
+* Pokud pipeline selže, můžete zkusit obnovit pipeline s volbou příkazového řádku `-resume`, vytvoří nové spuštění, ale snaží se přeskočit již dokončené úlohy. Viz [podrobnosti](https://www.nextflow.io/blog/2019/demystifying-nextflow-resume.html).
+
+* Všechna spuštění (úspěšná nebo neúspěšná) ponechají *workflow controller* pod viditelný v Rancher GUI, neúspěšní workers jsou také uchováváni v Rancher GUI. Můžete je z GUI podle potřeby smazat.
+
+* Pro některé *workers* nejsou logy dostupné v Rancher GUI, ale logy lze sledovat pomocí příkazu:
+
+```shell
+kubectl logs POD -n JMENNÝ_PROSTOR
+```
+
+  kde `POD` je název *workera* (např. `nf-81dae79db8e5e2c7a7c3ad5f6c7d59c6`) a `JMENNÝ_PROSTOR` je použitý jmenný prostor.
+
+## nf-core/sarek Pipeline
+
+[nf-core/sarek](https://nf-co.re/sarek) je komplexní analytická pipeline pro detekci germline nebo somatických variant z dat celogenomového sekvenování (WGS) nebo cíleného sekvenování. Zahrnuje kroky pro předzpracování, volání variant a anotaci.
+
+### Spuštění na Kubernetes
+
+Pro spuštění `sarek` na Kubernetes musíte poskytnout vlastní konfiguraci, aby pipeline prováděla správně a spolehlivě:
+
+- Použijte specifický soubor [`nextflow.config`](/examples/ceritsc/nextflow/nextflow-sarek.config), který zvyšuje alokaci paměti pro proces VEP, který je součástí pipeline. Bez této úpravy je pravděpodobné, že krok VEP bude ukončen kvůli nedostatku paměti.
+- Použijte opravený [`custom.config`](/examples/ceritsc/nextflow/custom.config), protože veřejná GitHub verze pipeline `sarek` obsahuje známou chybu, která způsobuje zápis výstupních statistik do nesprávných souborů.
+
+Navíc pipeline `sarek` používá funkce uvnitř své konfigurace. Ty **nejsou podporovány** standardním executorem `kuberun` v Nextflow, ale **jsou podporovány** binárním souborem `nextflow-go`. To znamená, že pokud dodržujete tento návod a používáte `nextflow-go`, není potřeba žádný workaround.
+
+Jakmile jsou vaše vstupní data dostupná na sdíleném PVC, můžete pipeline spustit následujícím příkazem:
+
+```shell
+nextflow-go run nf-core/sarek -v PVC:/mnt --input /mnt/test.tsv --genome GRCh38 --tools HaplotypeCaller,VEP,Manta
+```
+
+Zde nahraďte `PVC` skutečným názvem PersistentVolumeClaim a ujistěte se, že `test.tsv` je přítomen na PVC. Tento TSV by měl obsahovat vaše vstupní metadata.
+
+<Callout type="info">
+Pipeline `nf-core/sarek` verze 3.x podporuje DSL 2 a je kompatibilní s Nextflow 25.04.4, což ji činí vhodnou pro `nextflow-go`. Pokud potřebujete spustit starší verzi Sarek, která používá DSL 1, ujistěte se, že konfigurace odpovídá nastavení DSL 1 popsanému dříve.
+</Callout>
+
+### Omezení
+
+- **Lokálně stáhněte igenome**: Důrazně doporučujeme stáhnout data *igenome* z Amazon S3 na vaše PVC předem. To výrazně zlepšuje výkon při použití volby `-resume` po neúspěšném spuštění a vyhnete se problémům způsobeným omezováním Amazon S3 nebo síťovými přerušeními. Po stažení zadejte cestu pomocí:
+
+  ```shell
+  --igenomes_base /mnt/igenome
+  ```
+
+- **Očekávaná chyba na konci spuštění**: Pipeline může skončit se stacktrace jako `No signature of method: java.lang.String.toBytes()`. K tomu dochází, když není specifikován e-mail pro oznámení. Je neškodná a lze ji bezpečně ignorovat.
+
+- **Vyčištění pracovního adresáře**: Pipeline `sarek` automaticky nesmaže svůj `workDir`. Jste zodpovědní za ruční vyčištění po spuštění.
+
+- **Ruční obnovení s různým vstupem**: Můžete obnovit neúspěšné spuštění pomocí modifikované specifikace `--input`. Odkazujte se na [oficiální dokumentaci](https://nf-co.re/sarek/2.7.1/docs/usage#troubleshooting) pro pokyny.
+
+## vib-singlecell-nf/vsn-pipelines pipeline
+
+[vsn-pipelines](https://vsn-pipelines.readthedocs.io/en/latest/) obsahují více workflow pro analýzu dat single cell transcriptomiky a závisí na řadě nástrojů.
+
+### Spuštění na Kubernetes
+
+Musíte stáhnout pipeline-specifický [nextflow.config](/examples/ceritsc/nextflow/nextflow-vsn.config) a umístit ho do aktuálního adresáře, odkud spouštíte Nextflow. Tato pipeline používá parametr `-entry` k určení vstupního bodu workflow. Pokud není vyřešen [issue #2397](https://github.com/nextflow-io/nextflow/issues/2397), je potřeba opravená verze Nextflow. Pro zvládnutí této chyby potřebujete Nextflow verzi 22.06.1-edge nebo novější.
+
+Na PVC musíte připravit data do adresářů specifikovaných v `nextflow.config` – podívejte se na všechny výskyty `/mnt/data1` v konfiguraci a změňte je odpovídajícím způsobem.
+
+Konzultujte [dokumentaci](https://vsn-pipelines.readthedocs.io/en/latest/index.html) pro další konfigurační možnosti.
+
+Pipeline můžete spustit následujícím příkazem:
+
+```shell
+nextflow-go -C nextflow.config kuberun vib-singlecell-nf/vsn-pipelines -head-image 'cerit.io/nextflow/nextflow:24.04.4' -head-cpus 1 -head-memory 4096Mi -v PVC:/mnt -entry scenic
+```
+
+kde `PVC` je zmíněné PVC, `scenic` je vstupní bod pipeline a `nextflow.config` je stažený `nextflow.config`.
+
+### Omezení
+
+* Pro paralelní spuštění musíte nastavit `maxForks` v `nextflow.config` spolu s parametrem `params.sc.scenic.numRuns`. Konzultujte [dokumentaci](https://vsn-pipelines-examples.readthedocs.io/en/latest/PBMC10k_multiruns.html).
+
+* Proměnná `NUMBA_CACHE_DIR` ukazující na `/tmp` nebo jiný zapisovatelný adresář je požadavek, jinak provádění selže na odmítnutí oprávnění. Snaží se aktualizovat readonly části běžícího kontejneru.
+
+## Použití GPU
+
+Použití GPU v kontejnerech je přímočaré, stačí přidat:
+
+```
+  accelerator = 1
+```
+
+do sekce process v `nextflow.config`, např.:
+
+```js title="nextflow.config"
+process {
+   executor = 'k8s'
+
+   withLabel:VEP {
+      accelerator = 1
+   }
+}
+```
+
+## Spuštění z Jupyter Notebooku
+
+Binární soubor `nextflow-go` lze použít přímo z prostředí Jupyter Notebook za předpokladu, že je umístěn v domovském adresáři uživatele Jupyter. Toto nastavení umožňuje uživatelům spouštět a sledovat Nextflow pipeline z notebooků běžících uvnitř Kubernetes clusteru.
+
+### Pokyny k nastavení
+
+Nejprve otevřete terminál uvnitř prostředí Jupyter Notebook a zjistěte název vašeho domovského PVC:
+
+```shell
+echo $JUPYTERHUB_PVC_HOME
+```
+
+**Příklad výstupu:**
+```
+jovyan@jupyter-xhejtman--ai---11fb682b:~$ echo $JUPYTERHUB_PVC_HOME
+xhejtman-home-ai
+```
+
+Dále získejte název svého service account (SA):
+
+```shell
+echo sa-$JUPYTERHUB_USER
+```
+
+**Příklad výstupu:**
+```
+jovyan@jupyter-xhejtman--ai---11fb682b:~$ echo sa-$JUPYTERHUB_USER
+sa-xhejtman
+```
+
+Nyní vytvořte následující soubor `nextflow.config` ve stejném adresáři, kde se nachází váš binární soubor `nextflow-go`:
+
+```js title="nextflow.config"
+k8s {
+   storageClaimName      = '[PVC]'
+   storageMountPath      = '/home/jovyan'
+   serviceAccount        = '[SA]'
+   launchDir             = '/home/jovyan'
+   workDir               = '/home/jovyan/tmp'
+   computeResourceType   = 'Job'
+   runAsUser             = 1000
+}
+
+executor {
+  queueSize = 10
+}
+
+process {
+   executor = 'k8s'
+}
+```
+
+Nahraďte zástupný symbol `[PVC]` výstupem `$JUPYTERHUB_PVC_HOME` (např. `xhejtman-home-ai`) a nahraďte `[SA]` hodnotou vašeho service account (např. `sa-xhejtman`).
+
+Jakmile je tento soubor uložen, můžete spustit jakoukoli podporovanou Nextflow pipeline přímo z vašeho notebookového prostředí pomocí stejných příkazů jako v obecných pokynech, například:
+
+```shell
+./nextflow-go run hello
+```
+
+Tento přístup umožňuje bezproblémové experimentování a provádění workflow z interaktivních Jupyter prostředí s plným využitím podkladového Kubernetes clusteru.
+
+## Běžné problémy
+
+### 1. Úlohy se nespouštějí
+
+Pokud se vaše úlohy nespouštějí, můžete problém řešit spuštěním:
+
+```bash
+kubectl get events -n [váš-jmenný-prostor]
+```
+
+Tento příkaz může odhalit chyby jako:
+
+```
+Warning  FailedCreate  job/nf-...  Error creating: pods "nf-..." is forbidden: violates PodSecurity "restricted:latest":
+runAsNonRoot != true (pod or container "nf-..." must set securityContext.runAsNonRoot=true),
+seccompProfile (pod or container "nf-..." must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+```
+
+Tyto chyby jsou obvykle spojeny s **Pod Security Policies** vynucovanými na vašem clusteru.
+
+### 2. Chyby kontextu zabezpečení
+
+Chyby vytváření podů související se zabezpečením jako:
+
+```
+Error creating: pods "nf-..." is forbidden: violates PodSecurity "restricted:latest": runAsNonRoot != true
+```
+
+jsou obvykle způsobeny nesprávným nastavením `securityContext` ve vašem `nextflow.config`.
+
+<Callout title="Doporučení" type="info">
+**Nenastavujte** žádné vlastní hodnoty `securityContext` ve vaší konfiguraci, pokud k tomu nemáte specifický důvod. Běžec `nextflow-go` a oficiální Nextflow obrazy automaticky zpracovávají správná nastavení zabezpečení.
+</Callout>
+
+### 3. Chyba Java certifikátu
+
+Pokud narazíte na následující chybu:
+
+```
+ERROR ~ extension (5) should not be presented in certificate_request
+```
+
+Je způsobena použitím zastaralé verze Java ve vašem Nextflow prostředí.
+
+<Callout title="Řešení" type="info">
+- Pro **DSL 2** jednoduše vynechejte volbu `--head-image` při spouštění Nextflow. Běžec `nextflow-go` automaticky použije nejnovější kompatibilní obraz.
+- Pro **DSL 1** explicitně použijte následující obraz:
+
+```
+cerit.io/nextflow/nextflow:22.10.8
+```
+</Callout>

@@ -1,0 +1,27 @@
+---
+title: Rancher
+---
+
+Instance _Rancher_ je dostupná na [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz). Přihlaste se pomocí e-INFRA CZ, Life Science Login (ELIXIR) nebo EGI Check-In.
+
+Po přihlášení uvidíte výchozí dashboard zobrazující dostupné clustery. Pokud se žádný cluster nezobrazí, obnovte stránku — může trvat až minutu, než se clustery načtou.
+
+Rancher a Kubernetes organizují prostředky do *clusterů*, *projektů* a *jmenných prostorů*. *Clustery* odpovídají skupinám fyzických uzlů. *Projekty* se vytvářejí v rámci *clusterů* a *jmenné prostory* se vytvářejí v rámci *projektů*. *Projekty* jsou koncept specifický pro Rancher a nejsou nativní pro Kubernetes. [Jmenné prostory](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) poskytují mechanismus pro izolaci skupin prostředků v rámci jednoho clusteru. Názvy prostředků musí být v rámci jmenného prostoru unikátní, ale nemusí být unikátní napříč jmennými prostory. Názvy jmenných prostorů musí být v rámci clusteru unikátní. Například obecně se nedoporučuje vytvářet jmenný prostor s názvem *test*.
+
+Každý uživatel obdrží *Výchozí projekt* označený svým jménem a příjmením, spolu s výchozím *jmenným prostorem* pojmenovaným `příjmení-ns`. Výchozí projekt a jmenný prostor se automaticky vytvoří, když se uživatel poprvé přihlásí do Rancher dashboardu. Pro vytvoření dalších jmenných prostorů použijte Rancher GUI: přejděte na přehled jmenných prostorů a klikněte na tlačítko `Create Namespace`.
+
+```note
+Nepoužívejte `kubectl` pro vytváření jmenných prostorů.
+```
+
+Pro více informací o vytváření jmenných prostorů a kvót si přečtěte dokumentaci [kvóty](./quotas).
+
+Clustery, které jsou vám přiřazeny (a ke kterým máte oprávnění přístupu), se zobrazí v levém horním rohu nebo v seznamu na domovské stránce:
+
+![clusters](/img/ceritsc/cluster1.png)
+
+Když vyberete cluster, můžete vidět své *projekty a jmenné prostory*:
+
+![projects and namespaces](/img/ceritsc/projects.png)
+
+Mnoho úloh lze provádět přímo prostřednictvím rozhraní Rancher. Pro pokročilejší operace použijte nástroj příkazového řádku `kubectl`. Oba přístupy jsou efektivní; nicméně pro uživatele, kteří jsou méně obeznámeni s terminálem, doporučujeme Rancher.

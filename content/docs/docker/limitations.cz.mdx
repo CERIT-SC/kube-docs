@@ -1,0 +1,50 @@
+---
+title: Omezení při spouštění Docker obrazů
+---
+
+Technická omezení a řešení pro spouštění Docker obrazů na platformě bez root oprávnění
+
+## Žádný Root
+
+Ačkoli to není běžná funkce, na naší kontejnerové platformě nemůžete spouštět Docker obrazy s eskalovanými oprávněními, tj. jako uživatel `root` nebo s použitím zvýšených `capability`. Eskalace oprávnění není možná, ani při spouštění Docker obrazu, takže příkazy `sudo` nebo `su` nelze použít. Také není možné použít více než jednoho uživatele v kontejneru; neexistuje mechanismus pro přepínání mezi dvěma uživateli.
+
+Aby bylo možné splnit tento požadavek, musí buď Docker obraz specifikovat uživatele, pod kterým se obraz spouští, nebo specifikovat `runAsUser: UID` v odpovídajícím YAML souboru. Například `USER 1000` v Dockerfile. Specifikace `UID` (a ne jména) je pevný požadavek. Pokud se pokusíte spustit obraz, který nemá číselné `UID`, obdržíte následující chybu, kde `taskmaster` je nahrazen skutečným použitým jménem:
+
+```shell
+Error: container has runAsNonRoot and image has non-numeric user (taskmaster), cannot verify user is non-root
+```
+
+Pokud `USER` v Dockerfile nebo `runAsUser` v YAML není specifikováno, obdržíte následující chybu:
+
+```shell
+Error: container has runAsNonRoot and image will run as root
+```
+
+Pro opravu této chyby je třeba specifikovat buď `USER`, například `USER 1000`, nebo `runAsUser`, například `runAsUser: 1000`, v YAML.
+
+Na druhou stranu, při sestavování Docker obrazu máte plné root oprávnění.
+
+### Důsledky
+
+* Nemůžete nainstalovat žádný balíček do běžícího kontejneru, pokud jej nepřipravíte předem:
+
+    1. Nainstalujte balíček `fakeroot`
+    2. Spusťte `chown -R uid /etc /lib* /usr /var /bin` během procesu sestavování Docker obrazu. Nahraďte `uid` skutečným ID uživatele, například 1000.
+
+  Toto je však anti-vzor používání Docker obrazů; měli byste se tomuto přístupu vyhnout hlavně proto, že pokud je běžící kontejner restartován (což se může někdy stát), všechny nainstalované balíčky a další úpravy jsou ztraceny.
+
+* Nemůžete vázat porty pod 1024. To znamená, že služby musí naslouchat na vyšších portech, například 8080, a tak dále. To neznamená, že nemůžete vytvořit službu, která naslouchá na portu 443 nebo 80 pro vnější svět. Stačí postupovat podle [Vystavení aplikací](../kubernetes/expose). Tento problém se týká především webových serverů (jako NGINX a Apache; pro NGINX existuje připravený neprivilegovaný kontejner: `nginxinc/nginx-unprivileged:latest`), SSH serveru a Samba serveru. Všechny tyto servery lze překonfigurovat, aby naslouchaly na vyšších portech.
+
+* Nemůžete zapisovat do adresářů jako `/run` nebo `/var/log/`. V tomto případě není třeba překompilovat obraz a měnit práva. Existuje řešení: namountovat svazek `emptyDir` do těchto adresářů. Stačí sloučit následující dva fragmenty v deployment YAML:
+
+```yaml
+volumes:
+- name: log
+  emptyDir: {}
+
+volumeMounts:
+- name: log
+  mountPath: /var/log
+```
+
+Pokud již existují sekce `volumes` a `volumeMounts`, stačí přidat tyto položky bez řádků `volumes` a `volumeMounts`.

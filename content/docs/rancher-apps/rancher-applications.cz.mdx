@@ -1,0 +1,176 @@
+---
+title: Rancher aplikace
+---
+
+Poskytujeme katalog připravených aplikací, ke kterým lze přistupovat prostřednictvím webového prohlížeče.
+Všechny jsou dostupné z `Rancher UI` – stačí vyplnit nasazovací formulář s volbami, které jsou důležité pro vybranou aplikaci (výběr prostředků, PVC, přihlašovací údaje, režim zveřejnění atd.).
+
+## Přístup ke katalogu aplikací
+
+1. `Nevybírejte jmenný prostor` – měli byste vidět `Pouze uživatelské jmenné prostory` (1) v horní části stránky Rancher.
+2. Přejděte přes `Apps` (2) → `Charts` (3).
+3. Filtrujte charts na `cerit‑sc` (4).
+4. Vyberte libovolnou aplikaci, např. `code‑server` (5).
+
+![selectappnew](/img/ceritsc/apps/ansys/selectappnew.png)
+
+Níže je aktuální seznam aplikací s krátkým popisem pro každou. Následující stránky této dokumentace se podrobně věnují složitějším nastavením.
+
+Pokud aplikace, kterou potřebujete, není uvedena v následujících sekcích, její nasazení je obvykle přímočaré – stačí poskytnout přihlašovací údaje nebo provést jednoduchý výběr. Při instalaci jakékoli aplikace počkejte, dokud aplikace nebude ve zeleném stavu `Deployed`, a poté přistupte k aplikaci na její adrese (obvykle uvedené v dolní části stránky v logu nasazení) nebo jinde.
+
+![deployedapp](/img/ceritsc/apps/ansys/deployed.png)
+
+---
+
+## Aplikace
+
+### code-server
+Spusťte VS Code na jakémkoli stroji, kdekoli a přistupujte k němu z prohlížeče. Poskytuje konzistentní vývojové prostředí na jakémkoli zařízení, přesouvá náročné úlohy (testy, kompilace, stahování) na cloudové servery a šetří životnost baterie laptopů – intenzivní práce běží na serveru.
+
+---
+
+### maxquant
+Kvantitativní proteomický software pro rozsáhlé hmotnostně-spektrometrické datové soubory (vysoké rozlišení MS). Podporuje techniky značení a kvantifikaci bez značek.
+
+---
+
+### pycharm
+Integrované vývojové prostředí (IDE) pro Python. Nabízí analýzu kódu, grafický debugger, unit testing, integraci VCS a podporu Django.
+
+---
+
+### ansys
+CAE/vícefyzikální inženýrská simulační sada pro návrh produktů, testování a provoz.
+
+---
+
+### bibs
+BIBs (Bioda server) poskytuje prohlížečové rozhraní k nástrojům a datům BIODA.
+
+---
+
+### blender
+GPU‑akcelerované streamování `Blender` přes WebRTC.
+
+---
+
+### ibm-cplex
+IBM® ILOG® CPLEX® Optimization Studio – rozhodovací optimalizační technologie pro rychlý vývoj a nasazení modelů.
+
+---
+
+### desktop
+GPU‑akcelerované streamované aplikace používající WebRTC nebo neakcelerované VNC relace.
+
+---
+
+### filebrowser
+Webový správce souborů pro specifikované PVC v Kubernetes pro nahrávání, mazání, náhled a editaci souborů. Dostupné z obou sítí `muni` a `external`.
+
+---
+
+### knime
+Open‑source analytická platforma pro vytváření datově-vědeckých workflow. Přístup k úložišti s vašimi daty; VNC viewer poskytuje UI.
+
+---
+
+### langflow
+Vizuální nástroj pro tvorbu AI agentů a workflow. Zahrnuje vestavěné API & MCP servery, podporuje hlavní LLM, vektorové databáze a rostoucí knihovnu AI nástrojů.
+
+---
+
+### matlab
+Poskytuje grafické uživatelské rozhraní MATLAB.
+
+---
+
+### minio
+Object storage server vystavující Persistent Volume Claims přes webové UI nebo S3‑kompatibilní API.
+
+---
+
+### moodle
+Výuková platforma pro vytváření personalizovaných, zabezpečených vzdělávacích prostředí pod vaším vlastním hostname.
+
+---
+
+### mpijob
+Framework pro spouštění MPI výpočtů přes tradiční sítě nebo InfiniBand. Vestavěný MPI operátor vytváří spouštěcí úlohu (spouští `mpirun`) a pracovní úlohy.
+
+---
+
+### neo4j
+Graph Data Platform s Graph Data Science, Bloom visualisation, Cypher dotazovacím jazykem a mnoha konektory.
+
+---
+
+### owncloud
+Klient pro synchronizaci Persistent Volume Claims se servery ownCloud (např., ownCloud CESNET).
+
+---
+
+### paraview
+Open‑source, multi‑platformní aplikace pro analýzu a vizualizaci dat. Spouští ParaView server, ke kterému se může připojit lokální klient.
+
+---
+
+### personal-monitoring **⚠️ Zastaralé – bude brzy odstraněno**
+Vytváří instanci Grafany, která monitoruje využití CPU a paměti podů ve vašem jmenném prostoru. Přístupné na `pmon-[namespace].dyn.cloud.e-infra.cz`.
+
+---
+
+### pgadmin
+Bohatě vybavená open‑source administrační a vývojová platforma pro PostgreSQL.
+
+---
+
+### phpmyadmin
+Webový nástroj pro správu MySQL/MariaDB (databáze, tabulky, uživatelé, oprávnění, SQL dotazy atd.).
+
+---
+
+### ridom-seqsphere
+Software pro distribuovanou analýzu NGS a Sanger sekvenování (Illumina, Ion Torrent, PacBio atd.). Podporuje cgMLST, rMLST a tradiční MLST.
+
+---
+
+### rstudio
+Prohlížečové rozhraní k R session běžící na vzdáleném Linux serveru (RStudio Server).
+
+---
+
+### samba
+Vystavuje Persistent Volume Claims přes CIFS/SMB jako Windows síťovou jednotku. Dostupné pouze ze sítě `muni`.
+
+---
+
+### scipion
+Cloud‑povolený Scipion s několika 3DEM nástroji a systémem front. Poskytuje prohlížečový vzdálený desktop a CUDA‑akcelerovanou podporu grafiky.
+
+---
+
+### shinysom
+Prohlížečové rozhraní k R session s modulem Self‑Organising Map (SOM) (Shiny SOM).
+
+---
+
+### text-generation-webui
+Gradio web UI pro Large Language Models. [Více informací](https://github.com/oobabooga/text-generation-webui)
+
+---
+
+### vmd
+GPU‑akcelerované streamování `VMD` přes WebRTC. [Více informací](https://www.ks.uiuc.edu/Research/vmd/)
+
+---
+
+### wave
+Sleduje Deployments, StatefulSets a DaemonSets v rámci clusteru a zajišťuje, že jejich Pods mají vždy aktuální konfiguraci.
+
+## Poznámky
+
+- Výchozí kvóta projektu: `20 garantovaných CPU` a `32 CPU limit`.
+  - Nevybírejte více než `18 garantovaných CPU` nebo `28 CPU limit`.
+  - Potřebujete více? [Zeptejte se administrátorů](mailto:k8s@ics.muni.cz). Kvóty mohou být v budoucnu zvýšeny.
+
+- Pokud `nezaškrtnete` `"Customize Helm options before install"` během `Install the Application`, instalace se může zdát neúspěšná, ale dokončí se po delším čekání.

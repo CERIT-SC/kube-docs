@@ -1,116 +1,116 @@
 ---
-title: Matlab
+title: MATLAB
 ---
 
-## Option 1: Running Matlab via JupyterHub (Recommended)
+## Option 1: Running MATLAB via JupyterHub (Recommended)
 
-* Ease of Use: JupyterHub offers a straightforward way to launch Matlab directly from your Jupyter Notebook environment.
-* Data Integration: This method provides seamless integration with MetaCentrum storages, making it convenient for users already working within this ecosystem.
-* Supported Version: More Matlab versions are supported through this option.
+* **Ease of Use**: JupyterHub offers a straightforward way to launch MATLAB directly from your Jupyter Notebook environment.
+* **Data Integration**: This method provides seamless integration with MetaCentrum storages, making it convenient for users already working within this ecosystem.
+* **Supported Versions**: More MATLAB versions are supported through this option.
 
-This is our preferred method due to its simplicity and straightforward setup. To learn more, see [JupyterHub introduction](../web-apps/jupyterhub) where you can find other necessary information.
+This is our preferred method due to its simplicity and straightforward setup. To learn more, see the [JupyterHub introduction](../web-apps/jupyterhub) where you can find other necessary information.
 
 
-## Option 2: Running Matlab as a Rancher App (can be customized)
+## Option 2: Running MATLAB as a Rancher App (can be customized)
 
-If not already logged, log to [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz), see [Rancher](../rancher/rancher) section.
+If not already logged in, log into [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz). See the [Rancher](../rancher/rancher) section for more information.
 
-Following the steps below, you can run Matlab application. This application has a persistent home directory, which means that if you delete the application and later install it again, preserving its name, the content of the home directory will be preserved. It is also possible to connect some storage from e-infra.
+Following the steps below, you can run the MATLAB application. This application has a persistent home directory, which means that if you delete the application and later install it again while preserving its name, the content of the home directory will be preserved. It is also possible to connect storage from e-INFRA CZ.
 
 ### Notes
 
-* The default project had a quota limit for 12 guaranteed CPUs and a quota limit for 16 CPUs. Do not select more than 10 guaranteed CPUs and a limit of 14 CPUs. If needed, more just [ask](mailto:k8s@ics.muni.cz). This may be increased in the future, so a request for more CPUs can be made. 
+* The default project has a quota limit for 12 guaranteed CPUs and a limit for 16 CPUs. Do not select more than 10 guaranteed CPUs and a limit of 14 CPUs. If needed, you can request more by [contacting us](mailto:k8s@ics.muni.cz). This may be increased in the future, so a request for more CPUs can be made.
 
-* If you do not select `Customize Helm options before install` in **Install the Application** step, installation appears to fail but actually it works after some longer time.
+* If you do not select `Customize Helm options before install` in the **Install the Application** step, the installation may appear to fail but it actually works after a longer time.
 
-* From Matlab version `v9.11.1`, it is possible to mount your MetaCentrum home without asking for a password. However, it is necessary to create a set of specific Kubernetes objects. We simplified the whole process, and it is enough if you: 
-  *  Firstly, go through [this short tutorial](../other/storagesecrets) where you just log into our custom service and select the namespace where to create objects
-  *  Secondly, run the Matlab application from Rancher the same way as before, just select version **v9.11.1** and above. The application form features a field in the `Storage` section where you select your home.
+* From MATLAB version `v9.11.1`, it is possible to mount your MetaCentrum home without entering a password. However, it is necessary to create a set of specific Kubernetes objects. We simplified the whole process, and it is enough if you:
+  * First, go through [this short tutorial](../other/storagesecrets) where you just log into our custom service and select the namespace where to create objects.
+  * Second, run the MATLAB application from Rancher the same way as before, just select version **v9.11.1** or above. The application form features a field in the `Storage` section where you can select your home.
 
 ![selectapp](/img/ceritsc/apps/matlab/matlab-home.png)
 
 ### Select Application to Run
 
-Ensure, you did not select any namespace and see `Only User Namespaces` (1) at the top of the Rancher page.
+Ensure you have not selected any namespace and see `Only User Namespaces` (1) at the top of the Rancher page.
 
-Navigate through `App & Marketplace` (2), `Charts` (3), limit charts only to `cerit-sc` (4) and select `Matlab` (5). See screenshot below.
+Navigate through `App & Marketplace` (2), `Charts` (3), limit charts to `cerit-sc` only (4), and select `MATLAB` (5). See the screenshot below.
 
 ![selectapp](/img/ceritsc/apps/matlab/selectapp.png)
 
 ### Select Version of the Application
 
-When you click on the chart, you can select version of application as shown below. Select `Chart Version`, you find exact Matlab version under `Application Version`. Versions can vary in time. Hit `Install` to continue.
+When you click on the chart, you can select the version of the application as shown below. Select `Chart Version`; you will find the exact MATLAB version under `Application Version`. Versions can vary over time. Click `Install` to continue.
 
 ![selectversion](/img/ceritsc/apps/matlab/selectversion.png)
 
 ### Install the Application
 
-Now you can install the Matlab application. In most cases, keep both `Namespace` (1) and `Name` (2) intact, but select `Customize Helm options before install` (3), however, you can select namespace as desired except `default`. The `default` namespace is available but it is not meant to be used. The `Name` will be in URL to access the application. 
+Now you can install the MATLAB application. In most cases, keep both `Namespace` (1) and `Name` (2) intact, but select `Customize Helm options before install` (3). However, you can select any namespace except `default`. The `default` namespace is available but is not meant to be used. The `Name` will be used in the URL to access the application.
 
-The `Name` must be unique in the `Namespace`, i.e., you cannot run two or more instances with the same `Name` in the same `Namespace`. The name must be composed of only alphanumeric characters and must start with a character, *matlab* or *matlab123* are good names but *1matlab2* or *1234* will fail.
+The `Name` must be unique within the `Namespace`, i.e., you cannot run two or more instances with the same `Name` in the same `Namespace`. The name must be composed of only alphanumeric characters and must start with a letter. Names like *matlab* or *matlab123* are good, but *1matlab2* or *1234* will fail.
 
-If you delete the application and later install the application again preserving its `Name`, content of home directory will be preserved. 
+If you delete the application and later install it again while preserving its `Name`, the content of the home directory will be preserved.
 
 ![appinst](/img/ceritsc/apps/matlab/appinst.png)
 
-In the first part of the form, you select access display method. [VNC](https://cs.wikipedia.org/wiki/Virtual_Network_Computing) method is default. You will need some vncview program [realvnc](https://www.realvnc.com/en/connect/download/viewer/) or `vncviewer` on most Linux distribution. On MacOS, just type `vnc://host` into the Safari browser, replace `host` according to instructions below. Do not hit `Install` until the form is completed. Using *VNC*, only software drawing is available, no 3D acceleration is possible.
+In the first part of the form, you select the access display method. The [VNC](https://cs.wikipedia.org/wiki/Virtual_Network_Computing) method is the default. You will need a VNC viewer program such as [RealVNC](https://www.realvnc.com/en/connect/download/viewer/) or `vncviewer` on most Linux distributions. On macOS, just type `vnc://host` into the Safari browser, replacing `host` according to the instructions below. Do not click `Install` until the form is completed. Using *VNC*, only software drawing is available; no 3D acceleration is possible.
 
-If VNC is not selected, *WEBRTC* method is used. This option is still in beta version and not ready for production use, however, full 3D OpenGL acceleration is available.
+If VNC is not selected, the *WEBRTC* method is used. This option is still in beta version and not ready for production use; however, full 3D OpenGL acceleration is available.
 
 ![appform1](/img/ceritsc/apps/matlab/appform1.png)
 
-In the second part of the form, you select `password`. This password is used to login through VNC. If VNC is not selected, you need to fill also `username`, these credentials will be used in the browser to attach to the *WEBRTC* session.
+In the second part of the form, you select a `password`. This password is used to log in through VNC. If VNC is not selected, you also need to fill in the `username`. These credentials will be used in the browser to attach to the *WEBRTC* session.
 
 ![appform2](/img/ceritsc/apps/matlab/appform2.png)
 
-In the third part of the form, you select if you desire persistent home, i.e., home that will be preserved even if you uninstall the application. Note: persistent home is bound with application name from the very beginning of install form. It means, if you set name to `matlab`, persistent home will be bound with name `matlab`. If you select the name `matlab-0` next time, you get new home that is bound with the name `matlab-0`.
+In the third part of the form, you select if you desire a persistent home, i.e., a home that will be preserved even if you uninstall the application. Note: the persistent home is bound to the application name from the very beginning of the install form. This means that if you set the name to `matlab`, the persistent home will be bound to the name `matlab`. If you select the name `matlab-0` next time, you get a new home that is bound to the name `matlab-0`.
 
-In this part, you can select **e-infra** storage to connect to the application. If you check `External Storage`, few more options appear. You can select storage and access credentials. Currently, only `storage-brno12-cerit.metacentrum.cz` is supported. Username is e-infra ([metacentrum](https://metavo.metacentrum.cz/)) login and password **is not** Metacentrum password, but different set by administrator, [ask](mailto:k8s@ics.muni.cz) if you need to set. We are preparing more convenient way. This storage is mounted to `/storage` directory.
+In this part, you can select **e-INFRA CZ** storage to connect to the application. If you check `External Storage`, a few more options appear. You can select storage and access credentials. Currently, only `storage-brno12-cerit.metacentrum.cz` is supported. The username is your e-INFRA CZ ([MetaCentrum](https://metavo.metacentrum.cz/)) login, and the password **is not** your MetaCentrum password, but a different one set by an administrator. [Contact us](mailto:k8s@ics.muni.cz) if you need to set it. We are preparing a more convenient method. This storage is mounted to the `/storage` directory.
 
 ![appform3](/img/ceritsc/apps/matlab/appform3.png)
 
-In the fourth part  of the form, you can select requested resources. This step is optional. `Minimum` CPU or RAM is guaranteed amount of CPU and RAM, system reserves these resources for the application. However, the application can exceed guaranteed resources up to `Maximum`. However, in this case, resources are not exclusive and can be shared among other applications. If the application exceeds `Maximum` CPU, it gets limited, if it exceeds `Maximum` RAM, it gets terminated (you will see OOMKill report) and restarted. See note above about maximum values.
+In the fourth part of the form, you can select requested resources. This step is optional. `Minimum` CPU or RAM is the guaranteed amount of CPU and RAM; the system reserves these resources for the application. However, the application can exceed guaranteed resources up to the `Maximum`. In this case, resources are not exclusive and can be shared among other applications. If the application exceeds the `Maximum` CPU, it gets limited; if it exceeds the `Maximum` RAM, it gets terminated (you will see an OOMKill report) and restarted. See the note above about maximum values.
 
 ![appform4](/img/ceritsc/apps/matlab/appform4.png)
 
-In the fifth part of the form, select timeout 1200 seconds, this is due to really large Matlab images. Finally, hit `Install`.
+In the fifth part of the form, select a timeout of 1200 seconds; this is due to the large MATLAB images. Finally, click `Install`.
 
 ![appform5](/img/ceritsc/apps/matlab/appform5.png)
 
 ### Wait for Application to Start
 
-When you hit `Install`, you will see installation log. Once you see `SUCCESS` (see screenshot below), the application is running. 
+When you click `Install`, you will see the installation log. Once you see `SUCCESS` (see screenshot below), the application is running.
 
 #### Notes
 
-* It can take some time before application is ready as it downloads 20GB docker container, if it is not already cached, first start can take up to 20 minutes.
-* If filled password was not correct, it will be pending indefinitely. In such a case, delete application and start over.
+* It can take some time before the application is ready, as it downloads a 20GB Docker container. If it is not already cached, the first start can take up to 20 minutes.
+* If the password you filled in was not correct, the application will be pending indefinitely. In such a case, delete the application and start over.
 
 ![apphelm](/img/ceritsc/apps/matlab/apphelm.png)
 
 ### Connect to the Running Instance
 
-Once the application is running, for *VNC* version, navigate through `Service Discovery` (1) and `Services` (2), hover with mouse over `Target` (3) and depending on used browser, you should see target URL (4). Chrome browser shows it in the lower left corner. This is IP and port you need to pass to your `vncviewer` application or fill into the Safari navigation bar, e.g., `vnc://147.251.253.246`.
+Once the application is running, for the *VNC* version, navigate through `Service Discovery` (1) and `Services` (2), hover your mouse over `Target` (3), and depending on the browser used, you should see the target URL (4). The Chrome browser shows it in the lower left corner. This is the IP address and port you need to pass to your `vncviewer` application or fill into the Safari navigation bar, e.g., `vnc://147.251.253.246`.
 
-In case of *WEBRTC*, instead of `Services`, navigate to `Ingresses` (5) and you will see full URL to click on to start the *WEBRTC* connection.
+In the case of *WEBRTC*, instead of `Services`, navigate to `Ingresses` (5) and you will see the full URL to click on to start the *WEBRTC* connection.
 
-*VNC* client will ask for the password. Type the password from the form. *WEBRTC* connection will ask for the username and password, those **are not** metacentrum username and password but the ones from the beginning of the form.
+The *VNC* client will ask for the password. Type the password from the form. The *WEBRTC* connection will ask for the username and password; these **are not** your MetaCentrum username and password, but the ones you entered at the beginning of the form.
 
 ![apphelm](/img/ceritsc/apps/matlab/appservice.png)
 
-## Matlab
+## MATLAB
 
-On the first login, desktop will look like this:
+On the first login, the desktop will look like this:
 ![app](/img/ceritsc/apps/matlab/app.png)
 
-You see `licence checker` that is made to check available Matlab licences. You can select which licences you want to use. If there are no free licences, it will check periodically and once the licence is free, it will start fluent. Alternatively, you can start other part of Matlab using icons on desktop or using terminal.
+You will see a `license checker` that is designed to check available MATLAB licenses. You can select which licenses you want to use. If there are no free licenses, it will check periodically, and once a license is free, it will start smoothly. Alternatively, you can start other parts of MATLAB using the icons on the desktop or using the terminal.
 
-As Matlab is licenced product, you must agree that you use this product for academic purposes only and that you are eligible to use the licence, i.e., you are MetaCentrum user or student or employee of Masaryk university in Brno, University of West Bohemia in Pilsen, or Czech Technical University in Prague.
+As MATLAB is a licensed product, you must agree that you use this product for academic purposes only and that you are eligible to use the license, i.e., you are a MetaCentrum user or a student or employee of Masaryk University in Brno, University of West Bohemia in Pilsen, or Czech Technical University in Prague.
 
 ![legal](/img/ceritsc/apps/matlab/matlab-legal.png)
 
 ## Delete Running Instance
 
-If you feel you do not need the application anymore, you can delete it. Just navigate to `App & Marketplace` (1), `Installed Apps` (2), select the application (3) and hit `Delete` (4). The data in home directory is not deleted in case you check persistent home. Running the application again with the same `Name` restores access to the home directory folder.
+If you no longer need the application, you can delete it. Navigate to `App & Marketplace` (1), `Installed Apps` (2), select the application (3), and click `Delete` (4). The data in the home directory is not deleted if you checked persistent home. Running the application again with the same `Name` restores access to the home directory folder.
 
 ![appdel](/img/ceritsc/apps/matlab/appdel.png)

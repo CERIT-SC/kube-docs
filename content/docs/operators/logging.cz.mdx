@@ -1,0 +1,67 @@
+---
+title: Logování
+---
+
+Logování v Kubernetes clusteru je zajištěno pomocí [Logging operátora](https://kube-logging.dev/). Tento nástroj umožňuje vytvářet přizpůsobené logovací pipeline, které splňují požadavky uživatelů.
+
+Logovací pipeline se skládá ze dvou komponent: `SyslogNGFlow` a `SyslogNGOutput`. `SyslogNGFlow` specifikuje výběr logů a log filtry. `SyslogNGOutput` specifikuje cíl výstupu logů.
+
+## SyslogNGFlow
+
+`SyslogNGFlow` určuje, které logy by měly být odeslány na finální výstupní cíl. Pro to využívá `match` výrazy, které podporují logické operátory `and`, `or` a `not`. `SyslogNGFlow` musí mít alespoň jeden `match` výraz pro přenos logů.
+
+### Příklad
+
+Můžete použít níže uvedenou příkladovou konfiguraci pro sběr všech Pod logů z namespace. Zadejte namespace a název přidruženého `SyslogNGOutput` resource.
+
+```yaml
+apiVersion: logging.banzaicloud.io/v1beta1
+kind: SyslogNGFlow
+metadata:
+  name: syslog-flow
+  namespace: [your_namespace]
+spec:
+  loggingRef: cerit-logging-root
+  match:
+    regexp:
+      value: json.kubernetes.labels.app.kubernetes.io/instance
+      pattern: "*"
+      type: glob
+  localOutputRefs:
+    - [output_resource_name]
+```
+
+Část `loggingRef: cerit-logging-root` je důležitá a musí být nastavena na tuto přesnou hodnotu.
+
+Všechny směrovací možnosti viz [oficiální dokumentace](https://kube-logging.dev/docs/configuration/log-routing-syslog-ng/).
+
+## SyslogNGOutput
+
+`SyslogNGOutput` konfiguruje výstupní cíl logů. `SyslogNGOutput` může konfigurovat pouze jeden výstupní plugin v rámci specifikace.
+
+### Příklad
+
+Můžete použít níže uvedenou příkladovou konfiguraci pro přenos logů pomocí Syslog protokolu. Zadejte název resource, namespace, IP adresu a port. Ujistěte se, že používáte stejný název jako v `localOutputRefs`.
+
+```yaml
+apiVersion: logging.banzaicloud.io/v1beta1
+kind: SyslogNGOutput
+metadata:
+  name: [output_resource_name]
+  namespace: [your_namespace]
+spec:
+  loggingRef: cerit-logging-root
+  syslog:
+      host: [ip_address]
+      port: [port]
+```
+
+Část `loggingRef: cerit-logging-root` je důležitá a musí být nastavena na tuto přesnou hodnotu.
+
+Kompletní seznam dostupných výstupních pluginů viz [oficiální dokumentace](https://kube-logging.dev/docs/configuration/plugins/syslog-ng-outputs/).
+
+## Nasazení logovací pipeline
+
+Pro vytvoření nové logovací pipeline aplikujte konfigurace resource ze YAML souboru.
+
+    kubectl apply -f [path_to_yaml_file]

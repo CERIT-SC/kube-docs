@@ -1,0 +1,122 @@
+---
+title: Dockerfile
+---
+
+## Docker obraz
+
+Docker obraz je základní součástí kontejnerové infrastruktury. Obsahuje vaši aplikaci a všechny potřebné závislosti (knihovny a další soubory).
+
+Docker obraz se typicky vytváří pomocí `Dockerfile`. `Dockerfile` specifikuje příkazy pro sestavení, proměnné prostředí, spouštěcí příkaz, vstupní bod a další konfigurační položky.
+
+Docker obrazy se pojmenovávají pomocí následujícího schématu: `registry/name:tag`. Pokud vynecháte `registry`, jako výchozí registry se použije Docker Hub. Příklad názvu Docker obrazu je: `cerit.io/xserver:v1.0`.
+
+Před sestavením vlastního Docker obrazu vyhledejte ve veřejném registru existující obraz, který obsahuje požadovanou aplikaci. Zkontrolujte časové razítko posledního obrazu, abyste ověřili, že obraz dostává průběžnou údržbu s novými vydáními a opravami chyb. Například doporučujeme Bitnami obrazy. Mějte na paměti určitá omezení při používání externích Docker obrazů na naší infrastruktuře; viz [Omezení](./limitations.cz.mdx).
+
+## Vytvoření vlastního Docker obrazu
+
+Pokud potřebujete vytvořit vlastní obraz, postupujte podle níže uvedeného průvodce. Pro kompletní průvodce viz [oficiální dokumentace Dockeru](https://docs.docker.com/reference/). To vyžaduje znalost instalace Linuxových aplikací a základů Linuxových balicích systémů.
+
+Nejčastější příkazy Dockerfile zahrnují:
+
+1. `FROM image` -- definuje základní obraz pro váš Docker obraz (např. `ubuntu`).
+2. `RUN cmd` -- provede příkaz, který upraví základní obraz. Můžete použít více `RUN` příkazů.
+3. `COPY localfile containerfile` -- zkopíruje lokální soubory do docker obrazu; použijte volitelný `--chown=user:group` pro změnu vlastnictví během kopírování. Vyhněte se samostatnému kopírování a následnému použití `RUN chown`, protože výsledný obraz bude dvakrát větší.
+4. `USER uid` -- přepne provádění na zadaného uživatele `uid` nebo jméno; od tohoto řádku budou všechny další příkazy spouštěny jako zadaný uživatel. Pokud tento příkaz vynecháte, vše se provede jako uživatel `root`. Poslední direktiva `USER uid` také určuje, jako který uživatel bude kontejner ve výchozím nastavení spuštěn.
+5. `CMD command` -- spustí `command` jako výchozí příkaz při spuštění kontejneru.
+6. `WORKDIR dir` -- nastaví aktuální pracovní adresář. Poslední pracovní adresář slouží jako počáteční adresář pro běžící kontejner.
+
+Příklad Dockerfile:
+```docker title="Dockerfile"
+FROM debian:buster
+RUN apt update -y && apt upgrade -y && apt install build-essential libssh-dev git -y
+RUN git clone https://gitlab.com/zvon/iobench && cd iobench && make && make install
+USER 1000
+CMD /bin/bash -c "tail -f /dev/null"
+```
+
+## Tipy pro Dockerfile
+
+* Kontejnery obvykle nemají vytvořeného uživatele v `/etc/passwd`. V tomto případě uvidíte výzvu `I have no name`. Také v tomto případě neexistuje `home` adresář, který ve výchozím nastavení ukazuje na `/`, mnoho aplikací zde selže, protože `/` nebude zapisovatelný. Doporučuje se vytvořit výchozího uživatele, pod kterým bude kontejner spuštěn. Jméno uživatele není důležité. Následující příkaz vytvoří skupinu s názvem `group` a uživatele s názvem `user`, dvojité `user` na konci příkazu není chyba.
+```docker
+RUN addgroup --gid 1000 group && \
+    adduser --gid 1000 --uid 1000 --disable-password --gecos user user
+```
+
+* Kontejner ve výchozím nastavení používá časové pásmo UTC. Pokud to není žádoucí, mělo by být nastaveno na správné výchozí pásmo, např.
+```docker
+RUN echo 'Europe/Prague' > /etc/timezone
+```
+
+* Balicí nástroje nesmí být interaktivní. Například pro systémy `deb`:
+```docker
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y curl
+```
+Nezapomeňte přidat `-y` u většiny balicích nástrojů.
+
+* Systémy z rodiny Debian obvykle ve výchozím nastavení instalují doporučené balíčky, což zde není žádoucí, zakažte to:
+```docker
+RUN apt-get install -y --no-install-recommends curl
+```
+
+* Udržujte výsledný obraz co nejmenší. Je potřeba vyčistit dočasné soubory. Například pro `deb`:
+```docker
+RUN apt-get update && apt-get -y install curl && apt-get clean && rm -rf /var/lib/apt/lists/*
+```
+pro `conda`:
+```docker
+RUN conda install package && conda clean --all -f -y && rm -rf ~/.cache
+```
+
+<Callout type="warning">Čištění musí být provedeno v rámci jednoho **RUN** příkazu.</Callout>
+
+* Každý `RUN` příkaz vytvoří novou vrstvu Docker obrazu. Doporučuje se sloučit související příkazy do jednoho `RUN` příkazu, například nainstalovat všechny potřebné balíčky najednou, ne jeden po druhém.
+
+* Pro Kubernetes není potřeba používat příkaz `EXPOSE` pro publikování síťových portů. Viz [Vystavení aplikací](../kubernetes/expose_proofread.cz.mdx).
+
+* Spuštění `chown` nebo `chmod` zdvojnásobí velikost změněných souborů v docker souboru, tj. `chown` na všech souborech v docker souboru zdvojnásobí velikost docker souboru.
+
+* Při řetězení příkazů vždy řetězte pomocí `&&` a nikdy pouze pomocí `;`. Pokud jeden z příkazů selže, řetězení pomocí `&&` zastaví sestavení celého obrazu, což je obvykle to, co chcete. Řetězení pomocí `;` může skrýt některé selhávající příkazy a ztížit ladění, proč obraz není takový, jaký by měl být.
+
+## Sestavení Docker obrazu
+
+Docker obraz lze sestavit buď manuálně, nebo pomocí automatizovaných nástrojů pro sestavení.
+
+### Manuální sestavení
+
+Jakmile je `Dockerfile` vytvořen, lze Docker obraz sestavit. Následující text popisuje, jak sestavit Docker obraz manuálně. Manuální sestavení může být užitečné pro ladění procesu sestavení.
+
+Pro lokální sestavení Docker obrazu potřebujete stroj s Linuxem a nainstalovaným Dockerem. Pro instalaci Dockeru postupujte podle pokynů pro vaši Linuxovou distribuci; obvykle `docker-ce` je správný balíček. Možná budete muset být členem skupiny `docker`, abyste mohli Docker používat.
+
+Umístěte `Dockerfile` do adresáře, například `mydocker`, a spusťte následující, nahraďte `repo/name:tag` správným názvem a tagem:
+```bash
+docker build -t repo/name:tag mydocker
+```
+
+Pokud sestavení uspěje, obraz je sestaven lokálně a je potřeba jej nahrát do registru. Pokud nejste přihlášeni k registru, proveďte `docker login registry`, nahraďte `registry` skutečným názvem registru:
+```bash
+docker push repo/name:tag
+```
+`repo/name:tag` musí být přesně stejné jako v případě sestavení.
+
+### Automatizované sestavení
+
+Automatizovaná sestavení lze provést pomocí CI/CD pipeline. Sestavení se provádí pomocí komponenty *runner*, která je součástí mnoha instalací GitHub/GitLab. Můžete použít [gitlab.ics.muni.cz](https://gitlab.ics.muni.cz); viz [GitLab Containers](../gitops/building_containers) pro instrukce. Tento GitLab také poskytuje Docker registry, takže jakmile je obraz sestaven, může být zde uložen pro použití z Kubernetes. Registry je veřejná nebo privátní v závislosti na nastavení projektu; viz [GitLab Containers](../gitops/building_containers#how-to-use-images-from-gitlab-registry).
+
+Automatizované sestavení může být pomalé, takže není nejlepší volbou pro ladění procesu sestavení.
+
+## Spouštění Docker obrazů
+
+Manuální spuštění sestaveného obrazu před spuštěním na Kubernetes může být užitečné, například pro kontrolu, zda jsou všechny soubory na místě, důležité adresáře jsou zapisovatelné a podobně. Manuální spuštění je rychlé a nemá žádná oprávnění. Buďte však opatrní při spouštění neznámých obrazů na vašem stroji. Pro lokální spuštění Docker obrazu potřebujete Linuxový stroj s nainstalovaným Dockerem; viz část o manuálním sestavení výše.
+
+Lokální spuštění může být také užitečné pro prozkoumání obrazu, například pro získání `UID` běžícího uživatele, pokud není známo, protože `UID` může být potřeba pro spuštění v Kubernetes.
+
+Pro testovací účely můžete spustit Docker obraz pomocí:
+```bash
+docker run -it --rm registry/name:tag command
+```
+
+Tento příkaz spustí obraz `registry/name:tag` a spustí `command` uvnitř něj. Můžete přidat `-u uid` pro spuštění obrazu jako uživatel `uid`.
+
+Pokud použitý obraz má nastavený `ENTRYPOINT`, `command` nebude proveden, ale pouze předán jako argument skriptu `ENTRYPOINT`. Pokud potřebujete zabránit provedení, můžete předat možnost `--entrypoint /bin/bash` příkazu `docker run`. Ne všechny obrazy však mají `/bin/bash` nebo dokonce `/bin/sh` k dispozici. V takovém případě budete potřebovat znovu sestavit obraz a přidat/nainstalovat `bash` nebo `sh`.
+
+Stisknutí `ctrl-c` nebo `ctrl-d` ukončí běžící Docker obraz. Všechny změny uvnitř kontejneru budou ztraceny, pokud nepoužijete `docker commit`; viz [oficiální dokumentace Dockeru](https://docs.docker.com/build/). V tomto případě nepoužívejte možnost `--rm`, která automaticky odstraní ukončené kontejnery.

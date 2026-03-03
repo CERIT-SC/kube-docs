@@ -1,0 +1,484 @@
+---
+title: Vystavení aplikací
+---
+
+Tato kapitola vysvětluje, jak nakonfigurovat externí přístup k vaší aplikaci z externí sítě (nebo z "mimo" cluster). Přestože je možné přistupovat k vaší aplikaci přímo prostřednictvím IP adresy, tento přístup není doporučován. Místo toho postupujte podle níže uvedených pokynů, abyste správně vystavili svou aplikaci.
+
+Existují dva hlavní typy aplikací, které lze vystavit: **webové aplikace** a **ostatní aplikace**. Hlavní rozdíl mezi těmito typy spočívá v jejich požadavcích na IP adresy. Webové aplikace sdílejí IP adresu s jinými webovými aplikacemi, zatímco ostatní aplikace vyžadují vyhrazenou IP adresu pro každou službu. Vzhledem k tomu, že počet dostupných IP adres je omezený, webový přístup je vždy upřednostňován, když je to možné.
+
+V celé této dokumentaci jsou poskytovány fragmenty YAML. Tyto YAML definice by měly být nasazeny pomocí `kubectl`, jak je ukázáno níže:
+
+```shell
+kubectl create -f file.yaml -n namespace
+```
+
+kde `file.yaml` obsahuje YAML definice a `namespace` je jmenný prostor, ve kterém aplikace běží.
+
+<Callout title="Předpoklad" icon="✅">
+Tato příručka předpokládá, že vaše aplikace (`Deployment`) je již nasazena. Pokud si nejste jisti, podívejte se na příklad [Hello World](../examples/helloworld).
+</Callout>
+
+---
+
+## Webové aplikace
+
+Webové aplikace komunikují pomocí protokolu `HTTP` a jsou vystaveny pomocí prostředků `Ingress`.
+
+### Přehled
+
+Celková architektura je znázorněna na následujícím obrázku:
+
+![Networking](/img/ceritsc/expose-overview.svg)
+
+Pro vystavení webové aplikace potřebujete:
+
+1. `Service`, který naváže port na vaši aplikaci.
+2. Prostředek `Ingress`, který vystaví `Service` na Internet.
+
+Předpokládejme, že máme aplikaci běžící na portu `8080`. Nejprve definujeme `Service`:
+
+```yaml title="service.yaml"
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-svc
+spec:
+  type: ClusterIP
+  ports:
+  - name: application-port
+    port: 80
+    targetPort: 8080
+  selector:
+    app: application
+```
+
+V této konfiguraci:
+
+- `selector.app: application` musí odpovídat štítku aplikace v `Deployment`.
+- Hodnoty `application-svc` a `application-port` jsou libovolná jména.
+
+Po vytvoření Service definujeme Ingress:
+
+```yaml title="ingress.yaml"
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: application-ingress
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - "application.dyn.cloud.e-infra.cz"
+      secretName: application-dyn-cloud-e-infra-cz-tls
+  rules:
+  - host: "application.dyn.cloud.e-infra.cz"
+    http:
+      paths:
+      - backend:
+          service:
+            name: application-svc
+            port:
+              number: 80
+        pathType: ImplementationSpecific
+```
+
+Zde:
+
+- `service.name: application-svc` musí odpovídat metadata názvu `Service`.
+- `Ingress` vystavuje aplikaci na URL `application.dyn.cloud.e-infra.cz`, která slouží jako přístupný koncový bod (funguje jako "IP adresa" pro dosažení vaší aplikace).
+- Pokud je doména uvnitř `dyn.cloud.e-infra.cz`, bude automaticky registrována.
+- Sekce `tls` umožňuje automatickou správu certifikátů přes Let's Encrypt.
+
+<Callout title="Poznámka" icon="📌" >
+Pokud je zahrnuta sekce tls, TLS ukončení nastává na NGINX Ingress. Vaše aplikace by měla obsluhovat provoz přes HTTP, zatímco externí komunikace je zabezpečena přes HTTPS.
+</Callout>
+
+### Důležité úvahy
+
+❗ **Bezpečnostní varování:**
+
+TLS je **ukončeno na hranici clusteru** při použití `NGINX Ingress`. Komunikace uvnitř clusteru, zejména v rámci jednoho uzlu, zůstává nešifrovaná. Pokud vyžadujete plné end-to-end šifrování, měli byste:
+
+- Vynechat sekce tls a annotations.
+- Poskytnout certifikát a klíč přímo ve vašem Podu.
+
+❗ **Zpracování smíšených konfigurací HTTP/HTTPS:**
+
+Některé aplikace mohou být zmatené, když jsou nakonfigurovány k použití `HTTP` interně, ale vystaveny jako `HTTPS`. Pokud vaše aplikace generuje absolutní URL, ujistěte se, že používají `HTTPS`.
+
+- `Ingress` nastavuje hlavičku `HTTP_X_SCHEME` na `HTTPS`, když je TLS ukončeno.
+- Nicméně mnoho aplikací očekává místo toho `X_FORWARDED_PROTO` (který Kubernetes `NGINX` nenastavuje).
+  Například v Django byste měli nastavit:
+
+  ```python
+  SECURE_PROXY_SSL_HEADER = ("HTTP_X_SCHEME", "https")
+  ```
+
+Pokud vaše aplikace vyžaduje HTTPS end-to-end, podívejte se na sekci HTTPS Target níže.
+
+---
+
+### Vlastní název domény (FQDN)
+
+Je možné použít vlastní název domény místo `*.dyn.cloud.e-infra.cz`.
+
+1. Nastavte DNS záznam `CNAME`.
+
+   - Pro cluster `kuba-cluster` nastavte cíl `CNAME` na `kuba-pub.cerit-sc.cz`.
+   - Pro cluster `kubh-cluster` nastavte cíl `CNAME` na `kubh-pub.cerit-sc.cz`.
+
+2. Definujte `Ingress` s vlastní doménou:
+
+   ```yaml title="ingress.yaml"
+   apiVersion: networking.k8s.io/v1
+   kind: Ingress
+   metadata:
+     name: application-ingress
+     annotations:
+       kubernetes.io/tls-acme: "true"
+       cert-manager.io/cluster-issuer: "letsencrypt-prod"
+   spec:
+     ingressClassName: nginx
+     tls:
+       - hosts:
+           - "my-name"
+         secretName: my-name-tls
+     rules:
+     - host: "my-name"
+       http:
+         paths:
+         - backend:
+             service:
+               name: application-svc
+               port:
+                 number: 80
+           pathType: ImplementationSpecific
+   ```
+
+<Callout title="Poznámka" icon="📌" >
+`CNAME` musí být přednastaven a rozšířen před požadavkem na TLS certifikát. Let's Encrypt vyžaduje ověření domény, což znamená, že bezproblémová migrace z jiného systému do této infrastruktury není snadno možná.
+</Callout>
+
+---
+
+### Autentizace
+
+Přístup k vaší `Ingress`-vystavené aplikaci můžete zabezpečit vyžadováním uživatelské autentizace. To se provádí pomocí `tajemství` (Secret) a `annotations`.
+
+1. Vytvořte tajemství:
+
+   ```yaml title="secret.yaml"
+   apiVersion: v1
+   kind: Secret
+   metadata:
+     name: secretref
+   type: Opaque
+   data:
+      auth: password
+   ```
+
+    - `secretref` je libovolný název.
+
+    - Výstup htpasswd musí být zakódován base64. Pro jeho vygenerování:
+
+       ```shell copy
+     htpasswd -n username | base64 -w0
+     ```
+
+     Tento příkaz vrací řetězec hesla zakódovaný base64 (jako `Zm9vOiRhgvYTN2aktYSDEKCg=`), který by měl nahradit `password` v `tajemství` (Secret).
+
+2. Přidejte následující anotace k Ingress:
+
+   ```yaml copy
+   nginx.ingress.kubernetes.io/auth-type: basic
+   nginx.ingress.kubernetes.io/auth-secret: secretref
+   ```
+
+   - `secretref` musí odpovídat metadata názvu `tajemství` (Secret).
+
+<Callout title="Důležité" icon="⚠️ ">
+Autentizace platí pouze pro externí provoz. Provoz z jiných podů v rámci clusteru obchází autentizaci při přímé komunikaci s IP adresou `Service`. Pro vynucení přísnější kontroly přístupu zvažte použití `NetworkPolicy`. Viz sekce [Zabezpečení](./security).
+</Callout>
+
+---
+
+### Nahrávání velkých dat
+
+Pokud vaše aplikace očekává nahrávání velkých souborů, možná budete muset upravit nastavení `Ingress`, abyste zvýšili limity pro nahrávání:
+
+```yaml copy
+nginx.ingress.kubernetes.io/proxy-body-size: "600m"
+nginx.org/client-max-body-size: "600m"
+```
+
+Nahraďte `600m` požadovanou maximální velikostí nahrávání.
+
+---
+
+### Cíl HTTPS
+
+Pokud vaše aplikace obsluhuje provoz `HTTPS` interně a chcete zachovat šifrování end-to-end, aktualizujte definici `Ingress` tak, aby obsahovala následující anotaci:
+
+```yaml copy
+nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+```
+
+Tím zajistíte, že provoz mezi `Ingress` a aplikací zůstane šifrovaný. Nicméně, protože komponenta NGINX `Ingress` ukončuje a znovu šifruje provoz, neposkytuje skutečné end-to-end šifrování.
+
+---
+
+### Omezení přístupu z externí sítě
+
+Můžete omezit přístup k vaší aplikaci na úrovni `Ingress` omezením přístupu na konkrétní rozsahy IP pomocí anotace `whitelist-source-range`.
+
+Například pro omezení přístupu pouze na **síť MUNI**:
+
+```yaml title="ingress.yaml"
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: application-ingress
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/whitelist-source-range: 147.251.0.0/16
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - "my-name"
+      secretName: my-name-tls
+  rules:
+  - host: "my-name"
+    http:
+      paths:
+      - backend:
+          service:
+            name: application-svc
+            port:
+              number: 80
+        pathType: ImplementationSpecific
+
+```
+
+<Callout title="Poznámka" icon="📌">
+Můžete kombinovat CIDR (např. `147.251.0.0/16`), jednotlivé IP adresy (např. `147.251.17.148`) a **IPv4** i **IPv6** adresy, vše oddělené čárkami. Jak se rozšiřuje adopce IPv6, nezapomeňte zahrnout IPv6 adresy vedle IPv4, abyste udrželi očekávanou funkčnost.
+</Callout>
+
+---
+
+### Ladění: Certifikát nebyl vydán
+
+Pokud je vaše konfigurace správná, ale TLS certifikát není vydán, problém může být způsoben kvótami prostředků, které zabraňují spuštění potřebného ACME challenge podu.
+
+#### Kroky k ladění
+
+1. Zkontrolujte, zda Ingress uvízl na ACME solveru:
+
+   ```shell
+   kubectl get ingress -n [your_namespace]
+   ```
+
+   Pokud výstup obsahuje `cm-acme-http-solver` s věkem více než pár minut, pravděpodobně to indikuje problém.
+
+   ```bash
+   > kubectl get ingress -n [your_namespace]
+   NAME                        CLASS    HOSTS                     ADDRESS                PORTS     AGE
+   cm-acme-http-solver-972p9   <none>   schema.biodata.ceitec.cz  kuba-pub.cerit-sc.cz   80        12m
+   ```
+
+2. Zkontrolujte varování související s kvótami:
+
+   ```shell
+   kubectl get events -n [your_namespace]
+   ```
+
+   Hledejte řádky obsahující `exceeded quota`.
+
+   ```bash
+   > kubectl get events -n [your_namespace] | grep cm-acme-http-solver
+   ...
+   79s         Warning   PresentError   challenge/adamant-dyn-cloud-e-infra-cz-6dp4n-152868974-3440702542   (combined from similar events): Error presenting challenge: pods "cm-acme-http-solver-74szl" is forbidden: exceeded quota: default-kn7vq, requested: limits.cpu=100m, used: limits.cpu=1, limited: limits.cpu=1
+   ...
+   ```
+
+Pokud jsou problémem omezení kvót, možná budete muset:
+
+- Zvýšit [kvótu prostředků jmenného prostoru](../rancher/quotas#changing-namespace-quotas). Každý ACME solver vyžaduje 100m CPU a 100 MiB paměti.
+- Odebrat některá existující nasazení.
+
+Události můžete také zobrazit v Rancher UI.
+
+![acmesolver](/img/ceritsc/acme-solver.png)
+
+
+### Vlastní chybové stránky
+
+Ve výchozím nastavení náš NGINX Ingress Controller v Kubernetes zachytává HTTP chyby **500 (Internal Server Error)** a **503 (Service Unavailable)** a zobrazuje vlastní chybovou stránku s krátkými pokyny, jak problém vyřešit. Toto chování je však často nežádoucí pro aplikace, které záměrně vracejí tyto chybové kódy, jako jsou JSON-based REST API.
+
+Aby byla původní chybová odpověď předána klientovi, je třeba **zakázat výchozí zpracování chyb**. I když není možné zcela zakázat zpracování chyb, jakmile je globálně povoleno, můžete **ovládat, které chybové kódy jsou zpracovávány** pomocí anotace `nginx.ingress.kubernetes.io/custom-http-errors`.
+
+#### Řešení
+
+Nastavte anotaci `nginx.ingress.kubernetes.io/custom-http-errors` na **nepoužívaný chybový kód**, jako je **599**, což efektivně zakáže zpracování chyb pro všechny ostatní chyby (včetně 500 a 503), protože NGINX se bude pokoušet zpracovat pouze zadaný chybový kód (599).
+
+#### Příklad
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/tls-acme: 'true'
+    nginx.ingress.kubernetes.io/custom-http-errors: '599'
+```
+
+S touto konfigurací NGINX již nebude zachytávat chyby 500 a 503, což umožní vrácení původní chybové zprávy z aplikace klientovi.
+
+---
+
+## Ostatní aplikace
+
+Pro aplikace, které nepoužívají protokol `HTTP`, je vystavení provedeno přes `Service` bez `Ingress`.
+
+```yaml title="service.yaml"
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-svc
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: application.dyn.cloud.e-infra.cz
+spec:
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  ports:
+  - port: 22
+    targetPort: 2222
+  selector:
+    app: application
+```
+
+- `selector.app: application` musí odpovídat `Deployment`.
+- Pokud je anotace `external-dns.alpha.kubernetes.io/hostname` nastavena uvnitř `dyn.cloud.e-infra.cz`, název je automaticky registrován v DNS.
+
+### Kontrola přiřazené veřejné IP
+
+Spusťte:
+
+```shell copy
+kubectl get svc -n namespace
+```
+
+kde `namespace` je Jmenný prostor `Service`. `IP` adresa se zobrazí ve sloupci `EXTERNAL-IP`.
+
+### Soukromá MUNI IP
+
+Pro vystavení aplikace pouze v rámci **sítě MUNI** nebo **MUNI VPN** použijte následující anotaci `Service`:
+
+```yaml
+metallb.io/address-pool: privmuni
+```
+
+Tato metoda je upřednostňována, protože se vyhýbá spotřebě veřejné IP.
+
+```yaml title="service.yaml"
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-svc
+  annotations:
+    metallb.io/address-pool: privmuni
+    external-dns.alpha.kubernetes.io/hostname: application.dyn.cloud.e-infra.cz
+spec:
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  ports:
+  - port: 22
+    targetPort: 2222
+  selector:
+    app: application
+```
+
+### Firewall LoadBalanceru
+
+Doporučuje se omezit externí přístup k veřejně vystaveným aplikacím. To lze dosáhnout buď na úrovni NetworkPolicy (pozor: to funguje pouze když je `externalTrafficPolicy` nastaven na `Local`), nebo pomocí pole `loadBalancerSourceRanges` v objektu `Service`.
+
+Níže uvedený příklad ukazuje, jak omezit přístup na síť `147.251.0.0/16` a na jednu IP adresu `1.2.3.4/32`. Pole `loadBalancerSourceRanges` vždy očekává hodnoty v CIDR notaci, takže i jediná IP adresa musí být vyjádřena s maskou `/32`. Pokud používáte obě rodiny adres IPv4 a IPv6, mějte na paměti, že musíte zadat zdrojové rozsahy pro obě.
+
+```yaml title="service.yaml"
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-svc-rw
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: application.dyn.cloud.e-infra.cz
+spec:
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: Cluster
+  ports:
+  - port: 5432
+    targetPort: 5432
+  selector:
+    app: application-rw
+  loadBalancerSourceRanges:
+  - 147.251.0.0/16
+  - 1.2.3.4/32
+```
+
+### Sdílení IP adresy napříč více službami
+
+Protože IPv4 adresy jsou vzácný zdroj, je výhodné sdílet jednu IP adresu napříč více LoadBalancer službami diferencovanými čísly portů. Toho lze dosáhnout vytvořením více objektů `Service` a použitím anotace `metallb.io/allow-shared-ip` pro alokaci sdílené IP adresy.
+
+Hodnota této anotace funguje jako seskupovací klíč: všechny služby se stejným klíčem se pokusí sdílet stejnou IP adresu, pokud je to možné. Proto zvolte jedinečný klíč pro anotaci, abyste se vyhnuli nechtěnému sdílení IP mezi nesouvisejícími službami.
+
+Níže jsou uvedeny příklady dvou LoadBalancer služeb nakonfigurovaných ke sdílení stejné IP adresy:
+
+```yaml title="service1.yaml"
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-svc-rw
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: application.dyn.cloud.e-infra.cz
+    metallb.io/allow-shared-ip: [my-shared-key-for-application]
+spec:
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: Cluster
+  ports:
+  - port: 5432
+    targetPort: 5432
+  selector:
+    app: application-rw
+```
+
+```yaml title="service2.yaml"
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-svc-ro
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: application.dyn.cloud.e-infra.cz
+    metallb.io/allow-shared-ip: [my-shared-key-for-application]
+spec:
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: Cluster
+  ports:
+  - port: 5433
+    targetPort: 5432
+  selector:
+    app: application-ro
+```
+
+#### Omezení
+
+- Pokud je `externalTrafficPolicy` nastaven na `Local`, **všechny cílové Pody musí být naplánovány na stejný uzel** pro zajištění přístupnosti.
+- Pokud je `externalTrafficPolicy` nastaven na `Cluster`, **Pody mohou být distribuovány napříč více uzly**, což zlepšuje odolnost a distribuci zatížení.
+
+---

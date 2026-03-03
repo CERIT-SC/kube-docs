@@ -1,0 +1,41 @@
+ ---
+title: Wave
+---
+
+## Spuštění Wave
+
+Pokud nejste přihlášeni, přihlaste se na [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz). Pokyny k přihlášení najdete v sekci [Rancher](../rancher/rancher).
+
+Chcete-li spustit Wave, postupujte podle následujících kroků.
+
+<Callout type="info">
+Wave nevyžaduje mnoho zdrojů; výchozí nastavení jsou dostačující. Během instalace můžete zdroje upravit zaškrtnutím možnosti `Customize Helm options before install`.
+</Callout>
+
+<Callout type="warn">
+Wave **nefunguje** ihned po instalaci. Musíte správně zadat cílový *Workload Resource*. Podrobnosti najdete v následující sekci.
+</Callout>
+
+### Použití Wave
+
+Aby Wave správně fungoval, musíte označit cílový *Workload Resource* **jiné aplikace**, kterou chcete monitorovat.
+
+V Rancher přejděte do sekce `Workloads` a vyberte *Resource kind*, který chcete spravovat. Podporované *Resource kinds* jsou `Deployment`, `StatefulSet` a `DaemonSet`. Vyberte objekt, který chcete upravit.
+
+![selectresource](/img/ceritsc/apps/wave/rancher-workloads.png)
+
+
+Klikněte na tlačítko *Menu* a zvolte `Edit YAML`.
+
+![selectdeployment](/img/ceritsc/apps/wave/rancher-deployments.png)
+
+Přidejte následující *annotaci*:
+```yaml
+wave.pusher.com/update-on-config-change: "true"
+```
+
+![selectedityaml](/img/ceritsc/apps/wave/rancher-edit-yaml.png)
+
+Nyní, kdykoli se změní `Secrets` nebo `ConfigMaps` připojené *pody* vybraného *Resource*, Wave spustí *Rolling Update* restart těchto *podů*.
+
+Pro další informace navštivte [Wave project](https://github.com/wave-k8s/wave).

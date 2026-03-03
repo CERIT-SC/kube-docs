@@ -4,64 +4,63 @@ title: Moodle
 
 ## Running Moodle
 
-If not already logged, log to [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz), see [Rancher](../rancher/rancher) section.
+If not already logged in, log in to [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz). See the [Rancher](../rancher/rancher) section for details.
 
-By following steps described in this article you will be able to install Moodle web application, a learning platform designed to provide educators, administrators and learners with a single robust, secure and integrated system to create personalised learning environments. This app enables you to create your own moodle site under your hostname.
+This guide walks you through installing Moodle, a web-based learning platform that provides educators, administrators, and learners with a robust, secure, and integrated system for creating personalized learning environments. The application enables you to create a Moodle site under a hostname of your choice.
 
 ### Select Application to Run
 
-Navigate through `Only User Namespaces` (1), `App & Marketplace` (2), `Charts` (3), `cerit-sc` (4),  and select `moodle` (5). See screenshot below.
+Navigate through `Only User Namespaces` (1), `App & Marketplace` (2), `Charts` (3), and `cerit-sc` (4), then select `moodle` (5). Refer to the screenshot below.
 
-![selectapp](/img/ceritsc/apps/moodle/selectapp.png)
+![Select Moodle application from chart catalog](/img/ceritsc/apps/moodle/selectapp.png)
 
 ### Install the Application
 
-When you click on the chart, hit `Install` to continue.
+Click on the chart, then click `Install` to continue.
 
-![selectapp](/img/ceritsc/apps/moodle/selectversion.png)
+![Select Moodle chart version](/img/ceritsc/apps/moodle/selectversion.png)
 
-Select your namespace and name for your moodle application, then click `Next` 
+Select your namespace and assign a name for your Moodle application, then click `Next`.
 
-![selectapp](/img/ceritsc/apps/moodle/namespace.png)
+![Select namespace and name for Moodle installation](/img/ceritsc/apps/moodle/namespace.png)
 
-You will see multiple options to customize your app. Now we will focus on section `General`. `Hostname` (1) is your access URL, when left empty, it defaults to moodle-namespace.dyn.cloud.e-infra.cz
-`Moodle username` (2) and `Moodle password` (3) are your login credentials, fill in whatever you like. `Site name` (4) is name of your site, if left empty, the name will be "New Site". `Moodle e-mail` (5) is your new e-mail for moodle. and `Replicas` (6) is number of replicas you want. 
+Multiple configuration options appear. We will focus on the `General` section. `Hostname` (1) is your access URL; if left empty, it defaults to moodle-namespace.dyn.cloud.e-infra.cz. `Moodle username` (2) and `Moodle password` (3) are your login credentials; fill them in as desired. `Site name` (4) is the name of your site; if left empty, it defaults to "New Site". `Moodle email` (5) is the email address for your Moodle account. `Replicas` (6) specifies the number of replicas you want.
 
-![selectapp](/img/ceritsc/apps/moodle/gen1.png)
+![General configuration section for Moodle installation](/img/ceritsc/apps/moodle/gen1.png)
 
-Next we will configure our database. If field `Internal MariaDB` is checked, you will be given MariaDB database. 
+Next, configure your database. When the `Internal MariaDB` field is checked, the system provides a MariaDB database.
 
-![selectapp](/img/ceritsc/apps/moodle/mariadb.png)
+![Internal MariaDB database configuration for Moodle](/img/ceritsc/apps/moodle/mariadb.png)
 
-If you want to create backup, check the field `Backup` (1). `Backup-keep` (2) is number of backups you want to keep and `Schedule` (3) defines how frequently you want you database to be backed up and `ClaimName` (4) is name of Persistent Volume Claim with backup.
+To create a backup, check the `Backup` field (1). `Backup-keep` (2) specifies the number of backups to retain. `Schedule` (3) defines how frequently the database is backed up. `ClaimName` (4) is the name of the PersistentVolumeClaim for the backup.
 
-![selectapp](/img/ceritsc/apps/moodle/backup.png)
+![Backup configuration options for Moodle database](/img/ceritsc/apps/moodle/backup.png)
 
-In case you want to use existing external database, uncheck field `Internal MariaDB` (1) and few options will pop-up. `Type` (2) is a dropdown menu with types of supported databases. In the field `Host` (3) you have to fill Host of the existing database, same applies to `port` (4). Fields `User` (5) and `Password` (6) are credentials user for database and `Database` (7) is the name of the existing database.
+To use an existing external database, uncheck the `Internal MariaDB` field (1); several options will appear. `Type` (2) is a dropdown menu listing supported database types. In the `Host` field (3), enter the hostname of the existing database. The `port` field (4) follows the same pattern. The `User` (5) and `Password` (6) fields contain the database credentials. `Database` (7) is the name of the existing database.
 
-![selectapp](/img/ceritsc/apps/moodle/external.png)
+![External database configuration for Moodle](/img/ceritsc/apps/moodle/external.png)
 
-Once you are content with configuration, hit the `Install` button and wait a few minutes until you see this message.
+When satisfied with the configuration, click the `Install` button and wait a few minutes for this message to appear.
 
-![selectapp](/img/ceritsc/apps/moodle/success.png)
+![Successful Moodle installation confirmation](/img/ceritsc/apps/moodle/success.png)
 
 ## Login to the Running Instance
 
-Once the application is running, navigate through Service Discovery (1) and Ingresses (2). You will see Ingresses. Once you see whatever Name you used in the previous steps, you can click on Target (4) to log in to the application. Once it's running, click `Log in` and fill in you username and password from previous steps. 
+Once the application is running, navigate through Service Discovery (1) and Ingresses (2). You will see a list of Ingresses. Locate the name you used earlier and click Target (4) to log in to the application. Click `Log in` and enter your username and password from the previous steps.
 
-![selectapp](/img/ceritsc/apps/moodle/login.png)
+![Login to Moodle application through Ingress](/img/ceritsc/apps/moodle/login.png)
 
-And you will see your new site.
+Your new site will appear.
 
-![selectapp](/img/ceritsc/apps/moodle/mod.png)
+![Moodle site dashboard after successful login](/img/ceritsc/apps/moodle/mod.png)
 
-## Delete running instance
+## Delete the Running Instance
 
-Once you feel like you don't need the app anymore, you can delete it. Just navigate to App & Marketplace (1), Installed Apps (2), select the application (3) and hit Delete (4).  The data in home directory is not deleted. Running the application again with the same Name restores access to the home directory folder.
+To delete the application when it is no longer needed, navigate to App & Marketplace (1), Installed Apps (2), select the application (3), and click Delete (4). Data in the home directory is preserved. Running the application again with the same name restores access to the home directory folder.
 
-![selectapp](/img/ceritsc/apps/moodle/del1.png)
+![Delete Moodle application interface](/img/ceritsc/apps/moodle/del1.png)
 
-And wait for the following message.
+Wait for the following message to appear.
 
-![selectapp](/img/ceritsc/apps/moodle/del2.png)
+![Moodle application deletion confirmation message](/img/ceritsc/apps/moodle/del2.png)
 

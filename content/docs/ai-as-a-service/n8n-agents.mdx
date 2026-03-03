@@ -4,7 +4,7 @@ title: n8n AI Agents
 
 ## Introduction
 
-n8n is an open-source, low-code workflow automation platform. It uses a visual, node-based system to connect over 400 applications and APIs. 
+n8n is an open-source, low-code workflow automation platform that uses a visual, node-based system to connect over 400 applications and APIs.
 
 Its AI Agent functionality allows users to build autonomous workflows powered by Large Language Models (LLMs) that can make decisions, interact with apps, and execute complex, multi-step tasks without constant human input.
 
@@ -12,11 +12,11 @@ While standard n8n workflows follow a linear path (Trigger → Action → Action
 
 ### What is an AI agent?
 
-<div class="w-150">  
-![image-agents2](/img/ceritsc/agent.jpeg)  
-</div> 
+<div class="w-150">
+![image-agents2](/img/ceritsc/agent.jpeg)
+</div>
 
-In n8n, an AI Agent is built visually. The AI Agent Node sits at the center, acting as the controller. You connect the "Brain" (LLM Model), "Tools," and "Memory" directly to the agent node inputs. The workflow typically starts with a Trigger, such as a Chat Trigger or Webhook.
+In n8n, an AI Agent is built visually. The AI Agent Node sits at the center, acting as the controller. You connect the "Brain" (LLM Model), "Tools," and "Memory" directly to the agent node inputs. The workflow typically starts with a trigger, such as a Chat Trigger or Webhook.
 
 
 Instead of following a strict set of pre-defined steps, an Agent uses a Large Language Model (LLM) to:
@@ -26,14 +26,14 @@ Instead of following a strict set of pre-defined steps, an Agent uses a Large La
 * Select Tools (such as search, database lookups, or API calls) to gather information.
 * Execute complex, multi-step tasks without constant human intervention.
 
-<div class="w-150">  
-![image-agents](/img/ceritsc/agent-intro01.png)  
-</div> 
+<div class="w-150">
+![image-agents](/img/ceritsc/agent-intro01.png)
+</div>
 
 
 ## Accessing n8n
 
-n8n is hosted on our Kubernetes/Rancher infrastructure.  
+n8n is hosted on our Kubernetes/Rancher infrastructure.
 
 
 **Prerequisites**
@@ -53,121 +53,120 @@ For issues or assistance, please contact support at k8s@cerit-sc.cz.
 
 **Log in to Rancher**
 
-1. Navigate to the Rancher Dashboard https://rancher.cloud.e-infra.cz/dashboard/
-2. Click `Log in with Shibboleth`
-3. Select `e-INFRA CZ AAI` and choose `e-INFRA CZ password` among the organisations. Log in using your MetaCentrum credentials.
+1. Navigate to the Rancher Dashboard: https://rancher.cloud.e-infra.cz/dashboard/
+2. Click `Log in with Shibboleth`.
+3. Select `e-INFRA CZ AAI` and choose `e-INFRA CZ password` from the list of organizations. Log in using your MetaCentrum credentials.
 
 
 **Locate the n8n application**
-1. Once on the RANCHER dashboard
 
-<div class="w-200">  
-![image-n8n1](/img/ceritsc/rancher-welcome.png)  
-</div> 
+1. Once on the Rancher dashboard:
 
-2. Select KA --> Apps/Charts 
+<div class="w-200">
+![image-n8n1](/img/ceritsc/rancher-welcome.png)
+</div>
 
-3. Search for or select `n8n` 
+2. Select KA → Apps/Charts.
 
+3. Search for or select `n8n`.
 
-<div class="w-200">  
-![image-n8n2](/img/ceritsc/ka-charts.png)  
-</div> 
-
+<div class="w-200">
+![image-n8n2](/img/ceritsc/ka-charts.png)
+</div>
 
 **Configure the instance**
-1. Click `Install`
 
-<div class="w-200">  
-![image-n8n3](/img/ceritsc/n8n-install.png)  
-</div> 
+1. Click `Install`.
 
+<div class="w-200">
+![image-n8n3](/img/ceritsc/n8n-install.png)
+</div>
 
-2. Name your instance: Enter `Namespace` (username-ns) and a unique `Name` for your deployment (e.g., username-n8n), remember it and click on `Next`
+2. Name your instance: Enter the `Namespace` (username-ns) and a unique `Name` for your deployment (e.g., username-n8n). Remember these values and click `Next`.
 
-<div class="w-200">  
-![image-n8n4](/img/ceritsc/n8n-name.png)  
-</div> 
+<div class="w-200">
+![image-n8n4](/img/ceritsc/n8n-name.png)
+</div>
 
 3. Set the URL: You may enter a specific URL suffix or leave it empty for an automatically generated URL. Click `Install`.
 
-<div class="w-200">  
-![image-n8n5](/img/ceritsc/n8n-url.png)  
-</div> 
+<div class="w-200">
+![image-n8n5](/img/ceritsc/n8n-url.png)
+</div>
 
 **Finalize installation**
 
 
-Watch the installation logs. This process may take several minutes depending on available resources.
+Monitor the installation logs. This process may take several minutes, depending on available resources.
 
 <Callout type="info">
-Important: When the installation completes, the logs will display your unique Access URL. Copy and save this URL immediately.
+**Important:** When the installation completes, the logs display your unique Access URL. Copy and save this URL immediately.
 </Callout>
 
 
-<div class="w-200">  
-![image-n8n6](/img/ceritsc/n8n-log.png)  
-</div> 
+<div class="w-200">
+![image-n8n6](/img/ceritsc/n8n-log.png)
+</div>
 
 ## First run configuration
 
-1. Open your browser and navigate to the Access URL you saved in the previous step.
-2. Create an Admin Account: You will be prompted to set up an email and password.
+1. Open your browser and navigate to the Access URL saved in the previous step.
+2. Create an admin account: You will be prompted to set up an email and password.
 
 <Callout type="info">
-Note: This account is local to your n8n instance and is separate from your MetaCentrum login.
+**Note:** This account is local to your n8n instance and is separate from your MetaCentrum login.
 </Callout>
 
-Once logged in, you will see the n8n canvas. You can now start building workflows.
+Once logged in, the n8n canvas appears. You can now start building workflows.
 
 
-<div class="w-150">  
-![image-n8n8](/img/ceritsc/n8n-start-page.png)  
-</div> 
+<div class="w-150">
+![image-n8n8](/img/ceritsc/n8n-start-page.png)
+</div>
 
 
-## Managing resources -- Terminating
-
+## Managing resources — Terminating
 
 To ensure fair usage and availability for all researchers, please manage your instance responsibly.
 
 **Deleting your instance**
 
-If you are no longer using n8n, please shut it down to free up resources.
+If you are no longer using n8n, shut it down to free up resources:
 
-* Return to the Rancher Dashboard https://rancher.cloud.e-infra.cz/dashboard/ .
+* Return to the Rancher Dashboard: https://rancher.cloud.e-infra.cz/dashboard/.
 * Locate your n8n instance in the list.
 * Click the three dots on the right side of the row.
-* Select Delete.
+* Select **Delete**.
 
-<div class="w-200">  
-![image-n8n8](/img/ceritsc/n8n-shutdown.png)  
-</div> 
+<div class="w-200">
+![image-n8n8](/img/ceritsc/n8n-shutdown.png)
+</div>
 
- 
+
 
 ## AI model availability
 
-We provide [API access](./chat-ai#creating-an-api-key) to high-performance models for your agents. 
+We provide [API access](./chat-ai#creating-an-api-key) to high-performance models for your agents.
 
-<Callout type="info">
-⚠️ Service availability notice:
+<Callout type="warn">
+⚠️ Service Availability Notice:
+
 Please be aware of the following infrastructure constraints:
 * Maintenance: The underlying hardware may require periodic maintenance. We currently lack backup infrastructure of comparable scale.
 * Priority Tasks: During urgent priority tasks requiring this hardware, model availability may be temporarily suspended.
 * Notifications: Advance notice of interruptions will be provided on this page and within the chat interface.
 </Callout>
 
-### How to generate an API Key (our local OpenAI models)
+### How to generate an API key (our local OpenAI models)
 
-* Open https://chat.ai.e‑infra.cz/ in your browser 
-* Open the `Settings` menu → `Account` → `API keys`  
-* Create a new API key, and copy the generated token
+1. Open https://chat.ai.e-infra.cz/ in your browser.
+2. Open the `Settings` menu → `Account` → `API keys`.
+3. Create a new API key and copy the generated token.
 
 
-<div class="w-200">  
-![image-api](/img/ceritsc/chat-ai-api-setting.png)  
-</div> 
+<div class="w-200">
+![image-api](/img/ceritsc/chat-ai-api-setting.png)
+</div>
 
 
 
@@ -179,7 +178,7 @@ Please be aware of the following infrastructure constraints:
 To interact with your agent, you need a trigger. For testing and building chatbots, the Chat Trigger is the standard starting point.
 
 <Callout type="info">
-For backend automation (like processing emails), you would use a Webhook or Email Trigger instead.
+For backend automation (such as processing emails), use a Webhook or Email Trigger instead.
 </Callout>
 
 
@@ -187,8 +186,8 @@ For backend automation (like processing emails), you would use a Webhook or Emai
 
 Connect a Chat Model node (e.g., OpenAI) to the "Model" input of the Agent node. [Our local models can be accessed](./chat-ai#creating-an-api-key) using the token generated in the previous chapter.
 
-* Credential: You will need an API key from the provider
-* Model Selection: Choose a model capable of reasoning
+* Credential: You will need an API key from the provider.
+* Model Selection: Choose a model capable of reasoning.
 
 
 
@@ -205,9 +204,9 @@ The AI Agent Node requires specific configuration to function correctly:
 
 **Step 4: Empowering with tools**
 
-Without tools, an LLM is just a text generator. Tools give it hands. You can connect:
+Without tools, an LLM is just a text generator. Tools give it the ability to perform actions. You can connect:
 * **Pre-built Tools**: Calculator, Wikipedia, Bing Search
-* **Custom Tools**: Any n8n workflow can be converted into a tool using the "Call Workflow" tool
+* **Custom Tools**: Any n8n workflow can be converted into a tool using the "Call Workflow" tool.
 
 
 **Step 5: Managing memory**
@@ -223,63 +222,64 @@ Without a memory node connected, the agent treats every message as a brand new c
 
 ## Example: Adding a calculator to an OpenAI‑powered chat agent (with our local models)
 
-<div class="w-200">  
-![image-api2](/img/ceritsc/n8n-choose-LLM-2.png)  
-</div> 
+<div class="w-200">
+![image-api2](/img/ceritsc/n8n-choose-LLM-2.png)
+</div>
 
-1. Add AI agent 
+1. **Add an AI agent**
+   * Open the Nodes panel → click Add Node → search for AI Agent.
+   * Drag the node onto the canvas.
 
-* Open the Nodes panel → click Add Node → search for AI Agent.  
-* Drag the node onto the canvas.
-
-<div class="w-200">  
-![image-api](/img/ceritsc/n8n-choose-LLM-1.png)  
-</div> 
+<div class="w-200">
+![image-api](/img/ceritsc/n8n-choose-LLM-1.png)
+</div>
 
 2. Connect an OpenAI Chat model
 
-<div class="w-200">  
-![image-api](/img/ceritsc/n8n-choose-LLM-2a.png)  
-</div> 
+<div class="w-200">
+![image-api](/img/ceritsc/n8n-choose-LLM-2a.png)
+</div>
 
-3. Configure the authentication for a local model 
+3. Configure the authentication for a local model
 
-| Field | Value                                   | 
+| Field | Value                                   |
 |--------|----------------------------------------|
 | API Key | Paste the token you generated earlier |
 | Base URL | https://llm.ai.e-infra.cz/v1         |
 | Model | Pick the desired model (e.g., GPT‑OSS‑120b)  |
 
-<div class="w-200">  
-![image-api](/img/ceritsc/n8n-choose-LLM-3.png)  
-</div> 
+<div class="w-200">
+![image-api](/img/ceritsc/n8n-choose-LLM-3.png)
+</div>
 
-<div class="w-200">  
-![image-api](/img/ceritsc/n8n-choose-LLM-4.png)  
-</div> 
+<div class="w-200">
+![image-api](/img/ceritsc/n8n-choose-LLM-4.png)
+</div>
 
-4. Add a `Chat trigger` 
-The trigger starts the workflow when a user sends a message.  
-* From the Nodes panel, add Chat Trigger.  
-* Connect its output to the AI Agent node’s input.
+4. Add a `Chat trigger`
 
-<div class="w-200">  
-![image-api](/img/ceritsc/n8n-trigger.png)  
-</div> 
+The trigger starts the workflow when a user sends a message.
+* From the Nodes panel, add Chat Trigger.
+* Connect its output to the AI Agent node's input.
+
+<div class="w-200">
+![image-api](/img/ceritsc/n8n-trigger.png)
+</div>
 
 5. Similarly, add `Simple memory` and `Calculator`
+
 * Simple Memory stores the conversation context so the model can reference previous messages.
-* Calculator handles arithmetic requests coming from the LLM.
-Wire them in the order: Chat Trigger → AI Agent → Simple Memory → Calculator → (optional) response node.
+* Calculator handles arithmetic requests from the LLM.
+Connect them in the order: Chat Trigger → AI Agent → Simple Memory → Calculator → (optional) response node.
 
 6. Test the workflow
 
-*  Open the Chat Trigger interface (or use the integrated test panel).  
-*  Type a straightforward math request, e.g. What is 5 × 5?.  
-*  The workflow should route the request to the Calculator, return the answer, and display it in the chat window.
+* Open the Chat Trigger interface (or use the integrated test panel).
+* Type a straightforward math request, e.g., "What is 5 × 5?".
+* The workflow should route the request to the Calculator, return the answer, and display it in the chat window.
 
-<div class="w-200">  
-![image-api](/img/ceritsc/n8n-result.png)  
-</div> 
+<div class="w-200">
+![image-api](/img/ceritsc/n8n-result.png)
+</div>
 
-If the answer appears correctly, the integration is successful!  
+If the answer appears correctly, the integration is successful!

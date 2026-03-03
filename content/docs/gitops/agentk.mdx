@@ -4,7 +4,7 @@ title: GitLab Kubernetes Agent
 
 ## CI/CD Integration Between GitLab and Kubernetes
 
-This guide outlines the steps required to set up continuous integration and deployment (CI/CD) between GitLab and Kubernetes. The CI/CD process is managed by the GitLab Kubernetes Agent, which operates within the target namespace—i.e., the namespace where CI/CD actions are executed.
+This guide outlines the steps required to set up continuous integration and deployment (CI/CD) between GitLab and Kubernetes. The CI/CD process is managed by the GitLab Kubernetes Agent, which operates within the target namespace—that is, the namespace where CI/CD actions are executed.
 
 ### Limitations
 
@@ -12,13 +12,13 @@ A key limitation of this setup is that multi-namespace deployments from a single
 
 ### Conceptual Overview
 
-From a conceptual standpoint, the GitLab Kubernetes Agent functions as a proxy between GitLab (more precisely, the GitLab Runner that executes CI/CD pipeline jobs) and the Kubernetes API. The agent uses a Kubernetes Service Account to authenticate with the Kubernetes API.
+Conceptually, the GitLab Kubernetes Agent functions as a proxy between GitLab (more precisely, the GitLab Runner that executes CI/CD pipeline jobs) and the Kubernetes API. The agent uses a Kubernetes Service Account to authenticate with the Kubernetes API.
 
-This Service Account must be granted adequate permissions to carry out CI/CD operations. These permissions are defined via Kubernetes RBAC resources: `Role`, `RoleBinding`.
+This Service Account must be granted adequate permissions to perform CI/CD operations. These permissions are defined via Kubernetes RBAC resources: `Role` and `RoleBinding`.
 
 ## Use Case: Deploying a Helm Chart
 
-CI/CD pipelines can automate a wide range of tasks. This guide focuses on the most common scenario: deploying a Helm chart from a Git repository into a Kubernetes namespace.
+CI/CD pipelines can automate a wide range of tasks. This guide focuses on the most common scenario: deploying a Helm chart from a Git repository to a Kubernetes namespace.
 
 The following sections will describe the necessary configuration steps to achieve this deployment workflow.
 
@@ -32,13 +32,13 @@ The following sections will describe the necessary configuration steps to achiev
 
 Assume the GitLab repository ([https://gitlab.ics.muni.cz/cerit-sc/gitlab-test](https://gitlab.ics.muni.cz/cerit-sc/gitlab-test)) contains a Helm chart similar to our [Langflow chart](https://github.com/CERIT-SC/rancher-apps/tree/master/charts/langflow/v1.0).
 
-Log in to GitLab, navigate to your repository, and go to `Operate` → `Kubernetes clusters`. Select **Connect a cluster**, as shown in the screenshot below:
+Log in to GitLab, navigate to your repository, and go to `Operate` → `Kubernetes clusters`. Select **Connect a cluster**, as shown in the following screenshot:
 
 ![gitlab1](/img/ceritsc/gitops/gitlab1.png)
 
 Ignore the `Flux` section and enter a name for the agent, for example, `my-agent`.
 
-On the next screen, make note of the access token and the initial `helm` setup commands (the first two lines shown).
+On the next screen, note the access token and the initial `helm` setup commands (the first two lines).
 
 ![gitlab2](/img/ceritsc/gitops/gitlab2.png)
 
@@ -147,7 +147,7 @@ resource "poddisruptionbudgets" in API group "policy" in the namespace "gitlab-t
 RBAC: clusterrole.rbac.authorization.k8s.io "fleet-content" not found
 ```
 
-This indicates a missing role configuration, such as:
+This error indicates a missing role configuration, such as:
 ```yaml
 - apiGroups: ["policy"]
   resources: [poddisruptionbudgets]
@@ -155,10 +155,10 @@ This indicates a missing role configuration, such as:
 ```
 
 <Callout type="info">
-Helm typically requires the verbs `[create, get, delete, patch]`, and occasionally also `[list]` and `[update]`. These verbs represent the actions permitted for a given resource and API group, and can be combined as needed.
+Helm typically requires the verbs `[create, get, delete, patch]` and occasionally also `[list]` and `[update]`. These verbs represent the actions permitted for a given resource and API group and can be combined as needed.
 </Callout>
 
-You can identify required `apiGroups` (shown in YAML files as `apiVersion`) and `resources` (shown as `kind`) from your Helm chart using the following command in your local Git repository:
+You can identify the required `apiGroups` (shown in YAML files as `apiVersion`) and `resources` (shown as `kind`) from your Helm chart by running the following command in your local Git repository:
 ```bash
 for i in `find . -type f -name '*.yaml'`; do grep '^apiVersion:' $i | sort -u; grep '^kind:' $i | sort -u; done
 ```
@@ -220,7 +220,7 @@ You may encounter a log message such as:
 {"time":"2025-05-23T14:52:22.709117293Z","level":"INFO","msg":"Flux could not be detected or the Agent is missing RBAC, skipping module. A restart is required for this to be checked again","mod_name":"flux"}
 ```
 
-This message is normal and expected. It simply indicates that the Flux module is not in use because the FluxCD is not installed in the cluster.
+This message is normal and expected. It indicates that the Flux module is not in use because FluxCD is not installed in the cluster.
 Unless you're explicitly using Flux-based GitOps workflows, this can be safely ignored.
 
 ### CI/CD Setup
@@ -244,9 +244,9 @@ If you're unsure what value to use in the `use-context` line, you can add the fo
     - kubectl config get-contexts
 ```
 
-Check the job logs in GitLab after the pipeline runs to see the available contexts and verify that the correct one is being used.
+Check the job logs in GitLab after the pipeline runs to see the available contexts and verify that the correct one is selected.
 
-Saving this file should automatically trigger a CI/CD pipeline in GitLab. If the job fails due to RBAC permissions (similar to the errors described earlier), simply update your `role.yaml` file with the necessary permissions and reapply it:
+Saving this file should automatically trigger a CI/CD pipeline in GitLab. If the job fails due to RBAC permissions (similar to the errors described earlier), update your `role.yaml` file with the necessary permissions and reapply it:
 
 ```bash
 kubectl apply -f role.yaml -n [yournamespace]

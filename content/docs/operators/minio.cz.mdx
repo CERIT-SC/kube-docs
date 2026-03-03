@@ -1,0 +1,504 @@
+---
+title: MinIO Operátor
+---
+
+[MinIO Operátor](https://min.io/docs/minio/kubernetes/upstream/index.html) je nasazen jako cluster-wide služba na Kubernetes. Umožňuje uživatelům zřizovat a spravovat MinIO S3 object storage tenanti v rámci celého clusteru.
+
+MinIO Operátor zavádí custom resource s názvem `Tenant`, které zajišťuje vytváření a správu instancí object storage. Plnou dokumentaci o jeho struktuře najdete [zde](https://min.io/docs/minio/kubernetes/upstream/index.html). Dále je k dispozici oficiální průvodce vytvářením MinIO Tenant [zde](https://github.com/minio/operator/blob/master/docs/examples.md).
+
+Pro usnadnění si níže poskytujeme několik funkčních příkladů, organizovaných do sekcí.
+
+Celkové schéma MinIO komponent je zobrazeno níže:
+![schéma minio](/img/ceritsc/minio-schema.svg)
+
+## Nasazení Jedné Instance
+
+Můžete začít s příkladovou instancí, ideální pro testovací účely. Tento příklad vytváří `Tenant` resource spravovaný nainstalovaným MinIO Operátorem. Příklad si můžete stáhnout [zde](/examples/ceritsc/manifests/minio-minimal-tenant.yaml).
+
+```yaml
+apiVersion: minio.min.io/v2
+kind: Tenant
+metadata:
+  name: myminio
+spec:
+  ## Vytvořte uživatele v Tenant pomocí tohoto pole. Ujistěte se, že vytvoříte secrets pro každého zde přidaného uživatele.
+  ## Secret by měl dodržovat formát použitý v `minio-creds-secret`.
+  users:
+    - name: myminio-user-secret
+  ## pokud selfsigned certifikáty nejsou vyžadovány
+  requestAutoCert: false
+  ## Předvytvořte bucket
+  buckets:
+    - name: mybucket
+  ## Proměnné prostředí, musí obsahovat alespoň proměnné MINIO_ROOT_USER a MINIO_ROOT_PASSWORD.
+  configuration:
+    name: myminio-config-secret
+  ## Specifikace MinIO Pool(ů) v tomto Tenant.
+  pools:
+    ## Servers určuje počet MinIO Tenant Pods / Servers v tomto pool.
+    ## Pro standalone mód, zadejte 1. Pro distributed mód, zadejte 4 nebo více.
+    ## Poznámka: operátor nepodporuje upgrade z standalone na distributed mód.
+    - servers: 1
+      ## vlastní název pool
+      name: pool-0
+      ## volumesPerServer určuje počet volumenů připojených na MinIO Tenant Pod / Server.
+      volumesPerServer: 1
+      ## vyberte NFS storage class
+      ## Tento VolumeClaimTemplate je použit napříč všemi volume claimy zřízenými pro MinIO Tenant v tomto Pool.
+      volumeClaimTemplate:
+        metadata:
+          name: data
+        spec:
+          storageClassName: nfs-csi
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 2Gi
+      ## Konfigurace security context Podu
+      securityContext:
+        runAsNonRoot: true
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsGroup: 1000
+      ## Konfigurace container security context
+      containerSecurityContext:
+        runAsNonRoot: true
+        privileged: false
+        runAsUser: 1000
+        runAsGroup: 1000
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+          - ALL
+        seccompProfile:
+          type: "RuntimeDefault"
+```
+
+Tento příklad také vyžaduje nasazení secret pro uživatele. Příklad secret si můžete stáhnout [zde](/examples/ceritsc/manifests/minio-minimal-tenant-secret.yaml).
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: myminio-user-secret
+type: Opaque
+data:
+  CONSOLE_ACCESS_KEY: Y29uc29sZQ== # "console", base64 encoding
+  CONSOLE_SECRET_KEY: Y29uc29sZTEyMw== # "console123", base64 encoding
+```
+
+Pro definování vlastního `access_key` (*uživatelské jméno*) a `secret_key` (*heslo*) můžete hodnoty ručně kódovat nebo dekódovat pomocí následujících příkazů:
+
+```bash
+# encode
+echo -n "securepassword" | base64
+# decode
+echo -n "c2VjdXJlcGFzc3dvcmQ=" | base64 -d
+```
+
+Poslední požadovaná část je konfigurační secret zobrazeno níže:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: myminio-config-secret
+type: Opaque
+stringData:
+  config.env: |-
+    export MINIO_ROOT_USER=[nahraďte root uživatelským jménem]
+    export MINIO_ROOT_PASSWORD=[nahraďte root heslem, alespoň 8 znaků!]
+```
+
+<Callout type="info">
+Proměnné `MINIO_ROOT_USER` a `MINIO_ROOT_PASSWORD` nejsou base64 kódovány, protože manifest je definuje jako `stringData`.
+</Callout>
+
+Dále nasaďte secret a MinIO Tenant pomocí následujícího příkazu:
+
+```bash
+kubectl create -n [namespace] -f example-tenant-secret.yaml -f example-tenant.yaml
+```
+
+Pokud nasazení proběhne úspěšně, měli byste vidět pod s názvem `myminio-pool-0-0` (nebo podobným, v závislosti na konfiguraci) běžící v zadaném namespace.
+
+## Přístup k MinIO
+
+Pro přístup k MinIO storage z jiných podů můžete použít služby `myminio-console` a `myminio-hl`, které jsou automaticky vytvořeny. Tyto služby fungují jako DNS jména, což ostatním aplikacím v Kubernetes clusteru umožňuje je používat jako endpointy.
+
+Pokud potřebujete přistupovat k MinIO z jiného namespace, použijte fully qualified domain name (FQDN), např. `myminio-hl.[namespace].svc.cluster.local`.
+
+- `myminio-console:9443` -- Poskytuje webové rozhraní pro správu MinIO.
+- `myminio-hl:9000` nebo `minio:<PORT>` -- Poskytuje S3-kompatibilní API endpoint pro přístup k object storage. `<PORT>` je buď `443` (pokud `requestAutoCert=true`) nebo `80` (pokud `requestAutoCert=false`).
+
+### Certifikáty
+
+Pokud `requestAutoCert=true`, self-signed certifikáty jsou automaticky generovány. V důsledku toho mohou aplikace hlásit neznámou Certificate Authority (CA). Pro vyřešení tohoto můžete buď poskytnout správný CA certifikát aplikaci, nebo nakonfigurovat vlastní Issuer pro použití externích certifikátů pro MinIO. Pokud je použito výchozí `AutoCert`, odpovídající CA certifikát je dostupný v každém namespace v ConfigMapu s názvem `kube-root-ca.crt`, pod klíčem `ca.crt`.
+
+### Vystavení MinIO Venku Kubernetes Clusteru přes Ingress
+
+Pro přístup k MinIO z vně Kubernetes clusteru se doporučuje použít `Tenant` Helm chart a nakonfigurovat `ingress` sekci `Tenant` resource.
+
+#### Krok 1: Přidejte MinIO Helm Repository
+
+Nejprve přidejte MinIO Operátor Helm repository a aktualizujte lokální Helm cache:
+
+```bash
+helm repo add minio-operator https://operator.min.io
+helm repo update
+```
+
+#### Krok 2: Generování Výchozích Hodnot
+
+Vytvořte výchozí `values.yaml` soubor:
+
+```bash
+helm show values minio-operator/tenant > values.yaml
+```
+
+#### Krok 3: Konfigurace Ingress v `values.yaml`
+
+Upravte `values.yaml` soubor a nakonfigurujte `ingress` sekci následovně:
+
+```yaml
+ingress:
+  api:
+    enabled: true
+    ingressClassName: "nginx"
+    labels: { }
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      kubernetes.io/tls-acme: "true"
+      nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+      nginx.ingress.kubernetes.io/custom-http-errors: "599"
+    tls:
+    - hosts:
+      - myminio-my-namespace.dyn.cloud.e-infra.cz
+      secretName: my-secret-cloud-e-infra-cz
+    host: myminio-my-namespace.dyn.cloud.e-infra.cz
+    path: /
+    pathType: Prefix
+  console:
+    enabled: true
+    ingressClassName: "nginx"
+    labels: { }
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      kubernetes.io/tls-acme: "true"
+      nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+      nginx.ingress.kubernetes.io/custom-http-errors: "599"
+    tls:
+    - hosts:
+      - myminio-ui-my-namespace.dyn.cloud.e-infra.cz
+      secretName: my-secret-ui-cloud-e-infra-cz
+    host: myminio-ui-my-namespace.dyn.cloud.e-infra.cz
+    path: /
+    pathType: Prefix
+```
+
+#### Krok 4: Instalace Tenanta
+
+Nainstalujte MinIO Tenant pomocí přizpůsobeného `values.yaml` souboru:
+
+```bash
+helm install myminio -n [mynamespace]  minio-operator/tenant -f values.yaml
+```
+
+#### Krok 5: Přístup k MinIO
+
+- MinIO Console: `https://myminio-ui-my-namespace.dyn.cloud.e-infra.cz`
+- S3 API Endpoint: `https://myminio-my-namespace.dyn.cloud.e-infra.cz`
+
+#### ✅ Důležité Poznámky:
+
+- **Oddělené TLS Secrets:** Nepoužívejte stejné `secretName` pro API i Console. Každý Ingress resource musí mít unikátní TLS secret.
+- **Zpracování Backend Protokolu:** Pokud `requestAutoCert=true`, ujistěte se, že anotace `nginx.ingress.kubernetes.io/backend-protocol: HTTPS` je nastavena.
+- **MinIO Error Handling:** Nastavte `nginx.ingress.kubernetes.io/custom-http-errors: "599"` pro prevenci vlastní obsluhy chyb ze strany NGINX, které by mohly schovávat vlastní chybové zprávy MinIO.
+
+## Nasazení MinIO S Podporou Proxy
+
+Při nasazování `Tenant` v Kubernetes clusteru, který vyžaduje HTTP(S) proxy, je třeba nakonfigurovat proxy nastavení prostřednictvím proměnných prostředí.
+
+### Krok 1: Nastavení Proxy Proměnných Prostředí
+
+- `HTTPS_PROXY`: `http://proxy.ics.muni.cz:3128`
+- `HTTP_PROXY`: `http://proxy.ics.muni.cz:3128`
+- `NO_PROXY`: `.svc.cluster.local,.svc,10.0.0.0/8,147.251.0.0/16,2001:718:801::/48,127.0.0.1,::1,.cloud.trusted.e-infra.cz`
+
+Proměnná `NO_PROXY` je nezbytná pro zajištění, že MinIO nebude směrovat provoz proxy pro lokální cluster sítě. To je obzvláště důležité pro komunikaci v rámci `kubas-cluster`.
+
+### Krok 2: Konfigurace `values.yaml` Souboru
+
+Přidejte následující konfiguraci pod sekci `tenant.env`:
+
+```yaml
+tenant:
+ env:
+ - name: HTTPS_PROXY
+   value: http://proxy.ics.muni.cz:3128
+ - name: HTTP_PROXY
+   value: http://proxy.ics.muni.cz:3128
+ - name: NO_PROXY
+   value: ".svc.cluster.local,.svc,10.0.0.0/8,147.251.0.0/16,2001:718:801::/48,127.0.0.1,::1,.cloud.trusted.e-infra.cz"
+```
+
+### ✅ Poznámky:
+
+- Ujistěte se, že hodnota `NO_PROXY` zahrnuje všechny lokální sítě a interní služby, aby se předešlo zbytečnému použití proxy.
+- Dvakrát zkontrolujte nastavení `NO_PROXY`, zvláště pro IPv6 rozsahy, protože nesprávná konfigurace může způsobit problémy s konektivitou v rámci clusteru.
+
+## Network Policy
+
+Pro zvýšení bezpečnosti může být použit **NetworkPolicy** k omezení přístupu k MinIO S3 storage, povolení připojení pouze z specifických podů. Pro více detailů viz [Network Policy dokumentace](../kubernetes/security).
+
+Ve výchozím nastavení je externí přístup (např. z veřejného internetu) zakázán. Je však možné vystavit MinIO přes [Load Balancer](../kubernetes/expose#other-applications) nebo Ingress (viz výše), pokud je to potřeba.
+
+### Příklad 1: Network Policy pro MinIO Tenant
+
+Následující příklad omezuje ingress a egress provoz pro MinIO `Tenant`. Povoluje:
+
+- Egress komunikaci k lokálnímu DNS resolveru.
+- Egress komunikaci k MinIO Operátoru nainstalovanému v rámci Kubernetes clusteru.
+- Ingress komunikaci z libovolného podu k MinIO S3 API (`9000`) a webové konzoli (`9443`) portům.
+
+Tento příklad si můžete stáhnout [zde](/examples/ceritsc/manifests/minio-minimal-tenant-np.yaml).
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: myminio-np
+spec:
+  podSelector:
+    matchLabels:
+      # Tato NetworkPolicy je aplikována na `myminio` Tenant
+      app: myminio
+  policyTypes:
+  - Egress
+  - Ingress
+  egress:
+    # Povoluje egress komunikaci k lokálnímu DNS resolveru
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+    # Povoluje egress komunikaci k Minio operátoru nainstalovanému v Kubernetes.
+  - to:
+    - ipBlock:
+        cidr: 10.43.0.1/32
+    - ipBlock:
+        cidr: 10.16.62.14/32
+    - ipBlock:
+        cidr: 10.16.62.15/32
+    - ipBlock:
+        cidr: 10.16.62.16/32
+    - ipBlock:
+        cidr: 10.16.62.17/32
+    - ipBlock:
+        cidr: 10.16.62.18/32
+    ports:
+    - port: 6443
+      protocol: TCP
+  ingress:
+    # Povoluje ingress komunikaci z libovolného Podu na porty 9000 a 9443
+    # pro přístup k webové konzoli pro správu a S3 připojení
+  - from:
+    - podSelector: {}
+    ports:
+    - protocol: TCP
+      port: 9000
+    - protocol: TCP
+      port: 9443
+```
+
+### Příklad 2: Network Policy pro Aplikaci Přístupnou k MinIO
+
+Následující policy povoluje specifické aplikaci (`myapplication`) přístup k MinIO S3 API na portu `9000`.
+
+Tento příklad si můžete stáhnout [zde.](/examples/ceritsc/manifests/minio-minimal-application-np.yaml)
+
+```yaml
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: myapplication-allow-s3
+spec:
+  podSelector:
+    matchLabels:
+      # Tato NetworkPolicy je aplikována na `myapplication` Pod
+      app: myapplication
+  policyTypes:
+  - Egress
+  egress:
+    # Povoluje egress S3 komunikaci z `myapplication` k `myminio` Tenant
+  - to:
+    - podSelector:
+        matchLabels:
+          app : myminio
+    ports:
+    - protocol: TCP
+      port: 9000
+```
+
+### ✅ Souhrn:
+
+**MinIO Tenant NetworkPolicy** zabezpečuje MinIO instanci kontrolou jak ingress, tak egress provozu.
+**Application NetworkPolicy** povoluje pouze specifickým aplikacím interakci s MinIO S3 API.
+
+## OIDC Autentizace pro MinIO s e-INFRA CZ SSO
+
+MinIO může být nakonfigurováno pro použití **e-INFRA CZ Single Sign-On (SSO)** přes **OIDC (OpenID Connect)**. Tento průvodce předpokládá, že vaše MinIO služba byla zaregistrována v [e-INFRA CZ SP Admin Portal](https://spadmin.e-infra.cz/) a že jste získali **Client ID** a **Client Secret**.
+
+---
+
+### Krok 1: Registrace MinIO v SP Admin
+
+Během registračního procesu v [spadmin.e-infra.cz](https://spadmin.e-infra.cz/) nakonfigurujte následující:
+
+- **Callback URL:** `https://<your-console-url>/oauth_callback`
+- **Scopes:** `eduperson_entitlement, profile, email`
+- **Authorization flow:** `authorization code`
+- **Token endpoint authentication method:** `client_secret_basic`
+- **PKCE Code Challenge Method:** `SHA256 code challenge`
+- **Enable introspection endpoint access**
+
+### Krok 2: Konfigurace MinIO Proměnných Prostředí
+
+Na straně MinIO nastavte následující proměnné prostředí:
+
+```yaml
+MINIO_IDENTITY_OPENID_CONFIG_URL: https://login.e-infra.cz/oidc/.well-known/openid-configuration
+MINIO_IDENTITY_OPENID_CLIENT_ID: <client id>
+MINIO_IDENTITY_OPENID_CLIENT_SECRET: <client secret>
+MINIO_IDENTITY_OPENID_SCOPES: eduperson_entitlement,profile,email
+MINIO_IDENTITY_OPENID_CLAIM_NAME: eduperson_entitlement
+MINIO_IDENTITY_OPENID_REDIRECT_URI: https://<console url>/oauth_callback
+MINIO_IDENTITY_OPENID_DISPLAY_NAME: "e-INFRA CZ"
+MINIO_IDENTITY_OPENID_CLAIM_USERINFO: on
+```
+
+### Krok 3: Bezpečné Uložení Secrets
+
+**Nedoporučuje se** ukládat citlivá data, jako `MINIO_IDENTITY_OPENID_CLIENT_SECRET`, přímo do `values.yaml` souboru. Místo toho vytvořte **Kubernetes Secret**:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: <secret-name>
+type: Opaque
+stringData:
+  config.env: |-
+    export MINIO_ROOT_USER="<admin-username>"
+    export MINIO_ROOT_PASSWORD="<admin-password>"
+    export MINIO_IDENTITY_OPENID_CONFIG_URL: https://login.e-infra.cz/oidc/.well-known/openid-configuration
+    export MINIO_IDENTITY_OPENID_CLIENT_ID: <client-id>
+    export MINIO_IDENTITY_OPENID_CLIENT_SECRET: <client-secret>
+    export MINIO_IDENTITY_OPENID_SCOPES: eduperson_entitlement,profile,email
+    export MINIO_IDENTITY_OPENID_CLAIM_NAME: eduperson_entitlement
+    export MINIO_IDENTITY_OPENID_REDIRECT_URI: https://<console url>/oauth_callback
+    export MINIO_IDENTITY_OPENID_DISPLAY_NAME: "e-INFRA CZ"
+    export MINIO_IDENTITY_OPENID_CLAIM_USERINFO: on
+    export HTTPS_PROXY=http://proxy.ics.muni.cz:3128
+    export NO_PROXY=".svc.cluster.local,.svc,10.0.0.0/8,147.251.0.0/16,2001:718:801::/48,127.0.0.1,::1,.cloud.trusted.e-infra.cz"
+```
+
+Nahraďte:
+
+- `<admin-username>` vaším MinIO admin uživatelským jménem.
+- `<admin-password>` vaším MinIO admin heslem.
+- `<client-id>` a `<client-secret>` hodnotami ze SP Admin registrace.
+- `<your-console-url>` vaší MinIO console URL.
+- `<secret-name>` vlastním názvem pro Secret.
+
+### Krok 4: Odkaz na Secret v `values.yaml`
+
+Ve vašem `values.yaml` souboru odkazujte na Secret následovně:
+
+```yaml
+tenant:
+  configSecret:
+    name: <secret-name>
+    existingSecret: true
+```
+
+### ✅ Důležité Poznámky:
+
+- **MinIO admin přihlašovací údaje** (`MINIO_ROOT_USER` a `MINIO_ROOT_PASSWORD`) jsou stále vyžadovány pro počáteční nastavení, i když je OIDC povoleno.
+- Ujistěte se, že Secret name (`<secret-name>`) odpovídá `configSecret.name` v `values.yaml`.
+- Proměnné `HTTP_PROXY` a `NO_PROXY` jsou volitelné. Přidejte je pouze pokud váš cluster vyžaduje proxy pro komunikaci ven.
+
+## OIDC Role Management v MinIO
+
+Při přihlášení do MinIO přes e-INFRA CZ SSO se setkáte se stránkou souhlasu podobnou této:
+
+![minio-consent](/img/ceritsc/minio-consent.png)
+
+Je **nezbytně důležité si zapamatovat název role (skupiny)**, který bude použit pro MinIO Access Policy. V tomto příkladu je role `urn:geant:muni:cz:group:MU:kubernetes-admins@idm.ics.muni.cz`, zvýrazněná červeným obdélníkem výše.
+
+### Krok 1: Přihlášení jako Administrátor
+
+Počáteční přihlášení přes SSO pravděpodobně **selže** kvůli chybějícím role-závislým policy.
+
+Pro pokračování:
+
+1. Klikněte na **Other Authentication Methods** na úvodní MinIO konzoli webové stránce.
+2. Vyberte **Use Credentials**.
+3. Přihlaste se pomocí MinIO admin přihlašovacích údajů z výše:
+   - **Username:** `<admin-username>`
+   - **Password:** `<admin-password>`
+
+### Krok 2: Vytvoření Policy pro Role
+
+Přejděte na **Administrator** → **Policies** a vytvořte **novou policy s přesným názvem role**, např.
+`urn:geant:muni:cz:group:MU:kubernetes-admins@idm.ics.muni.cz`.
+
+V editoru policy definujte policy podobnou následující JSON:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:*"
+            ],
+            "Resource": [
+                "arn:aws:s3:::${jwt:preferred_username}-*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:*"
+            ],
+            "Resource": [
+                "arn:aws:s3:::shared-bucket"
+            ]
+        }
+    ]
+}
+```
+
+#### ✅ Vysvětlení Policy:
+
+- Tato policy uživatelům se specifikovanou **OIDC rolí** umožňuje vytvářet a spravovat bucket s vzorem názvu `<loginname>-something`.
+
+  Například uživatel s loginem `xhejtman` může vytvořit bucket s názvem `xhejtman-test`.
+
+- Také poskytuje plný přístup k `shared-bucket`, který by měl být předvytvořen MinIO administrátorem.
+
+- Protože tato policy umožňuje i mazání bucketu, **zvažte omezení akcí** (např. `s3:PutObject`, `s3:GetObject`) podle vašich bezpečnostních potřeb. Viz [MinIO policy dokumentace](https://min.io/docs/minio/linux/administration/identity-access-management/policy-based-access-control.html) pro více detailů.
+
+### 🎯 Závěrečné Poznámky:
+
+- **Název policy se musí přesně shodovat s OIDC rolí**, jinak bude přístup odepřen.
+- Můžete přiřadit různé policy k různým rolím pro Granted přístupovou kontrolu na detailnější úrovni.

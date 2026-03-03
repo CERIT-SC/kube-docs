@@ -1,0 +1,42 @@
+---
+title: Spark Operátor
+---
+
+[Spark Operátor](https://github.com/GoogleCloudPlatform/spark-on-k8s-operator) má za cíl usnadnit specifikaci a spouštění Spark aplikací, aby bylo stejně snadné a přirozené jako spouštění ostatních úloh na Kubernetes. Nasadili jsme cluster-wide Spark Operátor, který definuje typy `ScheduledSparkApplication` a `SparkApplication`. Plná dokumentace o struktuře typů je dostupná [zde](https://github.com/GoogleCloudPlatform/spark-on-k8s-operator/blob/master/docs/api-docs.md). Oficiální a podrobný uživatelský průvodce je dostupný [zde](https://www.kubeflow.org/docs/components/spark-operator/getting-started/).
+
+## Důležité konfigurace
+
+Musíte nastavit `spec.driver.serviceAccount` na `default`, jinak vaše Spark aplikace selže kvůli problémům s oprávněními. Spark příklad využívá `hostPath` jako zdroj svazku, ale to v clusteru nebude fungovat, protože hostitelská připojení jsou zakázána. Použijte místo toho `persistentVolumeClaim` ([příklady](https://www.kubeflow.org/docs/components/spark-operator/user-guide/writing-sparkapplication/#mounting-volumes)) a nezapomeňte vytvořit [PVC](../kubernetes/pvc#pvc).
+
+## Další konfigurace
+
+### Spark UI
+
+Spark UI je automaticky vytvořeno pro vaše aplikace na HTTPS adrese:
+```
+https://spark-[app_namespace].dyn.cloud.e-infra.cz/[app_namespace]/[app_name]
+```
+a je také viditelné v Rancher UI. Postupujte podle kroků, abyste viděli jeho konečnou podobu. Při kopírování adresy do prohlížeče vynechejte poslední skupinu znaků `(/|$)(.*)` (problém související s Rancher).
+
+![adresa spark](/img/ceritsc/sparkaddress.png)
+
+Když přistoupíte k cestě, měli byste být představeni dashboardu podobnému
+
+![dashboard spark](/img/ceritsc/sparkdashboard.png)
+
+#### Vlastní SparkUI Ingress
+
+Pokud chcete poskytnout vlastní anotace pro Ingress (např. použít jiného vydavatele certifikátů, my používáme `letsencrypt`) nebo vlastní TLS tajemství, musíte do YAML spark aplikace zahrnout následující fragment kódu.
+
+```
+  sparkUIOptions:
+    ingressAnnotations:
+      [annotation_key]: [annotation_value]
+      ...
+    ingressTLS: (volitelná sekce)
+      - secretName: [secretname_in_app_namespace]
+        hosts:
+          - [host]
+```
+
+Sloučíme položky, které poskytnete, s naší konfigurací. Pokud nastavíte stejnou anotaci jako my, použijeme vaši hodnotu.

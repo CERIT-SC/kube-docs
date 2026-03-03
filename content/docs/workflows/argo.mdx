@@ -2,18 +2,18 @@
 title: Argo Workflows
 ---
 
-Argo Workflows is a Kubernetes-native workflow engine designed for orchestrating parallel jobs. It is particularly useful for tasks like batch processing, CI/CD pipelines, machine learning workflows, and any job automation that benefits from running steps as a DAG (Directed Acyclic Graph).
+Argo Workflows is a Kubernetes-native workflow engine designed to orchestrate parallel jobs. It is particularly useful for tasks like batch processing, CI/CD pipelines, machine learning workflows, and any job automation that benefits from running steps as a DAG (Directed Acyclic Graph).
 
-By leveraging Kubernetes as the underlying scheduler, Argo enables scalable and resilient workflow execution using familiar Kubernetes tooling.
+Argo leverages Kubernetes as the underlying scheduler, enabling scalable and resilient workflow execution with familiar Kubernetes tooling.
 
 <Callout type="info">
-Workflow objects must be created in the **same namespace** where the Argo controller is running. It also means that `ClusterWorkflow` resources are not supported. 
+Workflow objects must be created in the **same namespace** where the Argo controller is running. This also means that `ClusterWorkflow` resources are not supported.
 This is a limitation of the managed cluster setup at CERIT-SC. Currently, deploying a controller that watches multiple namespaces is **not supported**.
 </Callout>
 
 ## Access Requirements
 
-Running Argo Workflows requires **elevated privileges**, as the necessary RBAC (Role-Based Access Control) permissions are not included in the default user setup.
+Running Argo Workflows requires **elevated privileges** because the necessary RBAC (Role-Based Access Control) permissions are not included in the default user setup.
 
 <Callout type="info">
 To gain access, contact the administrators at **k8s@cerit-sc.cz**. Once approved, the appropriate RBAC rules will be configured for your Project namespace. This access model helps reduce excessive role bindings across the cluster.
@@ -21,10 +21,11 @@ To gain access, contact the administrators at **k8s@cerit-sc.cz**. Once approved
 
 ## Repository with Starter-kit Manifests
 
-This setup is provided in the repository [https://github.com/CERIT-SC/argo-workflows-example](https://github.com/CERIT-SC/argo-workflows-example), which serves as a **starter-kit demo** for using Argo Workflows on the CERIT-SC managed Kubernetes cluster. It is intended to be extended and customized to fit your specific needs.
+This setup is provided in the [argo-workflows-example repository](https://github.com/CERIT-SC/argo-workflows-example), which serves as a **starter-kit demo** for using Argo Workflows on the CERIT-SC managed Kubernetes cluster. You can extend and customize these examples to fit your specific needs.
 
 The repository is organized as follows:
-```
+
+```text
 .
 ├── controller-manifests/ # Argo Workflow controller configuration
 │ ├── controller-install.yaml
@@ -45,7 +46,7 @@ kubectl apply -f controller-manifests/ -n [your-namespace]
 The controller deployment consists of:
 
 - `controller-install.yaml`: Installs the Argo controller and required components.
-- `workflow-controller-configmap.yaml`: Defines controller behavior. You may need to adjust this to match your specific use case.
+- `workflow-controller-configmap.yaml`: Defines controller behavior. Adjust this configuration to match your specific use case.
 
 <Callout type="warn">
 The `controller-install.yaml` file uses a hardcoded Argo Workflows version `v3.6.7`. This version may become outdated over time. Be sure to monitor the [Argo Releases](https://github.com/argoproj/argo-workflows/releases) for updates and modify the manifest if necessary.
@@ -59,7 +60,7 @@ Apply the RBAC policy that allows the workflows to run using a specific service 
 kubectl apply -f example/runner-rbac.yaml -n [your-namespace]
 ```
 
-Ensure that your workflow YAML files reference the correct service account name (the same name as in the `runner-rbac.yaml`). You may also customize the roles and permissions based on your namespace's access needs.
+Ensure that your workflow YAML files reference the correct service account name (the same name as in the `runner-rbac.yaml`). You may also customize the roles and permissions based on your namespace's specific access requirements.
 
 ### 3. Run the Example Workflow
 
@@ -74,14 +75,13 @@ This minimal "Hello World" example should validate that your controller and RBAC
 <Callout type="warn">
 In namespaces where **resource quotas are enforced** (which is true for all user namespaces at CERIT-SC), the workflow may **fail** if the pod created by the workflow (the workflow runner) **does not specify resource requests/limits**. If your namespace does not have default container resources defined, you must either:
 
-1. Configure **namespace-level default resource requests/limits**, or  
+1. Configure **namespace-level default resource requests/limits**, or
 2. Add explicit `resources:` section in your workflow definition (CPU, memory).
 
-This issue is rare but can occur in new or custom namespaces.
+This issue is rare but can occur in new or custom namespaces without default resource configurations.
 </Callout>
 
 ## Additional Resources
 
 - [Argo Workflows Documentation](https://argoproj.github.io/argo-workflows/)
 - [Argo Workflows GitHub](https://github.com/argoproj/argo-workflows)
-

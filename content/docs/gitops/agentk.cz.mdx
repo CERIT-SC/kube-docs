@@ -1,0 +1,395 @@
+---
+title: GitLab Kubernetes Agent
+---
+
+## CI/CD integrace mezi GitLab a Kubernetes
+
+Tento návod popisuje kroky potřebné k nastavení průběžné integrace a nasazování (CI/CD) mezi GitLab a Kubernetes. Proces CI/CD je řízen GitLab Kubernetes Agentem, který funguje v cílovém jmenném prostoru – tedy v jmenném prostoru, kde se provádějí CI/CD akce.
+
+### Omezení
+
+Klíčovým omezením tohoto nastavení je, že vícejmennoprostorová nasazení z jednoho GitLab repozitáře nejsou možná bez zásahu administrátora. Konkrétně je vyžadována cluster-wide RBAC role pro povolení takových nasazení.
+
+### Konceptuální přehled
+
+Konceptuálně GitLab Kubernetes Agent funguje jako proxy mezi GitLab (přesněji GitLab Runnerem, který spouští úlohy CI/CD pipeline) a Kubernetes API. Agent používá Kubernetes Service Account pro autentizaci s Kubernetes API.
+
+Tento Service Account musí mít přidělena dostatečná oprávnění pro provádění CI/CD operací. Tato oprávnění jsou definována prostřednictvím Kubernetes RBAC zdrojů: `Role` a `RoleBinding`.
+
+## Případ použití: Nasazení Helm chartu
+
+CI/CD pipeline mohou automatizovat širokou škálu úloh. Tento návod se zaměřuje na nejběžnější scénář: nasazení Helm chartu z Git repozitáře do Kubernetes jmenného prostoru.
+
+Následující části popíší potřebné konfigurační kroky k dosažení tohoto workflow nasazení.
+
+### Předpoklady
+
+- Jmenný prostor ve vašem Kubernetes clusteru (např. `kuba-cluster` z CERIT-SC)
+- GitLab repozitář (odkazovaný jako [https://gitlab.ics.muni.cz/cerit-sc/gitlab-test](https://gitlab.ics.muni.cz/cerit-sc/gitlab-test))
+- Nainstalované a nakonfigurované nástroje `kubectl` a `helm` pro správu Kubernetes jmenného prostoru
+
+### GitLab nastavení
+
+Předpokládejme, že GitLab repozitář ([https://gitlab.ics.muni.cz/cerit-sc/gitlab-test](https://gitlab.ics.muni.cz/cerit-sc/gitlab-test)) obsahuje Helm chart podobný našemu [Langflow chartu](https://github.com/CERIT-SC/rancher-apps/tree/master/charts/langflow/v1.0).
+
+Přihlaste se do GitLab, přejděte do svého repozitáře a pokračujte do `Operate` → `Kubernetes clusters`. Vyberte **Connect a cluster**, jak je znázorněno na následujícím screenshotu:
+
+![gitlab1](/img/ceritsc/gitops/gitlab1.png)
+
+Ignorujte sekci `Flux` a zadejte název pro agenta, například `my-agent`.
+
+Na další obrazovce si poznamenejte přístupový token a počáteční `helm` příkazy nastavení (první dva řádky).
+
+![gitlab2](/img/ceritsc/gitops/gitlab2.png)
+
+<Callout type="warn">
+Nezveřejňujte přístupový token! Lze jej použít k ovládání vašeho Kubernetes jmenného prostoru. Toto je jediná příležitost, kdy bude token zobrazen. Pokud jej ztratíte, budete muset cluster znovu zaregistrovat, abyste získali nový token.
+</Callout>
+
+Nyní můžete zavřít dialog nastavení. Ve výchozím nastavení agent používá vygenerovanou konfiguraci. Pokud potřebujete vlastní konfiguraci, vytvořte nový soubor ve vašem Git repozitáři na `.gitlab/agents/<název-agenta>/config.yaml`. Ujistěte se, že `<název-agenta>` odpovídá názvu použitému během nastavení (např. `.gitlab/agents/my-agent/config.yaml`).
+
+Ukázková vlastní konfigurace agenta je uvedena níže:
+
+```yaml title="config.yaml"
+ci_access:
+  projects:
+    - id: cerit-sc/gitlab-test
+gitops:
+  manifest_projects:
+    - id: gitlab-test
+      default_namespace: gitlab-test-ns
+      paths:
+        - glob: '*.yaml'
+        - glob: 'templates/*'
+        - glob: 'charts/*'
+
+```
+
+### Kubernetes nastavení
+
+Nainstalujte Helm repozitář a aktualizujte jej:
+
+```bash
+helm repo add gitlab https://charts.gitlab.io
+helm repo update
+```
+
+Vytvořte nový soubor `values.yaml`:
+
+```yaml title="values.yaml"
+replicas: 1
+resources:
+  requests:
+    cpu: "50m"
+    memory: "50Mi"
+  limits:
+    cpu: "1"
+    memory: "512Mi"
+podSecurityContext:
+   runAsNonRoot: true
+   seccompProfile:
+     type: RuntimeDefault
+securityContext:
+   runAsUser: 1000
+   allowPrivilegeEscalation: false
+   capabilities:
+     drop:
+     - ALL
+rbac:
+  create: false
+agent:
+  token:
+    secret: gitlab-agent-token
+  kasAddress: wss://kas.gitlab.com
+config:
+  secret: gitlab-agent-config
+```
+
+Vytvořte `namespace.yaml`:
+
+```yaml title="namespace.yaml"
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gitlab-agent-namespace
+```
+
+Vytvořte `serviceaccount.yaml`:
+
+```yaml title="serviceaccount.yaml"
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gitlab-agent-serviceaccount
+  namespace: gitlab-agent-namespace
+```
+
+Nyní vygenerujte token pro Helm install pomocí příkazu zobrazeného na obrazovce GitLab. Měl by vypadat takto:
+
+`echo "cjs2..." | base64 --decode > gitlab-agent-token.yaml`
+
+Obsah generovaného `gitlab-agent-token.yaml` by měl vypadat takto:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitlab-agent-token
+  namespace: gitlab-agent-namespace
+type: Opaque
+data:
+  token: <base64-encoded-token>
+```
+
+Nyní vytvořte Secret s konfigurací agenta:
+
+`echo "<base64-encoded-configuration>" | base64 --decode > gitlab-agent-config.yaml`
+
+Obsah by měl vypadat takto:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitlab-agent-config
+  namespace: gitlab-agent-namespace
+type: Opaque
+data:
+  config.yaml: <base64-encoded-config>
+```
+
+Vytvořte RBAC role pro váš `ServiceAccount`:
+
+```yaml title="role.yaml"
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: gitlab-agent-role
+  namespace: gitlab-agent-namespace
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "configmaps", "secrets"]
+    verbs: ["get", "list", "create", "update", "delete"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets"]
+    verbs: ["get", "list", "create", "update", "delete"]
+  - apiGroups: ["batch"]
+    resources: ["jobs", "cronjobs"]
+    verbs: ["get", "list", "create", "update", "delete"]
+```
+
+Vytvořte `RoleBinding` pro propojení role s `ServiceAccount`:
+
+```yaml title="rolebinding.yaml"
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: gitlab-agent-rolebinding
+  namespace: gitlab-agent-namespace
+subjects:
+  - kind: ServiceAccount
+    name: gitlab-agent-serviceaccount
+    namespace: gitlab-agent-namespace
+roleRef:
+  kind: Role
+  name: gitlab-agent-role
+  apiGroup: rbac.authorization.k8s.io
+```
+
+### Instalace agenta
+
+Nyní můžete nainstalovat GitLab Agent do vašeho clusteru. Zkontrolujte, zda se nacházíte ve správném kontextu, a vytvořte všechny potřebné objekty:
+
+```bash
+kubectl apply -f namespace.yaml
+kubectl apply -f serviceaccount.yaml
+kubectl apply -f gitlab-agent-token.yaml
+kubectl apply -f gitlab-agent-config.yaml
+kubectl apply -f role.yaml
+kubectl apply -f rolebinding.yaml
+```
+
+Poté nainstalujte Helm chart:
+
+```bash
+helm install gitlab-agent gitlab/gitlab-agent \
+  --namespace gitlab-agent-namespace \
+  -f values.yaml
+```
+
+### Ověření instalace
+
+Spusťte následující příkaz a zkontrolujte, zda se vytvořil pod:
+
+```bash
+kubectl get pods -n gitlab-agent-namespace
+```
+
+Pokud vše proběhlo v pořádku, měli byste vidět něco jako:
+
+```bash
+NAME                           READY   STATUS    RESTARTS   AGE
+gitlab-agent-123456789-abcde   1/1     Running   0          1m
+```
+
+Chcete-li zkontrolovat logy podu, spusťte:
+
+```bash
+kubectl logs -f -n gitlab-agent-namespace gitlab-agent-123456789-abcde
+```
+
+Měli byste vidět něco jako:
+
+```json
+{"level":"info","time":"2023-10-01T12:34:56Z","msg":"Starting GitLab Agent","version":"v1.2.3"}
+{"level":"info","time":"2023-10-01T12:34:57Z","msg":"Connected to GitLab","kas_address":"wss://kas.gitlab.com"}
+{"level":"info","time":"2023-10-01T12:34:58Z","msg":"Agent is ready"}
+```
+
+<Callout type="info">
+Pokud narazíte na chyby, zkontrolujte, zda má váš `ServiceAccount` dostatečná oprávnění a zda jsou správné přístupové tokeny. Podívejte se do [oficiální dokumentace](https://docs.gitlab.com/user/clusters/agent/) pro řešení problémů.
+</Callout>
+
+### Testování CI/CD
+
+Chcete-li otestovat, zda agent funguje správně, přidejte jednoduchý `.gitlab-ci.yml` do vašeho repozitáře:
+
+```yaml title=".gitlab-ci.yml"
+stages:
+  - deploy
+
+deploy-job:
+  stage: deploy
+  script:
+    - echo "Deploying to Kubernetes..."
+    - kubectl apply -f deployment.yaml -n gitlab-agent-namespace
+  only:
+    - main
+```
+
+Vytvořte `deployment.yaml`:
+
+```yaml title="deployment.yaml"
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: gitlab-agent-namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+```
+
+Nyní pushněte změny do vašeho repozitáře a pozorujte pipeline. Pokud vše funguje správně, měli byste vidět nový pod v jmenném prostoru `gitlab-agent-namespace`.
+
+### Problémy a řešení
+
+#### Chyba: "Unauthorized"
+
+```bash
+Error from server (Forbidden): deployments.apps is forbidden: User "system:serviceaccount:gitlab-agent-namespace:gitlab-agent-serviceaccount" cannot create resource "deployments" in API group "apps" in the namespace "gitlab-agent-namespace"
+```
+
+**Řešení**: Zkontrolujte, zda má `Role` správná oprávnění. Přidejte chybějící `verbs` nebo `resources` do `role.yaml`.
+
+#### Chyba: "ImagePullBackOff"
+
+```bash
+NAME                           READY   STATUS             RESTARTS   AGE
+gitlab-agent-123456789-abcde   0/1     ImagePullBackOff   0          2m
+```
+
+**Řešení**: Zkontrolujte, zda je image `gitlab/gitlab-agent` dostupná. Spusťte `kubectl describe pod gitlab-agent-123456789-abcde -n gitlab-agent-namespace` pro více informací.
+
+#### Chyba: "Token expired"
+
+```bash
+{"level":"error","time":"2023-10-01T12:34:56Z","msg":"Failed to connect to GitLab: token expired"}
+```
+
+**Řešení**: Vygenerujte nový token v GitLab a aktualizujte `gitlab-agent-token.yaml`.
+
+### Pokročilá konfigurace
+
+#### Více jmenných prostorů
+
+Pokud potřebujete agenta, který může pracovat s více jmennými prostory, vytvořte `ClusterRole` namísto `Role`:
+
+```yaml title="clusterrole.yaml"
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: gitlab-agent-clusterrole
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "configmaps", "secrets"]
+    verbs: ["get", "list", "create", "update", "delete"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets"]
+    verbs: ["get", "list", "create", "update", "delete"]
+```
+
+Poté vytvořte `ClusterRoleBinding`:
+
+```yaml title="clusterrolebinding.yaml"
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gitlab-agent-clusterrolebinding
+subjects:
+  - kind: ServiceAccount
+    name: gitlab-agent-serviceaccount
+    namespace: gitlab-agent-namespace
+roleRef:
+  kind: ClusterRole
+  name: gitlab-agent-clusterrole
+  apiGroup: rbac.authorization.k8s.io
+```
+
+#### Vlastní registry image
+
+Pokud používáte vlastní container registry, můžete přidat `imagePullSecrets` do `values.yaml`:
+
+```yaml
+image:
+  repository: your-registry.io/gitlab/gitlab-agent
+  tag: v1.2.3
+imagePullSecrets:
+  - name: registry-secret
+```
+
+<Callout type="warn">
+Cluster-wide role vyžaduje administrátorská oprávnění. Kontaktujte správce clusteru, pokud potřebujete taková oprávnění.
+</Callout>
+
+### Čištění
+
+Chcete-li odstranit agenta a všechny související zdroje:
+
+```bash
+helm uninstall gitlab-agent -n gitlab-agent-namespace
+kubectl delete -f rolebinding.yaml
+kubectl delete -f role.yaml
+kubectl delete -f gitlab-agent-config.yaml
+kubectl delete -f gitlab-agent-token.yaml
+kubectl delete -f serviceaccount.yaml
+kubectl delete -f namespace.yaml
+```
+
+### Závěr
+
+GitLab Kubernetes Agent poskytuje výkonný způsob, jak integrovat GitLab CI/CD s Kubernetes. Tím, že agent běží v clusteru, může bezpečně spravovat nasazení a další operace bez nutnosti vystavovat Kubernetes API externě.
+
+Pro více informací se podívejte na [oficiální dokumentaci GitLab](https://docs.gitlab.com/user/clusters/agent/).

@@ -1,15 +1,15 @@
 ---
-title: Wireguard
+title: WireGuard
 ---
 
-## Run a Pod with WireGuard Interface
+## Run a Pod with a WireGuard Interface
 
 This guide explains how to securely attach a WireGuard interface to a Pod using a Kubernetes Secret for key management.
 
-**Why Use WireGuard?**  
-WireGuard creates encrypted tunnels between the Pod and a node outside the Kubernetes cluster, enabling secure communication across networks (e.g., cross-cluster connectivity, bypassing NAT, or encrypting traffic).
+**Why Use WireGuard?**
+WireGuard creates encrypted tunnels between a Pod and a node outside the Kubernetes cluster, enabling secure communication across networks (e.g., cross-cluster connectivity, bypassing NAT, or encrypting traffic).
 
-### Step 1: Create a Secret for WireGuard Private Key  
+### Step 1: Create a Secret for WireGuard Private Key
 
 Create the file `config.json` with the following content:
 ```json
@@ -29,12 +29,12 @@ Create the file `config.json` with the following content:
 }
 ```
 
-Replace all three IP addresses and both keys with real content. 
+Replace all three IP addresses and both keys with your actual values.
 
 <Callout type="info" icon="&#9757;" title="Current limitations">
-- Even if the endpoint supports multiple client addresses, current implementation in Kubernetes supports only a single address.
-- The name of the file must be strictly `config.json`.
-- The `address` and `allowedIPs` must not be from the same network. E.g., `"address": "10.1.2.3/32"` and `"allowedIPs": ["10.1.2.0/24"]` will **not** work.
+- Even if the endpoint supports multiple client addresses, the current Kubernetes implementation supports only a single address.
+- The file name must be strictly `config.json`.
+- The `address` and `allowedIPs` must not be from the same network. For example, `"address": "10.1.2.3/32"` and `"allowedIPs": ["10.1.2.0/24"]` will **not** work.
 </Callout>
 
 Create the secret:
@@ -45,8 +45,8 @@ kubectl create secret generic wireguard-config --from-file ./config.json
 
 ---
 
-### Step 2: Create a Pod with WireGuard Interface  
-Deploy a Pod with the WireGuard interface, it will be `net1` (attached via the `k8s.v1.cni.cncf.io/networks` annotation).  
+### Step 2: Create a Pod with a WireGuard Interface
+Deploy a Pod with a WireGuard interface, which will be named `net1` (attached via the `k8s.v1.cni.cncf.io/networks` annotation).
 
 ```yaml
 apiVersion: v1
@@ -75,24 +75,24 @@ spec:
 
 ---
 
-### Verification  
-1. **Check if `net1` interface exists** (requires `ip` command in the Pod):  
+### Verification
+1. **Check if the `net1` interface exists** (requires the `ip` command in the Pod):
    ```bash
    kubectl exec wireguard-pod -n [namespace] -- ip a show net1
    ```
-   Expect output showing the WireGuard interface with an IP.  
+   Expect output showing the WireGuard interface with an IP address.
 
-2. **Test connectivity** (requires `ping` command in the Pod):  
+2. **Test connectivity** (requires the `ping` command in the Pod):
    ```bash
    kubectl exec wireguard-pod -n [namespace] -- ping <PEER_IP>
    ```
-   Replace `<PEER_IP>` with the peer’s WireGuard IP from the `config.json`.
+   Replace `<PEER_IP>` with the peer's WireGuard IP address from `config.json`.
 
 ---
 
 ## Caveats
 
-The WG CNI currently supports assigning only a single IP address, which means it can configure either an IPv4 **or** an IPv6 address—but not both simultaneously. This poses a limitation when targeting dual-stack endpoints such as:
+The WG CNI currently supports assigning only a single IP address, which means it can configure either an IPv4 **or** an IPv6 address—but not both simultaneously. This limitation becomes apparent when targeting dual-stack endpoints, such as:
 
 ```bash
 $ host kubas-pub.cloud.trusted.e-infra.cz
@@ -100,19 +100,19 @@ kubas-pub.cloud.trusted.e-infra.cz has address 10.16.48.119
 kubas-pub.cloud.trusted.e-infra.cz has IPv6 address 2001:718:801:42bf:8:4:0:1
 ```
 
-In such scenarios, a Pod using WireGuard may experience intermittent connectivity. This happens because DNS resolution may return either an IPv4 or IPv6 address, and only one of these will work in the WireGuard configuration. As a result, the connection may alternate between working and timing out, depending on which address family is used.
+In such scenarios, a Pod using WireGuard may experience intermittent connectivity. This occurs because DNS resolution may return either an IPv4 or IPv6 address, and only one of these will work with the WireGuard configuration. As a result, the connection may alternate between working and timing out, depending on which address family is used.
 
 ### Recommendation
 
-To avoid this issue, we recommend configuring the Pod for **single-stack networking**. Choose either IPv4 or IPv6 and consistently use that stack throughout:
+To avoid this issue, we recommend configuring the Pod for **single-stack networking**. Choose either IPv4 or IPv6 and use that stack consistently throughout:
 
 - Set both the `address` and `allowedIPs` fields to match the chosen IP family in the WireGuard configuration.
-- Ensure that the connection to the remote WireGuard peer uses the same stack.
+- Ensure that connections to the remote WireGuard peer use the same stack.
 - Align the stack used for communication with the address family specified in the WireGuard configuration.
 
 ### Example: IPv6-Only Reverse Proxy with NGINX
 
-Below is an example configuration for NGINX where the reverse proxy connects to an IPv6 address directly, bypassing DNS resolution. The `Host` header is explicitly set to ensure proper virtual host routing:
+Below is an example configuration for NGINX where the reverse proxy connects directly to an IPv6 address, bypassing DNS resolution. The `Host` header is explicitly set to ensure proper virtual host routing:
 
 ```nginx
 location / {
@@ -129,8 +129,8 @@ location / {
 
 By design, a single WireGuard configuration **cannot be used simultaneously** across multiple Pods or devices. Each Pod requires a **unique WireGuard configuration** that must not be shared or reused elsewhere.
 
-This limitation arises because WireGuard effectively establishes a Layer 2-like network among peers. If multiple clients use the same IP address within this network, it leads to **IP address collisions**, resulting in unstable behavior.
+This limitation exists because WireGuard effectively establishes a Layer 2-like network among peers. If multiple clients use the same IP address within this network, it leads to **IP address collisions**, resulting in unstable behavior.
 
 ### Symptom
 
-A common symptom of this issue is **connectivity flapping** in regular intervals—typically every 10 seconds. For example, the connection may be stable for 10 seconds, then drop for the next 10 seconds, repeating in a loop.
+A common symptom of this issue is **connectivity flapping** at regular intervals—typically every 10 seconds. For example, the connection may be stable for 10 seconds, then drop for the next 10 seconds, repeating in a loop.

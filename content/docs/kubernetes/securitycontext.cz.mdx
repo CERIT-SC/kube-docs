@@ -1,0 +1,62 @@
+---
+title: Kontext zabezpečení
+---
+
+Verze Kubernetes 1.25 se blíží. K této verzi provedeme upgrade počátkem července 2023. Od tohoto vydání je [PSP](https://kubernetes.io/docs/concepts/security/pod-security-policy/) zastaralý a bude odstraněn. Místo PSP bude použit [PSA](https://kubernetes.io/docs/concepts/security/pod-security-admission/). Ačkoli je tato změna primárně záležitostí správy Kubernetes a přímo nesouvisí s uživateli, je stále vyžadována určitá akce uživatele.
+
+PSP byla mutující bezpečnostní politika, což znamená, že všechny chybějící bezpečnostní možnosti v manifestu nasazení byly automaticky vloženy do manifestu a uživatelé změny typicky nezaznamenali. PSA je pouze validující politika, takže všechny požadované bezpečnostní možnosti musí být přidány uživatelem před nasazením.
+
+Všechny bezpečnostní možnosti jsou specifikovány v `securityContext`. Existují dva kontexty zabezpečení: (1) Kontext zabezpečení Podu a (2) Kontext zabezpečení kontejneru. Kontext zabezpečení Podu je na stejné úrovni jako kontejnery, zatímco kontext zabezpečení kontejneru je uvnitř každého kontejneru podu.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: example
+  template:
+    metadata:
+      labels:
+        app: example
+    spec:
+      securityContext: # Kontext zabezpečení Podu
+        fsGroupChangePolicy: OnRootMismatch
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - image: ubuntu
+        name: example
+        securityContext: # Kontext zabezpečení kontejneru
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+```
+
+
+Důležité nové možnosti pro kontext zabezpečení Podu jsou následující:
+```yaml
+runAsNonRoot: true
+seccompProfile:
+  type: RuntimeDefault
+```
+
+`fsGroupChangePolicy: OnRootMismatch` není vyžadováno, ale důrazně doporučujeme, aby se předešlo problémům při připojování PVC.
+
+Důležité nové možnosti pro kontext zabezpečení kontejneru jsou následující:
+```yaml
+allowPrivilegeEscalation: false
+capabilities:
+  drop:
+  - ALL
+```
+
+Bez všech těchto důležitých možností se nasazení (Deployments), démoni (DaemonSets), plánované úlohy (CronJobs), úlohy (Jobs) a Pody po upgradu nezdaří. Všechny možnosti lze přidat již nyní.
+
+Pokud používáte jakoukoli aplikaci CERIT-SC z Rancheru, proveďte upgrade na nejnovější verzi. To lze provést již nyní.

@@ -4,47 +4,48 @@ title: phpMyAdmin
 
 ## Running phpMyAdmin
 
-If not already logged, log to [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz), see [Rancher](../rancher/rancher) section.
+If you are not already logged in, log in to [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz). For more information, see the [Rancher](../rancher/rancher) section.
 
-By following steps described in this article you will be able to install phpMyAdmin application used to handle the administration of MySQL over the web phpMyAdmin supports a wide range of operations on MySQL and MariaDB. 
+This article guides you through installing the phpMyAdmin application. phpMyAdmin is a web-based tool for administering MySQL databases, supporting a wide range of operations on both MySQL and MariaDB. 
 
 ## Select application to run
 
-Navigate through `Only User Namespaces` (1), `App & Marketplace` (2), `Charts` (3), `cerit-sc` (4),  and select `moodle` (5). See screenshot below.
+Navigate through `Only User Namespaces` (1), `App & Marketplace` (2), `Charts` (3), `cerit-sc` (4), and select `phpmyadmin` (5). Refer to the screenshot below for guidance.
 
-![selectapp](/img/ceritsc/apps/phpmyadmin/select.png)
+![Select phpMyAdmin application](/img/ceritsc/apps/phpmyadmin/select.png)
 
 ## Install the application
 
-When you click on the chart, hit `Install` to continue.
+Click on the chart, then click `Install` to continue.
 
-Select your namespace and name for your application, then click `Next`
+Select your namespace and enter a name for your application, then click `Next`.
 
-![selectapp](/img/ceritsc/apps/phpmyadmin/namespace.png)
+![Select namespace and name](/img/ceritsc/apps/phpmyadmin/namespace.png)
 
-You will see two options to customize your app, in the field `Port` fill in port of your database and hit `Install`
+You will see two customization options. In the `Port` field, enter your database port and click `Install`.
 
-![selectapp](/img/ceritsc/apps/phpmyadmin/port.png)
+![Set database port](/img/ceritsc/apps/phpmyadmin/port.png)
 
-Wait for the following message to appear.
+Wait for the success message to appear.
 
-![selectapp](/img/ceritsc/apps/phpmyadmin/success.png)
+![Installation success message](/img/ceritsc/apps/phpmyadmin/success.png)
 
-Navigate to `Service Discovery`, `Ingresses` and click on your hostname.
+Navigate to `Service Discovery`, then `Ingresses`, and click on your hostname.
 
-![selectapp](/img/ceritsc/apps/phpmyadmin/ingress.png)
+![Navigate to Ingress](/img/ceritsc/apps/phpmyadmin/ingress.png)
 
-You will open the login of the application, you will have to fill in your database login credentials, for purpose of this tutorial I'm logging in Moodle's MariaDB database.
-In the field `server` fill in service name of your database, in the field `Username` enter username to your database and then your Password.
+You will see the application login screen. Enter your database login credentials. For this tutorial, we are logging into Moodle's MariaDB database.
 
-![selectapp](/img/ceritsc/apps/phpmyadmin/login.png)
+In the `Server` field, enter your database service name. In the `Username` field, enter your database username, then enter your password.
 
-After successful login, you will be greeted with this window
+![Database login screen](/img/ceritsc/apps/phpmyadmin/login.png)
 
-![selectapp](/img/ceritsc/apps/phpmyadmin/end.png)
+After a successful login, you will be greeted with this window:
+
+![phpMyAdmin main interface](/img/ceritsc/apps/phpmyadmin/end.png)
 
 ## Uninstalling the application
 
-In case you want to uninstall the application, go to `App & Marketplace`, `Installed Apps`, select your instance and click `Delete` and wait for the message you see on the screen.
+To uninstall the application, navigate to `App & Marketplace`, then `Installed Apps`, select your instance, click `Delete`, and wait for the confirmation message to appear.
 
-![selectapp](/img/ceritsc/apps/phpmyadmin/uninstall.png)
+![Uninstall application](/img/ceritsc/apps/phpmyadmin/uninstall.png)

@@ -1,0 +1,54 @@
+---
+title: Úvod do AIaaS
+description: Přehled platformy AI jako služba pro vědecký výzkum na zabezpečené infrastruktuře e-INFRA CZ
+---
+
+## AI pro vědu. Vytvořeno pro výzkumníky. Bezpečně běží v e-INFRA CZ.
+
+CERIT‑SC, klíčová součást e‑INFRA CZ, provozuje **lokální AI platformu**, která poskytuje výzkumníkům zabezpečené, výkonné a interoperabilní AI nástroje. Tato platforma běží na špičkových systémech třídy NVIDIA DGX‑H100/B200/B300, které poskytují robustní výpočetní výkon pro efektivní trénování rozsáhlých modelů i pro vysokorychlostní inference. Prostředí hostuje vybranou kolekci otevřených velkých jazykových a generativních modelů, přístupných prostřednictvím rozhraní **Open WebUI** nebo standardních **OpenAI‑kompatibilních API**.
+
+#### Rozdíl mezi trénováním AI a inferencí
+
+<div class="w-200">
+![image-webui](/img/ceritsc/ai-inference.png)
+</div>
+
+Trénování je učení a inference je aplikace tohoto poznání.
+
+| Koncept                 | Co dělá                              | Tok dat              |   Náš kontext                                          |
+|---------------------------|-----------------------------------------|--------------------------|----------------------------------------------------------|
+| **Trénování AI**     | Fáze "vzdělávání". Vývoj mozku tím, že se mu předkládají masivní datové sady. Model se učí vzory, upravuje váhy a minimalizuje chybu pomocí backpropagation. |  Dopředný a zpětný průchod (Backprop). |      Toto je práce ostatních, kteří vytvořili open‑source trénované modely, které hostujeme.       |
+| **Inference AI**          | Fáze "aplikace". Uvedení mozku do práce. Natrénovaný model bere nová, neviděná data a aplikuje své fixní znalosti k vytváření predikcí nebo rozhodování v reálném čase. | Pouze dopředný průchod.           |   Toto je naše práce: poskytování modelů a aplikací nad nimi.      |
+
+### Klíčové vlastnosti (Inference)
+
+* **Zabezpečená, lokální platforma LLM & generativní AI** – Naše modely bezpečně běží na infrastruktuře e‑INFRA CZ. Dotazy a odpovědi nejsou logovány externími poskytovateli, což zajišťuje, že váš výzkum a citlivá data zůstávají v našem prostředí. S výjimkou vyhledávání na internetu nic neopouští naši lokální infrastrukturu.
+* **Podpora výzkumu citlivého na soukromí** – soulad s institucionálními a právními požadavky. To činí naše služby ideálními pro zpracování citlivých dat.
+
+### Co platforma poskytuje
+
+| Kategorie          | Hlavní vlastnosti                                                                                                                                 |
+|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| **Výpočetní výkon**       | NVIDIA **DGX‑H100** (Hopper) a **DGX‑B200** (Bergamo). GPU výkon na úrovni petaflopů.                  |
+| **Klíčové modely**        | <p>Plně velikostní **DeepSeek v3.2**: Vysoce výkonný model pro uvažování, vynikající pro komplexní úkoly a nejlepší pro zpracování českého jazyka.  </p> <p> **GPT‑OSS‑120B**: Obecný model pro uvažování, ekvivalentní známým mini OpenAI modelům. </p> <p> **GLM 4.7**:  Pokročilý model používaný pro programování a generování kódu, práci s nástroji a agentní workflow. </p>  <p> **Qwen3.5**: Pokročilý model používaný pro programování a generování kódu, práci s nástroji a agentní workflow </p>  <p> Tyto modely pracují bez přístupu k internetu pro vysokou bezpečnost. </p> |
+| **Přístup**        | Studenti a zaměstnanci MU a uživatelé MetaCentra                                                             |
+| **Externí využití**    |    **OpenAI‑kompatibilní REST API** – používejte stávající kód klienta `openai`, LangChain nebo jiné integrace bez úprav           |
+| **MCP SERVERY**    |  MCP servery jsou dostupné prostřednictvím API https://llm.ai.e-infra.cz.           |
+
+### Klíčové AI služby (Inference)
+
+| Služba                   | Odkaz                                                    | Popis                                                |
+|---------------------------|---------------------------------------------------------|----------------------------------------------------------|
+| **Chat (Open‑WebUI)**     | [WebUI chat](../ai-as-a-service/chat-ai)                             | <p>Plně vybavené konverzační rozhraní (podobné ChatGPT) nabízející pokročilé funkce a explicitní výběr jazykového modelu.</p> <p> **Práce s textem**: Překlady, shrnutí, analýzy a generování programového kódu.</p> <p>**Multimodalita**: Generování obrázků (včetně editace) a rozpoznávání obsahu v obrázcích (např. extrakce sériového čísla z fotografie).</p> <p>**Nástroje**: Vyhledávání na internetu, GitHubu, arXiv a Python sandbox pro spouštění kódu v prohlížeči a analýzu dat. </p> <p>**RAG (Znalosti)**: Vyhledávání v dokumentu připojeném k chatu funguje velmi dobře.</p>                                     |
+| **Volání API**          | [OpenAI API](../ai-as-a-service/ai-api) | Použijte OpenAI‑kompatibilní endpoint pro integraci AI do vašich skriptů, pipeline nebo služeb.                                            |
+| **MCP servery**              |     [MCP servery](../ai-as-a-service/mcp)             |     Poskytujeme několik MCP serverů, které jsou dostupné prostřednictvím API https://llm.ai.e-infra.cz. Konkrétní MCP server je dostupný na https://llm.ai.e-infra.cz/[servername]/mcp.                 |
+| **AI asistenti pro programování**     |     [Integrace AI asistentů pro programování](../ai-as-a-service/llm-integration)             |     Připojením vašich nástrojů k našemu backendu můžete využívat vysoce výkonné modely pro programovací úlohy                  |
+| **DeepSite**              | [DeepSite (vibe‑kódování)](../ai-as-a-service/deepsite)                | Generativní nástroj, který vytváří webové stránky a aplikace (HTML/CSS/JS) na základě jednoduchého textového popisu. Výborný pro návrhy designu, mockupy nebo rychlé webové koncepty. |
+| **AI v Jupyter Notebooks** | [Integrace JupyterHub](../web-apps/jupyterhub)                     | Integrace AI asistenta přímo do prostředí Jupyter Lab (Notebook Intelligence). Používá se pro opravy kódu, generování nových fragmentů kódu a konverzační asistenci v rámci vašich programovacích projektů. |
+| **Platforma n8n** | [Agenti n8n](../ai-as-a-service/n8n-agents)                      | n8n je open‑source platforma pro automatizaci workflow s nízkým kódováním s funkcionalitou AI agentů |
+| **ChatBot dokumentace** | docs.e-infra.cz a další dokumentační stránky                      | Systém Retrieval‑Augmented Generation (RAG) implementovaný napříč dokumentací e‑INFRA CZ. Odpovídá na specifické otázky a působí jako řešitel problémů na základě naší znalostní báze (např. "Jak spustit MATLAB?"). |
+
+## Reference
+Přečtěte si více podrobností na našem e‑INFRA Blogu na https://blog.e-infra.cz/
+
+Obrázek použit z https://blogs.nvidia.com/blog/difference-deep-learning-training-inference-ai/

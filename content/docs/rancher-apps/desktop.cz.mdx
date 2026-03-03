@@ -1,0 +1,113 @@
+---
+title: Desktop
+---
+
+## Spuštění Desktopu
+
+Pokud nejste již přihlášeni, přihlaste se na [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz). Podrobnosti naleznete v sekci [Rancher](../rancher/rancher).
+
+Desktopovou aplikaci můžete spustit podle následujících kroků. Tato aplikace může mít trvalý domovský adresář, což znamená, že pokud aplikaci smažete a později ji znovu nainstalujete pod stejným názvem, obsah domovského adresáře bude zachován. Je také možné připojit některé úložiště z e-INFRA CZ.
+
+<Callout type="warn">
+Výchozí projekt má limit kvóty 12 garantovaných CPU a 16 CPU celkem. Nevybírejte více než 10 garantovaných CPU nebo nepřekračujte 14 celkových CPU. Pokud potřebujete více prostředků, [zeptejte se](mailto:k8s@ics.muni.cz). Tyto limity mohou být v budoucnu zvýšeny.
+</Callout>
+
+### Výběr aplikace ke spuštění
+
+Ujistěte se, že nemáte vybraný jmenný prostor a vidíte `Only User Namespaces` (1) v horní části stránky Rancher.
+
+Přejděte přes `App & Marketplace` (2), `Charts` (3), omezte charts na `cerit-sc` (4) a vyberte `desktop` (5). Viz screenshot níže.
+
+![selectapp](/img/ceritsc/apps/desktop/selectapp.png)
+
+### Výběr verze aplikace
+
+Když kliknete na chart, můžete vybrat verzi aplikace, jak je znázorněno níže. Verze chart se mohou v čase měnit. Stiskněte `Install` pro pokračování.
+
+![selectversion](/img/ceritsc/apps/desktop/selectversion.png)
+
+### Instalace aplikace
+
+Nyní jste připraveni nainstalovat desktopovou aplikaci. Ve většině případů ponecháte `Namespace` (1) i `Name` (2) tak, jak jsou, ale můžete zvolit jakýkoli jmenný prostor kromě `default`. Jmenný prostor `default` je dostupný, ale není určen pro běžné použití. `Name` bude součástí URL používaného pro přístup k aplikaci. `Name` musí být jedinečný v rámci `Namespace`, což znamená, že nemůžete spustit dvě nebo více instancí se stejným `Name` ve stejném `Namespace`. Pokud aplikaci smažete a později ji znovu nainstalujete pomocí stejného `Name`, obsah domovského adresáře bude zachován, pokud je tato volba povolena.
+
+![appinst](/img/ceritsc/apps/desktop/appinst.png)
+
+V první části formuláře vyberete `Desktop` `Image`. V současné době jsou dostupné LTS Ubuntu 18, 20 a 22, ale dostupné obrazy se mohou v čase měnit.
+
+![appform1](/img/ceritsc/apps/desktop/appform1.png)
+
+Ve druhé části formuláře vyberte zobrazovací protokol. Výchozí je [VNC](https://cs.wikipedia.org/wiki/Virtual_Network_Computing). Budete potřebovat program VNC viewer, jako je [RealVNC](https://www.realvnc.com/en/connect/download/viewer/) nebo příkaz `vncviewer` na většině Linux distribucí. Na macOS zadejte `vnc://host` v prohlížeči Safari, nahraďte `host` podle pokynů níže. Nestiskněte `Install`, dokud není formulář dokončen. Při použití *VNC* je dostupné pouze softwarové vykreslování; není možné 3D akcelerace.
+
+Pokud VNC není vybráno, bude použita metoda *WebRTC*. Tato volba je stále v beta, ale je dostupná plná 3D OpenGL akcelerace.
+
+<Callout type="info">
+*WebRTC* je dostupné v prohlížečích založených na Chromiu, jako je Google Chrome nebo Microsoft Edge, a v Apple Safari. Pozoruhodně nefunguje v Mozilla Firefox.
+</Callout>
+
+![appform2](/img/ceritsc/apps/desktop/appform2.png)
+
+Ve třetí části formuláře zvolíte `password`. Toto heslo se používá pro přihlášení VNC. Pokud VNC není vybráno, musíte také vyplnit `username`; tyto přihlašovací údaje se použijí v prohlížeči pro připojení k *WebRTC* relaci.
+
+#### Pro VNC
+![appform3](/img/ceritsc/apps/desktop/appform3.png)
+
+#### Pro WebRTC
+![appform3-rtc](/img/ceritsc/apps/desktop/appform3-rtc.png)
+
+Ve čtvrté části formuláře vyberete, zda chcete trvalý domovský adresář, což znamená domovský adresář, který bude zachován, i když aplikaci odinstalujete. Poznámka: trvalý domovský adresář je vázán na název aplikace od začátku instalačního formuláře. Například pokud nastavíte název na `desktop`, trvalý domovský adresář bude vázán na název `desktop`. Pokud později vyberete název `desktop-0`, získáte nový domovský adresář vázaný na název `desktop-0`.
+
+V této části můžete vybrat úložiště **e-INFRA CZ** pro připojení k aplikaci. Pokud zaškrtnete `External Storage`, objeví se další možnosti. Můžete vybrat úložiště a přihlašovací údaje. V současné době je podporováno pouze `storage-brno12-cerit.metacentrum.cz`. Uživatelské jméno je vaše přihlášení e-INFRA CZ ([MetaCentrum](https://metavo.metacentrum.cz/)) a heslo **není** vaše MetaCentrum heslo, ale jiné nastavené administrátorem. [Zeptejte se](mailto:k8s@ics.muni.cz), pokud ho potřebujete nastavit. Připravujeme pohodlnější metodu. Toto úložiště bude připojeno do adresáře `/storage`.
+
+![appform4](/img/ceritsc/apps/desktop/appform4.png)
+
+V páté části formuláře můžete vybrat požadované prostředky. Tento krok je volitelný. `Minimum` CPU nebo RAM je garantované množství CPU a RAM; systém rezervuje tyto prostředky pro aplikaci. Aplikace však může překročit garantované prostředky až do `Maximum`. V tomto případě prostředky nejsou exkluzivní a mohou být sdíleny s jinými aplikacemi. Pokud aplikace překročí `Maximum` CPU, bude omezena; pokud překročí `Maximum` RAM, bude ukončena (uvidíte OOMKill report) a restartována. Viz poznámka výše o maximálních hodnotách.
+
+![appform5](/img/ceritsc/apps/desktop/appform5.png)
+
+### Čekání na spuštění aplikace
+
+Když stisknete `Install`, uvidíte instalační log. Když uvidíte `SUCCESS` (1) (viz screenshot níže), aplikace běží. Pro verzi *VNC* uvidíte URL, které by mělo být předáno VNC vieweru (2); pro verzi *WebRTC* uvidíte URL k otevření v prohlížeči (2).
+
+<Callout type="warn">
+Pokud je zadané heslo úložiště nesprávné, aplikace zůstane čekající neomezeně dlouho. V tomto případě aplikaci smažte a začněte znovu.
+</Callout>
+
+#### VNC
+![apphelm](/img/ceritsc/apps/desktop/apphelm.png)
+
+#### WebRTC
+![apphelm-rtc](/img/ceritsc/apps/desktop/apphelm-rtc.png)
+
+### Připojení k běžící instanci
+
+Jakmile aplikace běží, pro verzi *VNC* přejděte přes `Service Discovery` (1) a `Services` (2), najeďte myší na `Target` (3) a v závislosti na použitém prohlížeči byste měli vidět cílové URL (4). Prohlížeč Chrome jej zobrazuje v levém dolním rohu. Toto je IP adresa a port, které potřebujete předat vaší aplikaci `vncviewer` nebo zadat do navigačního řádku Safari, například `vnc://147.251.253.246`. Alternativně můžete použít URL vieweru ze screenshotů výše (2).
+
+Pro *WebRTC* místo `Services` přejděte na `Ingresses` (5) a uvidíte plné URL pro kliknutí a zahájení *WebRTC* připojení.
+
+*VNC* klient požádá o heslo. Zadejte heslo z formuláře. *WebRTC* připojení požádá o uživatelské jméno a heslo; toto **nejsou** vaše MetaCentrum uživatelské jméno a heslo, ale ty, které jste zadali na začátku formuláře.
+
+![appservice](/img/ceritsc/apps/desktop/appservice.png)
+
+## Desktop
+
+Při prvním přihlášení bude desktop vypadat podobně jako toto, v závislosti na zvolené verzi:
+
+![appdesktop](/img/ceritsc/apps/desktop/ubuntu18.png)
+
+## Smazání běžící instance
+
+Pokud již aplikaci nepotřebujete, můžete ji smazat. Přejděte na `Apps & Marketplace` (1), `Installed Applications` (2), vyberte aplikaci (3) a stiskněte `Delete` (4). Data v domovském adresáři nebudou smazána, pokud jste vybrali trvalý domovský adresář. Spuštění aplikace znovu se stejným názvem obnoví přístup k domovské složce.
+
+![appdel](/img/ceritsc/apps/desktop/appdel.png)
+
+## Instalace dalšího softwaru
+
+Je možné instalovat další software do běžícího desktopu pomocí buď systémové instalace nebo systému `conda`.
+
+### Systémová instalace
+
+Příkazy `apt-get install`, `apt install` nebo `dpkg -i` lze použít k instalaci jakéhokoli balíčku do běžícího desktopu. Pokud je však desktop restartován, všechny nainstalované balíčky jsou ztraceny a musí být přeinstalovány. Všechny zmíněné příkazy jsou shell aliasy používající `fakeroot` a tyto aliasy fungují pouze v `bash`. Pokud používáte jiný shell, možná budete muset použít např. `fakeroot apt-get install <package>`.
+
+### Conda
+
+Důrazně doporučujeme používat nástroj `mamba` místo `conda`, protože je rychlejší. Pokud nastavíte virtuální conda prostředí ve vašem domovském adresáři, vše nainstalované pomocí `conda` nebo `mamba` bude trvalé. Pro více informací viz oficiální conda dokumentace (https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#managing-environments), zejména sekci `Specifying a location for an environment`.

@@ -1,0 +1,187 @@
+---
+title: GPU a další prostředky
+---
+
+## Požadavky a limity
+
+Jak je popsáno v [dokumentaci Kubernetes](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/), platforma používá dva typy limitů prostředků: *Požadavky* (Requests), které zajišťují garantované množství prostředku, a *Limity* (Limits), které určují, že prostředek nikdy nesmí překročit daný limit. Uživatelé mohou specifikovat pouze *Požadavky*, což umožňuje garance bez horního limitu (i když to je na naší platformě zakázáno), nebo pouze *Limity*, v takovém případě jsou *Požadavky* a *Limity* stejné. Všechny prostředky jsou přidělovány z jednoho výpočetního uzlu, což znamená, že nemohou být větší než kapacita jednotlivého uzlu; například požadavek na 1000 CPU nikdy nebude splněn. Prostředky spotřebované mezi úrovněmi *Požadavků* a *Limitů* nejsou garantovány. Plánovač Kubernetes bere v úvahu pouze *Požadavky* při plánování Podů na uzly, takže na uzlu může dojít k diskovému nebo paměťovému tlaku kvůli nadměrnému využití těchto prostředků. V takovém případě může být Pod vyřazen z uzlu. U CPU prostředků mezi *Požadavky* a *Limity* může dojít ke zpomalení, pokud uzel nemá volné CPU k dispozici.
+
+Obecný YAML fragment vypadá takto:
+```yaml
+resources:
+  requests:
+  # resources
+  limits:
+  # resources
+```
+
+## CPU
+
+CPU prostředky lze požadovat v celých CPU jednotkách, například `2` pro dvě CPU, nebo v mili jednotkách, například `100m` pro 0,1 CPU. Viz úplný příklad níže.
+
+## Paměť
+
+Paměťové prostředky lze požadovat v bajtech nebo násobcích binárních bajtů. Zápis `1000Mi` nebo `1Gi` představuje 1 GB paměti. Toto množství prostředku zahrnuje sdílenou paměť (viz níže) a všechny svazky `emptyDir`, které využívají paměť. Následující příklad spotřebuje až 1 GB paměťového prostředku; pokud aplikace vyžaduje například 2 GB paměti, uživatel musí požadovat 3 GB paměťového prostředku.
+
+```yaml
+volumes:
+- name ramdisk
+  emptyDir:
+    medium: Memory
+    sizeLimit: 1Gi
+```
+
+### Sdílená paměť
+
+Každý kontejner standardně běží s limitem 64 MB na [sdílenou paměť](https://man7.org/linux/man-pages/man7/shm_overview.7.html). Pro mnoho případů je tento limit dostatečný, ale pro některé GPU nebo GUI aplikace je toto množství nedostatečné. V takových případech je třeba zvýšit velikost SHM. Toto nelze provést v sekci `resources`; jedinou možností je připojit další paměťový svazek pomocí následujícího YAML fragmentu, který zvyšuje velikost SHM na 1 GB:
+
+```yaml
+volumes:
+- name: dshm
+  emptyDir:
+    medium: Memory
+    sizeLimit: 1Gi
+
+volumeMounts:
+- name: dshm
+  mountPath: /dev/shm
+```
+
+`name` svazku není důležitý a může být jakýkoli platný název; `mountPath` musí být `/dev/shm`.
+
+## GPU
+
+GPU prostředky lze požadovat dvěma odlišnými způsoby. Uživatelé mohou požadovat GPU výhradně pomocí `nvidia.com/gpu: x`, kde `x` je číslo označující počet požadovaných GPU. Uživatelé mohou také požadovat pouze část GPU pomocí `nvidia.com/mig-1g.10gb: x` nebo `nvidia.com/mig-2g.20gb: x`, kde `x` je počet takových částí GPU.
+
+`nvidia.com/mig-1g.10gb` požaduje část GPU s 10 GB paměti; `nvidia.com/mig-2g.20gb` požaduje část GPU s 20 GB paměti. Více informací o částech GPU (MIG) lze najít [zde](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/index.html).
+
+### Požadavek na konkrétní typ GPU
+
+Je možné požadovat konkrétní typ GPU při nasazování Podu. To lze provést pomocí [výběrových štítků uzlu](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector) (node selector). Každý uzel vybavený GPU má štítek `nvidia.com/gpu.product`, který může mít v současné době následující hodnoty: `NVIDIA-A10`, `NVIDIA-A100-80GB-PCIe`, `NVIDIA-A40`, `NVIDIA-H100-PCIe` a `NVIDIA-L4`.
+
+Například pro přímý požadavek na typ GPU NVIDIA A40 použijte následující definici Podu:
+
+```yaml title="pod.yaml"
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test
+spec:
+  nodeSelector:
+    nvidia.com/gpu.product: 'NVIDIA-A40'
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+       type: RuntimeDefault
+  containers:
+  - name: test
+    image: ubuntu
+    command:
+    - "sleep"
+    - "infinity"
+    resources:
+      limits:
+        cpu: 1
+        memory: 1Gi
+        nvidia.com/gpu: 1
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+```
+
+<Callout type="info">
+Toto je pouze příklad definice Podu, který je krátký pro přehlednost. V reálném použití by měly být použity `Deployment` nebo `Job`; jejich vnitřní `spec` je přesně stejné jako `spec` výše.
+</Callout>
+
+<Callout type="info">
+Požadavek na konkrétní typ GPU snižuje pravděpodobnost, že bude pod naplánován. Všechny GPU konkrétního typu mohou být použity; například máme pouze jedno NVIDIA L4 GPU.
+</Callout>
+
+### Požadavek na vlastnosti GPU
+
+Je také možné požadovat vlastnosti GPU, jako je paměť GPU. To je podobné jako požadavek na konkrétní typ GPU, ale používá se jiný výběr uzlů: `nvidia.com/gpu.memory`. V tomto případě však musí být použit složitější popis `affinity`, protože výběr uzlů může porovnat pouze přesnou hodnotu; nemůže porovnávat hodnoty jako menší než nebo větší než.
+
+Následující příklad přidělí jakýkoli typ GPU s alespoň 80000 MB paměti GPU:
+
+```yaml title="pod.yaml"
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test
+spec:
+  affinity:
+    nodeAffinity:
+       requiredDuringSchedulingIgnoredDuringExecution:
+         nodeSelectorTerms:
+         - matchExpressions:
+           - key: nvidia.com/gpu.memory
+             operator: Gt
+             values:
+             - '80000'
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+       type: RuntimeDefault
+  containers:
+  - name: test
+    image: ubuntu
+    command:
+    - "sleep"
+    - "infinity"
+    resources:
+      limits:
+        cpu: 1
+        memory: 1Gi
+        nvidia.com/gpu: 1
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+```
+
+Více o operátorech (`Gt`) najdete v popisu [operátorů](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#operators).
+
+<Callout type="warn">
+Přestože množství GPU paměti je číslo, musí být definováno jako řetězec, tj. '80000' a ne 80000.
+</Callout>
+
+## Úložiště
+
+Uživatelé by také měli specifikovat požadovaný prostředek `ephemeral-storage`. Jednotky jsou stejné jako pro prostředek `memory`. Tento prostředek označuje limit na lokální úložiště, které zahrnuje velikost běžícího kontejneru a všech vytvořených lokálních souborů. Tyto soubory zahrnují všechny dočasné soubory v kontejneru, jako jsou soubory v adresářích `/tmp` nebo `/var/tmp`, a také všechny svazky `emptyDir`, které nejsou v paměti.
+
+## Úplný příklad prostředků
+
+Následující příklad požaduje 1 GPU, 2 CPU a 4 GB paměti garantované, a 3 CPU a 6 GB paměti jako pevný limit.
+
+```yaml
+resources:
+  requests:
+    cpu: 2
+    memory: 4Gi
+    nvidia.com/gpu: 1
+  limits:
+    cpu: 3
+    memory: 6Gi
+    nvidia.com/gpu: 1
+```
+
+Následující příklad požaduje 10 GB GPU paměti, 0,5 CPU a 4 GB paměti garantované a také jako pevný limit.
+
+```yaml
+resources:
+  requests:
+    cpu: 500m
+    memory: 4Gi
+    nvidia.com/mig-1g.10gb: 1
+  limits:
+    cpu: 500m
+    memory: 4Gi
+    nvidia.com/mig-1g.10gb: 1
+```

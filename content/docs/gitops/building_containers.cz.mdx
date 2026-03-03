@@ -1,0 +1,87 @@
+---
+title: Sestavování Docker kontejnerů s GitLab
+---
+
+Tento návod demonstruje, jak sestavovat a nahrávat Docker obrazy pomocí [Kanika](https://github.com/GoogleContainerTools/kaniko) v CI prostředí (např. GitLab CI). Kaniko provádí Docker sestavení bez nutnosti Docker démona.
+
+## Požadavky pro nastavení
+
+### Přihlašovací údaje do registry
+
+Vytvořte Base64-kódovaný `uživatelské_jméno:heslo` pro váš container registry. Uložte to jako [chráněnou CI/CD proměnnou](https://docs.gitlab.com/ci/variables/) (např. HARBOR_CRED v GitLab).
+
+### Dockerfile
+
+Ujistěte se, že v kořenovém adresáři repozitáře existuje `Dockerfile`.
+Příklad obsahu:
+
+```docker
+FROM alpine
+CMD ["echo", "Hello World!!"]
+```
+
+### Příklad CI konfigurace (`gitlab-ci.yml`)
+
+```yaml
+stages:
+  - docker
+
+docker-job:
+  stage: docker
+  image:
+    name: gcr.io/kaniko-project/executor:debug  # Oficiální Kaniko executor image
+    entrypoint: [""]  # Vypne výchozí entrypoint
+  before_script:
+    - echo "{\"auths\":{\"your-registry.io\":{\"auth\":\"${HARBOR_CRED}\"}}}" > /kaniko/.docker/config.json
+    - cat /kaniko/.docker/config.json  # Ověření konfigurace (volitelné)
+  script:
+    - export VERSION='0.0.1'  # Nastavte verzi vašeho obrazu
+    # Dynamická logika tagování:
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+        tag="${VERSION}"
+        echo "Výchozí větev '$CI_DEFAULT_BRANCH': tag=$tag"
+      else
+        tag="${VERSION}-$CI_COMMIT_REF_SLUG"  # Přidá název větve
+        echo "Větev '$CI_COMMIT_BRANCH': tag=$tag"
+      fi
+    # Sestavení a nahrání obrazu:
+    - /kaniko/executor
+      --context $CI_PROJECT_DIR
+      --dockerfile $CI_PROJECT_DIR/Dockerfile
+      --destination "cerit.io/your-project/docker-image:${tag}"
+  only:
+    - tags  # Spustí se na Git tagy
+    - master  # Nebo vaší výchozí větvi
+```
+
+### Poznámky
+
+- V `before_script` se vytváří Docker konfigurace pomocí hodnoty přihlašovacích údajů z vaší CI proměnné (zde `HARBOR_CRED`).
+- Hodnota verze je explicitně nastavena v CI. Zvažte její vyčlenění, například do souboru `version.txt` v repozitáři, nebo ji získejte z jiných konfiguračních souborů v repozitáři, jako je `setup.py` (pro Python projekty) nebo `package.json` (pro Node.js projekty) atd.
+- Logika tagování v příkladu je uzpůsobena pro nastavení, kde:
+  - Výchozí větev (`master`) je [chráněná větev](https://docs.gitlab.com/user/project/repository/branches/protected/), do které lze měnit pouze merge requestem (tj. nelze do ní přímo pushovat).
+  - Funkce se vyvíjejí ve větvích.
+  - Ve výchozím nastavení se Docker úloha spustí pouze na větvi master (po merge requestu).
+  - Docker úloha může být také spuštěna na vyžádání na commitu ve větvi, pokud je tento commit tagován. V takovém případě se tag Docker obrazu skládá z VERSION s příponou hodnoty tagu.
+- Podívejte se na tento [graf repozitáře](https://gitlab.ics.muni.cz/172429/kaniko-docker-build-example/-/network/master?ref_type=heads) a [historie pipeline](https://gitlab.ics.muni.cz/172429/kaniko-docker-build-example/-/pipelines).
+- Pro pokročilé přepínače (např. `--cache`, `--build-arg`) se podívejte do dokumentace Kanika.
+- Mějte na paměti, že Kaniko je pravděpodobně zastaralé.
+
+## Jak používat obrazy z GitLab Registry
+
+Pokud je viditelnost projektu v rámci GitLab veřejná a container registry není omezena na ověřené uživatele, jednoduše použijte:
+
+```bash
+docker run [options] registry.example.com/group/project/image [arguments]
+```
+
+> Pokud používáte MUNI ICS GitLab, URL registry je: registry.gitlab.ics.muni.cz
+
+Pokud je viditelnost projektu nebo container registry nastavena na privátní, je potřeba autentizace k container registry. Bude potřeba vytvořit deploy token a použít ho podle popisu v [oficiální dokumentaci](https://docs.gitlab.com/ee/user/packages/container_registry/#authenticate-with-the-container-registry).
+
+Pro více informací se podívejte na [oficiální dokumentaci](https://docs.gitlab.com/ee/user/packages/container_registry/#use-images-from-the-container-registry).
+
+<Callout type="warn">
+MUNI ICS GitLab již nepodporuje Docker builder; musí být použit Kaniko, jak je popsáno výše.
+</Callout>

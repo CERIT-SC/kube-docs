@@ -2,12 +2,12 @@
 title: Available Hardware
 ---
 
-CERIT-SC operates regular clusters and a secure cluster (more information in the upcoming Secure cluster section). Regular clusters include the *kuba-cluster* (the biggest one) and the *kubh-cluster* (HA cluster). Eight powerful *kub-c* nodes will join the kuba-cluster in the near future. The secure cluster includes the *kubas-cluster*.
+CERIT-SC operates regular clusters and a secure cluster (more information in the upcoming Secure cluster section). Regular clusters include the *kuba-cluster* (the largest one) and the *kubh-cluster* (HA cluster). Eight powerful *kub-c* nodes will join the kuba-cluster in the near future. The secure cluster includes the *kubas-cluster*.
 
 ## Regular clusters
 ### kuba-cluster
 
-Kuba-cluster consists of 39 nodes (currently 31 available) and features 22 NVIDIA A40, 6 NVIDIA A10 and 12 NVIDIA A100 (80GB variant) GPU accelerators. Four A100 cards are configured as MIG parts resulting in 12x *10GB* and 8x *20GB* parts.
+The kuba-cluster consists of 39 nodes (currently 31 available) and features 22 NVIDIA A40, 6 NVIDIA A10, and 12 NVIDIA A100 (80GB variant) GPU accelerators. Four A100 cards are configured as MIG parts, resulting in 12x *10GB* and 8x *20GB* parts.
 
 <table>
   <thead>
@@ -18,9 +18,6 @@ Kuba-cluster consists of 39 nodes (currently 31 available) and features 22 NVIDI
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <td>Memory:</td><td>1024 GB:<br/>512 GB:<br/>1.5 TB:</td><td>kub-b15, kub-b16<br/>All remaining nodes apart from *kub-c*<br/>8 HPC *kub-c* nodes</td>
-    </tr>
     <tr>
       <td>Memory:</td><td>1024GB:<br/>512GB:<br/>1.5TB:</td><td>kub-b15, kub-b16<br/>All remaining nodes apart from *kub-c*<br/>8 HPC *kub-c* nodes</td>
     </tr>
@@ -44,11 +41,11 @@ Primary network storage consists of four head nodes each equipped with AMD EPYC 
 
 #### Data Backup
 
-Storage is not backed up to another location but file system snapshots are made on daily basis. It is possible to restore deleted/overwritten data 14 days to the past.
+Storage is not backed up to another location, but file system snapshots are made daily. It is possible to restore deleted or overwritten data up to 14 days in the past.
 
 ### kubh-cluster
 
-The kubh-cluster consists of 6 nodes that are dispersed in three different locations (2 nodes in each location: University Campus Bohunice -- UKB, University Computer Center -- CPS -- at Komenského náměstí, and Faculty of Informatics at Botanická), thus it is a suitable option for HA setups (more information in the upcoming HA setup section).
+The kubh-cluster consists of 6 nodes dispersed across three different locations (2 nodes in each location: University Campus Bohunice — UKB, University Computer Center — CPS — at Komenského náměstí, and Faculty of Informatics at Botanická), making it a suitable option for HA setups (more information in the upcoming HA setup section).
 
 <table>
   <thead>
@@ -76,16 +73,16 @@ The kubh-cluster consists of 6 nodes that are dispersed in three different locat
 
 #### Storage
 
-Storage is provided only locally in each node. 
+Storage is provided only locally on each node. 
 
 #### Data Backup
 
-Local storage is not backed up, it is up to the user to ensure backing-up.
+Local storage is not backed up; it is up to the user to ensure backup.
 
 ## Secure cluster
 ### kubas-cluster
 
-The kubas-cluster consists of 10 nodes and features 5x NVIDIA A40, 2x NVIDIA A100 (80GB variant), 4x NVIDIA P100, 2x NVIDIA H100 (NVL 94GB variant), and on-demand 4x NVIDIA A100 GPU accelerators. Nodes *kub-cs1* and *kub-cs2* are physically located at a different site from the rest of the cluster, therefore it is possible to create an HA setup in the secure cluster as well. 
+The kubas-cluster consists of 10 nodes and features 5x NVIDIA A40, 2x NVIDIA A100 (80GB variant), 4x NVIDIA P100, 2x NVIDIA H100 (NVL 94GB variant), and on-demand 4x NVIDIA A100 GPU accelerators. Nodes *kub-cs1* and *kub-cs2* are physically located at a different site from the rest of the cluster; therefore, it is possible to create an HA setup in the secure cluster as well. 
 
 <table>
   <thead>
@@ -100,7 +97,7 @@ The kubas-cluster consists of 10 nodes and features 5x NVIDIA A40, 2x NVIDIA A10
       <td>CPU:</td><td>2x AMD EPYC 7543 32-Core Processor (in total 64 CPUs per node):<br/>2x AMD EPYC 9454 48-Core Processor (in total 96 CPUs per node):<br/>1x Intel(R) Xeon(R) CPU E5-2650 v4 @ 2.20GHz 24-Core Processor:<br/>2x AMD EPYC 9454 48-Core Processor (in total 96 CPUs per node):</td><td>kub-as1 -- kub-as6<br/>kub-cs1, kub-cs2<br/>kblack<br/>kub-ds1, kub-ds2, kub-ds3</td>
     </tr>
     <tr>
-      <td>Memory:</td><td>512GB:<br/>1.5 TB:<br/>1.5 TB:<br/>512GB:</td><td>kub-as1 -- kub-as6<br/>kub-cs1, kub-cs2<br/>kub-ds1, kub-ds2, kub-ds3<br/>kblack</td>
+      <td>Memory:</td><td>512GB:<br/>1.5TB:<br/>1.5TB:<br/>512GB:</td><td>kub-as1 -- kub-as6<br/>kub-cs1, kub-cs2<br/>kub-ds1, kub-ds2, kub-ds3<br/>kblack</td>
     </tr>
     <tr>
       <td>Disk:</td><td>2x 3.5TB SSD SATA:<br/>60TB NVME SSD:<br/>60TB NVME SSD:<br/>1x 3.6TB SSD:</td><td>kub-as1 -- kub-as6<br/>kub-cs1, kub-cs2<br/>kub-ds1, kub-ds2, kub-ds3<br/>kblack</td>

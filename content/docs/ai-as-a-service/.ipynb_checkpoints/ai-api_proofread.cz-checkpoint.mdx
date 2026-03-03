@@ -1,0 +1,194 @@
+---
+title: OpenAI API
+description: Komplexní průvodce pro integraci s OpenAI-kompatibilními API koncovými body na e-INFRA CZ AI platformě
+---
+
+## Úvod k API
+
+Tato dokumentace poskytuje podrobné pokyny pro generování a používání **API klíčů** pro přístup k lokálně běžícím velkým jazykovým modelům (LLM) na infrastruktuře e-INFRA CZ, konkrétně prostřednictvím rozhraní Open WebUI [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz). Průvodce je určen pro výzkumníky a vědce, kteří chtějí integrovat tyto modely do svých aplikací, skriptů nebo AI pracovních postupů přes API.
+
+Pro přístup ke službě Open WebUI a generování API klíče musíte splnit následující předpoklady:
+
+* Platný účet MetaCentrum (pro české výzkumné instituce)
+* Nebo aktivní účet Masarykovy univerzity (pokud jste jejím členem).
+
+Pro komplexní popis dostupných modelů viz [dokumentace Chat AI](../ai-as-a-service/chat-ai).
+
+## Vytvoření API klíče
+
+API klíče slouží jako autentizační tokeny pro zabezpečený přístup ke koncovému bodu API Open WebUI. Postupujte podle těchto kroků pro vygenerování a použití vašeho API klíče:
+
+**Postupný návod**
+
+1. Přejděte do sekce Nastavení rozhraní Open WebUI [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
+2. Přejděte na Účet.
+3. Klikněte na API klíče (zobrazení).
+4. Ignorujte JWT token, vyberte API klíč a buď vygenerujte nový, nebo zobrazte existující.
+5. Zkopírujte vygenerovaný API klíč a uložte jej bezpečně.
+6. Použijte tento klíč v API požadavcích pro autentizaci a přístup ke službám Open WebUI.
+7. Základní koncový bod pro API Open WebUI je: [https://llm.ai.e-infra.cz/v1/](https://llm.ai.e-infra.cz/v1/). Tento koncový bod dodržuje specifikaci OpenAI API, což umožňuje kompatibilitu s mnoha existujícími LLM frameworky a aplikacemi.
+
+## Použití API klíče
+
+### Seznam dostupných modelů
+
+[Aktuálně dostupné modely](/docs/ai-as-a-service/chat-ai#currently-available-models-as-of-january-26-2026)
+
+Před dotazováním modelu se ujistěte, že používáte správný název modelu. Pro získání seznamu všech dostupných modelů na infrastruktuře e-INFRA CZ spusťte následující příkaz pomocí `curl` a `jq`.
+Nahraďte `${E_INFRA_API_TOKEN}` vaším skutečným tokenem.
+
+```shell
+curl -H "Authorization: Bearer ${E_INFRA_API_TOKEN}" https://llm.ai.e-infra.cz/v1/models | jq .data[].id
+```
+
+Očekávaný výstup (příklad):
+
+```
+"llama3.3:latest"
+"llama3.3:70b-instruct-fp16"
+"deepseek-r1:32b-qwen-distill-fp16"
+"qwen2.5-coder:32b-instruct-q8_0"
+"aya-expanse:latest"
+```
+
+Tento seznam odráží identifikátory modelů (`id`), které lze dotazovat přes API. Identifikátory dodržují konvenci pojmenování, která typicky zahrnuje:
+
+* Název modelu (např. `llama3.3`, `qwen2.5-coder`).
+* Kvantizační značku (např. `fp16`, `q8_0`), která indikuje, jak je model optimalizován pro inferování (důležité pro výkon a spotřebu prostředků).
+* Variantu nebo revizi (např. `:latest`, `:70b-instruct-fp16`).
+
+### Aliasy modelů
+
+Pro zjednodušení odkazování na LLM modely poskytujeme **kategoriové aliasy** pro uživatele, kteří nechtějí aktualizovat specifická označení modelů ve svých nástrojích. Všimněte si, že volání konkrétních modelů jejich přesnými názvy stále funguje jako dříve.
+
+| název aliasu | model |
+|------------|-------|
+| mini | gpt-oss-120b |
+| coder | qwen3.5 |
+| agentic | glm-4.7 |
+| thinker | kimi-k2.5 |
+
+[Aktuálně dostupné modely](/docs/ai-as-a-service/chat-ai#currently-available-models-as-of-january-26-2026)
+
+### Příklad API požadavku
+
+Níže je příklad, jak použít API klíč pro dotazování modelu LLaMA 3.3 (`llama3.3:latest`) s požadavkem na dokončení konverzace:
+
+```bash
+curl https://llm.ai.e-infra.cz/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer ${E_INFRA_API_TOKEN}" \
+  -d '{
+    "model": "llama3.3:latest",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Explain the impact of machine learning on climate research in 100 words or less."
+      }
+    ]
+  }'
+```
+
+Očekávaný výstup (příklad):
+
+```json
+{
+  "id": "chatcmpl-XYZ123",
+  "object": "chat.completion",
+  "model": "llama3.3:latest",
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "content": "Machine learning (ML) is revolutionizing climate research by unlocking unprecedented insights..."
+      },
+      "index": 0,
+      "finish_reason": "length"
+    }
+  ]
+}
+```
+
+## Integrace frameworků
+
+API LLM e-INFRA CZ je navrženo tak, aby bylo kompatibilní se specifikací OpenAI API, což znamená, že může být integrováno do frameworků původně vytvořených pro služby OpenAI.
+
+**Příklad integrace PyDanticAI**
+
+PyDanticAI je framework, který zjednodušuje interakce s LLM pomocí OpenAI-kompatibilních modelů. Pro autentizaci s koncovým bodem LLM e-INFRA CZ použijte následující konfiguraci:
+
+Příklad konfigurace `PydanticAI` pro integraci s naším API (použijte podobná nastavení pro další frameworky):
+
+```python
+from pydantic_ai_provider import OpenAIModel, OpenAIProvider
+import os
+
+model = OpenAIModel(
+    'deepseek-r1',
+    provider=OpenAIProvider(
+        base_url="https://llm.ai.e-infra.cz/v1",
+        api_key=os.getenv("E_INFRA_API_TOKEN"),
+    ),
+)
+```
+
+Kromě PyDanticAI lze podobné konfigurace aplikovat na:
+
+* LangChain
+* LlamaIndex
+* Aplikace založené na FastAPI
+* Jakékoli další frameworky nebo klienty, které podporují vlastní koncové body OpenAI API.
+
+## Modely s uvažováním v API
+
+Některé modely jsou **hybridní**, podporují jak *režim uvažování (thinking)*, tak *režim bez uvažování*.
+
+V chatovém UI jsou většinou hybridní modely přednastaveny na běh v režimu uvažování, což znamená, že můžete vidět mezilehlý výstup `thinking` před vrácením finální odpovědi. V API však výchozí chování závisí na konkrétním modelu.
+
+### DeepSeek v3.2
+
+Ve výchozím nastavení **DeepSeek v3.2** běží *bez* povoleného uvažování. Pro povolení uvažování předejte dodatečné parametry přes `chat_template_kwargs`:
+
+```bash
+curl https://llm.ai.e-infra.cz/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer xxx" \
+  -d '{
+    "model": "deepseek-v3.2",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What are 5 creative things I could do with my kids'' art? I don''t want to throw them away, but it''s also so much clutter."
+      }
+    ],
+    "chat_template_kwargs": {
+      "thinking": true
+    }
+  }'
+```
+
+Pro usnadnění — a pro prostředí, kde nelze použít `chat_template_kwargs` (například pro určité AI agenty) — poskytujeme také vyhrazenou variantu s uvažováním nazvanou **`deepseek-v3.2-thinking`**, která je trvale nastavena do režimu uvažování.
+
+### GLM-4.7
+
+Naopak, model **GLM-4.7** ve výchozím nastavení povoluje režim uvažování. Pro zakázání uvažování a vrácení pouze finální odpovědi jej explicitně vypněte pomocí `chat_template_kwargs`:
+
+```bash
+curl https://llm.ai.e-infra.cz/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer xxx" \
+  -d '{
+    "model": "glm-4.7",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What are 5 creative things I could do with my kids'' art? I don''t want to throw them away, but it''s also so much clutter."
+      }
+    ],
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    }
+  }'
+```
+
+Použijte tyto možnosti pro kontrolu, zda jsou mezilehlé uvažování zahrnuty v API odpovědích, podle potřeb vaší aplikace.

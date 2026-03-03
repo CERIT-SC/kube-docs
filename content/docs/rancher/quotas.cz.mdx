@@ -1,0 +1,79 @@
+---
+title: Projekty, jmenné prostory a kvóty
+---
+
+Naše kontejnerová platforma používá kvóty prostředků na *projektech* a *jmenných prostorech*. Kvóta je omezení, kolik prostředků může uživatel nebo skupina uživatelů využít. Kubernetes používá dva druhy kvót prostředků: *requests* a *limits*. Podívejte se na [dokumentaci Kubernetes](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) pro více informací o tomto konceptu. Aktuálně nastavené kvóty jsou na prostředky *CPU* a *paměti*. Tyto kvóty jsou nastaveny jak na *projektu*, tak na *jmenném prostoru*.
+
+*Osobní* projekt a výchozí *jmenný prostor* mají 20 CPU *request*, 32 CPU *limit*, 40GB paměti *requests* a 64GB paměti *limits*. Ostatní typy kvót nejsou nastaveny. Uživatelé mohou požádat o nový projekt s výrazně většími kvótami na [servisním středisku IT](mailto:k8s@ics.muni.cz).
+
+## Jmenné prostory
+
+Bez žádosti o explicitní projekt dostanou uživatelé *Osobní* projekt s výše zmíněnými limity. Společně s *Osobním* projektem se vytvoří výchozí *jmenný prostor*. Jak *Osobní* projekt, tak výchozí *jmenný prostor* mají uvedené kvóty. Výchozí *jmenný prostor* je nastaven na přesně stejné kvóty jako *Osobní* projekt, což znamená, že **jakýkoliv nový** *jmenný prostor* je mimo dostupné kvóty. Není možné rozšířit kvóty *Osobního* projektu, takže existují dvě možnosti:
+
+1. Požádat o explicitní projekt.
+2. Snížit kvóty pro výchozí *jmenný prostor* a přidělit volné prostředky novému *jmennému prostoru*.
+
+### Změna kvót jmenného prostoru
+
+Pro změnu kvót prostředků existujícího jmenného prostoru přejděte přes `Cluster` (1), `Projects/Namespaces` (2), vyberte kontextové menu `Namespace` (3) a `Edit Config`.
+
+![quotaedit1](/img/ceritsc/quotaedit1.png)
+
+Poté můžete změnit `Resource Quotas` pro *jmenný prostor* podle potřeby a `Save` je.
+
+![quotaedit2](/img/ceritsc/quotaedit2.png)
+
+### Vytváření nových jmenných prostorů
+
+Aby vše fungovalo správně, nevytvářejte *jmenný prostor* pomocí `kubectl`, `helm` nebo jiných nástrojů. Je to možné, ale tento *jmenný prostor* neuvidíte v Rancher UI. Místo toho použijte Rancher UI pro vytvoření *jmenného prostoru*. Většina nástrojů jako `helm` a `kustomize` by měla s již existujícími *jmennými prostory* fungovat dobře.
+
+1. V projektu, kde chcete vytvořit nový jmenný prostor, snižte kvóty prostředků některého z existujících jmenných prostorů, abyste vytvořili prostor pro nový jmenný prostor. Proveďte to podle předchozí sekce.
+
+2. Vytvořte nový jmenný prostor v projektu přes tlačítko v UI a nastavte nějaké kvóty prostředků.
+
+![create-ns](/img/ceritsc/create-ns.png)
+
+3. Vytvořte následující vazbu rolí v novém jmenném prostoru. Nové jmenné prostory mají zakázáno provádět jakékoliv akce, takže pro zajištění, že můžete nasazovat objekty, je tato vazba rolí nutná. Můžete vytvořit vazbu rolí přes UI nebo pomocí kubectl.
+
+YAML rolebinding:
+```yaml title="rolebinding.yaml"
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: [new_namespace_name]-sa-rb
+  namespace: [new_namespace_name]
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: grant-namespace-permissions
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: [new_namespace_name]
+```
+
+Kubectl: Změňte `[new_namespace_name]` za skutečný název vašeho nového jmenného prostoru, uložte to jako např. `rolebinding.yaml` a nasaďte přes `kubectl create -f rolebinding.yaml`
+
+UI: Navigujte podle obrázku a importujte stejný YAML jako výše, změňte `[new_namespace_name]` za skutečný název vašeho nového jmenného prostoru.
+
+![rolebinding](/img/ceritsc/rolebinding.png)
+
+## Limity prostředků
+
+Pokud běžící kontejner překročí své limity, výsledek závisí na typu prostředku. Pokud je prostředek CPU, kontejner pokračuje v běhu, ale CPU je omezeno, tj. běží pomaleji. Pokud je prostředek paměti nebo ephemeral-storage, kontejner je *evictován*. Může být restartován v případě *Deployment*, ale prostředek se automaticky nerozšíří, takže evikce se pravděpodobně opakuje.
+
+## Důsledky
+
+* Každý Pod, Job, Deployment a jakýkoliv jiný typ, který spouští kontejner, potřebuje mít nastaven atribut *resources*; jinak je nasazení odmítnuto s chybou podobnou:
+
+```bash
+Pods "master-685f855ff-gg9sr" is forbidden: failed quota: default-w2qv7: must specify limits.cpu,limits.memory,requests.cpu,requests.memory:Deployment does not have minimum availability.
+```
+
+To by se však uživatelům nemělo stát, protože nastavujeme výchozí prostředky kontejneru na 1 CPU a 512MB paměti pro *requests* i *limits*. Toto výchozí nastavení se aplikuje pouze v případech, kdy uživatelé neurčili prostředky.
+
+* Kvóty nelze přebookovat, takže součet kvót pro všechny jmenné prostory v rámci *projektu* nesmí být větší než kvóta *projektu*. Protože nastavujeme počáteční kvótu *jmenného prostoru* na stejnou hodnotu jako *projekt*, není prostor pro další jmenné prostory. Uživatelé mohou vytvářet další jmenné prostory, ale musí nejprve snížit kvóty na počátečním *jmenném prostoru* nebo požádat o rozšíření kvót *projektu*.
+
+* Pokud uživatelé nasadí více kontejnerů, než kvóta dovoluje, *Pody* jsou okamžitě odmítnuty, zatímco *Joby* a další typy nasazení zůstávají v pending stavu, dokud nebudou volné prostředky v rámci kvóty.
+
+* Nastavení kvót na GPU prostředky aktuálně není možné.

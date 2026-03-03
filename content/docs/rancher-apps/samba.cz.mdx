@@ -1,0 +1,82 @@
+---
+title: Samba Server
+---
+
+## Samba Server
+Samba server lze použít pro zpřístupnění Persistent Volume Claims (PVC) přes protokol CIFS/SMB jako síťovou jednotku dostupnou na specifické **URL** ve formátu `\\[namespace]-[samba_name].dyn.cloud.e-infra.cz\data`. Persistent Volume Claims (PVC) se používají jako úložiště pro běžící aplikace v Kubernetes. Pokud chcete nahrávat nebo stahovat data do nebo z PVC pomocí grafického rozhraní, Samba server poskytuje pohodlný způsob, jak to provést.
+
+### Předpoklady
+
+<Callout type="info">
+Samba server funguje pouze s existujícími PVC. Ujistěte se proto, že vaše PVC již existuje, než budete pokračovat.
+</Callout>
+
+### Instalace
+1. V Rancher GUI zkontrolujte název PVC, které chcete zpřístupnit. V tomto příkladu budeme zpřístupňovat PVC s názvem `matlab-home` v jmenném prostoru `spisakova-ns`.
+
+![pvcs](/img/ceritsc/apps/samba-images/pvc.png)
+
+2. Přejděte na všechny dostupné aplikace a vyberte `samba`, poté klikněte na instalační tlačítko v pravém horním rohu.
+
+![samba](/img/ceritsc/apps/samba-images/charts.png)
+
+3. Vyberte jmenný prostor, do kterého bude aplikace nasazena. Musíte zvolit **stejný** jmenný prostor jako PVC, které chcete zpřístupnit. V tomto příkladu vybíráme jmenný prostor `spisakova-ns`. Zvolte název pro vaši Samba aplikaci, který bude tvořit část finální URL; název musí být v rámci jmenného prostoru jedinečný. V tomto příkladu použijeme `samba-matlab`.
+
+![samba-basic](/img/ceritsc/apps/samba-images/basic.png)
+
+4. V nastavení serveru nastavte heslo pro Samba server. Vyberte PVC, které chcete zpřístupnit; v tomto příkladu vybíráme `matlab-home`.
+
+![samba-server-settings](/img/ceritsc/apps/samba-images/serversettings.png)
+
+5. Vaše síťová jednotka bude dostupná pouze v rámci MUNI sítě nebo po připojení k MUNI VPN.
+
+<Callout type="warn">
+Vaše síťová jednotka bude dostupná pouze v rámci MUNI sítě nebo po připojení k MUNI VPN.
+</Callout>
+
+![samba-public-expose](/img/ceritsc/apps/samba-images/expose.png)
+
+6. Počkejte, dokud nebude Samba server nainstalován; mělo by to trvat několik sekund.
+
+### Připojení
+Finální URL se skládá z vybraného jmenného prostoru a názvu Samba aplikace. V našem případě můžeme vidět název (`samba-matlab`) a jmenný prostor (`spisakova-ns`) vedle zeleného stavu `Nasaděno` (což indikuje úspěšnou instalaci spolu se zprávou SUCCESS v log boxech v dolní části stránky). Finální URL je tedy `spisakova-ns-samba-matlab.dyn.cloud.e-infra.cz`. **Uživatelské jméno je vždy `user` a heslo je to, které jste zvolili při nastavení aplikace.**
+
+1. **Linux** — Nejprve nainstalujte `cifs-utils` na Ubuntu/Debian OS. Po instalaci zadejte příkaz:
+
+```bash
+mount.cifs //[namespace]-[samba_name].dyn.cloud.e-infra.cz\data [mount_location] -o username=user
+```
+
+Zadejte heslo, když budete vyzváni. Poté se můžete přepnout do umístění zvoleného jako přípojný bod a pracovat se síťovou jednotkou jako s běžným adresářem.
+
+![samba-linux-command](/img/ceritsc/apps/samba-images/linux-command.png)
+
+2. **Windows** — Otevřete Průzkumníka souborů z hlavního panelu nebo nabídky Start, nebo stiskněte klávesu s logem Windows + E. V levém podokně vyberte Tento počítač. Poté na kartě Počítač vyberte Připojit síťovou jednotku. V poli Složka zadejte cestu:
+
+```
+\\[namespace]-[samba_name].dyn.cloud.e-infra.cz\data
+```
+
+Vyberte `Log in as another account` a zadejte přihlašovací údaje.
+
+![samba-windows-choose](/img/ceritsc/apps/samba-images/windows-choose.png)
+
+![samba-windows-server](/img/ceritsc/apps/samba-images/windows-server.png)
+
+![samba-windows-login](/img/ceritsc/apps/samba-images/windows-login.png)
+
+![samba-windows-in](/img/ceritsc/apps/samba-images/windows-in.png)
+
+3. **macOS** — Otevřete Safari a zadejte URL ve formátu:
+
+```
+smb://[namespace]-[samba_name].dyn.cloud.e-infra.cz\data
+```
+
+Část `\data` je povinná. Klikněte na `Allow`, zadejte přihlašovací údaje jako registrovaný uživatel (uživatelské jméno je `user`, heslo je to, které jste nastavili). Připojte se a síťová jednotka bude dostupná ve Finderu. Později můžete jednotku odpojit pomocí tlačítka pro odpojení.
+
+![samba-mac-allow](/img/ceritsc/apps/samba-images/mac-allow.png)
+
+![samba-mac-connect](/img/ceritsc/apps/samba-images/mac-connect.png)
+
+![samba-mac-unmount](/img/ceritsc/apps/samba-images/mac-unmount.png)

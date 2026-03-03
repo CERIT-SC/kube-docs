@@ -1,0 +1,103 @@
+---
+title: BinderHub
+---
+
+BinderHub je instance Binderu běžící na Kubernetes na adrese [binderhub.cloud.e-infra.cz](https://binderhub.cloud.e-infra.cz/). Binder převádí Git repozitář na kolekci interaktivních notebooků. Zadáním názvu Git repozitáře (a volitelně konkrétního notebooku nebo větve) BinderHub jej převede na webový notebook.
+
+## Autentizace
+
+Pro použití instance CERIT-SC BinderHub je potřeba se autentizovat. Autentizace probíhá prostřednictvím federovaného přihlášení SSO.
+
+## Trvalé úložiště
+
+Po vytvoření notebooku je připojen trvalý svazek k cestě `/home/{username}-nfs-pvc`. Stejný trvalý svazek bude připojen k této cestě v každém notebooku, který vytvoříte. Pokud tedy chcete použít data vygenerovaná v instanci BinderHub *A* v instanci BinderHub *B*, můžete data zapsat do cesty `/home/{username}-nfs-pvc` a budou k dispozici pro použití.
+
+Poznámka: Buďte opatrní s cestami používanými v notebookech. Představte si, že máte dva běžící BinderHuby. V obou zapisujete výstup do umístění `/home/{username}-nfs-pvc/test`. Pokud oba notebooky vytvoří soubor s názvem `result.txt`, přepíšete soubor. Je dobrým zvykem vytvářet nový adresář v cestě `/home/{username}-nfs-pvc` pro každou instanci BinderHub.
+
+## Zdroje
+
+Každý uživatel na vašem JupyterHubu může používat určité množství paměti a CPU. Je vám zaručeno **1 GB RAM** a **1 CPU** a můžete použít až **16 GB RAM** a **8 CPU**. Limity zdrojů jsou pevnými limity dostupných zdrojů.
+
+### Vlastní zdroje
+
+Pokud potřebujete určit jiné množství zdrojů nebo připojit GPU, můžete vytvořit soubor *.resources* v kořenovém adresáři git repozitáře. Soubor může vypadat takto:
+
+```
+# This file is for resource requests in CERIT-SC
+# Do not change
+gpu=1
+cpur=2
+cpul=4
+memr=1
+meml=4
+```
+
+Řádky začínající `#` jsou ignorovány (užitečné pro komentáře); ostatní znamenají:
+- `gpu=[number_of_gpu_request]`
+- `cpur=[number_of_cpu_request]`
+- `cpul=[number_of_cpu_limit]`
+- `memr=[GB_of_RAM_request]`
+- `meml=[GB_of_RAM_limit]`
+
+RAM je přiřazena v *GB*, neurčujte žádné jednotky. Ve výchozím nastavení není přiřazeno žádné GPU. Pokud soubor *.resources* neobsahuje žádný z řádků, použijí se výchozí hodnoty. Podobně, pokud soubor specifikuje pouze některé řádky, použijí se výchozí hodnoty pro chybějící řádky.
+
+Toto nastavení aktuálně funguje pro repozitáře hostované na `github.com`. Pokud používáte jinou git službu (gitlab, zenodo, ...), kontaktujte nás na <a href="mailto:k8s@ics.muni.cz">IT Service desk</a>.
+
+## SSH klíče uvnitř instance
+
+Pro větší flexibilitu generujeme SSH klíčový pár pro každého, kdo spustí alespoň jeden Jupyter notebook přes BinderHub. Tento SSH klíčový pár je připojen k instanci notebooku (`/home/jovyan/.ssh/ssh.priv` a `/home/jovyan/.ssh/ssh.pub`) a lze jej použít k importu veřejného klíče do účtu GitHub. Tímto způsobem můžete aktualizovat a pracovat se svými Git repozitáři přímo z vašeho notebooku.
+
+Stejný SSH klíčový pár je připojen na všech vašich BinderHub notebookech.
+
+## Kde najít běžící notebooky
+
+Své běžící notebooky můžete najít na `https://bhub.cloud.e-infra.cz/`. Kliknutí na adresu vás přesměruje k instanci notebooku. Protože odkazy pro přesměrování obsahují náhodné řetězce, doporučuje se používat prohlížeč, který umí ukládat cookies a nevyžaduje zapamatování dlouhých adres notebooků. Také se vyhněte anonymním oknům, protože session cookie nebude uložena a když záložku zavřete, nenajdete instanci v Ovládacím panelu.
+
+## Limity
+
+Aktuálně je každý uživatel omezen na spouštění 5 projektů. Pokud dosáhnete kvóty a pokusíte se nasadit novou instanci, objeví se chyba pod načítací lištou na indexové stránce BinderHub.
+
+![projects_limit](/img/ceritsc/apps/binderhub/limit.png)
+
+Pro spuštění nové instance musíte smazat jednu ze svých běžících instancí. To lze provést v ovládacím panelu JupyterHub (JupyterHub se používá pod BinderHub). Přejděte na `https://bhub.cloud.e-infra.cz/` a zastavte jakoukoli instanci, kterou nepotřebujete. Pokud vidíte červené tlačítko `Delete`, klikněte na něj. Poté byste měli být schopni spustit novou instanci na [binderhub.cloud.e-infra.cz](https://binderhub.cloud.e-infra.cz/).
+
+![projects_panel](/img/ceritsc/apps/binderhub/hubpanel.png)
+
+![projects_stop](/img/ceritsc/apps/binderhub/stop.png)
+
+![projects_delete](/img/ceritsc/apps/binderhub/delete.png)
+
+❗️<ins>Notebooky jsou automaticky smazány po jednom týdnu nečinnosti (nečinnost = nečinné jádro nebo žádné připojení k notebooku).</ins>❗️
+
+## Přizpůsobení
+
+### Vlastní Dockerfile
+
+Hub spouští instance notebooků s výchozím obrazem, který neobsahuje žádné speciální knihovny. Můžete však vytvořit vlastní `Dockerfile` se všemi závislostmi, který bude použit jako základní obraz. `Dockerfile` musí být umístěn v repozitáři, který chcete spustit v Binderu.
+
+Při vytváření `Dockerfile` mějte na paměti, že musí být spustitelný jako *uživatel*. Je také důležité změnit vlastnictví všech adresářů používaných uživateli, např.:
+
+```
+RUN chown -R 1000:1000 /work /home/jovyan
+```
+
+### Instalace různých knihoven a software
+
+Vytváření vlastního `Dockerfile` může být pro vaše potřeby zbytečně složité, takže existuje několik dalších způsobů instalace, např. prostředí `conda`, balíčků `Python` nebo některých `Debian` balíčků (např. vim).
+
+Podívejte se na [všechny možné typy souborů](https://repo2docker.readthedocs.io/en/latest/config_files.html) pro úplný popis a zamýšlené použití, které mohou být zahrnuty v repozitáři. Tyto soubory budou vyřešeny při spuštění. Můžete zahrnout více souborů do repozitáře, takže pokud potřebujete nainstalovat balíčky `Python` i některé balíčky `Debian`, mohou být přítomny jak `apt.txt`, tak `requirements.txt`.
+
+Krátký seznam souborů:
+- `environment.yml` - conda prostředí, [příklad](https://github.com/binder-examples/python-conda_pip/tree/3b7126f39253f92bb13ce7ea155fd8a121082afe)
+- `pipfile` - Python prostředí, [příklad](https://github.com/binder-examples/pipfile)
+- `setup.py` - Python balíčky, [příklad](https://github.com/binder-examples/setup.py)
+- `requirements.txt` - Python balíčky, [příklad](https://github.com/binder-examples/requirements)
+- `project.toml` - Julia prostředí, [příklad](https://github.com/binder-examples/demo-julia)
+- `apt.txt` - Debian balíčky, [příklad](https://github.com/binder-examples/apt_install)
+- `install.R` - R balíčky, [příklad](https://github.com/binder-examples/r)
+
+Podívejte se na [úložiště příkladů Binder](https://github.com/orgs/binder-examples/repositories?page=1&type=all) pro mnoho typů repozitářů, kombinací souborů a zajímavých použití.
+
+## Neznámá chyba při spouštění
+
+Pokud se setkáte s neznámou chybou při spouštění notebooku (nebo pokud se váš notebook vůbec nespustí), pošlete e-mail na <a href="mailto:k8s@ics.muni.cz">IT Service Desk</a>.

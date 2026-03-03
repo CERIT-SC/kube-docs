@@ -266,12 +266,12 @@ process {
    memory   = '500M' // Default for all workers unless overridden
    pod = [
       [securityContext:
-          [fsGroupChangePolicy:'OnRootMismatch', 
-           runAsUser:1000, 
-           runAsGroup:1, 
-           fsGroup:1, 
+          [fsGroupChangePolicy:'OnRootMismatch',
+           runAsUser:1000,
+           runAsGroup:1,
+           fsGroup:1,
            seccompProfile:
-           [type:'RuntimeDefault']]], 
+           [type:'RuntimeDefault']]],
       [automountServiceAccountToken:false]]
 
    withLabel:VEP {
@@ -292,8 +292,8 @@ This example demonstrates how to:
 Such flexibility is especially important when working with older pipelines or those that require fine-tuned resource control.
 
 
-### Debug 🐞 
-We recommend watching your namespace in Rancher GUI or on command line when you submit a pipeline. Not all problems are propagated to terminal, especially error related to Kubernetes such as quota exceeded. You can open `Jobs` tab in Rancher GUI and watch out for jobs that are `In progress` for too long or in `Error` state. Useful commands might include 
+### Debug 🐞
+We recommend watching your namespace in Rancher GUI or on command line when you submit a pipeline. Not all problems are propagated to terminal, especially error related to Kubernetes such as quota exceeded. You can open `Jobs` tab in Rancher GUI and watch out for jobs that are `In progress` for too long or in `Error` state. Useful commands might include
 
 ```shell
 kubectl get jobs -n [namespace] // GET ALL JOBS IN NAMESPACE
@@ -327,7 +327,7 @@ If this happens to you, consider lowering problematic resource requests of workf
 * For some *workers*, log are not available in Rancher GUI, but the logs can be watched using the command:
 
 ```shell
-kubectl logs POD -n NAMESPACE 
+kubectl logs POD -n NAMESPACE
 ```
 
   where `POD` is the name of the *worker* (e.g., `nf-81dae79db8e5e2c7a7c3ad5f6c7d59c6`) and `NAMESPACE` is used namespace.
@@ -382,7 +382,7 @@ You need to download pipeline specific [nextflow.config](/examples/ceritsc/nextf
 
 On the PVC you need to prepare data into directories specified in the `nextflow.config` see all occurrences of `/mnt/data1` in the config and change them accordingly.
 
-Consult [documentation](https://vsn-pipelines.readthedocs.io/en/latest/index.html) for further config options. 
+Consult [documentation](https://vsn-pipelines.readthedocs.io/en/latest/index.html) for further config options.
 
 You can run the pipeline with the following command:
 
@@ -494,8 +494,8 @@ kubectl get events -n [your-namespace]
 This command may reveal errors like the following:
 
 ```
-Warning  FailedCreate  job/nf-...  Error creating: pods "nf-..." is forbidden: violates PodSecurity "restricted:latest": 
-runAsNonRoot != true (pod or container "nf-..." must set securityContext.runAsNonRoot=true), 
+Warning  FailedCreate  job/nf-...  Error creating: pods "nf-..." is forbidden: violates PodSecurity "restricted:latest":
+runAsNonRoot != true (pod or container "nf-..." must set securityContext.runAsNonRoot=true),
 seccompProfile (pod or container "nf-..." must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
 ```
 
@@ -509,7 +509,7 @@ Security-related pod creation errors like:
 Error creating: pods "nf-..." is forbidden: violates PodSecurity "restricted:latest": runAsNonRoot != true
 ```
 
-are usually due to incorrect `securityContext` settings in your `nextflow.config`.  
+are usually due to incorrect `securityContext` settings in your `nextflow.config`.
 
 <Callout title="Recommendation" type="info">
 Do **not** set any custom `securityContext` values in your configuration unless you have a specific reason. The `nextflow-go` runner and official Nextflow images automatically handle the correct security settings.
@@ -526,7 +526,7 @@ ERROR ~ extension (5) should not be presented in certificate_request
 It is caused by using an outdated Java version in your Nextflow environment.
 
 <Callout title="Solution" type="info">
-- For **DSL 2**, simply omit the `--head-image` option when running Nextflow. The `nextflow-go` runner will automatically use the latest compatible image.  
+- For **DSL 2**, simply omit the `--head-image` option when running Nextflow. The `nextflow-go` runner will automatically use the latest compatible image.
 - For **DSL 1**, explicitly use the following image:
 
 ```

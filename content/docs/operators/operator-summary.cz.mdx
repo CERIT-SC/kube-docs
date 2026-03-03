@@ -1,0 +1,21 @@
+---
+title: Souhrn operátorů
+---
+
+Vzor Operátor (Operator pattern) byl vyvinut k nahrazení lidského operátora, který spravuje službu nebo sadu služeb. Operátoři automatizují řešení opakujících se úkolů. Více o vzoru Operátor najdete v oficiální [Kubernetes dokumentaci](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/).
+
+Operátoři mohou automatizovat například:
+- nasazení řízená událostmi
+- monitorování stavu aplikace
+- zpracování aktualizací aplikačního kódu spolu se souvisejícími změnami, jako jsou databázové schémata nebo dodatečná konfigurační nastavení
+- nasazení aplikace na vyžádání
+
+Protože operátoři často vyžadují oprávnění administrátora clusteru, uživatelé nemohou nasadit Operátory ani vlastní. Nicméně může nastat, že někteří Operátoři nabízejí nasazení v jmenném prostoru, ale důrazně vám to nedoporučujeme z následujících důvodů:
+- druzí by také mohli chtít použít stejného Operátora - nasazení v rámci celého clusteru by bylo přínosné
+- musíte operátora udržovat sami
+- s největší pravděpodobností v určité chvíli narazíte na problémy s oprávněními
+- může být obtížné správně nakonfigurovat Operátora, což nevyhnutelně zabere váš čas
+
+Místo toho, pokud máte zájem o použití nějakého Operátora, kontaktujte nás na <a href="mailto:k8s@ics.muni.cz">IT Service desk</a> a my vám vše připravíme. Když je Operátor nainstalovaný v clusteru, přímo používáte `Custom Resource` (CR, [oficiální dokumentace](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/)). CR jsou nové Kubernetes entity definované většinou operátorů. Protože Operátor provádí specifické úkoly, potřebují různé konfigurační možnosti než např. pod, proto se obvykle používají Custom Resources.
+
+Různé Operátory můžete prohlížet na [operatorhub](https://operatorhub.io), ale hub nezobrazuje všechny existující operátory. Doporučujeme použít vyhledávač a zkontrolovat, zda existuje operátor, který by splnil vaše potřeby.

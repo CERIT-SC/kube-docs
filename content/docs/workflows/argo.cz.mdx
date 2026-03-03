@@ -1,0 +1,87 @@
+---
+title: Argo Workflows
+---
+
+Argo Workflows je Kubernetes-nativní workflow engine navržený pro orchestraci paralelních úloh. Je zvláště užitečný pro úlohy jako dávkové zpracování, CI/CD pipeline, machine learning workflow a jakoukoli automatizaci úloh, která těží z provádění kroků jako DAG (Directed Acyclic Graph, orientovaný acyklický graf).
+
+Argo využívá Kubernetes jako základního plánovače, což umožňuje škálovatelné a odolné provádění workflow s využitím známých nástrojů Kubernetes.
+
+<Callout type="info">
+Workflow objekty musí být vytvořeny ve **stejném jmenném prostoru (namespace)**, kde běží Argo controller. To také znamená, že `ClusterWorkflow` prostředky nejsou podporovány.
+Toto je omezení spravovaného clusteru v CERIT-SC. V současné době nasazení controlleru, který sleduje více jmenných prostorů, **není podporováno**.
+</Callout>
+
+## Požadavky na přístup
+
+Spuštění Argo Workflows vyžaduje **zvýšená oprávnění**, protože potřebná RBAC (Role-Based Access Control, řízení přístupu na základě rolí) oprávnění nejsou součástí výchozího nastavení uživatele.
+
+<Callout type="info">
+Pro získání přístupu kontaktujte správce na **k8s@cerit-sc.cz**. Po schválení budou pro váš Project namespace nakonfigurována příslušná RBAC pravidla. Tento model přístupu pomáhá redukovat nadměrné vazby rolí napříč clusterem.
+</Callout>
+
+## Repozitář se startovními manifesty
+
+Toto nastavení je k dispozici v [repozitáři argo-workflows-example](https://github.com/CERIT-SC/argo-workflows-example), který slouží jako **startovní demo** pro použití Argo Workflows na spravovaném Kubernetes clusteru CERIT-SC. Tyto příklady můžete rozšířit a přizpůsobit svým specifickým potřebám.
+
+Repozitář je organizován následovně:
+
+```text
+.
+├── controller-manifests/ # Konfigurace Argo Workflow controlleru
+│ ├── controller-install.yaml
+│ └── workflow-controller-configmap.yaml
+└── example/
+  ├── runner-rbac.yaml # Nastavení service account a RBAC
+  └── hello-world.yaml # Ukázková definice workflow
+```
+
+### 1. Instalace Argo Workflow Controlleru
+
+Pro nasazení Argo controlleru aplikujte manifesty v adresáři `controller-manifests`:
+
+```bash
+kubectl apply -f controller-manifests/ -n [váš-jmenný-prostor]
+```
+
+Nasazení controlleru se skládá z:
+
+- `controller-install.yaml`: Instaluje Argo controller a požadované komponenty.
+- `workflow-controller-configmap.yaml`: Definuje chování controlleru. Tuto konfiguraci upravte tak, aby odpovídala vašemu konkrétnímu případu použití.
+
+<Callout type="warn">
+Soubor `controller-install.yaml` používá pevně zakódovanou verzi Argo Workflows `v3.6.7`. Tato verze může v průběhu času zastarávat. Sledujte [Argo Releases](https://github.com/argoproj/argo-workflows/releases) pro aktualizace a v případě potřeby manifest upravte.
+</Callout>
+
+### 2. Nastavení RBAC pro provádění workflow
+
+Aplikujte RBAC politiku, která umožňuje workflow běžet pomocí specifického service account:
+
+```bash
+kubectl apply -f example/runner-rbac.yaml -n [váš-jmenný-prostor]
+```
+
+Ujistěte se, že vaše YAML soubory workflow odkazují na správný název service account (stejný název jako v `runner-rbac.yaml`). Můžete také přizpůsobit role a oprávnění podle specifických požadavků přístupu vašeho jmenného prostoru.
+
+### 3. Spuštění ukázkového workflow
+
+Po nasazení controlleru a nastavení RBAC otestujte nastavení nasazením ukázkového workflow:
+
+```bash
+kubectl create -f example/hello-world.yaml -n [váš-jmenný-prostor]
+```
+
+Tento minimální příklad "Hello World" by měl ověřit, že váš controller a RBAC nastavení fungují správně.
+
+<Callout type="warn">
+V jmenných prostorech, kde jsou **vynucovány kvóty prostředků** (což platí pro všechny uživatelské jmenné prostory v CERIT-SC), může workflow **selhat**, pokud pod vytvořený workflow (běžec workflow) **nespecifikuje požadavky/limity prostředků**. Pokud váš jmenný prostor nemá definované výchozí prostředky kontejneru, musíte buď:
+
+1. Nakonfigurovat **výchozí požadavky/limity prostředků na úrovni jmenného prostoru**, nebo
+2. Přidat explicitní sekci `resources:` do definice workflow (CPU, paměť).
+
+Tento problém je vzácný, ale může nastat v nových nebo vlastních jmenných prostorech bez výchozí konfigurace prostředků.
+</Callout>
+
+## Další zdroje
+
+- [Dokumentace Argo Workflows](https://argoproj.github.io/argo-workflows/)
+- [Argo Workflows GitHub](https://github.com/argoproj/argo-workflows)

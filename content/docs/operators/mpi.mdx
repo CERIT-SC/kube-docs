@@ -1,14 +1,15 @@
 ---
 title: MPI Operator
+description: Deploying MPI (Message Passing Interface) jobs on the platform using the Kubeflow MPI Operator
 ---
 
-While [MPI](https://www.openmpi.org/) jobs are a traditional domain in High-Performance Computing, our platform is capable of running MPI jobs easily using the MPI Operator from [Kubeflow](https://www.kubeflow.org). The [MPI Operator](https://github.com/kubeflow/mpi-operator) makes it easy to run allreduce-style distributed training on Kubernetes. We have deployed a cluster-wide MPI Operator which allows you to create an MPI job by defining a Kubernetes kind `MPIJob`. Full documentation on the kind's structure is available [here](https://github.com/kubeflow/mpi-operator/blob/master/manifests/base/kubeflow.org_mpijobs.yaml). Some documentation on the MPI Operator can be found at the [Kubeflow site](https://www.kubeflow.org/docs/components/training/mpi/#creating-an-mpi-job) or [this blog post](https://medium.com/kubeflow/introduction-to-kubeflow-mpi-operator-and-industry-adoption-2965f2e6edc).
+Although [MPI](https://www.openmpi.org/) jobs are traditionally associated with High-Performance Computing, our platform can run MPI jobs easily using the MPI Operator from [Kubeflow](https://www.kubeflow.org). The [MPI Operator](https://github.com/kubeflow/mpi-operator) simplifies running allreduce-style distributed training on Kubernetes. We have deployed a cluster-wide MPI Operator that allows you to create MPI jobs by defining a Kubernetes resource of kind `MPIJob`. Full documentation on the resource structure is available [here](https://github.com/kubeflow/mpi-operator/blob/master/manifests/base/kubeflow.org_mpijobs.yaml). Additional documentation on the MPI Operator can be found at the [Kubeflow site](https://www.kubeflow.org/docs/components/training/mpi/#creating-an-mpi-job) or in [this blog post](https://medium.com/kubeflow/introduction-to-kubeflow-mpi-operator-and-industry-adoption-2965f2e6edc).
 
-To be able to run an MPI job, there are two steps required: prepare a specific Docker image and create an MPIJob manifest.
+To run an MPI job, you need to complete two steps: prepare a Docker image and create an MPIJob manifest.
 
 ## MPI Job Docker Image
 
-MPIJob expects a specific Docker image; the image must contain an OpenSSH server and this server needs to be configured. Also, creating a user in the Docker image is required. However, you need to add the following fragment for Debian family distributions ([download here](/examples/ceritsc/docker/Dockerfile-mpi)):
+The MPIJob requires a specific Docker image that must include a configured OpenSSH server and a created user. For Debian family distributions, you need to add the following fragment ([download here](/examples/ceritsc/docker/Dockerfile-mpi)):
 
 ```dockerfile
 RUN apt-get update && \
@@ -35,11 +36,11 @@ RUN chown 1000:1000 /etc/ssh/ssh_config
 CMD /usr/sbin/sshd -De
 ```
 
-Of course, you need to add your application and base a proper image like `tensorflow` or `pytorch`. The same image should be used for both `Launcher` and `Worker` Pods.
+You will also need to add your application code and base the image on an appropriate base image such as `tensorflow` or `pytorch`. The same image must be used for both the `Launcher` and `Worker` Pods.
 
 ## MPI Job Manifest
 
-You can [download](/examples/ceritsc/manifests/mpijob.yaml) an example of an MPI Job manifest. This example is **not working** as is. You need to specify `IMAGE` and `COMMAND`. The user in the attribute `sshAuthMountPath` must match the user name created in the Docker image. The attribute `Worker.replicas` denotes how many workers to spawn, that is, how many parallel jobs will run. Also the parameter `-n "2"` for `Launcher` needs to match `Worker.replicas`. Note, the number `"2"` must always be quoted.
+You can [download](/examples/ceritsc/manifests/mpijob.yaml) an example of an MPI Job manifest. **Note that this example is not functional as-is.** You must specify both the `IMAGE` and `COMMAND` fields. The username in the `sshAuthMountPath` attribute must match the user name created in the Docker image. The `Worker.replicas` attribute determines the number of worker Pods to spawn, which corresponds to the number of parallel jobs that will run. Additionally, the parameter `-n "2"` specified for the `Launcher` must match the value of `Worker.replicas`. **Important:** the number `"2"` must always be quoted.
 
 ## Running the MPI Job
 

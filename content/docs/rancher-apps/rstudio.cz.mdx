@@ -1,0 +1,117 @@
+---
+title: RStudio
+---
+
+## Možnost 1: Spuštění RStudio přes JupyterHub (Doporučeno)
+
+* **Snadné použití:** JupyterHub nabízí přímý způsob spuštění RStudio přímo z vašeho prostředí Jupyter Notebook.
+* **Integrace dat:** Tato metoda poskytuje bezproblémovou integraci s MetaCentrum home, což je výhodné pro uživatele již pracující v tomto ekosystému.
+* **Podpora AI chatu:** AI integrace s verzí "R 4.* and AI"
+  * RStudio s podporou Claude Code image: `cerit.io/hubs/rstudio:4.5.2-ai`
+* **Podporované verze:** Mnoho verzí RStudio je podporováno touto možností.
+
+Toto je naše preferovaná metoda kvůli její jednoduchosti a přímočarému nastavení.
+Pro více informací viz [úvod do JupyterHub](../web-apps/jupyterhub), kde najdete další informace.
+
+## Možnost 2: Spuštění RStudio jako Rancher aplikace
+
+* **Přizpůsobení:** Nabízí více možností přizpůsobení, což umožňuje přizpůsobit prostředí specifickým potřebám.
+* **Integrace dat:** Může být nastaveno pro použití dat z jiných zdrojů, což jej činí univerzálním pro různé scénáře správy dat.
+* **Flexibilita v verzích R:** Můžete vybírat z více verzí R, což poskytuje větší flexibilitu v závislosti na požadavcích vašeho projektu.
+
+Tato metoda je složitější a vyžaduje komplexnější nastavení ve srovnání s možností JupyterHub.
+
+### Spuštění Rancher RStudio
+Pokud nejste již přihlášeni, přihlaste se na [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz). Podrobnosti naleznete v sekci [Rancher](../rancher/rancher).
+
+Podle následujících kroků můžete nainstalovat webovou aplikaci RStudio. Tato aplikace má trvalý domovský adresář, což znamená, že pokud aplikaci smažete a později ji znovu nainstalujete se stejným názvem, obsah domovského adresáře bude zachován.
+
+<Callout type="warn">
+Výchozí projekt má limit kvóty 12 garantovaných CPU a limit 16 CPU celkem. Nevybírejte více než 10 garantovaných CPU a více než 14 CPU celkem. Pokud potřebujete více, [zeptejte se](mailto:k8s@ics.muni.cz). To může být v budoucnu zvýšeno, takže je možné požádat o více CPU.
+</Callout>
+
+### Výběr aplikace ke spuštění
+
+Přejděte přes `` `Only User Namespaces` `` (1), `` `Apps & Marketplace` `` (2), `` `Charts` `` (3), `` `cerit-sc` `` (4) a vyberte `` `RStudio` `` (5). Viz screenshot níže.
+
+![selectapp](/img/ceritsc/apps/rstudio/selectapp.png)
+
+### Instalace aplikace
+
+Klikněte na chart a poté klikněte na `` `Install` `` pro pokračování.
+
+![selectapp](/img/ceritsc/apps/rstudio/selectversion.png)
+
+Nyní můžete nainstalovat aplikaci RStudio. Ve většině případů ponechte `Namespace` (1) i `Name` (2) nezměněné; můžete však vybrat jmenný prostor podle potřeby kromě `default`. Jmenný prostor `default` je dostupný, ale není určen k použití. `Name` bude v URL pro přístup k aplikaci. `Name` musí být jedinečný v `Namespace`, tj. nemůžete spustit dvě nebo více instancí se stejným `Name` ve stejném `Namespace`. Pokud aplikaci smažete a později ji znovu nainstalujete při zachování jejího `Name`, obsah domovského adresáře bude zachován.
+
+![appinst](/img/ceritsc/apps/rstudio/appinst.png)
+
+V první části formuláře zvolíte R image, který vybírá verzi R. Obrazy s tagem `Full` obsahují většinu systémových knihoven a také vám umožňují instalovat další systémové balíčky pomocí příkazu `fakeroot`, jako `fakeroot apt-get install libssl-dev`. Pokud je však aplikace restartována nebo přeinstalována, všechny instalace pomocí `fakeroot` jsou ztraceny a musí být znovu nainstalovány.
+
+![appinst](/img/ceritsc/apps/rstudio/appform1.png)
+
+Ve druhé části formuláře vyberete přístupové heslo. Vyhněte se prosím znakům jako `{` a `}`. Důrazně doporučujeme netriviální heslo; také důrazně doporučujeme nepoužívat heslo, které již používáte jinde. Uživatelské jméno bude pouze **`rstudio`**.
+
+![appform1](/img/ceritsc/apps/rstudio/appform2.png)
+
+Ve třetí části formuláře můžete vybrat úložiště **e-infra** (3) pro připojení k aplikaci. Pokud zaškrtnete `External Storage`, je podporováno pouze `storage-brno12-cerit.metacentrum.cz`. Pokud chcete připojit toto úložiště, postupujte podle [návodu na vytvoření úložiště](../other/storagesecrets). Na [stránce storage secrets](https://storagesecrets.cloud.e-infra.cz) kliknete na první možnost `Create Samba password for storage-brno12-cerit.metacentrum.cz`. Toto úložiště je připojeno do adresáře `/home/rstudio/data`.
+
+Můžete také vybrat trvalý svazek `/opt` (2), který se používá pro nainstalované balíčky přes instalátor `conda` (viz níže). Trvalý `/opt` zachovává nainstalované balíčky napříč restartováním `rstudio`.
+
+Trvalý `home` (1) zachovává obsah domovského adresáře napříč restartováním `rstudio`.
+
+![appinst](/img/ceritsc/apps/rstudio/appform3.png)
+
+Ve čtvrté části formuláře můžete vybrat požadované prostředky. Tento krok je volitelný. `Minimum` CPU nebo RAM je garantované množství CPU a RAM; systém rezervuje tyto prostředky pro aplikaci. Aplikace však může překročit garantované prostředky až do `Maximum`. V tomto případě prostředky nejsou exkluzivní a mohou být sdíleny mezi jinými aplikacemi. Pokud aplikace překročí `Maximum` CPU, bude omezena; pokud překročí `Maximum` RAM, bude ukončena (uvidíte OOMKill report) a restartována. Viz poznámka výše o maximálních hodnotách.
+
+![appform2](/img/ceritsc/apps/rstudio/appform4.png)
+
+### Čekání na spuštění aplikace
+
+Když kliknete na `` `Install` ``, uvidíte instalační log. Jakmile uvidíte `` `SUCCESS` `` (viz screenshot níže), aplikace běží.
+
+![apphelm](/img/ceritsc/apps/rstudio/apphelm.png)
+
+### Přihlášení k běžící instanci
+
+Jakmile aplikace běží, přejděte přes `` `Service Discovery` `` (1) a `` `Ingresses` `` (2). Uvidíte `` `Ingresses` ``. Pokud uvidíte `` `cm-acme-http-solver...` `` (3), počkejte, dokud nezmizí. Jakmile uvidíte `rstudio` nebo jakýkoli `Name`, který jste použili v předchozích krokách, můžete kliknout na Target (4) pro přihlášení k aplikaci.
+
+![appacme](/img/ceritsc/apps/rstudio/appacme.png)
+
+Uvidíte přihlašovací okno; použijte **`rstudio`** jako přihlašovací jméno a vybrané heslo z formuláře.
+
+![applogin](/img/ceritsc/apps/rstudio/applogin.png)
+
+## Smazání běžící instance
+
+Pokud již aplikaci nepotřebujete, můžete ji smazat. Prostě přejděte na `` `Apps & Marketplace` `` (1), `` `Installed Apps` `` (2), vyberte aplikaci (3) a klikněte na `` `Delete` `` (4). Data v domovském adresáři nejsou smazána. Spuštění aplikace znovu se stejným `Name` obnoví přístup k domovskému adresáři.
+
+![appdel](/img/ceritsc/apps/rstudio/appdel.png)
+
+## Instalace dalších balíčků
+
+Od verze chart **1.4** je možné používat nástroje `conda` nebo `mamba` k instalaci dalších balíčků typicky používaných v MetaCentrum. Jsou instalovány do adresáře `/opt/conda`. Například v `rstudio` `terminal` (1) napište `mamba install mc` (3) pro instalaci balíčku `mc`. Pokud na začátku promptu vidíte `(base)` (2), všechny cesty jsou správně nastaveny pro použití balíčků nainstalovaných `conda`. Pokud nevidíte `(base)`, napište `/opt/conda/bin/conda init`, zavřete `terminal` a spusťte nový. Tato akce je potřeba pouze jednou.
+
+![terminal](/img/ceritsc/apps/rstudio/terminal.png)
+
+### Instalace v Sensitive Cloud
+
+Pokud spouštíte RStudio v Sensitive Cloud, pamatujte, že R session nemá přímé připojení k Internetu. Pokud potřebujete instalovat balíčky, budete muset nastavit proxy:
+
+1. Jak je znázorněno níže, klikněte na tlačítko `` `New Blank File` `` v dolním pravém panelu, vyberte `` `Text File` `` a zadejte název `` `.Renviron` `` (včetně úvodní tečky!).
+
+   ![blanktext](/img/ceritsc/apps/rstudio/blanktext.png)
+   ![renviron](/img/ceritsc/apps/rstudio/renviron.png)
+
+2. Vložte následující do souboru `.Renviron` a uložte jej (červená šipka):
+
+   ```bash
+   HTTPS_PROXY=http://proxy.ics.muni.cz:3128
+   NO_PROXY='10.0.0.0/8,10.43.0.1,.svc.cluster.local,.cloud.trusted.e-infra.cz'
+   ```
+
+   ![renviron-content](/img/ceritsc/apps/rstudio/renviron-content.png)
+
+3. Restartujte R session:
+
+   ![restartsession](/img/ceritsc/apps/rstudio/restartsession.png)

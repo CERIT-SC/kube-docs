@@ -1,0 +1,57 @@
+---
+title: Žádost o projekt, řízení přístupu
+---
+
+Clustery Kubernetes podporují dva typy projektů:
+- Individuální projekty
+- Skupinové projekty
+
+Když se přihlásíte do [instance Rancher](https://rancher.cloud.e-infra.cz), obdržíte výchozí individuální projekt (viz [zde](./rancher) pro více informací) s výchozími kvótami popsanými [zde](./quotas).
+
+Pro přístup k projektům v Rancher musíte být platným členem MetaCentra. Pokud nejste členem, zaregistrujte se [zde](https://metavo.metacentrum.cz/en/application/index.html).
+
+## Žádost o skupinový projekt
+Připravujeme pohodlný formulář žádosti, který bude na této stránce dostupný, až bude připraven. Mezitím nás kontaktujte na k8s@cerit-sc.cz, pokud potřebujete skupinový projekt. Ve výchozím nastavení skupinové projekty dostávají 12 CPU *request*, 64 CPU *limit*, 40GB RAM *request* a 256GB RAM *limit*.
+
+### Použití existující skupiny pro řízení přístupu
+Pokud již máte skupinu v **perun.e-infra.cz**, uveďte v e-mailu VO skupiny. Pokud je skupina ve VO e-infra.cz, uveďte také ID skupiny.
+
+Poskytněte následující informace:
+- Název nového projektu
+- Požadovaná kvóta prostředků (volitelné, pokud výchozí stačí)
+- Osoba zodpovědná za projekt (jméno, organizace a buď UCO, pokud jste z MU, nebo MetaCentrum login)
+
+<Callout type="warn">**Řízení přístupu = přiřazení skupiny** zůstává vaší odpovědností jako žadatele, podle [návodu níže](#řízení-přístupu)</Callout>
+
+### Žádná skupina pro řízení přístupu
+Pokud nemáte skupinu, vytvoříme ji pro vás. Do e-mailu uveďte poznámku "vytvořit novou skupinu pro Rancher projekt".
+
+Poskytněte následující informace:
+- Název nového projektu
+- Požadovaná kvóta prostředků (volitelné, pokud výchozí stačí)
+- Osoba zodpovědná za projekt (jméno, organizace a buď UCO, pokud jste z MU, nebo MetaCentrum login)
+
+## Řízení přístupu
+Poskytněte jméno osoby zodpovědné za řízení přístupu k projektu. Vy (nebo někdo z vaší skupiny) spravujete, kdo může k projektu přistupovat. I když znáte název existující Perun skupiny, kterou byste chtěli použít, musíte ji přiřadit sami. Poté, co připravíme Perun zdroj, zodpovědná osoba obdrží administrátorská oprávnění. Administrátoři mohou přidávat další administrátory, přiřazovat povolené skupiny ke zdroji nebo přidávat členy.
+
+Nejběžnější metoda řízení přístupu zahrnuje přiřazení skupiny s více členy k Perun zdroji. Následující návod ukazuje **administrátorovi** (osoba, kterou jste určili v e-mailu), jak přiřadit takovou skupinu.
+
+1. Přihlaste se do [CESNET Perun](https://perun.aai.cesnet.cz).
+2. Posuňte se dolů na domovské stránce, dokud neuvidíte tabulku `Manager in Resources`.
+![manager](/img/ceritsc/request-project-images/manager.png)
+3. Klikněte na zdroj odpovídající názvu vašeho požadovaného projektu.
+4. Klikněte na `Assigned Groups`.
+![manager](/img/ceritsc/request-project-images/assign_button.png)
+5. Klikněte na `Assign Groups`, zadejte název skupiny do vyhledávacího pole a vyberte požadovanou skupinu.
+![manager](/img/ceritsc/request-project-images/assign_group.png)
+6. Klikněte na `Next`, ponechte všechny možnosti tak, jak jsou, a klikněte na `Assign group`.
+7. Změny se šíří 5-10 minut. Počkejte alespoň 10 minut, poté se odhlaste a znovu přihlaste do Rancher nebo jednoduše obnovte stránku. Vy a všichni členové skupiny byste nyní měli vidět projekt.
+
+<Callout type="warn">Pamatujte: administrátor musí být také členem skupiny, aby mohl přistupovat k projektu/službě</Callout>
+
+## Žádost o větší individuální projekt
+Připravujeme pohodlný formulář žádosti, který bude na této stránce dostupný, až bude připraven. Mezitím nás kontaktujte na k8s@cerit-sc.cz, pokud potřebujete větší projekt pro svou osobní potřebu.
+
+Do e-mailu uveďte:
+- Název nového projektu
+- Požadovaná kvóta prostředků

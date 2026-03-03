@@ -1,0 +1,523 @@
+---
+title: Postgres Operátor Cloudnative-PG
+---
+
+[Postgres Operátor](https://cloudnative-pg.io/documentation/1.23/) poskytuje snadno spustitelný PostgreSQL cluster na Kubernetes. Poskytli jsme cluster-wide Postgres Operátor pro snadné nasazení PostgreSQL databázových serverů. Postgres Operátor definuje kind `Cluster`, které zajišťuje existenci databáze nebo databázového clusteru. Pro vaše pohodlí poskytujeme níže několik funkčních příkladů spolu s některými pokročilými funkcemi.
+
+Kompletní dokumentace o struktuře Postgres Operátoru je k dispozici [na jeho webu](https://cloudnative-pg.io/documentation/1.23/) s oficiálním manuálem pro vytvoření minimálního PostgreSQL clusteru v [quickstart sekci](https://cloudnative-pg.io/documentation/1.23/quickstart/). Pokud hledáte pokročilou konfiguraci nebo popis a vysvětlení YAML polí, konzultujte oficiální dokumentaci.
+
+## Nasazení Cluster Instance
+
+Je možné nasadit jak single, tak cluster instanci. Pro testovací účely doporučujeme nasadit minimální (single) instanci, která využívá NFS storage jako podkladové úložiště a spotřebuje omezené zdroje (výkon je nízký). Pro lepší dostupnost a výkon může být použito cluster nasazení. V tomto případě běží více instancí v clusteru, kde jedna z nich je leader a ostatní ji following a synchronizují data z leader.
+
+### Single Instance
+
+V tomto příkladu je vytvořena single instance s generovaným uživatelským jménem a heslem. Je možné poskytnout vlastní `Secret` objekt místo automaticky generovaného uživatelského jména/hesla - viz sekce **Vlastní Databázové Přihlašovací Údaje**.
+
+```yaml
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: test-cluster       # name, can be modified
+spec:
+  instances: 1             # single instance
+
+  imageName: 'cerit.io/cloudnative-pg/postgresql:15.0'  # image to use
+
+  primaryUpdateStrategy: unsupervised
+
+  bootstrap:
+   initdb:
+     database: mydb        # db to create, can be modified
+     owner: myowner        # user to create, can be modified
+
+  storage:
+    size: 10Gi
+    storageClass: nfs-csi  # storage class to use, can be modified
+```
+
+Spusťte `kubectl create -f minimal-cn.yaml -n [namespace]`, měli byste vidět pod s názvem `test-cluster-1` (pokud `metadata.name` nebylo změněno z příkladu) běžící ve vašem namespace.
+
+Minimální manifest si můžete stáhnout [zde](/examples/ceritsc/manifests/minimal-cn.yaml).
+
+### Cluster Instance
+
+Pro nasazení cluster verze si můžete stáhnout [cluster manifest](/examples/ceritsc/manifests/cluster-cn.yaml). Jediný rozdíl je v řádku udávajícím počet instancí:
+
+```yaml
+numberOfInstances: 3
+```
+
+To požaduje 3-node cluster. Tento typ setupu je odolný vůči selhání nodu -- pokud nod spuštěný touto instancí selže, databáze je rekreována na jiném nodu, data jsou znovu připojena z NFS storage a operace pokračují. Na druhou stranu, tento setup není výkonově zdatnější ani když jsou zdroje přidány.
+
+*Poznámka*: Cluster instance spotřebují více zdrojů a musíte zvážit, kolik zdrojů je dostupných ve vašem namespace/projektu. Cluster instance spotřebuje `numberOfInstances * limits` zdrojů.
+
+## Přístup k Databázi
+
+Pro přístup k databázi potřebujete znát přihlašovací údaje a umístění databáze.
+
+### Databázové Přihlašovací Údaje
+
+Pokud jste použili vlastní `Secret` objekt, použijte tyto přihlašovací údaje. Jinak spusťte příkaz (`test-cluster-app` pokud `metadata.name` nebylo změněno z příkladu, jinak `[metadata-name]-app`)
+
+```shell
+kubectl get secret test-cluster-app -n [namespace] -o 'jsonpath={.data.pgpass}' | base64 -d
+```
+
+Zobrazí se řetězec ve formě: `dbhost:port:dbname:dbuser:password`. Například:
+```
+test-cluster-rw:5432:mydb:myowner:uLUmkvAMwR0lJtw5ksUVKihd5OvCrD28RFH1JTLbbzO6BhEAtnWJr1L0nWpTi3GL
+```
+
+Použijte `dbuser:password` jako přihlašovací údaje pro připojení.
+
+### Přístup k Databázi
+
+Databázi lze přistupovat (připojit se) ze stejného namespace, kde je nasazena, z jiného namespace, nebo z vně Kubernetes clusteru. Databáze běžně používají read-only připojení (cílené obvykle na repliky) a read-write připojení (cílené na master instance).
+
+#### Přístup Ze Stejného Namespace
+
+Pokud byl cluster vytvořen s názvem `test-cluster`:
+
+```yaml
+kind: Cluster
+metadata:
+  name: test-cluster
+...
+```
+
+Hostname pro read-only replica je `test-cluster-ro` a hostname pro writable master je `test-cluster-rw`. Pokud není explicitně nastaveno jinak, port je známý PostgreSQL port `5432`.
+
+#### Přístup Z Jiného Namespace
+
+Předpokládá se, že název databáze je `test-cluster`, read-only hostname je `test-cluster-ro.[namespace].svc.cluster.local`, a writable master je `test-cluster-rw.[namespace].svc.cluster.local`, nahraďte `[namespace]` názvem namespace, kde je databáze nasazena.
+
+Pokud není explicitně nastaveno jinak, port je známý PostgreSQL port `5432`.
+
+#### Přístup Z Vně Kubernetes Clusteru
+
+Pro přístup k databázi z vnějšího světa (mimo Kubernetes cluster) musí být vytvořen nový service objekt typu `LoadBalancer`.
+
+Pokud chcete také read-only přístup (kromě writable přístupu), musí být vytvořeny dva LoadBalancery. V tomto případě nás prosím kontaktujte na **k8s@cerit-sc.cz**.
+
+Je drobný rozdíl ve vytvořených objektech v závislosti na tom, zda přistupujete k databázi **z Masaryk University/Masaryk University VPN** nebo z **kdekoli jinde**.
+
+##### MU/MU VPN
+
+Předpokládá se, že název databáze je opět `test-cluster`, níže jsou příklady potřebných služeb pro oba ro a rw přístupy.
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-cluster-lb-rw
+  annotations:
+    metallb.io/address-pool: privmuni
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 5432
+    targetPort: 5432
+  selector:
+    cnpg.io/cluster: test-cluster # if name was changed provide [cluster-name]
+    role: primary
+```
+
+Tento příklad přiřazuje IP adresy, které jsou dostupné **pouze z interní sítě z Masaryk University nebo přes VPN službu Masaryk University**.
+
+##### Non-MU přístupy
+
+Předpokládá se, že název databáze je opět `test-cluster`, níže jsou příklady potřebných služeb pro oba ro a rw přístupy.
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-cluster-lb-rw
+  annotations:
+    metallb.io/address-pool: default
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 5432
+    targetPort: 5432
+  selector:
+    cnpg.io/cluster: test-cluster # if name was changed provide [cluster-name]
+    role: primary
+```
+
+V tomto případě jsou IP adresy alokovány z veřejného IP poolu. Při přístupu k databázi z vnějšího světa vám **důrazně doporučujeme** nastavit Network Policy nebo [LoadBalancer firewall](../kubernetes/expose#loadbalancer-firewall).
+
+##### Získat Veřejnou IP Pro Připojení
+
+Po vytvoření této služby je databáze dostupná na veřejné IP adrese, kterou lze najít pomocí příkazu:
+
+```shell
+kubectl get svc [name_of_loadbalancer_service_from_previous_step] -n [namespace_where_cluster_is_deployed]
+```
+
+Výstup bude podobný tomu níže, kde `EXTERNAL-IP` denotes IP pro připojení (hostname/adresa v pgAdmin) a `PORT` port pro připojení.
+
+```shell
+kubectl get svc test-cluster-external -n test-postgres-ns
+NAME                    TYPE           CLUSTER-IP    EXTERNAL-IP       PORT(S)    AGE
+test-cluster-external   LoadBalancer   10.43...      147.251.X.Y       5432/TCP   21h
+```
+
+### Network Policy
+
+Pro zvýšení bezpečnosti se používá *network policy* pro povolení síťového přístupu k databázi pouze z určitých podů. Network policy je doporučen ve všech výše uvedených případech a **důrazně doporučen** pokud je nastaven přístup z vně Kubernetes clusteru. Viz [Network Policy](../kubernetes/security) pro obecné koncepty.
+
+Měli byste omezit přístup buď z konkrétního Podu nebo konkrétní externí IP adresy. Nicméně přístup z `cloudnativegp` namespace musí být povolen, aby operátor spravující Postgres cluster mohl správnou instanci.
+
+#### Přístup Pouze Ze Specifického Namespace Povolen
+
+Tento příklad povoluje přístup pouze ze spécifikovaného namespace Kubernetes clusteru ([stáhnout zde](/examples/ceritsc/manifests/netpolicy-internal.yaml)). Zadejte název clusteru (pokud byl změněn) jako `spec.podSelector.matchLabels.cnpg.io/cluster` a nahraďte `[namespace]` názvem namespace, kde je postgres nasazen. Ostatní namespace jsou povoleny přidáním více `namespaceSelector` položek do listu.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cnpg-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: test-cluster
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: cloudnativepg
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: [namespace]
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: [any_other_namespace]
+    ...
+```
+
+#### Přístup Pouze Ze Specifické Externí IP Adresy Povolen
+
+Tento příklad povoluje přístup pouze ze specifické externí IP adresy ([stáhnout zde](/examples/ceritsc/manifests/netpolicy-external.yaml)). Zadejte název clusteru (pokud byl změněn) jako `spec.podSelector.matchLabels.cnpg.io/cluster`, nahraďte `[namespace]` názvem namespace, kde je cluster nasazen, a nahraďte `[IP]/32` vaší externí IP `/32` (tato `slash 32` část musí být poskytnuta jako koncová část adresy). Více IP bloků může být povoleno přidáním celé `ipBlock` části do yaml.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cnpg-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: test-cluster
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: cloudnativepg
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: [namespace]
+    - ipBlock:
+        cidr: [IP]/32
+    - ipBlock:
+        cidr: [another_IP]/32
+```
+
+<Callout type="warn" icon="⚠️ ">
+V tomto případě se ujistěte, že odpovídající LoadBalancer Service má pole `externalTrafficPolicy` nastaveno na `Local`, tj. `externalTrafficPolicy: Local`.
+
+Pokud toto pole není nastaveno nebo je nastaveno na `Cluster`, network policy nebude fungovat podle očekávání. To je způsobeno tím, že zdrojová IP adresa klienta (ta specifikovaná v `ipBlock` → `cidr`) bude maskována a nahrazena IP adresou cluster nodu. V důsledku toho se stává nemožným efektivně omezit přístup založený na původní klientské IP.
+</Callout>
+
+<Callout type="warn" icon="⚠️ ">
+Network policies musí povolit ingress z `cloudnativepg` namespace. Bez tohoto přístupu operátor nemůže monitorovat databázové pody nebo provádět failover operace.
+</Callout>
+
+## Data Zálohy
+
+Postgres operátor nabízí automatické zálohy do S3 storage implementované pomocí periodického wal streamingu a pravidelných záloh (v pod_statě `pgdump` ekvivalent) pomocí `CronJobs`.
+
+Nejprve potřebujete získat S3 storage účet, např. na [DU Cesnet](https://du.cesnet.cz/en/navody/object_storage/cesnet_s3/start), zejména `KEY-ID` a `SECRET-ID` jsou potřeba. Pomocí těchto dvou ID můžete vytvořit `Secret` objekt přes [template](/examples/ceritsc/manifests/secret-cn.yaml), nahraďte `KEY-ID` a `SECRET-ID` reálnými hodnotami získanými ze S3 účtu.
+
+Pro povolení zálohy přidejte `backup` sekci do cluster manifestu. Viz [template](/examples/ceritsc/manifests/minimal-cn-backup.yaml), poslední sekce `backup`.
+
+```yaml
+...
+  backup:
+    barmanObjectStore:
+      destinationPath: "s3://[BUCKET]"
+      endpointURL: "https://[S3URL]"
+      s3Credentials:
+        accessKeyId:
+          name: aws-creds
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: aws-creds
+          key: ACCESS_SECRET_KEY
+    retentionPolicy: "30d"
+```
+
+Nahraďte `[BUCKET]` a `[S3URL]` reálnými hodnotami. **Nenahrazujte `ACCESS_KEY_ID` a `ACCESS_SECRET_KEY`, musí odpovídat klíčům Secret, které identifikují hodnoty pro ně.**
+
+### Plné Zálohy
+
+Pro plné zálohy musí být vytvořeny dodatečné resources.
+
+```yaml
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: [backup-name]
+spec:
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: [db-name]
+```
+
+Nahraďte `[backup-name]` příslušným názvem resource (musí být unikátní v rámci namespace), a `[db-name]` názvem databázového clusteru z hlavního manifestu, tyto dva názvy musí odpovídat. Např., cluster manifest začínající:
+```yaml
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: test-cluster
+```
+
+Potřebuje backup manifest:
+```yaml
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: backup
+spec:
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: test-cluster
+```
+
+Schedule **NENÍ** standardní `cron` schedule -- to jsou sekundy/minuty/hodiny/den v měsíci/měsíc/den v týdnu.
+
+<Callout type="warn">
+Některé novější Postgres image zahrnují aktualizované verze `boto3` knihovny, které mohou být nekompatibilní s některými S3 endpointy (například DU CESNET).
+Když k tomu dojde, Postgres Pod může zaznamenat následující chybu:
+`ERROR: Error received from upload worker: An error occurred (MissingContentLength) when calling the UploadPart operation: Unknown`
+
+Jako workaround, nastavte následující tři proměnné prostředí v cluster definici:
+
+```yaml
+- name: AWS_REQUEST_CHECKSUM_CALCULATION
+  value: when_required
+- name: AWS_RESPONSE_CHECKSUM_VALIDATION
+  value: when_required
+- name: AWS_NO_CHUNKED_ENCODING
+  value: "true"
+```
+</Callout>
+
+Příklad databázového cluster definitionu s požadovanými proměnnými prostředí:
+
+```yaml
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: test-cluster       # name, can be modified
+spec:
+  instances: 1             # single instance
+
+  imageName: 'cerit.io/cloudnative-pg/postgresql:15.0'  # image to use
+
+  primaryUpdateStrategy: unsupervised
+
+  bootstrap:
+   initdb:
+     database: mydb        # db to create, can be modified
+     owner: myowner        # user to create, can be modified
+
+  env:
+  - name: AWS_REQUEST_CHECKSUM_CALCULATION
+    value: when_required
+  - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+    value: when_required
+  - name: AWS_NO_CHUNKED_ENCODING
+    value: "true"
+
+  storage:
+    size: 10Gi
+    storageClass: nfs-csi  # storage class to use, can be modified
+```
+
+## High Availability Cluster Setup
+
+Replikovaný cluster může být využit pro high-availability případy. Počínaje Postgres verzí 11, operátor podporuje dodatečné nastavení pro zvýšení high dostupnosti.
+
+1. Zvětšte `wal` segment historii pomocí následujícího snippetu. Změňte hodnotu `wal_keep_size` odpovídajícím způsobem. Výchozí hodnota je asi 500MB, což může být malé. Nicméně tato hodnota je alokována z podkladového storage. Pokud je použit `zfs-csi`, to vynucuje velikost disku a DB `wals` mohou snadno spotřebovat celý diskový prostor.
+
+```yaml
+postgresql:
+    parameters:
+      wal_keep_size: 64GB
+```
+
+2. Povolte high availability volbu:
+
+```yaml
+replicationSlots:
+    highAvailability:
+      enabled: true
+```
+
+Mějte na mysli, že tyto možnosti fungují pouze pro Postgres 11 a novější. Kompletní cluster příklad s HA volbami:
+
+```yaml
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: test-cluster
+spec:
+  instances: 3
+
+  imageName: 'ghcr.io/cloudnative-pg/postgresql:14.7-3'
+
+  primaryUpdateStrategy: unsupervised
+
+  bootstrap:
+    initdb:
+      database: dbname
+      owner: dbowner
+
+  postgresql:
+    parameters:
+      wal_keep_size: 64GB
+
+  replicationSlots:
+    highAvailability:
+      enabled: true
+
+  resources:
+    requests:
+      memory: "4096Mi"
+      cpu: 1
+    limits:
+      memory: "4096Mi"
+      cpu: 1
+
+  storage:
+    size: 10Gi
+    storageClass: zfs-csi
+```
+
+## Lokální Storage vs NFS
+
+Je možné použít lokální storage (SSD) místo NFS nebo jakéhokoli síťově podporovaného PVC. Zatímco není možné přímo požádat o lokální storage v `volume` sekci, je možné použít lokální storage. Můžete stáhnout [single instance manifest](/examples/ceritsc/manifests/minimal-local-cn.yaml), který může být také použit pro cluster instanci (nastavte požadované `numberOfInstances`).
+
+V pod_statě `zfs-csi` storage class může být použit pro použití lokální storage. Zvláštní péče musí být věnována při nastavení limitu. Nemůže být zvýšen v budoucnosti a limit je vynucen, nicméně je to nejrychlejší storage, které je nabízeno.
+
+## Vlastní Databázové Přihlašovací Údaje
+
+Pokud chcete použít vlastní databázové přihlašovací údaje, musí být vytvořen `Secret` objekt (uložte tento yaml do `secret.yaml`)
+
+```yaml
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/basic-auth
+stringData:
+  password: [password]
+  username: [username]
+metadata:
+  name: [secret_name]
+```
+
+Spusťte `kubectl create -f secret.yaml -n [namespace_where_postgres_will_be_deployed]`.
+
+V cluster manifestu změňte `bootstrap.initdb` sekci pro odkaz na nově vytvořený secret.
+
+```yaml
+...
+bootstrap:
+    initdb:
+      database: [database-name]
+      owner: [username_from_secret]
+      secret:
+        name: [secret_name]
+```
+
+## Egress Network Policy
+
+Pokud chcete kontrolovat odchozí provoz (egress), je nutné povolit konkrétní porty a ipblocks - viz následující příklad. Pokud je pro vás vhodné pouze ingress omezení, můžete egress pravidla odstranit.
+
+**Uvědomte si, že pokud chcete používat data záloh a také omezit egress komunikaci, možná budete muset přidat egress pravidlo umožňující komunikaci k backup serveru!**
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postgres-cnpg-np
+spec:
+  podSelector:
+    matchLabels:
+      # Tato Network Policy je aplikována na náš Postgres CNPG Cluster resource s názvem "test-cluster"
+      cnpg.io/cluster: test-cluster
+  policyTypes:
+  - Ingress
+  - Egress # <---
+  ingress:
+    # Povoluje ingress Postgres port pro všechny Pods
+  - ports:
+    - port: 5432
+      protocol: TCP
+    from:
+    - podSelector: {}
+    # Povoluje ingress komunikaci od Postgres CNPG Operátoru nainstalovaného v Kubernetes
+  - ports:
+    - port: 8000
+      protocol: TCP
+    from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: cloudnativepg
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: cloudnative-pg
+  egress: # <---
+    # Povoluje egress komunikaci k Postgres CNPG Operátoru nainstalovanému v Kubernetes
+  - ports:
+    - port: 6443
+      protocol: TCP
+    to:
+    - ipBlock:
+        cidr: 10.43.0.1/32
+    - ipBlock:
+        cidr: 10.16.62.14/32
+    - ipBlock:
+        cidr: 10.16.62.15/32
+    - ipBlock:
+        cidr: 10.16.62.16/32
+    - ipBlock:
+        cidr: 10.16.62.17/32
+    - ipBlock:
+        cidr: 10.16.62.18/32
+```
+
+## Poznámky K Vytváření
+
+### Chyby Při Nasazení
+
+1. Pokud narazíte na chybu nasazení a chcete odstranit a znovu vytvořit, **musíte** se ujistit, že běžící instance je odstraněna před rekreací. Pokud vytvoříte novou instanci příliš brzy, instance nikdy nebude vytvořena a budete muset použít jiný název.
+
+2. Pokud vám dojdou kvóty během *cluster* nasazení, pouze instance v rámci kvót budou nasazeny. Bohužel, i v tomto případě nemůžete odebrat/přenasadit databázi pomocí těchto nasazení.
+
+3. Lokální SSD varianta není odolná vůči selhání clusteru. Data mohou být v tomto případě ztracena (např. pokud je cluster obnoven ze zálohy, lokální data nemusí být dostupná). Pravidelné zálohy jsou důrazně doporučeny.
+
+4. Může se stát, že replica selže a nemůže se připojit k clusteru, v takovém případě replica a PVC musí být odstraněny najednou pomocí `kubectl delete pod/test-cluster-1 pvc/test-cluster-1 -n [namespace]` pokud selhající replica je `test-cluster-1`. Replica bude znovu postavena a synchronizována se zbytkem clusteru. Nicméně její číslo bude zvýšeno.
+
+### Image
+
+ aktuálně CloudNative-PG Docker image neobsahují `cs_CZ` locale, takže české kolace nemohou být použity. Z tohoto důvodu jsme vytvořili dvě lokální image: `cerit.io/cloudnative-pg/postgresql:10.23-3` a `cerit.io/cloudnative-pg/postgresql:15.0` které obsahují české lokality.
+
+Seznam veřejných image je dostupný [zde](https://github.com/cloudnative-pg/postgres-containers/pkgs/container/postgresql).

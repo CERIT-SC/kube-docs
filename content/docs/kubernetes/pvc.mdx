@@ -90,7 +90,7 @@ A PV represents a physical volume that provides storage connectivity. Only admin
 ## Persistent Volume Claim (PVC)
 The [PVC](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) is an object that represents persistent storage in Kubernetes. This object can be mounted into a *Pod*. PVCs can be restricted to only one Pod or can be mounted to many Pods simultaneously, making it a shared storage among Pods.
 
-* Users can create an ad-hoc PVC of the `nfs-csi` storage class using the [pvc.yaml](/examples/ceritsc/manifests/pvc.yaml) template. Download it, fill in `name` and `storage` size, and issue the command:
+* Users can create an ad-hoc PVC of the `nfs-csi` storage class using the [pvc.yaml](/examples/ceritsc/manifests/pvc.yaml) template. Download it, fill in the `name` and `storage` size, and issue the command:
 
 ```bash
 kubectl create -f pvc.yaml -n [namespace]

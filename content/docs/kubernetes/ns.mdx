@@ -2,14 +2,14 @@
 title: Namespaces
 ---
 
-In Kubernetes, [namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) provide a mechanism for isolating groups of resources within a single cluster. Resource names must be unique within a namespace, but not across namespaces.
+In Kubernetes, [namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) isolate groups of resources within a single cluster. Resource names must be unique within a namespace, but not across namespaces.
 
-Namespace names must be unique within a cluster. It is usually not a good idea to create a namespace called *test*, for example.
+Namespace names must be unique within a cluster. Avoid creating namespaces called *test* or similar generic names.
 
-When a user logs in to the Rancher GUI, a *Personal Project* and a *Namespace* are created just after the first login. If you do not see any, reload the web page.
+When a user logs into the Rancher GUI for the first time, a *Personal Project* and a *Namespace* are created automatically. If you do not see them, reload the web page.
 
-You can view your namespaces in the Rancher GUI in the left tab `Project/Namespaces`.
+You can view your namespaces in the Rancher GUI under the `Project/Namespaces` tab in the left sidebar.
 
-![kube ns](/img/ceritsc/ns.jpg)
+![Namespace view in Rancher GUI](/img/ceritsc/ns.jpg)
 
-You can create additional namespaces either using kubectl or in the Rancher GUI. Creating namespaces using kubectl is not recommended, as kubectl-created namespaces are not linked to the user's *Project*. Instead, create a namespace in the Rancher GUI in the Namespace overview by clicking the `Create Namespace` button.
+You can create additional namespaces either with kubectl or in the Rancher GUI. However, creating namespaces with kubectl is not recommended because these namespaces are not linked to the user's *Project*. Instead, create a namespace in the Rancher GUI's Namespace overview page by clicking the `Create Namespace` button.

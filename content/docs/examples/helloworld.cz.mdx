@@ -1,0 +1,350 @@
+---
+title: Kurz Hello world
+---
+
+Zde poskytujeme krátký návod, jak nasadit vlastní webový server v Kubernetes pomocí `kubectl`. Použijeme již existující příklad z [hello-kubernetes](https://github.com/paulbouwer/hello-kubernetes), ale s trochou podrobnějšího vysvětlení. Tento kurz zdaleka nezahrnuje vše, co lze konfigurovat a dělat, ale spíše poskytuje první zkušenost s Kubernetes.
+
+Budeme nasazovat jednoduchý web, který běží z Docker image a zobrazuje "Hello world" spolu s informacemi o názvu `pod`u a operačním systému `uzlu`.
+
+*DŮLEŽITÉ*
+Pokud není dohodnuto předem, pro osobní projekty a experimenty můžete použít `kuba-cluster`. Zde musíte pracovat ve svém jmenném prostoru a jeho název je odvozen od vašeho příjmení s příponou `-ns`. Nicméně jména nejsou jedinečná, a proto doporučujeme zkontrolovat vaše na `Rancher`u v rozbalovací nabídce v levém horním rohu `kuba-cluster` a `Project/Namespaces`.
+
+![kube ns](/img/ceritsc/hello-ns.jpg)
+
+## Vytvoření souborů
+
+K nasazení aplikace musíme vytvořit alespoň 3 Kubernetes prostředky -- `nasazení`, `službu`, `příchozí provoz`.
+
+### 1. Nasazení
+Vytvořte nový adresář, např. `hello-world`, a uvnitř vytvořte nový soubor `deployment.yaml` s obsahem:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-kubernetes
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hello-kubernetes
+  template:
+    metadata:
+      labels:
+        app: hello-kubernetes
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: hello-kubernetes
+        image: paulbouwer/hello-kubernetes:1.9
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        env:
+          - name: KUBERNETES_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: KUBERNETES_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: KUBERNETES_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+        ports:
+        - containerPort: 8080
+```
+Tento příkladový soubor se skládá z polí:
+- `.metadata`
+  - `.name` označuje název nasazení
+- `.spec`
+  - `.replicas` označuje počet replikovaných podů, které budou vytvořeny
+  - `.selector` pole definuje, jak `nasazení` najde, které `pody` spravovat. Zde je vybrána značka definovaná v šabloně `pod`u (`app: hello-kubernetes`). Je možné použít sofistikovaná výběrová pravidla, pokud hodnoty `app: hello-kubernetes` odpovídají v sekcích `spec:` a `template:` šablony `pod`u.
+  - `.template`
+    - `.metadata.labels` `pody` jsou zde označeny
+    - `.spec` specifikace šablony `pod`u
+      -  `.containers` pole definující kontejnery, které budou běžet. Každá položka musí mít `name, image`
+      -  `.containers.securityContext` definuje, pod jakým uživatelem a volitelně skupinou bude kontejner běžet. *DŮLEŽITÉ* kontejnery musí běžet pod uživatelem a skupinou nonRoot kvůli zabezpečení. Více v části o *PodSecurityPolicy* později
+      -  `.containers.env` nastavuje proměnné prostředí pro kontejner. Mohou být převzaty z jiných polí objektu nebo z jiných typů objektů (např. Secret)
+
+Kompletní referenční dokumentace pro prostředky a jejich povolená pole a podpole je k dispozici [online](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.30/). Nezapomeňte na správné odsazení!
+
+### 2. Služba
+Za druhé musíme vytvořit `službu`, což je abstraktní způsob, jak vystavit aplikaci jako síťovou službu.
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-kubernetes-svc
+spec:
+  type: ClusterIP
+  ports:
+  - name: hello-kubernetes-port
+    port: 80
+    targetPort: 8080
+  selector:
+    app: hello-kubernetes
+```
+Tento soubor vytváří nový objekt `služby` s názvem "hello-kubernetes-svc", který cílí na TCP port 8080 na libovolném `pod`u označeném `app=hello-kubernetes`.
+
+Služba může mapovat libovolný příchozí port na cílový port. Ve výchozím nastavení je cílový port nastaven na stejnou hodnotu jako pole containerPort. Výchozím protokolem je TCP, ale lze použít i další podporované protokoly (UDP, HTTP, SCTP, PROXY).
+
+### 3. Příchozí provoz
+
+Nakonec musíme vytvořit `příchozí provoz`, který vystavuje HTTP a HTTPS trasy zvenčí clusteru. Provoz je řízen pravidly nastavenými v prostředku.
+Je možné vystavit vaše nasazení [dvěma způsoby](../kubernetes/expose), ale zde použijeme clusterový LoadBalancer s vytvořením nového DNS jména.
+Můžete použít jakýkoli název, který chcete, ale musí splňovat 2 požadavky:
+- název se skládá pouze z písmen, číslic a '-'
+- název končí `.dyn.cloud.e-infra.cz`
+
+Název se vyplní do `spec.rules.host` a do `spec.tls`. Před použitím jakéhokoli názvu zkontrolujte v prohlížeči, že již neexistuje. Po vytvoření trvá přibližně minutu, než se vytvoří nový DNS záznam, takže vaše aplikace nebude okamžitě dostupná na zadaném názvu; počkejte alespoň jednu minutu.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hello-kubernetes-ingress
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - "test-hello.dyn.cloud.e-infra.cz"
+      secretName: test-hello-dyn-cloud-e-infra-cz-tls
+  rules:
+  - host: "test-hello.dyn.cloud.e-infra.cz"
+    http:
+      paths:
+      - backend:
+          service:
+            name: hello-kubernetes-svc
+            port:
+              number: 80
+        path: /
+        pathType: ImplementationSpecific
+```
+
+Tento příkladový soubor se skládá z polí:
+- `.metadata`
+  - `.name` označuje název
+  - `.annotations` příchozí provoz často používá anotace ke konfiguraci možností v závislosti na řadiči příchozího provozu. Používáme řadič `nginx` a možné anotace jsou uvedeny [zde](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/). Ty použité zde jsou nezbytné pro správnou funkčnost a automaticky vytvářejí TLS certifikát, takže se nemusíte starat o HTTPS - je poskytováno automaticky
+ - `.spec` zahrnuje všechny informace potřebné ke konfiguraci nástroje pro vyrovnávání zatížení, ale nejdůležitější je, že zahrnuje pravidla porovnávaná se všemi příchozími požadavky
+  - `.tls` zajišťuje zabezpečení `příchozího provozu`
+    - `hosts` musí přesně odpovídat DNS názvu, který bude použit
+    - `secretName` musí odpovídat DNS názvu, ale *všechny tečky jsou nahrazeny '-' a na konec je přidáno -tls*
+  - `.rules` je nejdůležitější část
+    - `host` je volitelný, pokud je poskytnut, pravidla platí pro tento host
+    - `paths` (například `/testpath`), každý z nich má přidružený backend definovaný pomocí `service.name` a `service.port.name` nebo `service.port.number`. `service.port.number` je port, který je vystaven službou, tedy v službě označen jako `spec.ports.port`, podobně `service.ports.[i].name` je ekvivalentní `spec.ports.[i].name`. Typ cesty může být specifikován, více o tom [zde](https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types)
+
+### 4. Vytvoření
+Nyní vytvořte všechny prostředky pomocí celého adresáře jako argumentu a specifikujte svůj jmenný prostor
+```bash
+kubectl apply -f hello-world -n [namespace]
+deployment.apps/hello-kubernetes created
+ingress.networking.k8s.io/hello-kubernetes-ingress created
+service/hello-kubernetes-svc created
+```
+
+Stav nasazených prostředků můžete zkontrolovat pomocí `kubectl get [pods | services | ingress] -n [namespace]`. Když jsou všechny spuštěné a běžící, můžete přistoupit na URL a uvidíte ukázkovou stránku.
+![hello](/img/ceritsc/hello.png)
+
+POZNÁMKA: V případě, že máte problémy s chybovou zprávou "Config not found", podívejte se [sem](../kubernetes/kubectl) pro další informace.
+
+## Další přizpůsobení
+Můžete specifikovat různá pole v souboru každého prostředku, mnohá z nich zde nejsou použita. Jednou z více požadovaných funkcí je předávání proměnných prostředí do `nasazení` v případě, že spuštěné kontejnery je potřebují. V našem nasazení použijeme jednu proměnnou prostředí ke změně zobrazované zprávy. Na konec přidejte novou sekci `env`, která předá hodnotu do podu. Poté znovu spusťte `kubectl apply -f hello-world -n [namespace]`, abyste použili změny. Když nyní přistoupíte na web, zobrazí se nová zpráva!
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-kubernetes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-kubernetes
+  template:
+    metadata:
+      labels:
+        app: hello-kubernetes
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: hello-kubernetes
+        image: paulbouwer/hello-kubernetes:1.9
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        ports:
+        - containerPort: 8080
+        env:
+         - name: KUBERNETES_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        - name: KUBERNETES_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+        - name: KUBERNETES_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+        - name: MESSAGE
+            value: Hello from the other side!
+```
+
+![hello2](/img/ceritsc/hello2.png)
+
+Další přizpůsobení může zahrnovat:
+- Vytvoření `secret`u (např. pro heslo) a jeho připojení do podu jako soubor
+- Vytvoření `ConfigMap`u (např. pro větší konfigurace) a jeho připojení do podu
+- Vytvoření `PVC` (úložiště) z NFS (S3 #TODO) a jeho připojení do podu
+- Vytvoření prostředků jiných typů, např. ReplicaSet, StatefulSet, DaemonSet
+
+
+## Vytvoření PVC
+Pokud potřebujete použít trvalé úložiště, můžete vytvořit NFS svazek a připojit jej v `nasazení`.
+
+Příklad: vytvořte soubor `pvc.yaml` a nastavte `[pvc-name]` na požadovaný název a `[capacity]` na požadovanou kapacitu.
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: [pvc-name]
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: [capacity]Gi
+  storageClassName: nfs-csi
+```
+Poté proveďte `kubectl apply -f pvc.yaml -n [namespace]`, kde `[namespace]` je jmenný prostor, kde chcete mít PVC vytvořeno. Můžete zkontrolovat, zda vše proběhlo v pořádku spuštěním
+```bash
+kubectl get pvc -n [namespace]
+NAME                                                               STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+[pvc-name]                                                    Bound    pvc-bcdcea2e-3019-409b-8b0f-18eb50d72c21   1Gi        RWX            csi-nfs        11d
+```
+
+Nárok je připojen do `nasazení` (nebo jiných objektů, jako jsou `Job, StatefulSet, DaemonSet`, atd.) ve 2 krocích:
+- Vytvořte pole `volumes` pod `spec.template`
+- Vytvořte pole `volumeMounts` pod `spec.template.spec.containers[container_which_will_have_pvc_mounted]`
+
+`volumes` představuje seznam svazků k připojení s alespoň:
+- polem `name`
+- typem prostředku, který bude připojen (zde `persistentVolumeClaim`) spolu s názvem prostředku (ten specifikovaný v PVC `metadata.name`)
+
+`volumeMounts` připojuje položky z `volumes` do určité cesty uvnitř kontejneru. V kontejneru bude vše uložené v cestě `/work` trvalé a může být sdíleno mezi více kontejnery (jeden svazek může být připojen mnohokrát, pokud je jeho typ `ReadWriteMany`, což NFS je)
+
+```yaml
+spec:
+  replicas: ...
+  selector:
+    matchLabels:
+      ...
+  template:
+    metadata:
+      labels:
+        ...
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: flask-web
+          image: alpine:3.8
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+          ports:
+            - containerPort: 8888
+          volumeMounts:            <---------------- SEZNAM PŘIPOJENÝCH SVAZKŮ
+            - mountPath: /work
+              name: shared-volume
+      volumes:        <---------------- SEZNAM SVAZKŮ
+      - name: shared-volume
+        persistentVolumeClaim:
+          claimName: my-first-claim
+```
+
+## Pod Security Policy
+Z bezpečnostních důvodů není v `kuba-cluster` povoleno všechno.
+
+Seznam (ne)povolených akcí:
+- Allow Privilege Escalation:  false
+- Fs Group: must run as 1-65535
+- User: must run as non root
+- Supplemental groups: must run as 1-65535
+- Volumes: can mount `configMap, emptyDir, projected, secret, downwardAPI, persistentVolumeClaim`
+
+Jakékoli nasazení, které se pokusí běžet jako root, nebude vytvořeno a zůstane ve stavu podobném:
+```bash
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+hello-kubernetes   0/1     1            0           7m8s
+```
+ (všimněte si READY 0/3 a AVAILABLE 0, logy a describe by řekly více)
+
+## Příkaz Kubectl
+Existuje mnoho užitečných příkazů `kubectl`, které lze použít k ověření stavu nasazených prostředků nebo k získání informací o nich. Uvádíme některé z nejužitečnějších:
+- `kubectl get [resource]` poskytuje základní informace o prostředku, např. pokud dotazujeme službu, můžeme vidět IP adresu
+```bash
+ kubectl get service hello-kubernetes-svc -n [namespace]
+NAME                   TYPE           CLUSTER-IP      EXTERNAL-IP       PORT(S)        AGE
+hello-kubernetes-svc   LoadBalancer   10.43.124.251   147.251.253.243   80:31334/TCP   3h23m
+```
+- `kubectl describe [resource]` nabízí podrobné informace o prostředku (výstup je silně ořezán)
+```bash
+kubectl describe pod hello-kubernetes -n test-ns
+Name:         hello-kubernetes-5547c96ddc-4hxnf
+Namespace:    test-ns
+Priority:     0
+Node:         kub-a10.priv.cerit-sc.cz/10.16.62.19
+Start Time:   Tue, 23 Mar 2021 15:22:57 +0100
+Labels:       app=hello-kubernetes
+              pod-template-hash=5547c96ddc
+Annotations:  cni.projectcalico.org/podIP: 10.42.2.25/32
+              cni.projectcalico.org/podIPs: 10.42.2.25/32
+              kubernetes.io/psp: global-restricted-psp
+Status:       Running
+IP:           10.42.2.25
+IPs:
+  IP:           10.42.2.25
+Controlled By:  ReplicaSet/hello-kubernetes-5547c96ddc
+...
+```
+- `kubectl get pods -n [namespace]` + `kubectl logs [pod_name] -n [namespace]` zobrazuje logy podu, pokud byly nakonfigurovány nebo došlo k nějakému výstupu. Tato kombinace je velmi užitečná pro ladění.
+
+```bash
+kubectl get pods -n test-ns --context kuba-cluster
+NAME                                READY   STATUS    RESTARTS   AGE
+hello-kubernetes-5547c96ddc-4hxnf   1/1     Running   0          3h19m
+ astralmiau@vega  ~/work/test-psp  kubectl logs hello-kubernetes-5547c96ddc-4hxnf -n test-ns
+
+> hello-kubernetes@1.9.0 start /usr/src/app
+> node server.js
+
+Listening on: http://hello-kubernetes-5547c96ddc-4hxnf:8080
+::ffff:10.42.3.0 - - [23/Mar/2021:14:24:06 +0000] "GET / HTTP/1.1" 200 650 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15"
+```
+
+Další kombinace najdete v [rozsáhlém cheatsheetu pro kubectl](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
