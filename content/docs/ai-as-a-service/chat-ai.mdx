@@ -1,0 +1,355 @@
+---
+title: Chat AI (LLM models)
+description: Comprehensive guide to using Open WebUI chat interface with large language models on the e-INFRA CZ AI platform
+---
+
+## Introduction
+
+Open WebUI is an AI-powered chatbot interface that provides secure, on-premises access to advanced language models for chatting, coding, document processing, and image generation. The same models are accessible via a [documented REST API](#creating-an-api-key) and can be connected to other applications such as Visual Studio. This guide provides instructions on logging in, using models, generating images, and creating an API key. Our AI services operate entirely within the secure e-INFRA CZ infrastructure—your data never leaves this environment.
+
+## Accessing Open WebUI
+
+You can access the platform directly at:
+
+👉 https://chat.ai.e-infra.cz
+
+**Prerequisites**
+
+To use this service, you must have a valid **MetaCentrum (e-INFRA CZ) account**.
+
+**How to Get Access**
+
+The CERIT-SC AI services are integrated with the national research infrastructure MetaCentrum. You can apply for access or manage your credentials through the [MetaCentrum registration form](https://metavo.metacentrum.cz/en/application/form).
+
+<Callout type="info">
+**Masaryk University students and staff**: If you don't have a MetaCenter account yet, please [request access here](https://signup.e-infra.cz/registrar/?vo=e-infra.cz&group=projects%3Achat-ai&targetnew=https%3A%2F%2Fchat.ai.e-infra.cz&targetexisting=https%3A%2F%2Fchat.ai.e-infra.cz&targetextended=https%3A%2F%2Fchat.ai.e-infra.cz).
+Your request will be automatically approved, allowing you to log in and get started immediately.
+**Note**: This quick registration provides access only to the AI chat + API services. A standard MetaCentrum account is required for all other Kubernetes services.
+</Callout>
+
+
+---
+
+If you encounter any issues or need assistance, please contact us at **[k8s@cerit-sc.cz](mailto:k8s@cerit-sc.cz)**.
+
+## Logging In
+
+1. Open your web browser and navigate to https://chat.ai.e-infra.cz.
+2. Click on the Login button.
+3. Select the option to log in with e-INFRA CZ.
+4. Once logged in, you will be redirected to the Open WebUI dashboard.
+
+## Using AI Models
+
+Open WebUI provides access to various AI models for text generation. To use them:
+
+1. After logging in, navigate to the chat interface.
+2. Select a model from the available options in the dropdown menu.
+3. Type your query or request in the input field.
+4. Press Enter or click Submit to receive a response from the selected model.
+5. **Be sure to scroll through the model list!** More models are available below. 👇⬇️
+
+<center>
+<div class="w-96">
+![chatscroll](/img/ceritsc/chat-ai-scroll.gif)
+</div>
+</center>
+
+### Currently Available Models (as of January 26, 2026)
+
+Effective January 26, 2026, the **DeepSeekR1** model will be **superseded** by the **DeepSeek V3.2** model. DeepSeekR1 will no longer be available.
+
+We categorize our models into three groups:
+
+1. **Guaranteed Models** – Stable models maintained for long-term availability. Any updates or replacements will be announced on this page and via WebUI banners.
+2. **Experimental Models** – Subject to change during resource optimization or new capability testing.
+3. **Deprecated Models** – Currently operational but scheduled for decommissioning.
+
+<Callout type="info">
+For exact model names, query the model list as shown [below](#model-names-for-api-interface). When accessing externally, you must use the exact model names, such as `llama3.3:latest`.
+
+Model names are case-sensitive and may include version tags like `:latest` or specific quantization formats.
+</Callout>
+
+#### Guaranteed Models
+
+| Model                | Model Name  |Description | Context Size |
+|----------------------|----|---------|--------------|
+| **GPT-OSS-120B**     |  gpt-oss-120b  |A 120B language model from OpenAI. Superior performance. |  128k  |
+| **DeepSeek V3.2**    |  deepseek-v3.2-thinking  | A 685B reasoning and instruct (selectable) language model from DeepSeek AI. Excels at complex tasks, including mathematics, logical reasoning, and code generation. | 160k |
+| **Qwen 3 Coder**     |  qwen3-coder  |  A 480B language model from Qwen. Succeeds the Qwen 2.5 Coder with significantly enhanced performance in coding tasks. | 90k   |
+
+<Callout type="info">
+Although **DeepSeek V3.2** and **Qwen 3 Coder** are designated as **guaranteed** models, please note:
+- Their underlying hardware may require maintenance, and we lack backup infrastructure of comparable scale
+- During urgent priority tasks requiring this hardware, model availability may be temporarily suspended
+- Advance notice of such interruptions will be provided on this page and within the chat interface
+</Callout>
+
+#### Experimental Models
+
+| Model         |      Model Name         | Description | Context Size |
+|---------------|---------------|-------------|--------------|
+| **GLM 4.7**    | glm-4.7              | The 385B GLM 4.7 language model from Z.ai with selectable reasoning and instruct modes, excelling at coding, tool calling, and agentic tasks. | 200k |
+| **GPT OSS 120B with Memory** |  | The 120B GPT OSS model for retaining key facts (e.g., preferences, project details). Enabling the memory feature personalizes responses across conversations. To enable `Memory`, click your username (bottom-left), go to `Settings` → `Personalization` → `Memory` tab, and toggle `Memory` on. To add memories, use either method: 1) **Manage Button**: In the Memory tab, click Manage to add/edit memories (e.g., "My project: CFD optimization") or 2) **Chat Command**: During chats, type "remember [fact]" (e.g., "remember my MetaCentrum login is xnovak12"). The model confirms storage. *Important: When enabled, memories are used across all supported models.*| 128k |
+| **Kimi K2.5**  | kimi-k2.5   |  Large-scale MoE model with roughly 1 trillion parameters with significantly enhanced performance in coding tasks. | 256k   |
+| **Qwen 3.5**  | qwen3.5   |  397B Multimodal advanced model for coding, tool use, and agentic workflows | 262k   |
+
+
+#### Deprecated Models
+
+| Model              | Description |
+|--------------------|---------------|
+| **Aya&nbsp;Expanse**      | A 32B Q8 multilingual model from Cohere, trained to perform well across 23 languages, including Czech. |
+| **Command-A**      | A 111B model from Cohere. Though slower in response time, it is particularly strong in programming tasks and manifest generation. |
+| **DeepSeek&nbsp;R1&nbsp;0528** | A 685B reasoning-optimized language model from DeepSeek AI. Excels at complex tasks including mathematics, logical reasoning, and code generation. | 128k  |
+| **Gemma 3**        | A 27B FP16 language model from Google, part of the lightweight Gemma family built on Gemini technology. |
+| **LLaMA 3.3**      | A 70B language model from Meta. Its efficiency and versatility make it well-suited for a wide range of natural language processing tasks. |
+| **Mistral&#8209;Small&nbsp;3.1**| A 24B language model from Mistral AI, featuring built-in vision capabilities. |
+| **Mistral&#8209;Small&nbsp;3.2**| A 24B language model from Mistral AI, featuring built-in vision capabilities. |
+| **Phi-4**            | A 14B Q8 model from Microsoft, trained on a mix of synthetic datasets, filtered public web content, academic books, and Q&A datasets. It represents the current state of the art in open-access models. |
+
+#### Embedding Models
+
+Embedding models are available via API endpoint: `https://llm.ai.e-infra.cz/v1` using API tokens from Open WebUI.
+
+| Model                          | Description |
+|--------------------------------|-------------|
+| qwen3-embedding-4b             | QWen3 embedding model with context size 40960 tokens and embedding vector size 2560. Multilingual model with support for more than 100 languages. |
+| qwen3-reranker-4b              | QWen3 reranker model with context size 40960 tokens                              |
+| nomic-embed-text-v1.5          | Nomic AI embedding model with context size 512 tokens and embedding vector size 768. English only. |
+| nomic-embed-text-v2-moe        | Nomic AI embedding model with context size 512 tokens and embedding vector size 768. English only. Updated version. |
+| mxbai-embed-large:latest       | Mixedbread-AI embedding model with context size 512 tokens and embedding vector size 1024. English only. |
+| multilingual-e5-large-instruct | Intfloat embedding model with context size 514 tokens and embedding vector size 1024. Multiple languages. |
+
+#### Czech Language Proficiency
+We evaluated selected models using the [BenCzechMark](https://huggingface.co/blog/benczechmark) benchmark. Full results are available at the provided link. For reference, key scores are summarized below:
+
+| Model             | Mean Score |
+|-------------------|------------|
+| DeepSeek-R1-0528  | 85.3       |
+| Command-A         | 82.8       |
+| LLaMA-3.3         | 73.5       |
+| LLaMA-4-Scout     | 71.5       |
+| Aya Expanse       | 63.5       |
+| Gemma 3           | 59.2       |
+| Phi-4             | 58.2       |
+
+<Callout type="info">
+Mistral-Small exhibits compatibility issues with this Czech benchmark.
+</Callout>
+
+#### Programming Languages Proficiency
+
+We evaluated selected models using [Aider Polyglot Benchmark](https://aider.chat/2024/12/21/polyglot.html#the-polyglot-benchmark). For reference, key scores are summarized below:
+
+| Model                  | C++ Score | Go Lang Score | Java Score | Javascript Score | Python Score | Rust Score |
+|------------------------|-----------|---------------|------------|------------------|--------------|------------|
+|Qwen3-Coder-480B        |  61.5     | 59.0          | 63.8       | 53.1             | 50.0         | 53.3       |
+|Qwen3-Coder-Next        |  69.2     | 51.3          | 51.1       | 75.5             | 70.6         | 46.7       |
+|GPT-OSS-120B            |  50.0     | 59.0          | 40.4       | 61.2             | 70.6         | 53.3       |
+|DeepSeek-R1-0528        |   7.7     | 56.4          | 55.3       | 69.4             | 73.5         | 70.0       |
+|DeepSeek V3.2 (think)   |  88.5     | **84.6**      | 66.0       | 89.9             | 82.4         | 76.7       |
+|DeepSeek V3.2 (nothink) | **92.3**  | 82.1          | 59.6       | 79.6             | 79.4         | 66.7       |
+|GLM 4.7 (think)         | 69.2      | 71.8          | 59.6       | 83.7             | 82.4         | 53.3       |
+|GLM 4.7 (nothink)       | 69.2      | 38.5          | 44.7       | 55.1             | 55.9         | 33.3       |
+|Kimi K2.5 (think)       | **92.3**  | **84.6**      | 74.5       | **93.9**         | **91.2**     | **90**     |
+|Kimi K2.5 (nothink)     | **92.3**  | 82.1          | **76.6**   | 89.8             | 82.4         | **90**     |
+
+## Examples
+Below is a step-by-step guide for leveraging LLM models in Open WebUI across various scenarios.
+
+### Image Generation
+
+Generate AI images from text prompts.
+* **Select** a text-generation model (e.g., `GPT-OSS-120B`) from the top-left dropdown.
+* **Click** the **Integration Icon** below the prompt → toggle the **Image** slider to **ON**.
+
+<div class="w-110">
+![image-webui](/img/ceritsc/image-webui.png)
+</div>
+
+* Enter your text prompt (e.g., `Draw a rainbow kitten`).
+* Press Enter or click Send.
+* Enter follow-up text instructions to modify the generated image. Press Enter again after each refinement prompt.
+* **Result**: The generated image appears in the chat.
+
+<div class="w-50">
+![image-webui1](/img/ceritsc/kote-ai-chat.png)
+</div>
+
+
+### Picture Editor
+
+Modify uploaded images using multimodal models.
+
+* Select a multimodal model (e.g., `RedHat AI Scout`) from the model dropdown.
+* Click the **+** icon → **Upload Files** → select an image (JPG/PNG)
+
+<div class="w-110">
+![uploadfiles-webui](/img/ceritsc/uploadfiles-webui.png)
+</div>
+
+* Upload the image you want to edit.
+* **Click** the **Integration Icon** below the prompt → toggle the **Image** slider to **ON**.
+
+<div class="w-110">
+![image-webui](/img/ceritsc/image-webui.png)
+</div>
+
+* Enter your edit command: e.g., `Add attacking crocodile`.
+* Press Enter or click Send.
+* **Result**: The edited image appears in the chat.
+
+<div class="w-200">
+![image-webui2](/img/ceritsc/kotata-ai-chat.png)
+</div>
+
+### Image-to-Text (OCR Scanner)
+Extract text from images.
+
+* Select a text-generation model (e.g., `Gemma 3` or `RedHat AI Scout`)
+* Click the **+** icon → **Upload Files** → select an image (JPG/PNG)
+
+<div class="w-110">
+![uploadfiles-webui](/img/ceritsc/uploadfiles-webui.png)
+</div>
+
+* Upload an image containing text (e.g., scanned document, PDF, or photo).
+* Enter an OCR instruction: e.g., `Extract all text from this image verbatim, preserving line breaks.`
+* Press Enter or click Send.
+* **Result**: The extracted text appears as a response.
+
+<div class="w-200">
+![image-webui3](/img/ceritsc/OCR-chat-ai.png)
+</div>
+
+
+### Python Sandbox for Math/Code Tasks
+Execute Python for math/code tasks (*not general programming*).
+* Select any model supporting tools (e.g., `GPT-OSS-120B`).
+* Click the **Integration Icon** → **Tools** → toggle the **Python Sandbox** to **ON**.
+
+<div class="w-110">
+![python-webui](/img/ceritsc/python-webui.png)
+</div>
+
+* Submit your request: e.g., `Solve this Sudoku puzzle using Python: [[5][3][0][0][7][0][0][0][0], ...]`.
+* Press Enter or click Send.
+* **Result**: Text output (e.g., solved puzzle or code in Python for data analytics)
+
+<Callout type="info">
+Users can easily upload CSV files and request analyses. The application generates ready-to-run Python code for direct execution in the browser. Although the sandbox does not render graphs, it produces complete visualization code, enabling users to RUN and display results in their preferred external environment.
+</Callout>
+
+<div class="w-200">
+![image-python-webui](/img/ceritsc/chat-ai-python.png)
+</div>
+
+<Callout type="info">
+⚠️  **General programming is disabled.**  Use exclusively for specific problems where Python can provide an efficient **text-based solution** (e.g., mathematical calculations, data transformations).
+</Callout>
+
+### Memorize (Personalization)
+Store user-specific context (e.g., preferences, credentials).
+Example: After storing "I prefer Python over MATLAB", future coding suggestions will prioritize Python.
+
+* **Enable Memory**:
+    * Click your username (bottom-left) → **Settings** → **Personalization** → **Memory Tab**
+    * Toggle **Memory** on
+
+<div class="w-110">
+![memory-webui](/img/ceritsc/memory-webui.png)
+</div>
+
+* Select a memory-capable model: `GPT OSS 120B with Memory`
+* **Adding Memories**:
+    * **Manual**: Click **Manage** → add key/value pairs: *Project: CFD optimization; Deadline: 2025-12-01*
+    * **Chat Command**: Type `remember [fact]` (e.g., `remember my MetaCentrum login is xnovak12`).
+* The model confirms storage.
+* Context storage works only with the `GPT OSS 120B with Memory` model.
+
+<Callout type="info">
+Memories are **applied automatically to all supported models** once enabled.
+</Callout>
+
+## Creating an API Key {#model-names-for-api-interface}
+
+To use Open WebUI's API, you need to generate an API key.
+
+1. Go to the Settings section of the Open WebUI interface.
+2. Navigate to the Account (Účet).
+3. Click on API keys (display).
+4. Ignore JWT token, select API key, and either generate a new one or display the existing one.
+5. Copy the generated API key and store it securely.
+6. Use this key in API requests to authenticate and access Open WebUI services.
+7. Endpoint API is: [https://llm.ai.e-infra.cz/v1/](https://llm.ai.e-infra.cz/v1/).
+
+<Callout type="info">
+Open Web UI's API usage is described in the chapter [OpenAI API](../ai-as-a-service/ai-api)
+</Callout>
+
+## Knowledge Function (Alpha)
+
+Open WebUI includes an experimental *Knowledge Function*, which is essentially a [RAG (Retrieval-Augmented Generation)](https://en.wikipedia.org/wiki/Retrieval-augmented_generation) system. This allows users to upload custom texts and query a model that generates answers based on that content.
+
+Currently, the Knowledge Function only supports global configuration, meaning a single embedding model is used for all stored texts. We are still evaluating which embedding models are best suited for this purpose. A key limitation is that changing the embedding model requires all previously uploaded texts to be reprocessed, as RAG relies on consistent embeddings to function correctly. For this reason, the feature is not recommended for production use and is intended primarily for testing and preview.
+
+Another challenge lies in finding suitable embedding models that support the Czech language and large input contexts. Most available models are limited to a 512-token input, which is suboptimal for longer texts, as it requires splitting the content into small fragments—often too small to provide high-quality answers.
+
+While we could integrate external embedding models like OpenAI's `text-embedding-3-small`, this approach would compromise data privacy, as it involves sending data to a third-party service.
+
+## Data Privacy
+
+In Open WebUI, model labels are now standardized for clarity. All local models are correctly labeled as internal, ensuring consistent and intuitive categorization.
+
+All models accessible to users run on our infrastructure, and inference-related data does not leave our systems. However, we can provide access to truly external models—such as GPT-4o—upon special agreement. In such cases, data is understandably transmitted to a third party.
+
+The Ollama inference system has all request/response logging completely disabled. In contrast, the vLLM system logs requests and responses only while the associated Pod is running.
+
+Open WebUI itself logs at the INFO level by default, meaning request/response data is not logged. Occasionally, when troubleshooting is required, the log level may be temporarily raised to DEBUG. In such cases, request/response data is stored until the Pod is restarted—typically when a new version is deployed.
+
+Only system administrators have access to these logs, and they are not transmitted anywhere else.
+
+Saved conversations are stored in a PostgreSQL database hosted within our infrastructure. When a conversation is deleted, it should also be removed from the database—though we have not independently verified whether WebUI fully implements this behavior. The database is backed up to an S3 storage on CESNET with a 30-day retention period, meaning older backups are deleted after 30 days. Theoretically, a deleted conversation will be completely erased within that window. Again, access to this system is restricted to administrators only.
+
+All administrators have signed NDAs.
+
+## A Practical Guide to Using AI Chat
+
+As a scientist, you're likely no stranger to seeking out information and guidance to help you with your work. When interacting with AI chatbots, effective communication is key to getting the results you need. In this guide, we'll walk you through the best practices for crafting high-quality prompts and engaging in productive conversations with AI chatbots.
+
+### Why Proper Prompting Matters
+A poorly written prompt can lead to a subpar response. AI chatbots are only as good as the input they receive. By providing clear and concise prompts, you can unlock more accurate and relevant results.
+
+### Communicating Effectively with AI
+Interacting with chatbots is similar to communicating with humans. The quality of the response depends on the clarity and specificity of your prompt. Don't worry about complexity—focus on describing your task and asking questions.
+
+### Basic Principles of Communication
+1.	**Define Your Goal**: Clearly state what you want to achieve. The more specific you are, the better the response will be. Avoid vague or general prompts, as they can lead to disappointing results.
+2.	**Provide Context**: Offer relevant details that can help the AI understand the task and provide a more accurate response. Context helps the AI grasp the purpose and significance of the task.
+3.	**Specify the Output**: Indicate how you want the response to be formatted, including length, style, and tone. This ensures you receive a response that meets your needs.
+4.	**Choose an appropriate language model**: Try different LLM models and compare the results.
+
+### Let AI Help You Craft Prompts
+1.	**Start with a Basic Idea**: Instead of struggling to come up with a prompt, ask the AI chatbot to help you create one. For example: "Create a high-quality prompt for a chatbot that will help me write engaging articles on productivity topics for my colleagues."
+2.	**Specify the Purpose**: Add context about how you plan to use the prompt, such as: "I'll use this prompt to write articles on productivity topics for my colleagues."
+3.	**Refine the Result**: The AI will provide a complete prompt that you can use as-is or refine to better suit your needs.
+
+### Engaging in Productive Conversations with AI
+1.	**Start with a Strong Prompt**: Begin with the best prompt you can craft, using the techniques outlined above.
+2.	**Evaluate the Response**: Review the response and identify areas for improvement. AI chatbots may not always provide exactly what you want on the first try.
+3.	**Refine Your Request**: Continue the conversation by providing specific feedback, such as: "Make it more concise" or "Write it in a more formal tone."
+4.	**Repeat the Process**: Iterate until you achieve the desired result. Ask questions, provide feedback, and refine your prompt to get the best possible response.
+
+### Improving Prompts with Roles and Details
+1.	**Assign a Role to AI**: Provide context by assigning a role to the AI, such as: "Act as an expert copywriter with 15 years of experience." This helps the AI provide more relevant and sophisticated responses.
+2.	**Describe the Problem in Detail**: Clearly explain the problem or task you want the AI to help with. Provide as much context as possible to ensure the AI understands your needs.
+3.	**Specify the Output Format**: Indicate how you want the response to be formatted, such as a list, table, or paragraph.
+4.	**Define the Tone and Style**: Specify the tone and style you want the AI to use, such as: "Write it in a friendly, approachable tone" or "Use a formal, technical tone."
+
+### Using Examples for Better Results
+1.	**Provide a Sample**: Offer a sample or example of what you're looking for. This helps the AI understand your needs and provide a more accurate response.
+2.	**Use Positive Instructions**: Instead of telling the AI what not to do, focus on what you want it to do. For example: "Use simple language" instead of "Avoid technical jargon."
+3.	**Avoid Conflicting Instructions**: Be consistent in your prompts and avoid contradictory instructions.
+4.	**Let AI Ask Questions**: Encourage the AI to ask questions if it needs clarification or more information. This can help ensure you receive a more accurate and relevant response.
