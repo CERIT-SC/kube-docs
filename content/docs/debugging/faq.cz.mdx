@@ -1,0 +1,179 @@
+---
+title: FAQ
+---
+
+**Problem:** Každý pod, úloha, nasazení a jakýkoli jiný typ, který spouští kontejner, musí mít nastaven atribut *resources*, jinak nasazení selže s podobnou chybou:
+```
+Pods "master-685f855ff-gg9sr" is forbidden: failed quota: default-w2qv7: must specify limits.cpu,limits.memory,requests.cpu,requests.memory:Deployment does not have minimum availability.
+```
+
+**Řešení:** Pod, úloha, nasazení postrádá následující sekci prostředků s vhodnými hodnotami:
+```yaml
+resources:
+  requests:
+    cpu: 1
+    memory: 512Mi
+  limits:
+    cpu: 1
+    memory: 512Mi
+
+```
+
+---
+
+**Problem:** Nasazení vrací zprávu podobnou:
+```log
+Error creating: pods "app-cronjob-28837272-7k594" is forbidden: exceeded quota: default-kcq58, requested: limits.memory=8Gi, used: limits.memory=41872Mi, limited: limits.memory=45000Mi
+```
+
+**Řešení:** Tato chyba znamená, že pod, který se pokoušíte vytvořit, požaduje více paměti (limits.memory=8Gi), než povoluje dostupná kvóta. Zde má jmenný prostor limit paměti 45 000 Mi (asi 43,95 Gi) definovaný v objektu resource quota (`default-kcq58`, viz `kubectl get resourcequota -n [your-namespace] default-kcq58`), a vytvoření vašeho podu by to překročilo, protože kvóta je téměř plně využita (used: limits.memory=41872Mi).
+
+Možnosti řešení:
+
+* Snížit požadavek na paměť podu:
+
+  Upravte limits.memory v specifikaci podu tak, aby požadoval méně paměti, ideálně se vešel do zbývající kvóty (asi 3128 Mi, nebo asi 3 Gi).
+
+* Požádat o zvýšení kvóty (pokud máte kontrolu nad nastavením clusteru):
+
+  Kontaktujte nás na k8s@cerit-sc.cz pro zvýšení kvóty paměti pro jmenný prostor nebo vytvořte explicitní projektový jmenný prostor s vyššími kvótami než osobní jmenný prostor.
+
+---
+
+**Problem:** Nenalezeno GPU, `nvidia-smi` vrací `command not found`.
+
+**Řešení:** Nasazení postrádá požadavek na GPU jako:
+
+```yaml
+resources:
+  limits:
+    nvidia.com/gpu: 1
+```
+
+nebo
+
+```yaml
+resources:
+  limits:
+    cerit.io/gpu-mem: 1
+```
+
+---
+
+**Problem:** Nasazení vrací zprávu podobnou:
+
+```log
+CreateContainerConfigError (container has runAsNonRoot and image will run as root (pod: "mongo-db-846b7bfc7-qrlqt_namespace-ns(5d3538ab-7493-41ab-bd94-a4256c236f6f)", container: mongo-db-test))
+```
+
+**Řešení:** Nasazení postrádá sekci `securityContext` a image kontejneru (v tomto případě `mongo`) neobsahuje **číselný** `USER`. Chcete-li to opravit, jednoduše rozšiřte definici nasazení takto:
+```yaml
+image: cerit.io/nextflowproxy:v1.2
+imagePullPolicy: Always
+securityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+resources:
+  limits:
+    cpu: 4
+    memory: 8192Mi
+```
+
+Řádky `runAsUser` a `runAsGroup` jsou důležité.
+
+**Podívejte se na kompletní nastavení kontextu zabezpečení** [zde](../kubernetes/securitycontext).
+
+---
+
+**Problem:** Helm nasazení vrací chybový kód 413
+
+**Řešení:** HTML kód 413 znamená entita příliš velká. Helm ukládá celé nasazení (včetně všech lokálních souborů v chartu, bez ohledu na to, zda mají příponu `.yaml`) a hodnoty do objektu `Secret`. Limit velikosti Secret je asi 1,5 MB. Ověřte, zda v celém chartu není velký soubor.
+
+---
+**Problem:** Jak mohu opravit následující typ chyby:
+
+```log
+Error creating: pods "gmx-18dafd65-49d5-4263-8da2-e7d574b69930-nrtb9" is forbidden: violates PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "gmx-18dafd65-49d5-4263-8da2-e7d574b69930" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "gmx-18dafd65-49d5-4263-8da2-e7d574b69930" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "gmx-18dafd65-49d5-4263-8da2-e7d574b69930" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "gmx-18dafd65-49d5-4263-8da2-e7d574b69930" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+```
+
+**Řešení:** Chybová zpráva je způsobena tím, že pod nesplňuje požadavky standardu `restricted` PodSecurity v Kubernetes. Chcete-li to opravit, musíte přidat `securityContext` do specifikace podu a kontejneru. Zde je, jak můžete řešit každý problém:
+
+* allowPrivilegeEscalation: Nastavte to na `false`.
+* Capabilities: Zrušte všechny schopnosti, aby splnily restriktivní politiku.
+* runAsNonRoot: Ujistěte se, že pod nebo kontejner je nastaven na spuštění jako ne-root uživatel.
+* seccompProfile: Nastavte `seccompProfile.type` na `"RuntimeDefault"` nebo `"Localhost"`.
+
+Příklad specifikace podu:
+
+```yaml copy
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gmx-pod
+spec:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: gmx-container
+    image: your-image
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - "ALL"
+```
+
+Vysvětlení změn:
+
+* `allowPrivilegeEscalation: false`: Zabrání kontejneru získat další oprávnění.
+* `capabilities.drop: ["ALL"]`: Zruší všechny Linux schopnosti, což je vyžadováno podle restriktivní politiky.
+* `runAsNonRoot: true`: Zajistí, že kontejner nebude běžet jako root uživatel.
+* `seccompProfile.type: "RuntimeDefault"`: Vynutí výchozí seccomp profil pro další zabezpečení.
+
+Aplikování aktualizované specifikace:
+
+Nahraďte `your-image` vhodným názvem image kontejneru a aplikujte aktualizovanou konfiguraci. To by mělo vyřešit chybu a umožnit podu projít `restricted` PodSecurity admission.
+
+---
+
+**Problem:** Dostávám chybu "OpenSSL version mismatch. Built against 30000020, you have 30400010".
+**Řešení:** Tato chyba se obvykle vyskytuje v prostředí Conda, když se verze OpenSSL systému liší od verze používané Condou. K problému dochází, protože knihovny Condy mají přednost před systémovými knihovnami, ale některé systémové binární soubory (jako `ssh` nebo `git`, který volá `ssh`) vyžadují systémovou verzi OpenSSL, aby správně fungovaly.
+
+Jako dočasné řešení můžete před spuštěním problematického příkazu vymazat proměnnou prostředí `LD_LIBRARY_PATH`. Například:
+```shell
+LD_LIBRARY_PATH='' ssh user@host
+```
+
+Tím se systém donutí používat svou výchozí verzi OpenSSL místo verze poskytované Condou.
+
+---
+**Problem:** Narazil jsem na chybu připojení, jako například:
+`Failed to connect to github.com port 443 after 135243 ms: Couldn't connect to server`.
+
+**Řešení:**  Tato chyba znamená, že pod nemá přístup k externímu internetu. Chcete-li to vyřešit, musíte nakonfigurovat HTTP proxy. Můžete to udělat exportováním následujících proměnných prostředí, buď přímo v shellu podu, nebo jejich nastavením v manifestu nasazení podu pod `env`:
+
+```bash
+export HTTPS_PROXY=http://proxy.muni.cz:3128
+export HTTP_PROXY=http://proxy.muni.cz:3128
+```
+
+Některé programy (např. `wget`) vyžadují proměnné malými písmeny `https_proxy` nebo `http_proxy`. V takových případech musíte také exportovat varianty malými písmeny:
+
+```bash
+export https_proxy=http://proxy.muni.cz:3128
+export http_proxy=http://proxy.muni.cz:3128
+```
+
+<Callout type="warn">
+Proxy je vhodná pouze pro protokoly založené na HTTP. Nemůže být použita pro protokoly jako SSH.
+</Callout>
+
+<Callout type="warn">
+Proxy nepodporuje přístup k Kubernetes API. Pokud exportujete tyto proxy proměnné, nástroje jako `kubectl` nebo `helm` uvnitř podu mohou přestat fungovat, pokud také nenakonfigurujete proměnnou prostředí `NO_PROXY`. Například:
+
+```bash
+export NO_PROXY=10.43.0.1 # 10.43.0.1 je přesná adresa Kubernetes API
+```
+</Callout>
