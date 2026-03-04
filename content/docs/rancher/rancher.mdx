@@ -2,25 +2,59 @@
 title: Rancher
 ---
 
-The _Rancher_ instance is available at [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz). Log in using e-INFRA CZ, Life Science Login (ELIXIR), or EGI Check-In.
+The *Rancher* instance is available at [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz). Please log in using federated authentication via e-INFRA CZ, Life Science Login (ELIXIR), or EGI Check-In.
 
-After logging in, you will see the default dashboard showing the available clusters. If no cluster appears, reload the page—it may take up to a minute for the clusters to load.
-
-Rancher and Kubernetes organize resources into *clusters*, *Projects*, and *Namespaces*. *Clusters* correspond to groups of physical nodes. *Projects* are created within *clusters*, and *Namespaces* are created within *Projects*. *Projects* are a Rancher-only concept and are not native to Kubernetes. [Namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) provide a mechanism to isolate groups of resources within a single cluster. Resource names must be unique within a namespace but not across namespaces. Namespace names must be unique within a cluster. For example, it is generally not advisable to create a namespace called *test*.
-
-Each user receives a *Default Project* labeled with their first and last name, along with a default *Namespace* named `surname-ns`. The default Project and Namespace are automatically created when the user first logs into the Rancher dashboard. To create additional Namespaces, use the Rancher GUI: navigate to the namespace overview and click the `Create Namespace` button.
-
-Do not use `kubectl` to create namespaces.
+After your first login, you will see the default dashboard displaying your available clusters.
 
 
-For more details about creating Namespaces and quotas, refer to the [quota](./quotas) documentation.
+<Callout type="tip">
+*Empty Dashboard?* If no clusters appear after logging in, try refreshing the page (F5). It may take up to a minute for the initial clusters to be provisioned and displayed.
+</Callout>
 
-Clusters assigned to you (and which you are authorized to access) appear in the upper left corner or in the list on the home page:
+## Organizational Structure: Clusters, Projects, and Namespaces
+
+The Rancher and Kubernetes environment is organized into logical layers. Understanding these relationships is key to managing your applications effectively.
+
+|  Level        | Description   |
+|----------------|----------------|
+| Cluster     |  A group of physical or virtual nodes running Kubernetes. |
+| Project  | Rancher-specific concept. It groups multiple namespaces together, allowing for bulk management of permissions and quotas.|
+| Namespace  | A native Kubernetes isolation mechanism for specific resources (pods, services). [Namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) provide a mechanism to isolate groups of resources within a single cluster. |
+
+## Important Rules for Namespaces
+
+* Resource names (e.g., pods) must be unique within a single namespace.
+* Namespace names must be unique across the entire cluster; avoid generic names like *test*.
+
+## Your Personal Workspace
+
+Upon your first login, the system automatically creates:
+
+* **Default Project**: Named after your first and last name.
+* **Default Namespace**: Formatted as `surname-ns`.
+
+## Creating Additional Namespaces
+
+You can create more namespaces directly through the Rancher GUI using the `Create Namespace` button.
+
+<Callout type="warn">
+**Do not use** `kubectl create namespace`! To ensure proper integration with Rancher's quota system and management features, namespaces must be created via the web interface. See the [quota](./quotas) section for more information.
+</Callout>
+
+
+## Navigation
+
+The clusters you are authorized to access can be found in the upper-left menu or in the list on the home page:
 
 ![clusters](/img/ceritsc/cluster1.png)
 
-When you select a cluster, you can see your *Projects and Namespaces*:
+Once you select a specific cluster, you can view your **projects** and **namespaces**:
 
 ![projects and namespaces](/img/ceritsc/projects.png)
 
-Many tasks can be performed directly through the Rancher interface. For more advanced operations, use the `kubectl` command-line tool. Both approaches are effective; however, we recommend Rancher for users who are less familiar with the terminal.
+## GUI vs. Command Line (`kubectl`)
+
+Rancher provides a user-friendly web interface that covers most common tasks. However, for advanced operations and automation, the `kubectl` tool is also available.
+
+* GUI (Web): Ideal for beginners and for a quick overview of service status.
+* kubectl: Recommended only for users comfortable working in a terminal. It allows for full control and complex configuration of Kubernetes objects.
