@@ -1,0 +1,392 @@
+---
+title: Spuštění virtuálního stroje
+---
+
+## Požadavky
+
+1. Navštívili jste [https://rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz) a pamatujete si svůj [jmenný prostor](../rancher/quotas).
+2. Nakonfigurovali jste nástroj `kubectl`, viz sekce [kubectl](../kubernetes/kubectl).
+3. Počítač s nainstalovaným příkazem `ssh`.
+
+## Spuštění jednoduchého virtuálního stroje
+
+Spuštění skutečného virtuálního stroje samozřejmě není možné v kontejnerizované infrastruktuře. Následující kroky však ukazují, jak spustit něco velmi blízkého virtuálnímu stroji.
+
+Spuštění VM sestává z několika kroků:
+
+1. Vygenerujte [SSH klíč](https://www.ssh.com/academy/ssh/key)
+2. Vytvořte `secret` s veřejným SSH klíčem.
+3. Zvolte ssh kompatibilní docker image
+4. Vytvořte a spusťte manifest
+
+### SSH klíče
+
+V následujícím preferujte typ klíče RSA pro maximální kompatibilitu.
+
+#### Generování SSH klíče -- Linux/MacOS
+
+SSH klíče jsou obvykle umístěny v domovském adresáři v podadresáři `.ssh` a pojmenovány například `id_rsa.pub`. Pokud takový adresář nebo soubory neexistují, můžete vygenerovat nové klíče pomocí příkazu `ssh-keygen`, který generuje tajný a veřejný klíč. Názvy souborů jsou vytištěny během generování klíče, např.:
+
+```
+$ ssh-keygen
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/user/.ssh/id_rsa):
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/user/.ssh/id_rsa.
+Your public key has been saved in /home/user/.ssh/id_rsa.pub.
+```
+
+V tomto případě je `id_rsa` soukromý klíč (uchovávejte ho tajně a nikdy neposílejte), `id_rsa.pub` je veřejný klíč. Passphrase není vyžadována, ale doporučuje se.
+
+#### Generování SSH klíče -- Microsoft Windows
+
+V tomto případě postupujte podle [návodu zde](https://www.puttygen.com/).
+
+#### Vytvoření Secretu
+
+Pro tento krok musí být nainstalován a nakonfigurován `kubectl`. Vytvořte secret vydáním příkazu:
+
+```
+kubectl create secret generic ssh-publickey --from-file=ssh-publickey=~/.ssh/id_rsa.pub -n [namespace]
+```
+
+Nahraďte `[namespace]` názvem vašeho *jmenného prostoru* z Rancheru. Pokud jste vygenerovali nebo používáte jiný typ klíče než *RSA*, nahraďte `id_rsa.pub` správným umístěním veřejného klíče.
+
+### Docker Image
+
+Vytvořili jsme 4 základní image pro veřejné použití:
+1. `cerit.io/pub/ssh-base:d10` -- Image založený na Debian 10 (Buster)
+2. `cerit.io/pub/ssh-base:d11` -- Image založený na Debian 11 (Bullseye)
+3. `cerit.io/pub/ssh-base:ubuntu20.04` -- Image založený na Ubuntu 20.04 (Focal)
+4. `cerit.io/pub/ssh-base:ubuntu22.04` -- Image založený na Ubuntu 22.04 (Jellyfish)
+
+Tyto image lze použít přímo nebo je lze použít jako základní image pro vytváření vlastních pokročilejších image, viz níže.
+
+### Manifest
+
+[Stáhněte](/examples/ceritsc/manifests/vm-simple.yaml) manifest. Upravte řádek 6:
+
+```yaml
+annotations:
+  external-dns.alpha.kubernetes.io/hostname: vm-[namespace].dyn.cloud.e-infra.cz
+```
+
+a nahraďte `[namespace]` vaším *jmenným prostorem*. Tento *jmenný prostor* musí být stejný jako *jmenný prostor* použitý pro secret.
+
+Pokud chcete, nahraďte název `image` na řádku 34:
+
+```yaml
+image: cerit.io/pub/ssh-base:d10
+```
+
+jakýmkoli jiným image zmíněným výše, například `cerit.io/pub/ssh-base:ubuntu22.04`. Uložte soubor a spusťte manifest:
+
+```
+kubectl create -f vm-simple.yaml -n [namespace]
+```
+
+Předpokládáme, že stažený a upravený soubor má název `vm-simple.yaml`. Znovu nahraďte `[namespace]` vaším *jmenným prostorem* z Rancheru. Tento příkaz spustí manifest. Můžete zkontrolovat `Workload` -> `Pods` v Rancheru, abyste viděli, že váš manifest běží:
+![vm-ssh-simple](/img/ceritsc/vm-ssh.png)
+
+Pokud je potřeba GPU, vyžádejte si GPU v sekci `limits`:
+
+```
+resources:
+  limits:
+    cpu: "1"
+    memory: "4Gi"
+    nvidia.com/gpu: "1"
+```
+
+### Přihlášení
+
+Pokud manifest běží, můžete se přihlásit pomocí příkazu ssh. Přihlašovací jméno je vždy `user`, není určeno k nahrazení.
+
+```
+ssh user@vm-[namespace].dyn.cloud.e-infra.cz
+```
+
+Znovu nahraďte `[namespace]` vaším *jmenným prostorem* z Rancheru a měli byste vidět něco takového:
+
+```
+anubis: ~ $ ssh user@vm-hejtmanek1-ns.dyn.cloud.e-infra.cz
+Warning: Permanently added 'vm-hejtmanek1-ns.dyn.cloud.e-infra.cz' (ED25519) to the list of known hosts.
+X11 forwarding request failed on channel 0
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+user@vm-example-0:~$
+```
+
+V tomto okamžiku máte spuštěný váš VM pro obecné účely.
+
+## Smazání běžícího VM
+
+Pokud již váš VM není potřeba, prosíme vás o jeho smazání. Lze jej smazat vydáním příkazu:
+
+```
+kubectl delete -f vm-simple.yaml -n [namespace]
+```
+
+Kde `vm-simple.yaml` je soubor použitý pro vytvoření a `[namespace]` je váš *jmenný prostor* z Rancheru.
+
+## Instalace dalšího software
+
+Existují dvě možnosti, jak nainstalovat další balíčky do VM. Můžete buď přestavět docker image, nebo použít existující, nainstalovat správce balíčků `conda` pro další instalaci balíčků. Pomocí dockeru můžete nainstalovat všechny standardní balíčky ze základního systému, tj. Debian nebo Ubuntu, tyto balíčky budou součástí nového image a budou vždy (i po restartu kontejneru) k dispozici.
+
+**Poznámka**: Nemůžete instalovat žádný systémový balíček v běžícím kontejneru.
+
+Nicméně pomocí `conda` je instalace `conda` balíčků možná i v běžícím kontejneru. Viz výhrady níže.
+
+### Přestavba Image
+
+Pokud nejste obeznámeni s docker build. Podívejte se na naši [dokumentaci](../docker/dockerfile). Pro docker image je potřeba docker registry. Můžete použít naši registry [https://hub.cerit.io](https://hub.cerit.io), která může uložit váš docker image. Image lze odkazovat jako: `cerit.io/[project]/[image]:[tag]`. Viz [docs](../docker/harbor).
+
+Pro přestavbu jednoho z výše uvedených image použijte následující příklad `Dockerfile`:
+
+```
+FROM cerit.io/pub/ssh-base:d10
+
+RUN apt-get update && apt-get -t install vim less && apt-get clean && rm -rf /var/lib/apt/lists/
+```
+
+Tento `Dockerfile` vytváří novou verzi docker image s nainstalovanými balíčky `vim` a `less`. Uložte příklad do souboru `Dockerfile`, změňte seznam nainstalovaných balíčků podle potřeby. Docker image můžete sestavit pomocí:
+
+```
+docker build -t cerit.io/[login]/[image]:[tag] - < Dockerfile
+```
+
+Nahraďte `[login]` naším *názvem projektu* v `hub.cerit.io`, `[image]:[tag]` názvem image a tagem.
+
+Pro uložení image do registry se musíte nejprve přihlásit do registry pomocí:
+
+```
+docker login cerit.io
+```
+
+s přihlašovacími údaji, které můžete získat na [https://hub.cerit.io](https://hub.cerit.io).
+
+Po přihlášení můžete *pushnout* svůj nový image pomocí:
+
+```
+docker push cerit.io/[login]/[image]:[tag]
+```
+
+Nahraďte `image` v manifestu výše tímto novým názvem `cerit.io/[login]/[image]:[tag]` a smažte a znovu spusťte manifest.
+
+### Správce balíčků Conda
+
+Pomocí [conda](https://docs.conda.io/en/latest/) nebo nástroje `mamba` můžete instalovat nové balíčky i v běžícím kontejneru. Nejprve nainstalujte `conda/mamba` vydáním jednoho po druhém následujících příkazů:
+
+```
+wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh
+/bin/bash Mambaforge-Linux-x86_64.sh -f -b -p /home/user/conda
+/home/user/conda/bin/conda init
+echo '. ~/.bashrc' >> ~/.profile
+echo 'export LD_LIBRARY_PATH=/home/user/conda/lib' >> ~/.bashrc
+```
+
+Odhlaste se a znovu se přihlaste. Nyní byste měli vidět prompt takto:
+
+```
+(base) user@vm-example-0:~$
+```
+
+Nyní jste připraveni instalovat balíčky, např. balíček `mc`:
+
+```
+(base) user@vm-example-0:~$ mamba install mc
+```
+
+Po chvíli `mamba` dokončí a vy můžete používat nainstalovaný balíček `mc`.
+
+Všechny balíčky jsou nainstalovány do adresáře `/home/user/conda`.
+
+#### Výhrady
+
+* V tomto jednoduchém případě není obsah `/home/user/conda` zachován při restartech kontejneru. Musíte nakonfigurovat trvalý domovský adresář, viz níže.
+* Velikost celého kontejneru je omezena na `4GB`. To je nastaveno: `ephemeral-storage: "4Gi"`, pokud je potřeba, tato hodnota může být zvýšena. Pokud je překročena velikost `4GB`, kontejner bude *evicted* a restartován.
+
+## Trvalý domovský adresář
+
+Jak je uvedeno výše, disky uvnitř kontejneru nejsou trvalé. To znamená, že vše, co je nainstalováno pomocí `conda`/`mamba`, je ztraceno, pokud je kontejner restartován nebo znovu vytvořen. Pro řešení tohoto problému je potřeba vytvořit trvalý domovský adresář.
+
+Můžete [stáhnout](/examples/ceritsc/manifests/vm-persistent.yaml) manifest, který obsahuje definici trvalého domovského adresáře. Trvalý domovský adresář je spojen s názvem nasazení a jeho verzí. Název je v manifestu:
+
+```yaml
+kind: StatefulSet
+metadata:
+  name: vm-pvc-example
+```
+
+Výchozí verze je `-0`, takže v tomto případě bude trvalý domovský adresář spojen s `vm-pvc-example-0`. Odpovídající [PVC](../kubernetes/pvc) se nazývá `home-vm-pvc-example-0`. Tuto PVC najdete v Rancheru pod `Storage` -> `PersistentVolumeClaims`. To je použitelné pro případ, kdy je obsah domovského adresáře poškozen a potřebuje být smazán. Můžete smazat tuto PVC z tohoto Rancher UI a začít znovu s prázdnou.
+
+Potřebujete změnit stejné položky v tomto manifestu jako v *jednoduchém* případě, tj. `external-dns.alpha.kubernetes.io/hostname` a `image`. Spustíte ho stejným způsobem jako *jednoduchý* případ pomocí
+
+```shell
+kubectl create -f vm-persistent.yaml -n [namespace]
+```
+
+## Prostředky
+
+Oba výše uvedené příklady vyžadují **1 CPU**, **4GB paměti** a **4GB disku**. Tyto limity můžete změnit úpravou následující části manifestu:
+
+```yaml
+limits:
+  cpu: "1"
+  memory: "4Gi"
+  ephemeral-storage: "4Gi"
+```
+
+**Poznámky:**
+
+1. Počet CPU je nastaven jako číslo, jako `1`, nebo zlomek, jako `100m` znamenající *0.1 CPU*. Pro paměť a disk se používají jednotky `Mi` nebo `Gi` znamenající Mega bajty a Giga bajty, resp.
+
+2. Pro `conda`/`mamba` je vyžadováno alespoň 4GB paměti, jinak dostanete zprávu `killed` při pokusu spustit příkaz `conda`.
+
+## Práce s GPU
+
+Pro práci s GPU musí sekce prostředků manifestu obsahovat požadavek na GPU. Můžete [stáhnout](/examples/ceritsc/manifests/vm-persistent-gpu.yaml) manifest nebo použít vlastní s následujícím doplněním:
+
+```yaml
+limits:
+  cpu: "1"
+  memory: "4Gi"
+  ephemeral-storage: "4Gi"
+  nvidia.com/gpu: 1
+```
+
+Pokud spustíte tento manifest, NVIDIA ovladače a příkazy `nvidia-smi` budou dostupné v kontejneru:
+
+```shell
+user@vm-pvc-example-0:~$ nvidia-smi
+Wed May 25 17:53:50 2022
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 470.57.02    Driver Version: 470.57.02    CUDA Version: 11.4     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  NVIDIA A40          On   | 00000000:A3:00.0 Off |                    0 |
+|  0%   34C    P8    31W / 300W |      0MiB / 45634MiB |      0%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
+|=============================================================================|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+user@vm-pvc-example-0:~$
+```
+
+Nicméně, frameworky *CUDA* nebo *Tensorflow* nebo *Pytorch* musí být nainstalovány samostatně.
+
+### CUDA
+
+*CUDA* může být nainstalováno buď úpravou běžícího kontejneru přes Dockerfile, jak je uvedeno výše, nebo pomocí `conda`/`mamba`. V druhém případě je potřeba alespoň **20GB** disku (řádek `ephemeral-storage`).
+
+Pomocí `mamba` je instalace možná přes:
+
+```
+mamba install cudatoolkit-dev=11.4.0 cudatoolkit=11.4.2
+```
+
+Po úspěšné instalaci můžete ověřit, že CUDA funguje, vydáním:
+
+```
+/home/user/conda/pkgs/cuda-toolkit/extras/demo_suite/deviceQuery
+```
+
+Výstup by měl vypadat takto:
+
+```
+/home/user/conda/pkgs/cuda-toolkit/extras/demo_suite/deviceQuery Starting...
+
+ CUDA Device Query (Runtime API) version (CUDART static linking)
+
+Detected 1 CUDA Capable device(s)
+
+Device 0: "NVIDIA A40"
+  CUDA Driver Version / Runtime Version          11.4 / 11.4
+  CUDA Capability Major/Minor version number:    8.6
+  Total amount of global memory:                 45634 MBytes (47850782720 bytes)
+  (84) Multiprocessors, (128) CUDA Cores/MP:     10752 CUDA Cores
+  GPU Max Clock rate:                            1740 MHz (1.74 GHz)
+  Memory Clock rate:                             7251 Mhz
+  Memory Bus Width:                              384-bit
+  L2 Cache Size:                                 6291456 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(131072), 2D=(131072, 65536), 3D=(16384, 16384, 16384)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(32768), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(32768, 32768), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  1536
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 2 copy engine(s)
+  Run time limit on kernels:                     No
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Enabled
+  Device supports Unified Addressing (UVA):      Yes
+  Device supports Compute Preemption:            Yes
+  Supports Cooperative Kernel Launch:            Yes
+  Supports MultiDevice Co-op Kernel Launch:      Yes
+  Device PCI Domain ID / Bus ID / location ID:   0 / 39 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+
+deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 11.4, CUDA Runtime Version = 11.4, NumDevs = 1, Device0 = NVIDIA A40
+Result = PASS
+```
+
+**Poznámka:**
+
+1. Instalujte verzi CUDA co nejblíže verzi zobrazené přes `nvidia-smi`, aktuálně je to verze **11.4.2**. Použijte `mamba search cuda` k výpisu dostupných verzí.
+
+2. Pokud dostanete chybu:
+```
+stderr: ./cuda-installer: error while loading shared libraries: libxml2.so.2: cannot open shared object file: No such file or directory
+```
+Chybí vám správné nastavení `conda`, zejména chybí `echo 'export LD_LIBRARY_PATH=/home/user/conda/lib' >> ~/.bashrc`.
+
+### SHM
+
+Pro mnoho GPU aplikací je vyžadována zvýšená sdílená paměť (SHM). Výchozí velikost sdílené paměti je 64kB pro kontejnery. Zvýšení SHM se provádí připojením dalšího svazku do `/dev/shm`. Můžete stáhnout příklad [manifest](/examples/ceritsc/manifests/vm-persistent-gpu-shm.yaml).
+
+Přidané sekce jsou:
+
+1. Pod `volumeMounts`:
+```yaml
+- name: shm
+  mountPath: /dev/shm
+```
+
+2. Celá nová sekce `volumes`:
+```yaml
+volumes:
+- name: shm
+  emptyDir:
+    medium: Memory
+    sizeLimit: 1Gi
+```
+Odsazení této sekce musí odpovídat řádku `containers`, to je důležité!
+
+Tyto dvě sekce přidávají 1GB sdílené paměti, `sizeLimit` označuje velikost SHM.
+
+**Poznámka:** `sizeLimit` SHM se používá z limitů `memory` v sekcích `resources`, což znamená, že pokud je `memory` nastaveno na 5GB a `sizeLimit` je 1GB, pak je pro aplikace k dispozici 4GB paměti. Dotazování velikosti SHM pomocí příkazu `df` je zavádějící, nezobrazuje skutečnou velikost SHM.

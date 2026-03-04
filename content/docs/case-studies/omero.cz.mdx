@@ -1,0 +1,292 @@
+---
+title: Případová studie: Omero
+---
+
+Dostali jsme úkol spustit aplikaci [Omero](https://www.openmicroscopy.org/omero/) v Kubernetes. V podstatě potřebujeme dvě věci: Docker kontejner aplikace a manifest nasazení. Aplikace může mít některé závislosti, jako je databáze, v takovém případě je potřeba nasadit i ty.
+
+Vyhledáváním termínu `omero docker` jsme získali výsledek [https://github.com/ome/omero-server-docker](https://github.com/ome/omero-server-docker), který vysvětluje, jak nasadit Omero server. Má dvě možnosti:
+
+1. Spuštění OMERO s docker-compose
+2. Spuštění images (ručně)
+
+Pro Kubernetes musíme zvolit druhou možnost, protože docker-compose nelze aplikovat přímo na Kubernetes.
+
+Druhá možnost začíná databází a zdá se, že jde o Postgres databázi. Zde máme štěstí, protože Kubernetes poskytuje Postgres operátor pro snadné nasazení databáze, viz naše dokumentace k [Operators](../operators/postgres-cnpg).
+
+Ve všech níže uvedených příkazech nahraďte `[namespace]` názvem vašeho vlastního jmenného prostoru.
+
+## Postgres
+
+Operátor Postgres ve výchozím nastavení vytváří náhodná hesla, ale v tomto příkladu vytvoříme explicitní heslo pro Postgres databázi. Použijeme `omero` jako uživatelské jméno databáze a nějaké tajné heslo, např. `xxxpasx876`. Nejprve musíme vytvořit secret s názvem a heslem. Oba musí být zakódovány pomocí [base64](https://www.base64encode.org/).
+Můžete použít odkaz nebo příkaz `echo -e 'omero' | base64` v Linux shell. Přepínač `-n` je nezbytný, řetězec (název, heslo) nesmí obsahovat znak nového řádku (`\n`). Jakmile máme dvě hodnoty zakódované v base64, vytvoříme a nasadíme secret:
+
+```yaml
+apiVersion: v1
+data:
+  password: b21lcm9rb2tvcw==
+  username: b21lcm8=
+kind: Secret
+metadata:
+  name: omero-db-app
+type: kubernetes.io/basic-auth
+```
+
+`metadata.name` může být libovolný, ale bude odkazován v následujících manifestech. [Odkaz](/examples/ceritsc/manifests/db-app-secret.yaml).
+
+```shell
+kubectl create -f db-app-secret.yaml -n [namespace]
+```
+
+Jakmile máme secret, nasadíme databázi. Jednoduchá konfigurace stačí.
+
+```yaml
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: omero
+spec:
+  instances: 1
+  imageName: 'ghcr.io/cloudnative-pg/postgresql:15.3-2'
+  primaryUpdateStrategy: unsupervised
+  bootstrap:
+    initdb:
+      database: omero
+      owner: omero
+      secret:
+        name: omero-db-app
+  resources:
+    requests:
+      memory: 2Gi
+      cpu: 100m
+    limits:
+      memory: 6Gi
+      cpu: 2
+  storage:
+    size: 10Gi
+    storageClass: zfs-csi
+```
+
+Tento manifest odkazuje na název secretu v `spec.bootstrap.initdb.secret.name`, musí se shodovat s názvem secretu, který jsme vytvořili. Pokud je databáze pomalá při zpracování celé zátěže, lze zvýšit `spec.resources.limits.cpu`. Pro produkční účely by mělo být zvýšeno `spec.resources.requests.cpu`, aby odpovídalo skutečné typické zátěži. [Odkaz](/examples/ceritsc/manifests/db-cluster.yaml).
+
+```shell
+kubectl create -f db-cluster.yaml [namespace]
+```
+
+Po chvíli by měl být vytvořen nový Pod v jmenném prostoru `[namespace]`. Bude pojmenován `omero-1`.
+
+Vytvořený cluster má pouze jeden Pod, nejde o skutečný a odolný cluster. Pro clustery s vysokou dostupností viz [Postgres Operator](../operators/postgres-cnpg).
+
+## Omero Server
+
+Spuštění `omero-server` byl druhý krok. Stránka ukazuje, jak ho spustit v Dockeru:
+
+```shell
+docker run -d --name omero-server --link postgres:db \
+    -e CONFIG_omero_db_user=postgres \
+    -e CONFIG_omero_db_pass=postgres \
+    -e CONFIG_omero_db_name=postgres \
+    -e ROOTPASS=omero-root-password \
+    -p 4063:4063 -p 4064:4064 \
+    openmicroscopy/omero-server
+```
+
+Aplikace ve spravovaném Kubernetes nemůže běžet jako root. Je dobrý nápad získat očekávané uživatelské ID z kontejneru pomocí dockeru. Na stroji s nainstalovaným dockerem tedy proveďte:
+
+```shell
+docker run -it --rm --entrypoint /bin/bash openmicroscopy/omero-server
+```
+
+Tím se vytvoří a spustí Omero server docker kontejner. Dále proveďte příkaz `id`, který zobrazí očekávané uživatelské ID a skupinové ID. Mělo by to vypadat takto:
+
+```shell
+xhejtman@osiris:~$ docker run -it --rm --entrypoint /bin/bash openmicroscopy/omero-server
+bash-4.2$ id
+uid=1000(omero-server) gid=997(omero-server) groups=997(omero-server)
+bash-4.2$
+```
+
+Takže pro nasazení serveru použijeme uživatelské ID `1000` a skupinové ID `997`.
+
+Můžeme vidět, že bychom měli předat čtyři proměnné prostředí: `CONFIG_omero_db_user`, ` CONFIG_omero_db_pass`, `CONFIG_omero_db_name` a `ROOTPASS`. Potřebujeme předat další proměnnou `CONFIG_omero_db_host`, abychom určili hostname databáze. Vytvořená databáze má hostname ve formě `[name]-rw`, takže v našem případě `omero-rw`.
+
+Použijeme databázový secret k naplnění proměnných `CONFIG_omero_db_user` a `CONFIG_omero_db_pass`. Konkrétní část manifestu vypadá takto:
+
+```yaml
+name: CONFIG_omero_db_user
+valueFrom:
+  secretKeyRef:
+    name: omero-db-app
+    key: username
+```
+
+kde `name: omero-db-app` je název secretu a `key: username` je klíč v secretu.
+
+Prolistováním stránky github můžeme vidět, že budeme také potřebovat nějaké persistentní úložiště:
+* `/opt/omero/server/OMERO.server/var`: Adresář var OMERO.server, včetně logů
+* `/OMERO`: Adresář dat OMERO
+
+Použijeme nepersistentní svazek `emptyDir` pro logy a persistentní svazek pro adresář `/OMERO`. Toto řešení je založeno na předpokladu, že `/OMERO` obsahuje cenná data, zatímco `/opt/omero/server/OMERO.server/var` ne.
+
+Pro persistentní svazek musí být vytvořena PVC pomocí následujícího manifestu:
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-omero-data
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: nfs-csi
+```
+
+[Odkaz](/examples/ceritsc/manifests/pvc-data.yaml).
+
+```shell
+kubectl create -f pvc-data.yaml -n [namespace]
+```
+
+Nakonec jsme připraveni nasadit `omero-server` pomocí [kompletního manifestu](/examples/ceritsc/manifests/omero-server.yaml). Také zpřístupňuje dva porty stejným způsobem jako Docker příkaz. **Nezapomeňte nastavit své vlastní ROOT heslo v následujícím fragmentu.** Také by měl být spíše použit objekt Secret pro předání hesla.
+
+```yaml
+name: ROOTPASS
+value: omero-root-password
+```
+
+```shell
+kubectl create -f omero-server.yaml -n [namespace]
+```
+
+Nyní by měl `omero-server` běžet. Aby však byl přístupný z clusteru, je potřeba nasadit další manifest – službu.
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: omero-server
+spec:
+  type: ClusterIP
+  ports:
+  - port: 4064
+    name: ssl
+    targetPort: 4064
+  - port: 4063
+    name: plain
+    targetPort: 4063
+  selector:
+    app: omero-server
+```
+
+[Odkaz](/examples/ceritsc/manifests/omero-server-svc.yaml).
+
+```shell
+kubectl create -f omero-server-svc.yaml -n [namespace]
+```
+
+Tento manifest zajišťuje, že `omero-server` je přístupný pomocí názvu `omero-server` (to je hodnota `metadata.name`). Porty v této službě se musí shodovat s porty z Docker příkazu `-p 4063:4063 -p 4064:4064`. Název může být libovolný, ale pro každý port bude jiný.
+
+## Omero WEB
+
+Spuštění `omero-server` nestačí, neposkytuje webové rozhraní. Takže po dalším hledání můžeme postupovat podle popisu [omero-web](https://hub.docker.com/r/openmicroscopy/omero-web).
+
+Docker příkaz je:
+
+```shell
+docker run -d --name omero-web \
+    -e OMEROHOST=omero.example.org \
+    -p 4080:4080 \
+    openmicroscopy/omero-web-standalone
+```
+
+Samozřejmě nahradíme `OMERHOST` hodnotou `omero-server`, která odkazuje na naši službu z `omero-server`. Pomocí stejných kroků jako pro `omero-server` získáme očekávané uživatelské ID a uživatelskou skupinu:
+
+```shell
+xhejtman@osiris:~$ docker run -it --rm --entrypoint /bin/bash openmicroscopy/omero-web-standalone
+bash-4.2$ id
+uid=999(omero-web) gid=998(omero-web) groups=998(omero-web)
+bash-4.2$
+```
+
+Podobně jako u `omero-server` stránka uvádí datový svazek:
+
+* `/opt/omero/web/OMERO.web/var`: Adresář `var` OMERO.web, včetně logů
+
+Pro demo účely je typ svazku `emptyDir` dostatečný.
+
+Nyní jsme schopni nasadit `omero-web` [manifest](/examples/ceritsc/manifests/omero-web.yaml).
+
+```shell
+kubectl create -f omero-web.yaml -n [namespace]
+```
+
+`omero-web` by nyní měl běžet. Aby byl přístupný z internetu, potřebujeme službu a Ingress – protože se jedná o webovou aplikaci. Služba je jednoduchá a umožňuje port z Docker příkazu `-p 4080:4080`:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: omero-web
+spec:
+  type: ClusterIP
+  ports:
+  - port: 4080
+    name: web
+    targetPort: 4080
+  selector:
+    app: omero-web
+```
+
+[Odkaz](/examples/ceritsc/manifests/omero-web-svc.yaml).
+
+```shell
+kubectl create -f omero-svc.yaml -n [namespace]
+```
+
+A konečně Ingress:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: omero
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+   - hosts:
+       - "[omero-test].dyn.cloud.e-infra.cz"
+     secretName: [omero-test]-dyn-cloud-e-infra-cz
+  rules:
+  - host: [omero-test].dyn.cloud.e-infra.cz
+    http:
+      paths:
+        - pathType: Prefix
+          path: "/"
+          backend:
+            service:
+              name: omero-web
+              port:
+                number: 4080
+```
+
+[Odkaz](/examples/ceritsc/manifests/omero-web-ingress.yaml).
+
+Nahraďte `[omero-test]` svým vlastním názvem. Celý hostname nesmí přesáhnout 63 znaků. Číslo portu (`4080`) se musí shodovat s číslem portu služby.
+
+```shell
+kubectl create -f omero-web-ingress.yaml -n [namespace]
+```
+
+Můžete vidět běžící Pod `cm-acme-http-solver-`, v takovém případě počkejte, dokud neskončí, pak můžete otevřít svůj Omero odkaz v prohlížeči. Přihlaste se pomocí uživatelského jména `root` a hesla z nasazení `omero-server` (hodnota):
+
+```yaml
+- name: ROOTPASS
+  value: omero-root-password
+```
+
+Nyní jsme hotovi!

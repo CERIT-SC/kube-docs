@@ -1,0 +1,212 @@
+---
+title: Jak spustit NGINX webový server
+---
+
+Spuštění webového serveru [NGINX](https://nginx.org/en/) je běžný test pro nasazení aplikace/služby do Kubernetes. Může se zdát, že jde o jednoduchý úkol, protože NGINX je snadno spustitelný a navíc již existuje připravený [docker image](https://hub.docker.com/_/nginx). Nasazení však může selhat z několika důvodů, proto poskytujeme několik poznámek, jak ho spustit na první pokus.
+
+## Privilegovaný vs. neprivilegovaný režim
+
+Tato Kubernetes platforma je multitenantní, tj. je sdílena mnoha uživateli, a proto má určitá omezení. Jedním z nich je nutnost nastavit [kontext zabezpečení](../kubernetes/securitycontext), protože eskalace oprávnění není povolena. Nastavení kontextu zabezpečení do neprivilegovaného režimu někdy vyžaduje vytvoření vlastního docker image pro aplikaci. Naštěstí pro NGINX již existuje připravený [neprivilegovaný image](https://hub.docker.com/r/nginxinc/nginx-unprivileged). Jeho referenční ID je: `nginxinc/nginx-unprivileged`. Tento image je plně kompatibilní s naší platformou tak, jak je, není potřeba provádět žádné změny v image.
+
+## Uživatelské ID pro běh
+
+Výše zmíněný kontext zabezpečení vyžaduje správné nastavení uživatelského ID a skupinového ID (pole `RunAsUser`, `RunAsGroup`). Pro image `nginx-unprivileged` je správná hodnota pro obě `101`. Tuto hodnotu lze jednoduše získat pomocí `docker` následujícím způsobem. Všimněte si `uid=101` a `gid=101`:
+
+```shell
+docker run -it --rm --entrypoint /bin/sh nginxinc/nginx-unprivileged
+$ id
+uid=101(nginx) gid=101(nginx) groups=101(nginx)
+$
+```
+
+<Callout type="warning">
+Tento příklad předpokládá, že image obsahuje binární soubory `/bin/sh` a `id`. Především kontejnerované aplikace v Go obvykle obsahují pouze Go aplikaci a nic dalšího. V takovém případě je třeba konzultovat `Dockerfile` použitý pro sestavení image nebo dokumentaci projektu.
+</Callout>
+
+## Manifest nasazení
+
+Následující manifest lze použít pro spuštění instance NGINX. Název `nginx` lze nahradit jakýmkoli jiným platným řetězcem (malá písmena, čísla, pomlčka). Část resources (prostředky) by také měla být nastavena podle očekávaného využití (paměť a CPU).
+
+```yaml title="deployment.yaml"
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      securityContext:
+        fsGroupChangePolicy: OnRootMismatch
+        fsGroup: 101
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: nginx
+        image: nginxinc/nginx-unprivileged
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 101
+          runAsGroup: 101
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        resources:
+          requests:
+            cpu: 500m
+            memory: 2Gi
+          limits:
+            cpu: 2
+            memory: 8Gi
+```
+
+## Přidání trvalého úložiště
+
+Výše uvedené nasazení bude fungovat, avšak nebude servírovat žádný užitečný obsah. Je tam pouze `hello` stránka. Také image neočekává, že bude obsah později přidán kopírováním dat do webového kořene (`/usr/share/nginx/html`), ten není standardně zapisovatelný.
+
+Optimální způsob, jak změnit servírovaný obsah, je přidat svazek PVC, více informací najdete v části [PVC](../kubernetes/pvc).
+
+Můžeme vytvořit ad-hoc PVC pomocí následujícího manifestu:
+
+```yaml title="pvc.yaml"
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: test-nginx
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: nfs-csi
+```
+
+Data na tomto PVC jsou zachována, dokud není PVC smazáno.
+
+Pokud bylo PVC vytvořeno, musíme změnit nasazení tak, aby používalo PVC:
+
+```yaml title="deployment.yaml"
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      securityContext:
+        fsGroupChangePolicy: OnRootMismatch
+        fsGroup: 101
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: nginx
+        image: nginxinc/nginx-unprivileged
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 101
+          runAsGroup: 101
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        resources:
+          requests:
+            cpu: 500m
+            memory: 2Gi
+          limits:
+            cpu: 2
+            memory: 8Gi
+        volumeMounts:
+        - name: vol-1
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: vol-1
+        persistentVolumeClaim:
+          claimName: test-nginx
+```
+
+<Callout type="warning">
+Název PVC (`name: test-nginx`) musí odpovídat claimName (`claimName: test-nginx`).
+</Callout>
+
+<Callout type="info">
+Indexování adresářů není ve výchozím nastavení pro NGINX povoleno. Pokud tedy není do PVC nahrán soubor `index.html`, NGINX při otevření URL vysvětlené níže vrátí chybu `403 Forbidden`.
+</Callout>
+
+## Zveřejnění NGINX
+
+Pro zpřístupnění běžícího NGINX z internetu se podívejte do sekce [Zveřejnění aplikací](../kubernetes/expose). V zásadě jsou potřeba dva další jednoduché manifesty:
+
+### Služba
+
+Manifest služby směruje provoz do běžícího podu. Potřebuje správný cílový port a štítek aplikace. V našem případě jsme zvolili `app: nginx` jako štítek aplikace (viz sekce metadat labels v manifestu nasazení) a z [dokumentace](https://hub.docker.com/r/nginxinc/nginx-unprivileged) `nginx-unprivileged` vidíme, že NGINX používá port `8080`, takže manifest služby vypadá následovně:
+
+```yaml title="service.yaml"
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    app: nginx
+```
+
+### Ingress
+
+Posledním požadovaným manifestem je manifest `Ingress`. Obsahuje hostname aplikace a může také poskytnout certifikát Let's Encrypt.
+
+```yaml title="ingress.yaml"
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+   - hosts:
+       - "[some-name].dyn.cloud.e-infra.cz"
+     secretName: [some-name]-dyn-cloud-e-infra-cz
+  rules:
+  - host: [some-name].dyn.cloud.e-infra.cz
+    http:
+      paths:
+        - pathType: Prefix
+          path: "/"
+          backend:
+            service:
+              name: nginx
+              port:
+                number: 8080
+```
+
+Nahraďte `[some-name]` nějakým reálným názvem. Nepoužívejte obecné názvy jako `test`, `example` atd., mohou být již obsazeny.
+
+<Callout type="warning">
+`name` služby a `number` portu musí odpovídat hodnotám z objektu Service.
+</Callout>
