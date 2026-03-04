@@ -474,8 +474,10 @@ Jupyter Notebooks are great tool for interactive computing but sometimes your sc
 To run a job, you need to install a tool `kubectl` inside your notebook.
 For RStudio-based images:
 -  Open terminal and run 
-```curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"```
-  - If you get error `curl: command not found` then perform 
+```
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+```
+- If you get error `curl: command not found` then perform 
   ```
   fakeroot apt-get update
   ```
