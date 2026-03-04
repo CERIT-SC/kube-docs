@@ -1,0 +1,20 @@
+{
+  "pages": [
+    "novinky",
+    "platform",
+    "rancher",
+    "docker",
+    "kubernetes",
+    "operators",
+    "examples",
+    "rancher-apps",
+    "web-apps",
+    "ai-as-a-service",
+    "workflows",
+    "gitops",
+    "case-studies",
+    "debugging",
+    "sensitivecloud",
+    "other"
+  ]
+}
