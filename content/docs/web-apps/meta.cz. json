@@ -1,0 +1,9 @@
+{
+  "title": "Webové Aplikace",
+  "pages": [
+    "foldify",
+    "binderhub",
+    "jupyterhub",
+    "polls"
+  ]
+}
