@@ -1,15 +1,15 @@
 ---
-title: Případová studie: Omero
+title: Spuštění aplikace Omero
 ---
 
-Dostali jsme úkol spustit aplikaci [Omero](https://www.openmicroscopy.org/omero/) v Kubernetes. V podstatě potřebujeme dvě věci: Docker kontejner aplikace a manifest nasazení. Aplikace může mít některé závislosti, jako je databáze, v takovém případě je potřeba nasadit i ty.
+Dostali jsme za úkol spustit aplikaci [Omero](https://www.openmicroscopy.org/omero/) v Kubernetes. V podstatě potřebujeme dvě věci: Docker kontejner aplikace a manifest nasazení. Aplikace může mít některé závislosti, jako je databáze, v takovém případě je potřeba nasadit i ty.
 
 Vyhledáváním termínu `omero docker` jsme získali výsledek [https://github.com/ome/omero-server-docker](https://github.com/ome/omero-server-docker), který vysvětluje, jak nasadit Omero server. Má dvě možnosti:
 
-1. Spuštění OMERO s docker-compose
-2. Spuštění images (ručně)
+1. Spuštění OMERO s `docker-compose`
+2. Spuštění obrazů (image) (ručně)
 
-Pro Kubernetes musíme zvolit druhou možnost, protože docker-compose nelze aplikovat přímo na Kubernetes.
+Pro Kubernetes musíme zvolit druhou možnost, protože `docker-compose` nelze aplikovat přímo na Kubernetes.
 
 Druhá možnost začíná databází a zdá se, že jde o Postgres databázi. Zde máme štěstí, protože Kubernetes poskytuje Postgres operátor pro snadné nasazení databáze, viz naše dokumentace k [Operators](../operators/postgres-cnpg).
 
@@ -274,7 +274,7 @@ spec:
                 number: 4080
 ```
 
-[Odkaz](/examples/ceritsc/manifests/omero-web-ingress.yaml).
+[Odkaz](/examples/ceritsc/manifests/omero-web-ingress.yaml)
 
 Nahraďte `[omero-test]` svým vlastním názvem. Celý hostname nesmí přesáhnout 63 znaků. Číslo portu (`4080`) se musí shodovat s číslem portu služby.
 
