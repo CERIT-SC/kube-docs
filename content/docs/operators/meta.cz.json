@@ -1,0 +1,11 @@
+{
+  "title": "Operátory",
+  "pages": [
+    "operator-summary",
+    "minio",
+    "mpi",
+    "postgres-cnpg",
+    "spark",
+    "logging"
+  ]
+}
