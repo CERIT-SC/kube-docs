@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "kubectl",
+    "ns",
+    "job",
+    "certificates",
+    "expose",
+    "pvc",
+    "resources",
+    "security",
+    "securitycontext",
+    "wireguard"
+  ]
+}
