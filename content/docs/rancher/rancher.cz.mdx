@@ -2,19 +2,59 @@
 title: Rancher
 ---
 
-Instance _Rancher_ je k dispozici na [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz). Prosím, přihlaste se pomocí CESNET, ELIXIR nebo EGI. 
-Po přihlášení byste měli vidět výchozí řídicí panel a výchozí clustery, jak je znázorněno níže. Pokud se žádný cluster nezobrazuje, prosím, obnovte stránku, může trvat až minutu, než se cluster zobrazí.
+Instance služby *Rancher* je dostupná na adrese [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz). Pro přístup využijte federované přihlášení přes e-INFRA CZ, Life Science Login (ELIXIR), or EGI Check-In.
 
-Svět Rancheru a Kubernetes je organizován do *clusterů*, *projektů* a *namespaces*. *Clustery* odpovídají skupinám fyzických uzlů. *Projekty* jsou vytvářeny v rámci *clusterů* a *namespaces* jsou vytvářeny v rámci *projektů*. *Projekty* jsou konceptem pouze pro Rancher a nejsou nativním konceptem Kubernetes. [Namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) poskytují mechanismus pro izolaci skupin zdrojů v rámci jednoho clusteru. Názvy zdrojů musí být jedinečné v rámci namespace, ale ne napříč namespaces. Názvy namespace musí být jedinečné v rámci clusteru. To znamená, že obvykle není dobrý nápad vytvářet namespace s názvem *test* a tak dále.
+Po prvním přihlášení se zobrazí výchozí nástěnka (dashboard). Zde uvidíte dostupné clustery.
 
-Každému uživateli je přiřazen *Výchozí projekt*, který obsahuje jeho křestní jméno a příjmení, a výchozím *Namespace* nazvaným `surname-ns`. Výchozí projekt a namespace jsou automaticky vytvořeny při prvním přihlášení uživatele do řídicího panelu Rancher. Uživatelé mohou vytvářet další namespaces pomocí GUI Rancher v přehledu namespaces stisknutím tlačítka `Vytvořit namespace` (nepoužívejte `kubectl` k vytvoření namespace). Pro více informací o vytváření namespaces a kvótách viz [kvóty](./quotas).
+<Callout type="tip">
+*Prázdný dashboard?* Pokud se po přihlášení žádné clustery nezobrazí, zkuste stránku obnovit (F5). Inicializace může trvat až jednu minutu.
+</Callout>
 
-Přiřazené clustery, ke kterým máte přístup, naleznete v levém horním rohu nebo v seznamu na domovské stránce:
+## Organizační struktura: Clustery, Projekty a Namespacy
+
+Prostředí Rancher a Kubernetes je organizováno do logických vrstev. Pochopení tohoto vztahu je klíčové pro správnou správu vašich aplikací.
+
+
+|  Úroveň        | Popis   |
+|----------------|----------------|
+| Cluster     |  Skupina fyzických nebo virtuálních uzlů (nodes), na kterých běží Kubernetes. |
+| Project (projekt)  | **Specifikum Rancheru**. Sdružuje více jmenných prostorů dohromady a umožňuje hromadnou správu oprávnění a kvót.|
+| Namespace (jmenný prostor)  | Nativní izolované prostředí v Kubernetes pro konkrétní zdroje (pods, services). [Namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/). |
+
+## Důležitá pravidla pro jmenné prostory:
+
+* Názvy zdrojů (např. podů) musí být unikátní v rámci jednoho jmenného prostoru.
+* Názvy samotných jmenných prostorů musí být unikátní v rámci celého clusteru (např. nepoužívejte obecné názvy jako **test**).
+
+## Váš osobní prostor
+
+Při prvním přihlášení vám systém automaticky vytvoří:
+
+* **Default Project**: Pojmenovaný podle vašeho jména a příjmení.
+* **Default Namespace**: Formatted as `surname-ns`.
+
+## Vytváření dalších prostorů
+
+Další jmenné prostory můžete vytvářet přímo v grafickém rozhraní Rancher pomocí tlačítka `Create Namespace`.
+
+<Callout type="warn">
+**Nepoužívejte** `kubectl create namespac`e! Pro správné fungování v rámci Rancheru a přidělení kvót je nutné vytvářet jmenné prostory skrze GUI. Více informací naleznete v sekci [quota](./quotas).
+</Callout>
+
+
+## Navigace v rozhraní
+
+Seznam clusterů, ke kterým máte přístup, naleznete v levém horním menu nebo přímo v seznamu na domovské stránce:
 
 ![clusters](/img/ceritsc/cluster1.png)
 
-Když vyberete cluster, můžete vidět své *projekty a namespaces*:
+Po výběru konkrétního clusteru uvidíte přehled svých projektů a jmenných prostorů:
 
 ![projects and namespaces](/img/ceritsc/projects.png)
 
-S Rancherem je možné pracovat pouze do určité míry. Nicméně, nástroj příkazového řádku kubectl umožňuje více akcí. Můžete používat obě metody, ale nedoporučujeme `kubectl` uživatelům, kteří nejsou zvyklí pracovat v terminálu.
+## GUI vs. příkazová řádka (`kubectl`)
+
+Rancher poskytuje přívětivé webové rozhraní, které pokrývá většinu běžných úkonů. Pro pokročilé operace a automatizaci je však k dispozici nástroj `kubectl`.
+
+* GUI (Web): Ideální pro začátečníky a rychlý přehled o stavu služeb.
+* kubectl: Doporučujeme pouze uživatelům, kteří jsou zvyklí na práci v terminálu. Umožňuje plnou kontrolu nad objekty v Kubernetes.
