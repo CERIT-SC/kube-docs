@@ -1,0 +1,323 @@
+---
+title: Dragonfly
+---
+
+The [Dragonfly Operator](https://www.dragonflydb.io/docs/managing-dragonfly/operator/installation) provides easy deployment and management of Dragonfly instances on Kubernetes. Dragonfly is a modern, high-performance in-memory data store fully compatible with Redis APIs. The operator defines a `Dragonfly` custom resource that ensures the existence of a Dragonfly instance with automatic failover, horizontal/vertical scaling, and monitoring capabilities.
+
+Dragonfly serves as a **supported replacement for Redis** and is particularly recommended as an alternative to the withdrawn Bitnami Redis images.
+
+The full Dragonfly documentation is available at [https://www.dragonflydb.io/docs/](https://www.dragonflydb.io/docs/). For advanced configuration or YAML field descriptions, consult the official documentation.
+
+## Deploying a Dragonfly Instance
+
+The Dragonfly Operator is cluster-wide and ready to deploy instances. To create a Dragonfly instance, define a `Dragonfly` custom resource. Below is an example deployment with the required security context settings:
+
+### Basic Instance
+
+This example creates a Dragonfly instance with automatic snapshots, security contexts, and resource limits:
+
+```yaml
+apiVersion: dragonflydb.io/v1alpha1
+kind: Dragonfly
+metadata:
+  labels:
+    app: my-redis
+  name: my-redis
+spec:
+  args:
+  - --dbfilename=my-redis
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: true
+    runAsGroup: 999
+    runAsUser: 999
+  imagePullPolicy: Always
+  podSecurityContext:
+    fsGroup: 999
+    fsGroupChangePolicy: OnRootMismatch
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  replicas: 2
+  resources:
+    limits:
+      cpu: 1
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  snapshot:
+    cron: 00 * * * *
+    persistentVolumeClaimSpec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: zfs-csi
+```
+
+Run `kubectl create -f dragonfly.yaml -n [namespace]`. You should see pods named `my-redis-0`, `my-redis-1`, etc. running in your namespace.
+
+<Callout type="info">
+**Important**: Both `podSecurityContext` and `containerSecurityContext` must always be present in the Dragonfly resource definition to run in our cluster.
+
+- **Pod level security context**: `runAsNonRoot: true` and `seccompProfile: type: RuntimeDefault`
+- **Container level security context**: `runAsUser` above 0 (typically 999), drop all capabilities, `allowPrivilegeEscalation: false`
+</Callout>
+
+### Configuration Options
+
+#### Replicas
+
+The `spec.replicas` field controls the number of Dragonfly instances. For high availability, use at least 2 replicas. The operator automatically manages master election and failover.
+
+```yaml
+spec:
+  replicas: 3
+```
+
+To scale up or down:
+
+```shell
+kubectl patch dragonfly my-redis --type merge -p '{"spec":{"replicas":3}}'
+```
+
+#### Resources
+
+Resource limits control CPU and memory allocation:
+
+```yaml
+spec:
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: 1
+    limits:
+      memory: "2Gi"
+      cpu: 2
+```
+
+#### Storage Class
+
+Available storage classes include:
+- `nfs-csi` - default shared storage
+- `zfs-csi` - node local-only storage (faster, for single-instance or when performance is critical)
+- `beegfs-csi` - shared fast filesystem
+
+## Snapshots
+
+### Design
+
+Dragonfly uses a point-in-time snapshotting procedure that maintains snapshot isolation. For detailed information about the snapshotting internals, refer to the [Dragonfly Point-in-Time Snapshotting Design](https://www.dragonflydb.io/docs/managing-dragonfly/snapshotting) documentation.
+
+The snapshot is serialized into a single file (RDB format) and utilizes Dragonfly's shared-nothing architecture, with each shard-thread serializing only its own data. This enables efficient and consistent backups without requiring forks.
+
+### Configuration
+
+Snapshots are configured via the `snapshot` section:
+
+```yaml
+spec:
+  snapshot:
+    cron: "0 */6 * * *"  # Every 6 hours
+    persistentVolumeClaimSpec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: nfs-csi
+```
+
+The cron schedule format is standard cron: `minute hour day month day_of_week`.
+
+## Accessing the Database
+
+Dragonfly is intended for internal cluster access only and should not be exposed externally. A service named `<dragonfly-name>.<namespace>.svc.cluster.local` is automatically created and points to the master instance on port `6379`.
+
+### Access From the Same or Different Namespace
+
+For a Dragonfly instance named `my-redis` deployed in namespace `[namespace]`, use the hostname:
+
+```
+my-redis.[namespace].svc.cluster.local:6379
+```
+
+### Connecting with redis-cli
+
+To connect to the instance using `redis-cli`:
+
+```shell
+kubectl run -it --rm --restart=Never redis-cli --image=redis:7.0.10 -- redis-cli -h my-redis.[namespace]
+```
+
+Dragonfly is fully compatible with Redis commands, so you can use standard Redis operations:
+
+```
+dragonfly-sample.default:6379> SET key value
+OK
+dragonfly-sample.default:6379> GET key
+"value"
+```
+
+## Network Policy
+
+<Callout type="warn" icon="⚠️ ">
+It is **strongly recommended** to deploy network policies so that the Dragonfly instance is accessible only within its namespace or from specific pods.
+</Callout>
+
+It is important that:
+1. Network policies restrict access to only the necessary pods
+2. Access from the `dragonfly-operator` namespace to port 9999 is allowed so the operator can manage the instance
+
+### Access Only from Specific Namespace
+
+This example enables access only from the Dragonfly's own namespace and the operator namespace:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dragonfly-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: my-redis
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: [namespace]
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: [any_other_namespace]
+    ports:
+    - protocol: TCP
+      port: 6379
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dragonfly-network-policy-operator
+spec:
+  podSelector:
+    matchLabels:
+      app: my-redis
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: dragonfly-operator
+    ports:
+    - protocol: TCP
+      port: 9999
+```
+
+Replace `[namespace]` with the namespace where Dragonfly is deployed. The `dragonfly-operator` namespace is required for the operator to manage the instance.
+
+### Access Only from Specific Pods
+
+To restrict access to specific pods:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dragonfly-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: my-redis
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: [namespace]
+      podSelector:
+        matchLabels:
+          app: my-app
+    ports:
+    - protocol: TCP
+      port: 6379
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dragonfly-network-policy-operator
+spec:
+  podSelector:
+    matchLabels:
+      app: my-redis
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: dragonfly-operator
+    ports:
+    - protocol: TCP
+      port: 9999
+```
+
+<Callout type="warn" icon="⚠️ ">
+Network policies must allow ingress from the `dragonfly-operator` namespace. Without this access, the operator cannot monitor Dragonfly pods or perform failover operations.
+</Callout>
+
+## Authentication
+
+To add authentication to Dragonfly, you can either set the `DFLY_requirepass` environment variable or add the `--requirepass` argument:
+
+```yaml
+spec:
+  args:
+  - --requirepass=your-password
+  - --dbfilename=my-redis
+```
+
+## TLS Support
+
+Dragonfly supports TLS for encrypted connections and client certificate authentication. For detailed TLS configuration, refer to the [Using Dragonfly with TLS](https://www.dragonflydb.io/docs/managing-dragonfly/operator/tls) documentation.
+
+To enable TLS in the Kubernetes deployment, you need to create a TLS secret and reference it in the Dragonfly spec:
+
+```yaml
+spec:
+  tls:
+    secretName: dragonfly-tls
+    certKey: tls.crt
+    keyKey: tls.key
+    caCertKey: ca.crt
+```
+
+## Deleting a Dragonfly Instance
+
+To delete a Dragonfly instance:
+
+```shell
+kubectl delete dragonfly my-redis
+```
+
+This automatically deletes all resources (pods and services) associated with the instance.
+
+## IPv6 Support
+
+For IPv6-only clusters, add the following args:
+
+```yaml
+spec:
+  args:
+  - "--bind=::"
+  - "--admin_bind=::"
+  - --dbfilename=my-redis
+```
