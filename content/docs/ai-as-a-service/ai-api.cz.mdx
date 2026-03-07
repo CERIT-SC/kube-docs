@@ -30,6 +30,10 @@ API klíče slouží jako autentizační tokeny pro zabezpečený přístup ke k
 
 ## Použití API klíče
 
+Podrobnou specifikaci API naleznete v [API referenci](https://developers.openai.com/api/reference/overview). Upozorňujeme, že ne všechny endpointy jsou podporovány.
+
+Pro klientský přístup a vývoj doporučujeme použít buď [LiteLLM SDK](https://docs.litellm.ai/docs/#litellm-python-sdk), nebo [klientské knihovny :contentReference[oaicite:1]{index=1}](https://developers.openai.com/api/docs/libraries/), které nabízejí udržované a produkčně připravené integrace.
+
 ### Seznam dostupných modelů
 
 [Aktuálně dostupné modely](/docs/ai-as-a-service/chat-ai#currently-available-models-as-of-january-26-2026)
@@ -109,7 +113,7 @@ Očekávaný výstup (příklad):
 }
 ```
 
-## Integrace frameworků
+## Integrace s frameworky
 
 API LLM e-INFRA CZ je navrženo tak, aby bylo kompatibilní se specifikací OpenAI API, což znamená, že může být integrováno do frameworků původně vytvořených pro služby OpenAI.
 
@@ -139,11 +143,11 @@ Kromě PyDanticAI lze podobné konfigurace aplikovat na:
 * Aplikace založené na FastAPI
 * Jakékoli další frameworky nebo klienty, které podporují vlastní koncové body OpenAI API.
 
-## Modely s uvažováním v API
+## Reasoning modely v API
 
 Některé modely jsou **hybridní**, podporují jak *režim uvažování (thinking)*, tak *režim bez uvažování*.
 
-V chatovém UI jsou většinou hybridní modely přednastaveny na běh v režimu uvažování, což znamená, že můžete vidět mezilehlý výstup `thinking` před vrácením finální odpovědi. V API však výchozí chování závisí na konkrétním modelu.
+V chatovém UI jsou většinou hybridní modely přednastaveny na běh v režimu uvažování, což znamená, že se při přemýšlení modelu zobrazuje `thinking` před vrácením finální odpovědi. V API však výchozí chování závisí na konkrétním modelu.
 
 ### DeepSeek v3.2
 
