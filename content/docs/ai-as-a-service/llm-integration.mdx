@@ -1,195 +1,448 @@
 ---
-title: OpenAI API
+title: AI Coding Assistants Integration
 ---
 
-## API Introduction
+## Introduction
+The CERIT-SC AI infrastructure exposes Large Language Models (LLMs) through standard API protocols, enabling you to integrate powerful AI assistance directly into your local development environment. By connecting your tools to our backend, you can leverage high-performance models (such as `qwen3-coder` or `gpt-oss-120b`) for coding tasks without running them on your own hardware or relying on external commercial providers.
 
-This documentation provides detailed instructions for generating and using **API keys** to access locally running Large Language Models (LLMs) on the e-INFRA CZ infrastructure, specifically through the Open WebUI interface [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz). The guide is designed for researchers and scientists who want to integrate these models into their applications, scripts, or AI workflows via API.
+This guide explains how to configure several popular tools to communicate with our API.
 
-To access the Open WebUI service and generate an API key, you must meet the following prerequisites:
+<Callout type="info">
+Prerequisite: Before proceeding, ensure you have generated an API key from the [AI Chat WebUI](../ai-as-a-service/chat-ai). You will need this key to authenticate your client.
+</Callout>
 
-* A valid MetaCentrum account (for Czech research institutions)
-* Or an active Masaryk University account (if affiliated).
+## Claude Code
 
-For a comprehensive description of available models, see the [Chat AI documentation](../ai-as-a-service/chat-ai).
+<Callout type="info">
+Claude Code is also integrated into [Jupyter Notebook](../web-apps/jupyterhub#claude-code-integration-in-jupyter-notebook).
+</Callout>
 
-## Creating an API Key
+[Claude Code](https://github.com/anthropics/claude-code) can be deployed and configured to work with our models by pointing it to our API endpoint.
 
-API keys serve as authentication tokens to securely access Open WebUI's API endpoint. Follow these steps to generate and use your API key:
+### Installation
 
-**Step-by-Step Instructions**
+Install Claude Code for your operating system by following the official instructions in the upstream repository:
 
-1. Go to the Settings section of the Open WebUI interface [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
-2. Navigate to the Account (Účet).
-3. Click on API keys (display).
-4. Ignore JWT token, select API key, and either generate a new one or display the existing one.
-5. Copy the generated API key and store it securely.
-6. Use this key in API requests to authenticate and access Open WebUI services.
-7. The base endpoint for the Open-WebUI API is: `https://llm.ai.e-infra.cz/v1/`. This endpoint follows the OpenAI API specification, enabling compatibility with many existing LLM frameworks and applications.
+- [Claude Code – Getting Started](https://github.com/anthropics/claude-code?tab=readme-ov-file#get-started)
 
-## Using the API Key
+Make sure the `claude` CLI is available in your `$PATH` after installation.
 
-For detailed API specifications, refer to the [API reference](https://developers.openai.com/api/reference/overview). Note that not all endpoints are supported.
+#### Linux Installation (including Windows WSL)
 
-For client access and development, we recommend using either the [LiteLLM SDK](https://docs.litellm.ai/docs/#litellm-python-sdk) or the [OpenAI Client Libraries](https://developers.openai.com/api/docs/libraries/), which provide well-maintained, production-ready integrations.
+These instructions apply to both native Linux and Windows Subsystem for Linux (WSL).
 
-### Listing Available Models
+##### 1. Install Claude Code
 
-Before querying a model, ensure you use the correct model name. To retrieve a list of all available models on the e-INFRA CZ infrastructure, run the following using `curl` and `jq` commands.
-Replace `${E_INFRA_API_TOKEN}` with your actual token.
-
-```shell
-curl -H "Authorization: Bearer ${E_INFRA_API_TOKEN}" https://llm.ai.e-infra.cz/v1/models | jq .data[].id
-```
-
-Expected Output (example):
-
-```
-"llama3.3:latest"
-"llama3.3:70b-instruct-fp16"
-"deepseek-r1:32b-qwen-distill-fp16"
-"qwen2.5-coder:32b-instruct-q8_0"
-"aya-expanse:latest"
-```
-
-This list reflects the model identifiers (`id`) that can be queried via the API. The identifiers follow a naming convention, typically including:
-
-* The model name (e.g., `llama3.3`, `qwen2.5-coder`).
-* A quantization tag (e.g., `fp16`, `q8_0`) that indicates how the model is optimized for inference (important for performance and resource consumption).
-* A variant or revision (e.g., `:latest`, `:70b-instruct-fp16`).
-
-### Model Aliases
-
-To simplify referencing LLM models, we provide **category aliases** for users who prefer not to update specific model designations in their tools. Please note that calling specific models by their exact names continues to work as before.
-
-| alias name | model |
-|------------|-------|
-| mini | gpt-oss-120b |
-| coder | qwen3.5 |
-| agentic | qwen3-coder-next |
-| thinker | kimi-k2.5 |
-
-[Currently available models](/docs/ai-as-a-service/chat-ai#currently-available-models-as-of-january-26-2026)
-
-### Example API Request
-
-Below is an example of how to use the API key to query the LLaMA 3.3 model (`llama3.3:latest`) with a chat completions request:
+Use the official installation script to install Claude Code:
 
 ```bash
-curl https://llm.ai.e-infra.cz/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer ${E_INFRA_API_TOKEN}" \
-  -d '{
-    "model": "llama3.3:latest",
-    "messages": [
-      {
-        "role": "user",
-        "content": "Explain the impact of machine learning on climate research in 100 words or less."
-      }
-    ]
-  }'
+curl -fsSL https://claude.ai/install.sh | bash
 ```
 
-Expected Output (example):
+After installation completes successfully, you should see output similar to the following:
+
+```
+Setting up Claude Code...
+
+✔ Claude Code successfully installed!
+
+  Version: 2.1.5
+  Location: ~/.local/bin/claude
+
+  Next: Run claude --help to get started
+
+✅ Installation complete!
+```
+
+##### 2. Start Claude and Exit During Onboarding
+
+Run Claude for the first time:
+
+```bash
+claude
+```
+
+- Proceed through the syntax scheme selection.
+- When you reach the **”Select login method”** screen, exit the application by pressing **Ctrl+C** three times.
+
+This step generates the initial configuration file without completing onboarding.
+
+##### 3. Manually Complete Onboarding
+
+Open the Claude configuration file:
+
+```bash
+vim ~/.claude.json
+```
+
+At the **end of the file**, add the following property:
+
+```json
+"hasCompletedOnboarding": true
+```
+
+<Callout type="warn">
+- Ensure the previous last property ends with a comma.
+- The JSON must remain valid.
+</Callout>
+
+Example of a correctly updated `~/.claude.json` file:
 
 ```json
 {
-  "id": "chatcmpl-XYZ123",
-  "object": "chat.completion",
-  "model": "llama3.3:latest",
-  "choices": [
-    {
-      "message": {
-        "role": "assistant",
-        "content": "Machine learning (ML) is revolutionizing climate research by unlocking unprecedented insights..."
-      },
-      "index": 0,
-      "finish_reason": "length"
-    }
-  ]
+  "installMethod": "native",
+  "autoUpdates": false,
+  "cachedGrowthBookFeatures": {
+    "tengu_1p_event_batch_config": {
+      "scheduledDelayMillis": 5000,
+      "maxExportBatchSize": 200,
+      "maxQueueSize": 8192
+    },
+    "tengu_mcp_tool_search": false,
+    "tengu_scratch": false,
+    "tengu_log_segment_events": false,
+    "tengu_log_datadog_events": true,
+    "tengu_event_sampling_config": {},
+    "tengu_tool_pear": false,
+    "tengu_thinkback": false,
+    "tengu_sumi": false
+  },
+  "userID": "xxx",
+  "firstStartTime": "2026-01-12T12:59:53.117Z",
+  "sonnet45MigrationComplete": true,
+  "opus45MigrationComplete": true,
+  "thinkingMigrationComplete": true,
+  "changelogLastFetched": 1768222793309,
+  "autoUpdatesProtectedForNative": true,
+  "hasCompletedOnboarding": true
 }
 ```
 
-## Framework Integration
+Save the file and exit the editor.
 
-The e-INFRA CZ LLM API is designed to be compatible with the OpenAI API specification, meaning it can be integrated into frameworks originally built for OpenAI's services.
+##### 4. Run Claude Normally
 
-**PyDanticAI Integration Example**
-
-PyDanticAI is a framework that simplifies LLM interactions using OpenAI-compatible models. Use the following configuration to authenticate with the e-INFRA CZ LLM endpoint:
-
-Example `PydanticAI` configuration for integrating with our API (use similar settings for other frameworks):
-
-```python
-from pydantic_ai_provider import OpenAIModel, OpenAIProvider
-import os
-
-model = OpenAIModel(
-    'deepseek-r1',
-    provider=OpenAIProvider(
-        base_url="https://llm.ai.e-infra.cz/v1",
-        api_key=os.getenv("E_INFRA_API_TOKEN"),
-    ),
-)
-```
-
-Beyond PyDanticAI, similar configurations can be applied to:
-
-* LangChain
-* LlamaIndex
-* FastAPI-based applications
-* Any other frameworks or clients that support OpenAI API custom endpoints.
-
-## Reasoning Models in the API
-
-Some models are **hybrid**, supporting both *reasoning (thinking)* and *non-reasoning* modes.
-
-In the chat UI, most hybrid models are preconfigured to run in reasoning mode, which means you may see intermediate `thinking` output before the final response is returned. In the API, however, the default behavior depends on the specific model.
-
-### DeepSeek v3.2
-
-By default, **DeepSeek v3.2** runs *without* reasoning enabled. To enable reasoning, pass additional parameters via `chat_template_kwargs`:
+Start Claude again:
 
 ```bash
-curl https://llm.ai.e-infra.cz/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer xxx" \
-  -d '{
-    "model": "deepseek-v3.2",
-    "messages": [
-      {
-        "role": "user",
-        "content": "What are 5 creative things I could do with my kids'' art? I don''t want to throw them away, but it''s also so much clutter."
-      }
-    ],
-    "chat_template_kwargs": {
-      "thinking": true
-    }
-  }'
+claude
 ```
 
-For convenience—and for environments where `chat_template_kwargs` cannot be used (for example, certain AI agents)—we also provide a dedicated reasoning variant named **`deepseek-v3.2-thinking`**, which is permanently forced into thinking mode.
+Claude should now launch without triggering the onboarding flow and run smoothly.
 
-### GLM-4.7
+### Configuration
 
-In contrast, the **GLM-4.7** model enables reasoning mode by default. To disable reasoning and return only the final response, explicitly turn it off using `chat_template_kwargs`:
+Claude Code is configured using environment variables. Export the following variables in your shell:
 
 ```bash
-curl https://llm.ai.e-infra.cz/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer xxx" \
-  -d '{
-    "model": "glm-4.7",
-    "messages": [
-      {
-        "role": "user",
-        "content": "What are 5 creative things I could do with my kids'' art? I don''t want to throw them away, but it''s also so much clutter."
-      }
-    ],
-    "chat_template_kwargs": {
-      "enable_thinking": false
-    }
-  }'
+export ANTHROPIC_BASE_URL="https://llm.ai.e-infra.cz/"
+export ANTHROPIC_AUTH_TOKEN="sk-..."
+export ANTHROPIC_MODEL="agentic"
+export ANTHROPIC_DEFAULT_OPUS_MODEL="thinker"
+export ANTHROPIC_DEFAULT_SONNET_MODEL="agentic"
+export ANTHROPIC_DEFAULT_HAIKU_MODEL="mini"
+export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
 ```
 
-Use these options to control whether intermediate reasoning is included in API responses, depending on your application's needs.
+Alternatively, you can define these environment variables in the settings file `~/.claude/settings.json`:
+
+```json title="settings.json"
+{
+  "permissions": {
+    "defaultMode": "acceptEdits"
+  },
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://llm.ai.e-infra.cz/",
+    "ANTHROPIC_AUTH_TOKEN": "sk-...",
+    "ANTHROPIC_MODEL": "agentic",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "thinker",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "agentic",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "mini",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+  }
+}
+```
+
+**Variable description:**
+
+- `ANTHROPIC_BASE_URL` – Base URL of our LLM API.
+- `ANTHROPIC_AUTH_TOKEN` – Your API key obtained from [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
+- `ANTHROPIC_MODEL` – Default model to use when running Claude Code.
+- `ANTHROPIC_DEFAULT_OPUS_MODEL` – Default model to use when running Claude Code for reasoning and complex tasks.
+- `ANTHROPIC_DEFAULT_SONNET_MODEL` – Default model to use when running Claude Code for reasoning and moderately complex tasks.
+- `ANTHROPIC_DEFAULT_HAIKU_MODEL` – Default model to use for simple tasks.
+- `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` – Disables sending telemetry and various reporting (not used with non-Anthropic APIs).
+
+### Running Claude Code
+
+Once the environment variables are set, start Claude Code with:
+
+```bash
+claude [project-dir]
+```
+
+You should now be able to interact with Claude Code using our backend and selected model.
+
+<Callout type="idea">
+You can choose any of our available models (e.g., `qwen3-coder-next`). However, not all models are guaranteed to work correctly with Claude Code.
+</Callout>
+
+<Callout type="warn">
+If Claude Code stops responding or terminates unexpectedly, the most common cause is that the model's context size has been exceeded. To resolve this, switch to a different model with a larger context window or reduce the amount of text being processed at once.
+</Callout>
+
+---
+
+## Codex
+
+[Codex](https://github.com/openai/codex?tab=readme-ov-file) can be deployed and configured to work with our models by pointing it to our API endpoint.
+
+### Installation
+
+Install Codex for your operating system by following the official instructions in the upstream repository:
+
+- [Codex – Installing and running Codex CLI](https://github.com/openai/codex?tab=readme-ov-file#installing-and-running-codex-cli)
+
+Ensure the `codex` CLI is available in your `$PATH` after installation.
+
+<Callout type="idea">
+For Linux or Windows, it is recommended to visit the [Releases](https://github.com/openai/codex/releases) page and download the appropriate precompiled binary for your platform.
+</Callout>
+
+### Configuration
+
+Set these environment variables:
+
+```bash
+export OPENAI_BASE_URL=https://llm.ai.e-infra.cz
+export OPENAI_API_KEY=sk-...
+```
+
+Replace `sk-...` with your API key obtained from: https://chat.ai.e-infra.cz
+
+Run the application with the following command:
+
+```bash
+codex --model qwen3-coder-next --full-auto
+```
+
+When prompted to sign in:
+1. Select **Provide your own API key**.
+2. Confirm **Use your own OpenAI API key for usage-based billing**.
+
+After this, the setup is complete and ready to use.
+
+---
+
+## Open Code
+
+[Open Code](https://github.com/anomalyco/opencode) can be deployed and configured to work with our models by pointing it to our API endpoint.
+
+### Installation
+
+Install Open Code for your operating system by following the official instructions in the upstream repository:
+
+- [Open Code – Installation](https://github.com/anomalyco/opencode?tab=readme-ov-file#installation)
+
+Ensure the `opencode` CLI is available in your `$PATH` after installation.
+
+### Configuration
+
+1. Save the configuration below to the file `~/.config/opencode/opencode.json`:
+
+```json title="~/.config/opencode/opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "litellm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "LiteLLM",
+      "options": {
+        "baseURL": "https://llm.ai.e-infra.cz/v1"
+      },
+      "models": {
+        "deepseek-r1": {
+          "name": "deepseek-r1"
+        },
+        "gpt-oss-120b": {
+          "name": "gpt-oss-120b"
+        },
+        "qwen3-coder": {
+          "name": "qwen3-coder"
+        },
+        "glm-4.7": {
+          "name": "qwen3-coder-next"
+        }
+      }
+    }
+  }
+}
+```
+
+2. Start the application by running:
+   ```bash
+   opencode
+   ```
+
+3. Inside `opencode`, type:
+   ```
+   /connect
+   ```
+
+4. From the list of available providers, scroll to the end and select **LiteLLM**.
+
+5. When prompted, paste your API key obtained from: https://chat.ai.e-infra.cz
+
+6. Select the model:
+   ```
+   qwen3-coder-next
+   ```
+
+Once completed, the setup is ready to use.
+
+<Callout type="info">
+- The model `gpt-oss-120b` has **partial support** and may not work as expected.
+- The model `qwen3-coder-next` should work as well as `qwen3-coder`.
+</Callout>
+
+---
+
+## Visual Studio Code
+
+Integrate AI chatbots with Visual Studio Code using third-party extensions such as [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) or [Roo Code](https://marketplace.visualstudio.com/items?itemName=RooCode.roocode). These extensions enable AI assistance in various roles while coding, including simple chat, agent mode, and autocomplete. Chat provides a familiar conversational interface, agent mode analyzes or edits files in your project, and autocomplete suggests code as you write.
+
+### Install the Continue extension
+
+With Visual Studio Code running:
+1. Open the Extensions tab (`Ctrl+Shift+X`) and search for `Continue`
+2. Click the extension and then click `Install`
+3. After installation, access the Continue extension by clicking the Continue icon in the left sidebar
+
+### Configure the Continue extension
+
+Configure the Continue extension by editing the `config.yaml` file:
+
+1. Access the Continue extension within Visual Studio Code using the icon in the left sidebar
+
+1. Click `Open settings` in the top-right corner of the `Continue` extension window.
+2. Click `Configs`.
+3. Click the `Open configuration` icon at the end of the line labeled `Local Config`.
+4. Once the `config.yaml` is opened, use the following configuration with your own `<api-key>` (guide above):
+
+```yaml
+%YAML 1.1
+---
+name: Local Assistant
+version: 1.0.0
+schema: v1
+model_defaults: &model_defaults
+  provider: openai
+  apiKey: <api-key>
+  apiBase: https://llm.ai.e-infra.cz/v1
+models:
+  - name: autocomplete-coder
+    <<: *model_defaults
+    model: qwen3-coder
+    promptTemplates:
+      autocomplete: '<|fim_prefix|>{{{ prefix }}}<|fim_suffix|>{{{ suffix }}}<|fim_middle|>'
+    autocompleteOptions:
+      transform: false
+    defaultCompletionOptions:
+      temperature: 0.6
+      maxTokens: 512
+    roles:
+      - autocomplete
+  - name: chat-coder
+    <<: *model_defaults
+    model: qwen3-coder
+    env:
+      useLegacyCompletionsEndpoint: false
+    roles:
+      - chat
+      - edit
+context:
+  - provider: code
+  - provider: docs
+  - provider: diff
+  - provider: terminal
+  - provider: problems
+  - provider: folder
+  - provider: codebase
+```
+
+5. Save the file. The new configuration should apply immediately.
+6. Verify that `FIM` autocomplete is being used by checking the `Continue` button in the Visual Studio Code status bar (bottom-right corner). It should display `Continue`, not `Continue (NE)`. If `Continue (NE)` is shown, click this button and select `Use FIM autocomplete over Next Edit`.
+
+### Usage of AI in Visual Studio Code
+
+* **Chat**: Access chat by clicking the Continue icon in the left sidebar
+* **Agent mode**: In chat, engage agent mode by asking to analyze, explain, or edit files in your current project. This requires additional permissions such as read/write access to related files; you must grant these permissions for the agent to perform requested actions
+* **Autocomplete**: The autocomplete feature continuously suggests new code as you write. Press `Tab` to accept suggestions. Responsiveness depends on model speed. You can change the model from `qwen3-coder` to `gpt-oss-120b` in the autocomplete configuration section for faster responses, though the default model generally performs better on coding tasks
+
+### Roo Code
+[Roo Code](https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline) is a Visual Studio Code extension offering AI assistance with enhanced agent and code understanding capabilities.
+
+#### Install the Roo Code extension
+With Visual Studio Code running:
+1. Open the Extensions tab (`Ctrl+Shift+X`)
+2. Search for `Roo Code`
+3. Select the extension and click `Install`
+4. After installation, access Roo Code via its icon in the left sidebar
+
+#### Configure the Roo Code extension
+To use self-hosted models:
+1. Open Roo Code using the sidebar icon
+2. Click the ⚙️ **Settings** icon (top-right corner)
+3. In the **Providers** section:
+   - **API Provider**: `OpenAI Compatible`
+   - **Base URL**: `https://llm.ai.e-infra.cz/v1`
+   - **API Key**: Your key from [AI Chat WebUI](../ai-as-a-service/chat-ai)
+   - **Model**: `qwen3-coder` (or alternative)
+4. Set **Context Window Size** using [this table](../ai-as-a-service/chat-ai#guaranteed-models)
+5. Save settings
+
+#### Using Roo Code
+- Select agents via the button in the extension's bottom-left corner
+- After submitting a prompt, agents work autonomously until intervention is needed
+- For advanced usage, consult the [Roo Code documentation](https://docs.roocode.com/)
+
+#### Codebase Indexing
+
+Index the codebase using one of our [embedding models](../ai-as-a-service/chat-ai#embedding-models) to help agents better search and understand your codebase.
+To store the index, set up a local Qdrant database. Here is an example `docker-compose.yaml`:
+
+```yaml
+services:
+  qdrant:
+    image: qdrant/qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+volumes:
+  qdrant_storage:
+```
+
+Configure codebase indexing by following these steps:
+
+1. Launch a new database instance by running `docker compose up -d` in the directory containing the `docker-compose.yaml` file
+2. In the Roo Code extension interface, click on the database icon in the bottom right corner.
+3. Open the `Setup` section.
+4. Set the following values:
+   - **Embedder Provider**: `OpenAI Compatible`
+   - **Base URL**: `https://llm.ai.e-infra.cz/v1`
+   - **API Key**: Your API key from [AI Chat WebUI](../ai-as-a-service/chat-ai)
+   - **Model**: One of our [embedding models](../ai-as-a-service/chat-ai#embedding-models), e.g., `qwen3-embedding-4b`
+   - **Model Dimension**: The embedding vector size of the selected model, e.g., `2560` for `qwen3-embedding-4b`.
+   - **Qdrant URL**: `http://localhost:6333`
+   - **Qdrant API Key**: Leave empty if you used the provided Docker Compose configuration.
+5. Create the index by clicking on `Start Indexing`.
+6. After the indexing is finished, the agents will have access to the database and be able to better search and understand the codebase.
+
+---
+
+### Caveats
+
+Disable all other Visual Studio Code extensions that provide AI autocomplete features. Otherwise, the `Continue` extension may not work properly.
+
+---
