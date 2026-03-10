@@ -137,10 +137,10 @@ Claude Code se konfiguruje pomocí proměnných prostředí. Exportujte následu
 ```bash
 export ANTHROPIC_BASE_URL="https://llm.ai.e-infra.cz/"
 export ANTHROPIC_AUTH_TOKEN="sk-..."
-export ANTHROPIC_MODEL="glm-4.7"
-export ANTHROPIC_DEFAULT_OPUS_MODEL="glm-4.7"
-export ANTHROPIC_DEFAULT_SONNET_MODEL="glm-4.7"
-export ANTHROPIC_DEFAULT_HAIKU_MODEL="gpt-oss-120b"
+export ANTHROPIC_MODEL="agentic"
+export ANTHROPIC_DEFAULT_OPUS_MODEL="thinker"
+export ANTHROPIC_DEFAULT_SONNET_MODEL="agentic"
+export ANTHROPIC_DEFAULT_HAIKU_MODEL="mini"
 export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
 ```
 
@@ -154,10 +154,10 @@ Alternativně můžete tyto proměnné prostředí definovat v souboru nastaven�
   "env": {
     "ANTHROPIC_BASE_URL": "https://llm.ai.e-infra.cz/",
     "ANTHROPIC_AUTH_TOKEN": "sk-...",
-    "ANTHROPIC_MODEL": "glm-4.7",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-4.7",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-4.7",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "gpt-oss-120b",
+    "ANTHROPIC_MODEL": "agentic",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "thinker",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "agentic",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "mini",
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
   }
 }
@@ -184,7 +184,7 @@ claude [project-dir]
 Nyní byste měli být schopni pracovat s Claude Code pomocí našeho backendu a zvoleného modelu.
 
 <Callout type="idea">
-Můžete si zvolit kterýkoliv z našich dostupných modelů, např.  `qwen3-coder`. Ne všechny modely ale zaručeně fungují správně s Claude Code.
+Můžete si zvolit kterýkoliv z našich dostupných modelů, např. `qwen3-coder-next`. Ne všechny modely ale zaručeně fungují správně s Claude Code.
 </Callout>
 
 <Callout type="warn">
