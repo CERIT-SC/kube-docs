@@ -4,28 +4,27 @@ title: OpenAI API
 
 ## API Introduction
 
-This documentation provides detailed instructions for generating and using **API keys** to access locally running Large Language Models (LLMs) on the e-INFRA CZ infrastructure, specifically through the Open-WebUI interface [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz). The guide is tailored for researchers and scientists who aim to integrate these models into their applications, scripts, or AI workflows via API.
+This documentation provides detailed instructions for generating and using **API keys** to access locally running Large Language Models (LLMs) on the e-INFRA CZ infrastructure, specifically through the Open WebUI interface [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz). The guide is designed for researchers and scientists who want to integrate these models into their applications, scripts, or AI workflows via API.
 
-To access the Open-WebUI service and generate an API key, you must meet the following prerequisites:
+To access the Open WebUI service and generate an API key, you must meet the following prerequisites:
 
-* A valid MetaCentrum account (for Czech research institutions) 
-* or an active Masaryk University account (if affiliated).
+* A valid MetaCentrum account (for Czech research institutions)
+* Or an active Masaryk University account (if affiliated).
 
-For a comprehensive description of available models, see the [Chat AI documentation](../ai-as-a-service/chat-ai)
-
+For a comprehensive description of available models, see the [Chat AI documentation](../ai-as-a-service/chat-ai).
 
 ## Creating an API Key
 
-API keys serve as authentication tokens to securely access Open-WebUI's API endpoint. Follow these steps to generate and use your API key:
+API keys serve as authentication tokens to securely access Open WebUI's API endpoint. Follow these steps to generate and use your API key:
 
 **Step-by-Step Instructions**
 
-1. Go to the Settings section of the Open-WebUI interface [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
-2. Nagigate to the Account (Účet).
+1. Go to the Settings section of the Open WebUI interface [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
+2. Navigate to the Account (Účet).
 3. Click on API keys (display).
-4. Ignore JWT token and select API key and either generate new or display existing.
+4. Ignore JWT token, select API key, and either generate a new one or display the existing one.
 5. Copy the generated API key and store it securely.
-6. Use this key in API requests to authenticate and access Open-WebUI services.
+6. Use this key in API requests to authenticate and access Open WebUI services.
 7. The base endpoint for the Open-WebUI API is: `https://llm.ai.e-infra.cz/v1/`. This endpoint follows the OpenAI API specification, enabling compatibility with many existing LLM frameworks and applications.
 
 ## Using the API Key
@@ -36,10 +35,8 @@ For client access and development, we recommend using either the [LiteLLM SDK](h
 
 ### Listing Available Models
 
-[Currently available models](/docs/ai-as-a-service/chat-ai#currently-available-models-as-of-01262026)
-
-Before querying a model, ensure that you use the correct model name. To retrieve a list of all available models on the e-INFRA CZ infrastructure, run the following using `curl` and `jq` commands.
-Replace `${E_INFRA_API_TOKEN}` with your real token.
+Before querying a model, ensure you use the correct model name. To retrieve a list of all available models on the e-INFRA CZ infrastructure, run the following using `curl` and `jq` commands.
+Replace `${E_INFRA_API_TOKEN}` with your actual token.
 
 ```shell
 curl -H "Authorization: Bearer ${E_INFRA_API_TOKEN}" https://llm.ai.e-infra.cz/v1/models | jq .data[].id
@@ -54,6 +51,7 @@ Expected Output (example):
 "qwen2.5-coder:32b-instruct-q8_0"
 "aya-expanse:latest"
 ```
+
 This list reflects the model identifiers (`id`) that can be queried via the API. The identifiers follow a naming convention, typically including:
 
 * The model name (e.g., `llama3.3`, `qwen2.5-coder`).
@@ -64,20 +62,20 @@ This list reflects the model identifiers (`id`) that can be queried via the API.
 
 To simplify referencing LLM models, we provide **category aliases** for users who prefer not to update specific model designations in their tools. Please note that calling specific models by their exact names continues to work as before.
 
-|  alias name | model |
-|--------------|---------|
+| alias name | model |
+|------------|-------|
 | mini | gpt-oss-120b |
 | coder | qwen3.5 |
-| agentic | glm-4.7 |
+| agentic | qwen3-coder-next |
 | thinker | kimi-k2.5 |
 
-[Currently available models](/docs/ai-as-a-service/chat-ai#currently-available-models-as-of-01262026)
+[Currently available models](/docs/ai-as-a-service/chat-ai#currently-available-models-as-of-january-26-2026)
 
 ### Example API Request
 
-Below is an example of how to use the API key to query the LLama 3.3 model (llama3.3:latest) with a chat completions request:
+Below is an example of how to use the API key to query the LLaMA 3.3 model (`llama3.3:latest`) with a chat completions request:
 
-```
+```bash
 curl https://llm.ai.e-infra.cz/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer ${E_INFRA_API_TOKEN}" \
@@ -94,7 +92,7 @@ curl https://llm.ai.e-infra.cz/v1/chat/completions \
 
 Expected Output (example):
 
-```bash
+```json
 {
   "id": "chatcmpl-XYZ123",
   "object": "chat.completion",
@@ -114,7 +112,7 @@ Expected Output (example):
 
 ## Framework Integration
 
-The e-INFRA CZ LLM API is designed to be compatible with the OpenAI API specification, meaning that it can be integrated into frameworks originally built for OpenAI's services.
+The e-INFRA CZ LLM API is designed to be compatible with the OpenAI API specification, meaning it can be integrated into frameworks originally built for OpenAI's services.
 
 **PyDanticAI Integration Example**
 
@@ -141,7 +139,6 @@ Beyond PyDanticAI, similar configurations can be applied to:
 * LlamaIndex
 * FastAPI-based applications
 * Any other frameworks or clients that support OpenAI API custom endpoints.
-
 
 ## Reasoning Models in the API
 
@@ -195,6 +192,4 @@ curl https://llm.ai.e-infra.cz/v1/chat/completions \
   }'
 ```
 
-Use these options to control whether intermediate reasoning is included in API responses, depending on your application’s needs.
-
-
+Use these options to control whether intermediate reasoning is included in API responses, depending on your application's needs.
