@@ -184,7 +184,7 @@ claude [project-dir]
 You should now be able to interact with Claude Code using our backend and selected model.
 
 <Callout type="idea">
-You can choose any of our available models (e.g., `qwen3-coder`). However, not all models are guaranteed to work correctly with Claude Code.
+You can choose any of our available models (e.g., `qwen3-coder-next`). However, not all models are guaranteed to work correctly with Claude Code.
 </Callout>
 
 <Callout type="warn">
@@ -223,7 +223,7 @@ Replace `sk-...` with your API key obtained from: https://chat.ai.e-infra.cz
 Run the application with the following command:
 
 ```bash
-codex --model qwen3-coder --full-auto
+codex --model qwen3-coder-next --full-auto
 ```
 
 When prompted to sign in:
@@ -271,7 +271,7 @@ Ensure the `opencode` CLI is available in your `$PATH` after installation.
           "name": "qwen3-coder"
         },
         "glm-4.7": {
-          "name": "glm-4.7"
+          "name": "qwen3-coder-next"
         }
       }
     }
@@ -295,14 +295,14 @@ Ensure the `opencode` CLI is available in your `$PATH` after installation.
 
 6. Select the model:
    ```
-   glm-4.7
+   qwen3-coder-next
    ```
 
 Once completed, the setup is ready to use.
 
 <Callout type="info">
 - The model `gpt-oss-120b` has **partial support** and may not work as expected.
-- The model `qwen3-coder` should work as well as `glm-4.7`.
+- The model `qwen3-coder-next` should work as well as `qwen3-coder`.
 </Callout>
 
 ---
