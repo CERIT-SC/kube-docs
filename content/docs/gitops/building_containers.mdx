@@ -1,5 +1,5 @@
 ---
-title: Building Docker containers with Gitlab
+title: Building Docker containers with GitLab
 ---
 
 This guide demonstrates how to build and push Docker images using [Kaniko](https://github.com/GoogleContainerTools/kaniko) in a CI environment (e.g., GitLab CI). Kaniko executes Docker builds without needing a Docker daemon.
@@ -12,10 +12,10 @@ Create a Base64-encoded `username:password` for your container registry. Store t
 
 ### Dockerfile
 
-Ensure that `Dockerfile` exists in repo root.
+Ensure that a `Dockerfile` exists in the repository root.
 Example content:
 
-```
+```docker
 FROM alpine
 CMD ["echo", "Hello World!!"]
 ```
@@ -57,21 +57,20 @@ docker-job:
 
 ### Notes
 
-- In `before_script`, docker config is created using credential value from your CI variable (here `HARBOR_CRED`).
-- Version value is explicitely set in CI. Consider factoring it out, for example to `version.txt` in repo or obtain it from other config in repo such
-    as `setup.py` (in case of a Python ) or `package.json` (in case of node.js project), etc.
-- Tagging logic in the example is tuned for a setup, where:
-  - Default branch (`master`) is a [protected branch](https://docs.gitlab.com/user/project/repository/branches/protected/) which can only be changed by merge request (i.e., cannot be pushed to directly).
+- In `before_script`, Docker configuration is created using the credential value from your CI variable (here `HARBOR_CRED`).
+- The version value is explicitly set in CI. Consider factoring it out, for example to a `version.txt` file in the repository, or obtain it from other configuration files in the repository such as `setup.py` (for Python projects) or `package.json` (for Node.js projects), etc.
+- The tagging logic in the example is tuned for a setup where:
+  - The default branch (`master`) is a [protected branch](https://docs.gitlab.com/user/project/repository/branches/protected/) that can only be changed by merge request (i.e., cannot be pushed to directly).
   - Features are developed in a branch.
-  - By default, docker job is executed only on master branch (after merge request).
-  - Docker job can also be executed on demand in on a branch commit if this commit is tagged. In that case, docker image tag consists of VERSION suffixed by tag value.
+  - By default, the Docker job is executed only on the master branch (after a merge request).
+  - The Docker job can also be executed on demand on a branch commit if that commit is tagged. In that case, the Docker image tag consists of VERSION suffixed by the tag value.
 - Check this [repository graph](https://gitlab.ics.muni.cz/172429/kaniko-docker-build-example/-/network/master?ref_type=heads) and [pipeline history](https://gitlab.ics.muni.cz/172429/kaniko-docker-build-example/-/pipelines).
-- See Kaniko documentation for advanced flags (e.g., --cache, --build-arg).
-- Keep in mind, that Kaniko is probably obsolete.
+- See Kaniko documentation for advanced flags (e.g., `--cache`, `--build-arg`).
+- Keep in mind that Kaniko is probably obsolete.
 
-## How to use images from Gitlab Registry
+## How to use images from GitLab Registry
 
-If the project's visibility within GitLab is public and container registry is not limited to authenticated users, simply use:
+If the project's visibility within GitLab is public and the container registry is not limited to authenticated users, simply use:
 
 ```bash
 docker run [options] registry.example.com/group/project/image [arguments]
@@ -79,10 +78,10 @@ docker run [options] registry.example.com/group/project/image [arguments]
 
 > If you are using MUNI ICS GitLab, the registry URL is: registry.gitlab.ics.muni.cz
 
-If project visibility or container registry are set to private, authentication to container registry is needed. You will need to create deploy token and use it as descibed in the [official documentation](https://docs.gitlab.com/ee/user/packages/container_registry/#authenticate-with-the-container-registry)
+If project visibility or container registry is set to private, authentication to the container registry is needed. You will need to create a deploy token and use it as described in the [official documentation](https://docs.gitlab.com/ee/user/packages/container_registry/#authenticate-with-the-container-registry).
 
-For more information please refer to [official documentation](https://docs.gitlab.com/ee/user/packages/container_registry/#use-images-from-the-container-registry).
+For more information, please refer to the [official documentation](https://docs.gitlab.com/ee/user/packages/container_registry/#use-images-from-the-container-registry).
 
 <Callout type="warn">
-MUNI ICS GitLab does not support Docker builder anymore, Kaniko must be used as describe above.
+MUNI ICS GitLab does not support Docker builder anymore; Kaniko must be used as described above.
 </Callout>
