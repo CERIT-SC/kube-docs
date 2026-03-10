@@ -14,6 +14,19 @@ How This Affects You
 - We recommend implementing a simple "queue" or "worker" pattern in your code to manage outgoing requests and keep them within the new limit.
 - For most users, this change will actually result in more stable response times, as it reduces the likelihood of server-side congestion.
 
+## 03/09/2026
+
+### New LLM feature: Model aliases
+
+We’ve introduced category aliases to simplify how you reference LLMs. You can now use these "nicknames" in your API, Cloud Code, and Open Code to ensure your tools always point to the latest versions without manual updates.
+
+| alias | current model | best for |
+|------------|-------|--------|
+| mini | gpt-oss-120b | High speed & lightweight tasks
+| coder | qwen3.5 | Standard programming |
+| agentic | qwen3-coder-next | Autonomous workflows |
+| thinker | kimi-k2.5 | Deep reasoning & logic |
+
 ## 02/08/2026
 
 ### Claude Code integration in Jupyter Hub
