@@ -1,37 +1,39 @@
 ---
-title: MCP Servers 
+title: MCP Servers (Model Context Protocol)
+description: Overview of Model Context Protocol servers available on the e-INFRA CZ AI platform for extending AI model capabilities
 ---
 
-An **MCP server** is a service that exposes tools, data sources, or capabilities to AI models through a standardized interface. It acts as a bridge between a model and external systems, allowing the model to request information or perform actions in a controlled, structured way. MCP servers define what a model can access, how requests are handled, and how responses are returned, making integrations predictable and secure.
+An **MCP server** is a service that exposes tools, data sources, or capabilities to AI models through a standardized interface. It acts as a bridge between a model and external systems, allowing the model to request information or perform actions in a controlled, structured manner. MCP servers define what a model can access, how requests are handled, and how responses are returned, making integrations predictable and secure.
 
 MCP servers can be used to connect AI models to databases, APIs, file systems, business logic, or other services. By centralizing access and enforcing clear contracts, they enable models to extend their functionality beyond their built-in knowledge while maintaining reliability, safety, and scalability.
 
-## MPC Servers
+## Available MCP Servers
 
-We provide several MCP servers that are available through the https://llm.ai.e-infra.cz API. A particular MCP server is available at https://llm.ai.e-infra.cz/[servername]/mcp.
+We provide several MCP servers that are available through the [https://llm.ai.e-infra.cz](https://llm.ai.e-infra.cz) API. Each MCP server is accessible at `https://llm.ai.e-infra.cz/[servername]/mcp`, where `[servername]` is the server's name.
 
 | MCP Server Name | Description |
 |-----------------|-------------|
-|`ddg_search` | Searches the live internet using DuckDuckGo and returns concise, formatted web results and fetches, parses, and extracts readable content from a specific webpage URL.|
-|`DocFork`    | Searches documentation across GitHub repositories or the web and fetches and returns the full content of a documentation page as markdown.|
-|`k8scerit`   | Generates example manifests for supported Kubernetes resources -- Validates Kubernetes YAML manifests -- Patches manifests based on best practices. All manifests are suitable for CERIT-SC Kubernetes.|
-|`npmjs`      | Provides essential package details, Lists available package versions along with their respective publish dates, Offers a more comprehensive set of information, including maintainers, repository URL, homepage, and keywords.|
-|`prolog`     | Executes a Trealla Prolog query against loaded definitions.|
-|`shadcn`     | Provides detailed, structured information about shadcn/ui components to help developers implement them correctly.|
-|`solver`     | Provides advanced mathematical calculation capabilities, including symbolic math, statistical analysis, and matrix operations.|
-|`tailwind`   | Provides detailed, structured information about tailwind components to help developers implement them correctly.|
+| `ddg_search` | Searches the live internet using DuckDuckGo, returning concise, formatted web results. It also fetches, parses, and extracts readable content from a specific webpage URL. |
+| `DocFork` | Searches documentation across GitHub repositories or the web, fetching and returning the full content of a documentation page as markdown. |
+| `k8scerit` | Generates example manifests for supported Kubernetes resources, validates Kubernetes YAML manifests, and patches manifests based on best practices. All manifests are suitable for CERIT‑SC Kubernetes. |
+| `npmjs` | Provides essential package details, lists available package versions along with their respective publish dates, and offers a more comprehensive set of information, including maintainers, repository URL, homepage, and keywords. |
+| `prolog` | Executes a Trealla Prolog query against loaded definitions. |
+| `shadcn` | Provides detailed, structured information about shadcn/ui components to help developers implement them correctly. |
+| `solver` | Provides advanced mathematical calculation capabilities, including symbolic math, statistical analysis, and matrix operations. |
+| `tailwind` | Provides detailed, structured information about Tailwind components to help developers implement them correctly. |
 
-## Claude Code Example
+## Claude Code Integration
 
-To integrate an MCP server with Claude Code, add its endpoint:
+To integrate an MCP server with Claude Code, add its endpoint using this command:
+
 ```bash
-claude mcp add-json tailwind '{"type":"http","scope":"user","url":"https://llm.ai.e-infra.cz/tailwind/mcp","headers":{"Authorization":"Bearer BEARER "}}'
+claude mcp add-json tailwind '{"type":"http","scope":"user","url":"https://llm.ai.e-infra.cz/tailwind/mcp","headers":{"Authorization":"Bearer BEARER"}}'
 ```
 
-Where the `BEARER` is your API token from https://chat.ai.e-infra.cz.
+Replace `BEARER` with your API token from [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
 
 <Callout type="warn">
-Do not add all MCP servers “just in case”. Add only the required servers, as they consume the model’s context.
+Do not add all MCP servers "just in case." Add only the required servers, as they consume the model's context.
 </Callout>
 
 <Callout type="info">
