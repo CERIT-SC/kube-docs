@@ -2,16 +2,16 @@
 title: Logging
 ---
 
-Logging in the Kubernetes cluster is handled by a [Logging operator](https://kube-logging.dev/). This tool allows the creation of customised logging pipelines that meet user requirements.
+Logging in the Kubernetes cluster is handled by a [Logging operator](https://kube-logging.dev/). This tool allows the creation of customized logging pipelines that meet user requirements.
 
-The logging pipeline consists of two components, `SyslogNGFlow` and `SyslogNGOutput`. `SyslogNGFlow` specifies the log selection and log filters. `SyslogNGOutput` specifies the output destination of the logs.
+The logging pipeline consists of two components: `SyslogNGFlow` and `SyslogNGOutput`. `SyslogNGFlow` specifies the log selection and log filters. `SyslogNGOutput` specifies the output destination of the logs.
 
 ## SyslogNGFlow
 
-The `SyslogNGFlow` specifies what logs should be sent to the final output destination. To do so, it uses `match` statements that support logical operators `and`, `or` and `not`. `SyslogNGFlow` must have at least one `match` statement to transfer logs.
+The `SyslogNGFlow` specifies what logs should be sent to the final output destination. To do so, it uses `match` statements that support logical operators `and`, `or`, and `not`. `SyslogNGFlow` must have at least one `match` statement to transfer logs.
 
 ### Example
-You might use the example configuration below to collect all pod logs from a namespace. Specify the namespace and the name of the related `SyslogNGOutput` resource.
+You might use the example configuration below to collect all Pod logs from a namespace. Specify the namespace and the name of the related `SyslogNGOutput` resource.
 
 ```yaml
 apiVersion: logging.banzaicloud.io/v1beta1
