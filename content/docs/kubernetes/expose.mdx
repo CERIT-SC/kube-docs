@@ -2,17 +2,17 @@
 title: Exposing Applications
 ---
 
-This chapter explains how to configure external access to your application from an external network (or "outside"). Although it is possible to access your application directly via an IP address, this approach is discouraged. Instead, follow the instructions below to properly expose your application.
+This chapter explains how to configure external access to your application from an external network (or from "outside" the cluster). Although it is possible to access your application directly via an IP address, this approach is discouraged. Instead, follow the instructions below to properly expose your application.
 
-There are two main types of applications that can be exposed: **web-based applications** and **other applications**. The primary distinction between these types is their IP address requirements. Web-based applications share an IP address with other web-based applications, whereas other applications require a dedicated IP address for each service. Since the number of available IP addresses is limited, using the web-based approach is preferred whenever possible.
+There are two main types of applications that can be exposed: **web-based applications** and **other applications**. The primary distinction between these types is their IP address requirements. Web-based applications share an IP address with other web-based applications, whereas other applications require a dedicated IP address for each service. Since the number of available IP addresses is limited, the web-based approach is preferred whenever possible.
 
-Throughout this documentation, YAML fragments are provided. These YAML definitions should be deployed using `kubectl`, like so:
+Throughout this documentation, YAML fragments are provided. These YAML definitions should be deployed using `kubectl` as shown below:
 
 ```shell
 kubectl create -f file.yaml -n namespace
 ```
 
-where `file.yaml` contains the YAML definitions, and `namespace` is the Namespace where the application is running.
+where `file.yaml` contains the YAML definitions and `namespace` is the namespace where the application is running.
 
 <Callout title="Prerequisite" icon="✅"> 
 This guide assumes that your application (`Deployment`) is already deployed. If you are unsure, refer to the [Hello World example](../examples/helloworld).
@@ -54,7 +54,7 @@ spec:
 
 In this configuration:
 
-- The `selector: app: application` must match the application label in the `Deployment`.
+- The `selector.app: application` must match the application label in the `Deployment`.
 - The `application-svc` and `application-port` values are arbitrary names.
 
 After creating the Service, we define an Ingress:
@@ -88,7 +88,7 @@ spec:
 Here:
 
 - The `service.name: application-svc` must match the metadata name of the `Service`.
-- The `Ingress` exposes the application at the URL `application.dyn.cloud.e-infra.cz`, which serves as the accessible endpoint (functioning as the "IP" for reaching your application).
+- The `Ingress` exposes the application at the URL `application.dyn.cloud.e-infra.cz`, which serves as the accessible endpoint (functioning as the "IP address" for reaching your application).
 - If the domain is within `dyn.cloud.e-infra.cz`, it will be registered automatically.
 - The `tls` section enables automatic certificate management via Let's Encrypt.
 
@@ -180,11 +180,11 @@ You can secure access to your `Ingress`-exposed application by requiring user au
       auth: password
    ```
 
-   - secretref is an arbitrary name.
+    - `secretref` is an arbitrary name.
 
-   - The password must be base64-encoded. To generate it:
+    - The htpasswd output must be base64-encoded. To generate it:
 
-     ```shell copy
+       ```shell copy
      htpasswd -n username | base64 -w0
      ```
 
@@ -254,7 +254,7 @@ spec:
   rules:
   - host: "my-name"
     http:
-      paths
+      paths:
       - backend:
           service:
             name: application-svc
@@ -277,12 +277,12 @@ If your configuration is correct but the TLS certificate is not issued, the prob
 #### Steps to Debug
 
 1. Check if the Ingress is stuck on the ACME solver:
- 
+
    ```shell
    kubectl get ingress -n [your_namespace]
    ```
 
-   If the output includes cm-acme-http-solver with an age of more than a few minutes, it likely indicates an issue.
+   If the output includes `cm-acme-http-solver` with an age of more than a few minutes, this likely indicates an issue.
 
    ```bash
    > kubectl get ingress -n [your_namespace]
@@ -307,7 +307,7 @@ If your configuration is correct but the TLS certificate is not issued, the prob
 
 If quota restrictions are the issue, you may need to:
 
-- Increase the [namespace resource quota](../rancher/quotas#changing-namespace-quotas). Each acme solver requires 100m CPUs and 100MiB of memory.
+- Increase the [namespace resource quota](../rancher/quotas#changing-namespace-quotas). Each ACME solver requires 100m CPUs and 100 MiB of memory.
 - Remove some existing deployments.
 
 You can also view events in the Rancher UI.
