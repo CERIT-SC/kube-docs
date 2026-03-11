@@ -2,14 +2,14 @@
 title: Namespaces
 ---
 
-In Kubernetes, [namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) provides a mechanism for isolating groups of resources within a single cluster. Names of resources need to be unique within a namespace, but not across namespaces. 
+In Kubernetes, [namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) isolate groups of resources within a single cluster. Resource names must be unique within a namespace, but not across namespaces.
 
-Names of namespaces need to be unique within a cluster. I.e., it is usually not a good idea to create namespace called *test* and so on.
+Namespace names must be unique within a cluster. Avoid creating namespaces called *test* or similar generic names.
 
-If user logs in into Ranger GUI, *Personal Project* and a *Namespace* is created in just after first login, if you do not see any, just reload the web page.
+When a user logs into the Rancher GUI for the first time, a *Personal Project* and a *Namespace* are created automatically. If you do not see them, reload the web page.
 
-User can check his/hers Namespaces on `Rancher` site in the left tabl `Project/Namespaces` 
+You can view your namespaces in the Rancher GUI under the `Project/Namespaces` tab in the left sidebar.
 
-![kube ns](/img/ceritsc/ns.jpg)
+![Namespace view in Rancher GUI](/img/ceritsc/ns.jpg)
 
-User can create additional namespaces either using kubectl or in the Rancher GUI. Creating namespaces using kubectl is not recommended way, therefore no example here, as kubectl's created namespaces are not linked to user *Project*. Instead, a user should create namespace in Rancher GUI in Namespace overview hitting `Create Namespace` button.
+You can create additional namespaces either with kubectl or in the Rancher GUI. However, creating namespaces with kubectl is not recommended because these namespaces are not linked to the user's *Project*. Instead, create a namespace in the Rancher GUI's Namespace overview page by clicking the `Create Namespace` button.
