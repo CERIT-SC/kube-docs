@@ -3,11 +3,12 @@ title: Welcome to the CERIT-SC Kubernetes Container Platform
 ---
 
 import Image from 'next/image';
+import { Card, Cards } from 'fumadocs-ui/components/card';
 import Kubernetes from '@/public/img/ceritsc/menu-logos/Kubernetes-icon.svg';
 import Interactive from '@/public/img/ceritsc/menu-logos/Interactive-icon.svg';
 import AIllm from '@/public/img/ceritsc/menu-logos/AI-icon.svg';
 
-## Your Gateway to High-Performance Computing & AI
+## Your Gateway to High-Performance Computing and AI
 
 Welcome to the CERIT-SC documentation. We provide a state-of-the-art computational platform designed to accelerate your research. Whether you need to deploy complex workflow pipelines, run interactive data analysis, or leverage the latest AI models in a secure environment, our infrastructure is built to scale with your needs.
 
@@ -27,7 +28,7 @@ Welcome to the CERIT-SC documentation. We provide a state-of-the-art computation
 
 Our flagship service offers a managed Kubernetes Container Platform powered by [Rancher](../rancher/rancher). 
 
-* Easy Management: Use the intuitive dashboard or one-click [Rancher Apps Catalogue](../rancher-apps/rancher-applications) to deploy tools like Matlab, or Scipion.
+* Easy Management: Use the intuitive dashboard or one-click [Rancher Apps Catalogue](../rancher-apps/rancher-applications) to deploy tools like Matlab or Scipion.
 * Advanced Capabilities: Full support for [Kubectl](../kubernetes/kubectl), custom [Docker containers](../docker/dockerfile), persistent storage, and [GitOps workflows](../gitops/agentk)
 </Card>
 
@@ -41,12 +42,12 @@ We host managed web applications that require no installation on your site.
 * [Foldify](../web-apps/foldify): A web-based UI for AlphaFold to predict protein structures.
 </Card>
    
-<Card title="AI as a Service (AIaaS)"icon={<Image src={AIllm} alt="AIaaS" width="220"/>}>
+<Card title="AI as a Service (AIaaS)" icon={<Image src={AIllm} alt="AIaaS" width="220"/>}>
 
 Unlock the power of [Artificial Intelligence](../ai-as-a-service/introduction) with secure, on-premise access to LLMs and related tools.
 
-* Chat & RAG: Use our [Chat AI](../ai-as-a-service/chat-ai) to interact privately with large language models like GPT-OSS or Deepseek.
-* Develop: Integrate AI into your scripts via our [OpenAI-compatible API](../ai-as-a-service/chat-ai#creating-an-api-key) or build workflows with [n8n Agents](../ai-as-a-service/n8n-agents) or [DeepSite](../ai-as-a-service/deepsite) web creator. 
+* Chat and RAG: Use our [Chat AI](../ai-as-a-service/chat-ai) to interact privately with large language models like GPT-OSS or Deepseek.
+* Develop: Integrate AI into your scripts via our [OpenAI-compatible API](../ai-as-a-service/chat-ai#creating-an-api-key) or build workflows with [n8n Agents](../ai-as-a-service/n8n-agents) or the [DeepSite](../ai-as-a-service/deepsite) web creator. 
 
 </Card>
 </Cards>
