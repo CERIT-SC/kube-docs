@@ -4,18 +4,18 @@ title: Security and Network Policy
 
 ## Ingress Authentication
 
-If user wants to utilize basic auth or oauth at ingress, it can be done as described in [official documentation](https://kubernetes.github.io/ingress-nginx/examples/auth/basic/) or in [our documentation](./expose).
+If you want to use basic auth or OAuth for an Ingress, follow the instructions in the [official documentation](https://kubernetes.github.io/ingress-nginx/examples/auth/basic/) or in [our documentation](./expose).
 
-This approach has one big security flaw. Authentication is required when connecting via ingress only, e.g., from outside of Kubernetes cluster. However, user of the platform can also connect from inside cluster directly to the corresponding service (they need to guess it IP though) and in such a case, there is no authentication required.
+This approach has a significant security flaw: authentication is only required when connecting via Ingress, for example, from outside the Kubernetes cluster. However, platform users can also connect from inside the cluster directly to the corresponding Service (they would need to guess its IP address). In such cases, no authentication is required.
 
-This flaw can be mitigated using [Network Policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/) that can limit origin of network traffic. In this case, it is useful to allow ingress traffic to server from *kube-system* namespace only. The *kube-system* namespace hosts Ingress Nginx instance, therefore, connection from this and only this namespace is required.
+This flaw can be mitigated using a [Network Policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/) that limits the origin of network traffic. In this case, allow Ingress traffic to the server only from the *kube-system* namespace. The *kube-system* namespace hosts the Ingress NGINX instance, so only connections from this namespace are required.
 
-Example of network policy can be [downloaded here](/examples/ceritsc/manifests/netpolicy.yaml). This policy allows ingress traffic from *kube-system* to Pod named `myapp`. This policy is applied to the *namespace* where the Pod `myapp` is.
+An example network policy can be [downloaded here](/examples/ceritsc/manifests/netpolicy.yaml). This policy allows Ingress traffic from *kube-system* to a Pod named `myapp`. This policy is applied to the *namespace* where the Pod `myapp` resides.
 
 ## E-infra Single Sign On (BETA)
 
-It is possible to utilize e-infra's SSO service to secure your application. To enable this, some data must be added to the ingress.
-We will show how to edit an existing ingress to include SSO.
+You can use the e-infra SSO service to secure your application. To enable this, add some annotations to the ingress.
+This guide shows how to edit an existing ingress to include SSO.
 
 This example represents an existing ingress:
 
@@ -46,7 +46,7 @@ spec:
         pathType: Prefix
 ```
 
-Firstly, we must add a few annotations to the ingress itself:
+First, add a few annotations to the ingress:
 
 ```yaml {8,9}
 apiVersion: networking.k8s.io/v1
@@ -77,16 +77,11 @@ spec:
         pathType: Prefix
 ```
 
-The `nginx.ingress.kubernetes.io/auth-url` annotation contains a query string
-which specifies a list of users that should be able to access the website,
-only change the list of emails in this field, do not change the URL in any
-way.
+The `nginx.ingress.kubernetes.io/auth-url` annotation contains a query string that specifies a list of users who can access the website. Only change the list of emails in this field; do not modify the URL in any way.
 
-The other annotation simply tells the ingress that it should redirect back
-to the webpage after the user authenticates.
+The other annotation tells the ingress to redirect back to the webpage after the user authenticates.
 
-Now that the ingress is configured to use an SSO enpoint, we must configure
-the SSO endpoint itself. To do this we must apply the following YAML file:
+Now that the Ingress is configured to use an SSO endpoint, configure the SSO endpoint itself by applying the following YAML file:
 
 ```yaml copy
 apiVersion: v1
@@ -129,10 +124,7 @@ spec:
         pathType: Prefix
 ```
 
-Note that the `hosts` and `secretName` are the same as in the original ingress.
-The only thing that needs to be changed in the file is all occurences of
-`ingress-name` and `hostname`, replace them with the name of your ingress
-and web page URL and apply the file.
+Note that the `hosts` and `secretName` values match those in the original Ingress.
+Replace all occurrences of `ingress-name` and `hostname` with the name of your Ingress and your website URL, then apply the file.
 
-With all the changes applied, your webiste is now secured with the
-e-infra's SSO service.
+With all the changes applied, your website is now secured with the e-infra SSO service.
