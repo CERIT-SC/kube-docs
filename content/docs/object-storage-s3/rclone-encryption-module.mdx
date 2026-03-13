@@ -3,8 +3,18 @@ title: Rclone encryption utility
 ---
 This guide describes the encryption utility for Rclone. The app has two interfaces. First for Data Protection Officer (DPO) and second for Ened user.
 
+Tomas Hlava pripravil dve miniaplikace pro zjednoduseni sifrovani dat pomoci nastroje rclone. Jedna miniaplikace slouzi data protection officerovi (DPO), ktery s jeji pomoci pripravi zasifrovany config pro sifrovany svazek v rclone a nasledne jej posle koncovemu uzivateli. Koncovy uzivatel si pomoci druhe miniaplikace doplni svoje s3 kredence a nasledne konfig zasifruje svym heslem. Ve vychozim stavu musi mit DPO nachystany bucket a nasdileny na tenant jehoz clenem je i koncovy uzivatel, pripadne rovnou na koncoveho uzivatele.
+
+Miniaplikace DPO zvladne bucket zalozit a vylistovat. 
+
+Cilem ukolu je obe miniaplikace vyzkouset a popsat jejich ovladani a nastaveni. Navod bude rozdeleny do dvou casti prvni cast pro DPO a druha cast pro koncove uzivatele.
+
+Aplikace jsou ke stazeni na:  https://github.com/CESNET/rclone-config-gui/actions
+
 ## Data Protection Officer utility
-```bash
-rclone selfupdate
-```
+
+----
+
+## End user utility
+
 ----
