@@ -7,22 +7,19 @@ The data centers operated by CESNET are based on object storage technology utili
 
 **CEPH** - Ceph is a software solution designed to provide object storage. Unlike traditional file-oriented data storage, object storage stores data as objects rather than data blocks. Metadata is directly associated with each object, eliminating the hierarchical structure used in conventional data storage systems. Instead, all data is stored in a flat namespace, making it highly scalable. Ceph is an open-source system that includes an object store, block store, and distributed file system. It supports object access (RADOS), exported block devices, and file access. Data stored in Ceph is replicated across multiple nodes based on a defined replication policy.
 
+## Datacenters
+
+Cesnet Data Storage Department currently operates the following datacenters:
+
 |  Data Center | Type   | Loacation     | Raw capacity PB | In operation since | Status             |
 | :-----       | :----- | :-----        | :-----          | :-----             | :-----             |
-| DU1          | HSM    | Plzeň         | 3.6             | 2011               | decomissioned      |
-| DU2          | HSM    | Jihlava       | 7.209           | 2013               | decomissioned      |
-| DU3          | HSM    | Brno          | 3.52            | 2013               | decomissioned      |
-| DU4          | HSM    | Ostrava       | 23.341          | 2017               | offline            |
-| DU5          | RAID   | Jihlava       | 9.36            | 2019               | decomissioned      |
-| CL1          | CEPH   | Jihlava       | 10.56           | 2019               | replaced in 2025   |
-| CL2          | CEPH   | Plzeň         | 25.433          | 2020               | online             |
-| CL3          | CEPH   | Ostrava       | 33.673          | 2021               | online             |
-| CL4          | CEPH   | Brno          | 26.607          | 2022               | online             |
-| CL5          | CEPH   | Dolní Břežany | 25.536          | 2023               | online             |
-| CL1          | CEPH   | Jihlava       | 25.394          | 2025               | online             |
+| [CL1](#cl1-jihlava)       | CEPH   | Jihlava       | 25.394          | 2025               | online             |
+| [CL2](#cl2-plzeň)         | CEPH   | Plzeň         | 25.433          | 2020               | online             |
+| [CL3](#cl3-ostrava)       | CEPH   | Ostrava       | 33.673          | 2021               | online             |
+| [CL4](#cl4-brno)          | CEPH   | Brno          | 26.607          | 2022               | online             |
+| [CL5](#cl5-dolní-břežany) | CEPH   | Dolní Břežany | 25.536          | 2023               | online             |
 
-## Datacenters
-Below are the details of each datacenter.
+---
 
 ### CL1 Jihlava
 Object storage CL1 (modernised in 2025) is based on Ceph technology and consists of 34 storage servers, each equipped with 32 disks, totaling a capacity of 25.394 PB. Data access is provided by ten front-end servers.
@@ -58,3 +55,19 @@ Object storage CL5 is based on Ceph technology and consists of 50 storage server
 Available services: [RBD](../object-storage-rbd/rbd-service) and [S3](../object-storage-s3/s3-service)
 
 ---
+
+## Decomissioned and Historical Datacenters
+
+|  Data Center | Type   | Loacation     | Raw capacity PB | In operation since | Status             |
+| :-----       | :----- | :-----        | :-----          | :-----             | :-----             |
+| DU1          | HSM    | Plzeň         | 3.6             | 2011               | decomissioned      |
+| DU2          | HSM    | Jihlava       | 7.209           | 2013               | decomissioned      |
+| DU3          | HSM    | Brno          | 3.52            | 2013               | decomissioned      |
+| DU4          | HSM    | Ostrava       | 23.341          | 2017               | offline            |
+| DU5          | RAID   | Jihlava       | 9.36            | 2019               | decomissioned      |
+| CL1          | CEPH   | Jihlava       | 10.56           | 2019               | replaced in 2025   |
+
+
+
+
+
