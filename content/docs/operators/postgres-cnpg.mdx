@@ -116,6 +116,8 @@ metadata:
     metallb.io/address-pool: privmuni
 spec:
   type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: local
   ports:
   - port: 5432
     targetPort: 5432
@@ -139,6 +141,8 @@ metadata:
     metallb.io/address-pool: default
 spec:
   type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: local
   ports:
   - port: 5432
     targetPort: 5432
