@@ -1,0 +1,134 @@
+---
+title: Find Your Storage Solution
+---
+
+import { PersonaCard, ResearcherIcon, AdminIcon, StudentIcon, VOManagerIcon, DeveloperIcon, LeaderIcon } from '../../../components/scenarios/PersonaCard';
+import { QuickActionCard, TransferIcon, SyncIcon, BackupIcon, SecureShareIcon, TeamAccessIcon, ApiAccessIcon } from '../../../components/scenarios/QuickActionCard';
+import { ScenarioGrid } from '../../../components/scenarios/ScenarioGrid';
+import { SupportCTA } from '../../../components/scenarios/SupportCTA';
+
+<div className="mb-8">
+  Choose your role or task below to quickly find the right storage solution for your needs.
+</div>
+
+## I am a...
+
+<div className="mb-10">
+  <ScenarioGrid columns="cols-2">
+    <PersonaCard
+      icon={<ResearcherIcon />}
+      title="Researcher / Scientist"
+      scenarios={[
+        { title: 'Share research data across institutions', href: '/docs/object-storage-s3/s3-service' },
+        { title: 'Backup research datasets long-term', href: '/docs/object-storage-s3/veeam-backup' },
+        { title: 'Store and access large datasets', href: '/docs/object-storage-s3/s3-use-cases' },
+      ]}
+    />
+    <PersonaCard
+      icon={<AdminIcon />}
+      title="System Administrator"
+      scenarios={[
+        { title: 'Configure institutional backup', href: '/docs/object-storage-rbd/rbd-setup' },
+        { title: 'Automate backup with Veeam or rclone', href: '/docs/object-storage-s3/veeam-backup' },
+        { title: 'Set up block storage infrastructure', href: '/docs/object-storage-rbd/rbd-service' },
+      ]}
+    />
+    <PersonaCard
+      icon={<StudentIcon />}
+      title="Student / Teacher"
+      scenarios={[
+        { title: 'Share documents with classmates', href: '/docs/collaboration/owncloud' },
+        { title: 'Transfer large files temporarily', href: '/docs/collaboration/filesender' },
+        { title: 'Sync work across devices', href: '/docs/collaboration/owncloud' },
+      ]}
+    />
+    <PersonaCard
+      icon={<VOManagerIcon />}
+      title="VO Manager"
+      scenarios={[
+        { title: 'Approve new VO members', href: '/docs/perun/user-approval' },
+        { title: 'Manage user access and groups', href: '/docs/perun/creating-group' },
+        { title: 'Add another VO manager', href: '/docs/perun/adding-vo-manager-into-vo' },
+      ]}
+    />
+    <PersonaCard
+      icon={<DeveloperIcon />}
+      title="Developer / Data Engineer"
+      scenarios={[
+        { title: 'Integrate S3 storage into applications', href: '/docs/object-storage-s3/boto3' },
+        { title: 'Automate data pipelines with CLI', href: '/docs/object-storage-s3/aws-cli' },
+        { title: 'Generate presigned URLs for sharing', href: '/docs/object-storage-s3/s3-features' },
+      ]}
+    />
+    <PersonaCard
+      icon={<LeaderIcon />}
+      title="Research Group Leader"
+      scenarios={[
+        { title: 'Manage team access to storage', href: '/docs/perun/creating-group' },
+        { title: 'Share sensitive data securely', href: '/docs/object-storage-s3/rclone' },
+        { title: 'Set up multi-institution collaboration', href: '/docs/object-storage-s3/s3-use-cases' },
+      ]}
+    />
+  </ScenarioGrid>
+</div>
+
+## I want to...
+
+<div className="mb-10">
+  <ScenarioGrid columns="cols-2">
+    <QuickActionCard
+      icon={<TransferIcon />}
+      title="Send large files to others"
+      description="Transfer files too large for email to individuals or groups. Simple one-time sharing without permanent storage."
+      href="/docs/collaboration/filesender"
+    />
+    <QuickActionCard
+      icon={<SyncIcon />}
+      title="Sync files across my devices"
+      description="Keep your work files automatically synchronized across computers and mobile devices."
+      href="/docs/collaboration/owncloud"
+    />
+    <QuickActionCard
+      icon={<BackupIcon />}
+      title="Backup my data automatically"
+      description="Set up automated backup using Veeam, rclone, Bacula, or Restic with S3 integration."
+      href="/docs/object-storage-s3/veeam-backup"
+    />
+    <QuickActionCard
+      icon={<SecureShareIcon />}
+      title="Share sensitive data securely"
+      description="Use client-side encryption and presigned URLs for secure data sharing."
+      href="/docs/object-storage-s3/rclone"
+    />
+    <QuickActionCard
+      icon={<TeamAccessIcon />}
+      title="Give my team access to storage"
+      description="Create groups in Perun and assign S3 or RBD resources to team members."
+      href="/docs/perun/creating-group"
+    />
+    <QuickActionCard
+      icon={<ApiAccessIcon />}
+      title="Access storage from applications"
+      description="Use S3 API (boto3 for Python) or presigned URLs for programmatic access."
+      href="/docs/object-storage-s3/boto3"
+    />
+  </ScenarioGrid>
+</div>
+
+## Compare Services
+
+<div className="mb-10">
+  | Service | Best For | Access Method | Technical Level |
+  |---------|----------|---------------|-----------------|
+  | [FileSender](/docs/collaboration/filesender) | One-time large transfers | Web interface | Beginner |
+  | [ownCloud](/docs/collaboration/owncloud) | Daily work file sync | Web, desktop, mobile apps | Beginner |
+  | [S3 Object Storage](/docs/object-storage-s3/s3-service) | Research data, backups, applications | GUI clients, CLI, API | Beginner → Advanced |
+  | [RBD Block Storage](/docs/object-storage-rbd/rbd-service) | Centralized storage, backup systems | Linux/Windows block device | Advanced |
+</div>
+
+<SupportCTA
+  title="Not sure what you need?"
+  description="Our support team can help you find the right storage solution for your specific requirements. We'll discuss your use case and recommend the best approach."
+  buttonText="Contact Support"
+  href="/docs/introduction/support"
+/>

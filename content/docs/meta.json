@@ -1,6 +1,7 @@
 {
 "pages": [
 "introduction",
+"scenarios",
 "object-storage-s3",
 "object-storage-rbd",
 "collaboration",
