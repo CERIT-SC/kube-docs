@@ -49,7 +49,11 @@ You can generate as many key pairs as you wish to access your storage. Is is rec
   **Recommendation:**  It might be a good practice to record key pairs together with a description of where they are to be used in a password management aplication (like Keepass, 1Password, etc.). While you can always find the `access key` at the Gatekeeper, there is no way to reveal the genereated `secret key` - it is displayed only once at the time of generation. In you lose the secret key, you have to generate a new pair of keys (and delete the old one once you have reconfigured all clients that used it).
 </Callout>
 
-To **generate keys**, log in to Gatekeeper [https://access.du.cesnet.cz](https://access.du.cesnet.cz), press the `+ New key` button and enter a name for the key pair (like *My WinSCP Keys*). Wait until keys are genereated and copy and save them **both**. You will need both keys when configuring an access to your  storage in a selected application.
+To **generate keys**, log in to Gatekeeper [https://access.du.cesnet.cz](https://access.du.cesnet.cz), press the `+ New key` button and enter a name for the key pair (like *My WinSCP Keys*). Wait until keys are genereated and copy and save them **both**. Also, mark down (copy and save) the S3 Storage Endpoint address displayed above the list of generated keys.    
+
+<Callout type="info" emoji="ℹ️">
+  **Note:** You will need access key, secret key, and S3 storage endpoint address to configure access to the storage in a client application.
+</Callout>
 
 Kindly note that personal S3 appears as *Personal Account* in the system; other Virtual Organisations are listed individually.
 
