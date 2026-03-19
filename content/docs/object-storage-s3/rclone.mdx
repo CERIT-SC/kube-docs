@@ -3,6 +3,22 @@ title: Rclone
 ---
 This guide provides instructions for configuring the rclone tool. Rclone is a versatile tool that supports connections to various types of storage, but this guide focuses specifically on Object Storage, namely the S3 service.It is applicable for both Windows and Linux users. Using rclone with S3 allows you to create buckets, sync folders, upload and download files, and much more.
 
+## Contents:##
+1. [Installation](#downloading-and-installation-of-rclone-tool)
+  * [Linux](#linux---manual-installation-in-user-profile)
+  * [Windows](#windows---manual-installation-in-user-profile)
+1. [Basic Configuration](#basic-rclone-configuration)
+  * [using command line](#rclone-configuration-using-the-command-line)
+  * [using graphical user interface](#rclone-configuration-using-graphical-user-interface)
+  * [configuration file](#configuration-file)
+1. [Basic Controls](#rclone-basic-controls)
+1. [Configuration and Management of Encrypted Buckets](#configuration-and-management-of-encrypted-buckets)
+  * [using command line](#configuration-using-the-command-line)
+  * [using graphical user interface](#configuring-the-encrypted-bucket-using-the-graphical-user-interface)
+  * [verifying the integrity of encrypted data](#verifying-the-integrity-of-encrypted-data)
+  * [sharing encrypted buckets](#sharing-of-encrypted-buckets)
+  * [compromised or lost encryption password ](#compromise-of-encryption-passwords-vs-loss-of-encryption-passwords)
+
 ## Downloading and Installation of Rclone Tool
 First, you need to download and unzip the appropriate [rclone](https://rclone.org/downloads/) version according for your operating system.
 
@@ -24,20 +40,20 @@ unzip rclone-v1.59.1-linux-amd64.zip
 Then, copy rclone binary file into the pre-prepared bin folder in the user profile/home.
 
 ```bash
-cp ./rclone-v1.59.1-linux-amd64/rclone /home/user/bin/
+cp ./rclone-v1.59.1-linux-amd64/rclone ~/bin/
 ```
 
 In the final step, add the path to the rclone binary file to the PATH environment variable.
 
 ```bash
-PATH=/home/user/bin:$PATH
+PATH=~/bin:$PATH
 ```
 **Persistent setup**
 
 For **persistent presence** of the rclone binary file path in the PATH variable, add the following line into **.bashrc file**:
 
 ```bash
-echo 'PATH=/home/user/bin:$PATH' >> .bashrc
+echo 'PATH=~/bin:$PATH' >> .bashrc
 ```
     
 Alternatively, place the rclone binary file in the system path:
@@ -127,7 +143,11 @@ Command line in Windows and Linux:
 
 ![s3client](/img/data-care/rclone/rclone-cmd1.png)
 
-From the list of options, select **New remote** by typing the letter **n**. Next, enter the name for our connection/storage, such as `cesnet_s3`. Then, choose the **Option Storage** and select **Amazon S3 Compliant Storage Providers.**
+From the list of options, select **New remote** by typing the letter **n**. Next, enter the name for our connection/storage, such as `cesnet_s3`. Then, choose the **Option Storage** - select **Amazon S3 Compliant Storage Providers** by entering its number in the list.
+
+<Callout type="warn" icon="⚠️">
+Always find the option number by the text description - the actual number of the recommended option may differ from the number shown in the screenshot!
+</Callout>
 
 ![s3client](/img/data-care/rclone/rclone-cmd2.png)
 
@@ -139,7 +159,7 @@ Then, you will need to choose how to enter your S3 credentials. **In this case, 
 
 ![s3client](/img/data-care/rclone/rclone-cmd4.png)
 
-In the next steps, enter your **access_key_id** and **secret_access_key**, which you either received from the administrator or generated yourself.
+In the next steps, enter your **access_key_id** and **secret_access_key**, which you either received from the administrator or generated yourself on the [Gatekeeper server](https://access.du.cesnet.cz/) .
 
 ![s3client](/img/data-care/rclone/rclone-cmd5.png)
 
@@ -147,7 +167,7 @@ Next, select the **Option region**. Leave **this field empty** and press **Enter
 
 ![s3client](/img/data-care/rclone/rclone-cmd6.png)
 
-Enter the **Option endpoint**corresponding to the data center where you generated the credentials. For example **s3.cl2.du.cesnet.cz**.
+Enter the **Option endpoint** corresponding to the data center for which you generated the credentials (**s3.cl2.du.cesnet.cz** as an example). Check the [Gatekeeper key generator page](https://access.du.cesnet.cz/) if you do not rememebr the endpoint address. 
 
 ![s3client](/img/data-care/rclone/rclone-cmd7.png)
 
@@ -234,7 +254,8 @@ The configuration file can be found at the location described below. It contains
 
 **Windows config file**
 
-```ini filename="C:\Users\DedaLebeda\AppData\Roaming\rclone\rclone.conf" copy
+**`%APPADATA%\Roaming\rclone\rclone.conf`** (`C:\Users\USER_NAME\AppData\Roaming\rclone\rclone.conf`)
+```ini
 [cesnet_s3]
 type = s3
 provider = Ceph
@@ -244,9 +265,10 @@ endpoint = s3.cl2.du.cesnet.cz
 acl = private
 ```
 
-**Linux config file
+**Linux config file**
 
-```ini filename="~/.config/rclone/rclone.conf" copy
+**`~/.config/rclone/rclone.conf`**
+```ini
 [cesnet_s3]
 type = s3
 provider = Ceph
@@ -317,7 +339,7 @@ The solution is to use full path within the bucket, including a non-existing dir
 Copy the files:
 
 ```bash
-rclone copy /home/user/test_file1.pdf cesnet_s3cl2:test-bucket/new-dir1/new-dir2/
+rclone copy ~/test_file1.pdf cesnet_s3cl2:test-bucket/new-dir1/new-dir2/
 ```
 
 Next, check the files using ls command, where you can see that the folders have been created, namely new-dir1 a new-dir2:
@@ -346,7 +368,7 @@ To sync the directories, you can use the `sync` option. Synchronization only aff
 Below is an example of rclone sync command, which includes recommended options explained further below.
 
 ```bash
-rclone sync --dry-run --progress --fast-list /home/user/source-dir cesnet_s3cl2:test-bucket/
+rclone sync --dry-run --progress --fast-list ~/source-dir cesnet_s3cl2:test-bucket/
 ```
 
 <Callout type="info" emoji="ℹ️">
@@ -356,7 +378,7 @@ The command above always syncs the content of the source directory, regardless o
 
 The command above contains several recommended options.
 
-Option dry-run allows performing the dry-run sync with listing the potential changes.
+Option dry-run allows performing the dry-run sync with listing the potential changes. It does not make any changes on the target side, but allows you to check that the changes it lists correspond to your plan. To perform the actual sync, ommit the --dry-run option from the command.
 
 ```bash
 --dry-run
@@ -467,7 +489,7 @@ cesnet_s3cl2:
 Then, using the [sync command](#directory-syncing), upload three pictures into the decrypted bucket.
 
 ```bash
-rclone sync --progress --fast-list /home/user/source-dir cesnet_s3_encrypted:
+rclone sync --progress --fast-list ~/source-dir cesnet_s3_encrypted:
 ```
 
 Afterward,list the decrypted bucket, where you should see the three uploaded pictures.
