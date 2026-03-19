@@ -3,21 +3,24 @@ title: Rclone
 ---
 This guide provides instructions for configuring the rclone tool. Rclone is a versatile tool that supports connections to various types of storage, but this guide focuses specifically on Object Storage, namely the S3 service.It is applicable for both Windows and Linux users. Using rclone with S3 allows you to create buckets, sync folders, upload and download files, and much more.
 
-## Contents:##
-1. [Installation](#downloading-and-installation-of-rclone-tool)
-  * [Linux](#linux---manual-installation-in-user-profile)
-  * [Windows](#windows---manual-installation-in-user-profile)
+## List of Contents
+1. [Downloading and Installation](#downloading-and-installation-of-rclone-tool)
+    * [on Linux](#linux---manual-installation-in-user-profile)
+    * [on Windows](#windows---manual-installation-in-user-profile)
 1. [Basic Configuration](#basic-rclone-configuration)
-  * [using command line](#rclone-configuration-using-the-command-line)
-  * [using graphical user interface](#rclone-configuration-using-graphical-user-interface)
-  * [configuration file](#configuration-file)
+    * [using command line](#rclone-configuration-using-the-command-line)
+    * [using graphical user interface](#rclone-configuration-using-graphical-user-interface)
+    * [configuration file](#configuration-file)
 1. [Basic Controls](#rclone-basic-controls)
 1. [Configuration and Management of Encrypted Buckets](#configuration-and-management-of-encrypted-buckets)
-  * [using command line](#configuration-using-the-command-line)
-  * [using graphical user interface](#configuring-the-encrypted-bucket-using-the-graphical-user-interface)
-  * [verifying the integrity of encrypted data](#verifying-the-integrity-of-encrypted-data)
-  * [sharing encrypted buckets](#sharing-of-encrypted-buckets)
-  * [compromised or lost encryption password ](#compromise-of-encryption-passwords-vs-loss-of-encryption-passwords)
+    * [using command line](#configuration-using-the-command-line)
+    * [using graphical user interface](#configuring-the-encrypted-bucket-using-the-graphical-user-interface)
+    * [verifying the integrity of encrypted data](#verifying-the-integrity-of-encrypted-data)
+    * [sharing encrypted buckets](#sharing-of-encrypted-buckets)
+    * [compromised or lost encryption password ](#compromise-of-encryption-passwords-vs-loss-of-encryption-passwords)
+1. [Mounting the remote as a filesystem or a drive](#mounting-the-remote-as-a-filesystem-or-a-drive)
+    * [Mounting in Widnows](#mounting-in-windows)
+    * [Mounting in Linux](#mounting-in-linux)
 
 ## Downloading and Installation of Rclone Tool
 First, you need to download and unzip the appropriate [rclone](https://rclone.org/downloads/) version according for your operating system.
@@ -609,4 +612,33 @@ rclone copy old_encrypted_drive:dir01 new_encrypted_drive:dir01
 In the case of encrypted buckets, the encryption is client-side. If you lose your encryption passwords, the administrators have **NO POWER** to restore your encrypted data.
 </Callout>
 
-    
+## Mounting the remote as a filesystem or a drive
+
+You can mount (map) an existing remote storage (bucket) to be used by standard programs and tools.
+
+### Mounting in Windows
+
+Find a drive letter that is not used (let's say `Z:`) and run the following command in the Command Prompt window
+
+```bash
+rclone mount cesnet_s3_encrypted: Z: --network-mode --vfs-links
+```
+
+This will create a (virtual) drive Z: and map the contents of encrypted bucket `cesnet_s3_encrypted:` to it as if it was a standard network drive. The rclone command will stay running on the foreground in the command prompt window and will block the window. Minimze the window and keep the program running to keep the drive mounted (open another command prompt window if you need to continue working with rclone). To unmount the remote, stop the rclone program by pressing `ctrl+c` in the command prompt window or close the window.
+
+### Mounting in Linux
+
+Create a directory where the remote will be mounted (mount point) and run
+
+```bash
+rclone mount cesnet_s3_encrypted: path/to/mountpoint --daemon
+```
+
+or ommit the `--daemon` option if you want to keep the program running on the foreground. To unmount the remote, either stop rclone (if running in the foreground) or use
+
+```bash
+unmount path/to/mountpoint
+```
+
+if rclone runs in a daemon mode.
+
