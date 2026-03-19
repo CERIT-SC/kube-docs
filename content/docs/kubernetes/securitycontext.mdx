@@ -2,9 +2,9 @@
 title: Security Context
 ---
 
-Kubernetes version 1.25 is approaching. We will upgrade to this version by the beginning of July 2023. Starting with this release, [PSP](https://kubernetes.io/docs/concepts/security/pod-security-policy/) is deprecated and will be removed. Instead of PSP, [PSA](https://kubernetes.io/docs/concepts/security/pod-security-admission/) will be used. Although this change is primarily a matter of Kubernetes administration and not directly related to users, some user action is still required.
+Starting with Kubernetes 1.25, instead of PSP, [PSA](https://kubernetes.io/docs/concepts/security/pod-security-admission/) is used. 
 
-PSP has been a mutating security policy, which means that any missing security options in the deployment manifest were automatically injected into the manifest, and users typically did not notice the changes. PSA is only a validating policy, so any required security options must be added by the user before deployment.
+PSP has been a mutating security policy, meaning that any missing security options in the deployment manifest were automatically injected into it, and users typically did not notice the changes. PSA is only a validating policy, so any required security options must be added by the user before deployment.
 
 All security options are specified in the `securityContext`. There are two security contexts: (1) Pod security context and (2) Container security context. The Pod security context is at the same level as the containers, while the Container security context is inside each container of the pod.
 
