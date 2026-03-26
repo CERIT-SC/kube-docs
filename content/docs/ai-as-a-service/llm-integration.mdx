@@ -1,4 +1,88 @@
 ---
+
+## JetBrains IDE
+
+You can integrate CERIT-SC models with JetBrains IDEs using the built-in AI Assistant and OpenAI-compatible providers. This setup works well for chat-based workflows directly in the IDE.
+
+### JetBrains AI Assistant
+
+#### Install the AI Assistant plugin
+
+With your JetBrains IDE running:
+
+1. Open `Settings/Preferences`.
+2. Go to `Plugins` and search for `AI Assistant`.
+3. Install the plugin and restart the IDE if prompted.
+
+#### Configure a custom provider
+
+1. Open `Settings/Preferences`.
+2. Go to `Tools` -> `AI Assistant`.
+3. Add a custom provider (OpenAI-compatible) with:
+   - **Base URL**: `https://llm.ai.e-infra.cz/v1`
+   - **API Key**: Your key from [AI Chat WebUI](../ai-as-a-service/chat-ai)
+   - **Model**: `kimi-k2.5` (or another supported model)
+4. Save the settings and open AI chat in the IDE sidebar.
+
+<Callout type="warn">
+JetBrains AI Assistant custom providers currently work only in **chat mode**.
+</Callout>
+
+### Agent Integration
+
+For autonomous/agentic workflows, use [Claude Code](#claude-code) instead of JetBrains AI Assistant custom providers. The setup in the **Claude Code** section works for agent-style integration with our backend.
+
+### ProxyAI Custom OpenAI Provider
+
+If you use ProxyAI in JetBrains, add the following custom OpenAI provider configuration:
+
+```json
+[
+  {
+    "id": "f925c0bd-7387-483b-8a55-3fb6572ad4d2",
+    "name": "CERIT-SC",
+    "template": "OPENAI",
+    "apiKey": "",
+    "chatCompletionSettings": {
+      "url": "https://llm.ai.e-infra.cz/v1/chat/completions",
+      "headers": {
+        "Authorization": "Bearer $CUSTOM_SERVICE_API_KEY",
+        "X-LLM-Application-Tag": "proxyai",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "model": "kimi-k2.5",
+        "messages": "$OPENAI_MESSAGES",
+        "temperature": 0.1,
+        "max_tokens": 512
+      }
+    },
+    "codeCompletionSettings": {
+      "codeCompletionsEnabled": true,
+      "parseResponseAsChatCompletions": false,
+      "infillTemplate": "OPENAI",
+      "url": "https://llm.ai.e-infra.cz/v1/completions",
+      "headers": {
+        "Authorization": "Bearer $CUSTOM_SERVICE_API_KEY",
+        "X-LLM-Application-Tag": "proxyai",
+        "Content-Type": "text/event-stream"
+      },
+      "body": {
+        "suffix": "$SUFFIX",
+        "stream": true,
+        "model": "kimi-k2.5",
+        "temperature": 0.6,
+        "prompt": "$PREFIX",
+        "max_tokens": 512
+      }
+    }
+  }
+]
+```
+
+<Callout type="info">
+Keep `apiKey` empty in the JSON and provide your key through the appropriate setting.
+</Callout>
 title: AI Coding Assistants Integration
 ---
 
