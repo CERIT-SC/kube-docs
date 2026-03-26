@@ -6,7 +6,7 @@ This section describes basics of managing user accounts in Perun. It is of inter
 
 VO is the basic unit to organise user access to (storage) resources. In a nutshell, VO consists of users and managers. Main responsibility of VO managers is to decide on rules for user's membership. VOs can be further divided into groups.
 
-You are strongly advised not to be a single person holding the management role in the VO. At least two individuals are recommended be in such a role at all times.
+You are strongly advised not to be just a single person holding the management role in the VO. At least two individuals are recommended to be in such a role at all times.
 
 Data storage resources (to satisfy the needs of our funding organisations) generally require the users to demonstrate once a year that they are eligible to use our services. For that, membership prolongation has been established. Kindly note that if you have both roles, member as well as manager, you still need to apply for membership prolongation as the user and to approve your request as the manager.
 
@@ -17,4 +17,13 @@ You can learn about following topics here:
   * [managing VO managers](adding-vo-manager-into-vo)
   * [creating service accounts](managing-service-user-account)
   * [creating groups](creating-group)
+
+<Callout type="warn" icon="⚠️">
+All changes made in the Perun system may take up to one hour to propagate
+to destination systems (depending on the mechanism of propagation).
+Cluster and file system services are typically slower, web services using
+the identity federation may notice changes quickly (logging out and back in
+may help).
+**In general, do not expect changes to take effect immediately.**
+</Callout>
 
