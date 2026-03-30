@@ -162,6 +162,20 @@ However, we still want to remove deprecated models as soon as possible, due to h
 
 Large, resource-intensive models are subject to stricter removal timelines if their performance-to-cost ratio falls significantly behind current standards.
 
+## Data Privacy
+
+We prioritize the security of your data. While we maintain strict internal controls, it is essential to understand how your information is processed, stored, and protected within our infrastructure.
+
+<Callout type="warn">
+The WebUI environment is not currently certified for the processing of regulated, sensitive, or protected documentation. **Users are strictly prohibited from uploading highly sensitive, classified, or Personally Identifiable Information (PII) to the WebUI**. By using this service, the user acknowledges that the platform is not certified for protected data and agrees that any upload of such information is done at the user's own discretion and risk.
+</Callout>
+
+<Callout type="info">
+Sensitive Data Workflows (API): For users working with sensitive or protected datasets, we recommend using direct API access. The underlying LLM inference engines run on dedicated infrastructure specifically designed to handle sensitive data. By using the API, you bypass the WebUI's storage layer while still utilizing our secure, locally-hosted models.
+</Callout>
+
+
+
 ## Examples
 Below is a step-by-step guide for leveraging LLM models in Open WebUI across various scenarios.
 
@@ -305,17 +319,6 @@ Another challenge lies in finding suitable embedding models that support the Cze
 
 While we could integrate external embedding models like OpenAI's `text-embedding-3-small`, this approach would compromise data privacy, as it involves sending data to a third-party service.
 
-## Data Privacy
-
-We prioritize the security of your data. While we maintain strict internal controls, it is essential to understand how your information is processed, stored, and protected within our infrastructure.
-
-<Callout type="warn">
-The WebUI environment is not currently certified for the processing of regulated, sensitive, or protected documentation. **Users are strictly prohibited from uploading highly sensitive, classified, or Personally Identifiable Information (PII) to the WebUI**. By using this service, the user acknowledges that the platform is not certified for protected data and agrees that any upload of such information is done at the user's own discretion and risk.
-</Callout>
-
-<Callout type="info">
-Sensitive Data Workflows (API): For users working with sensitive or protected datasets, we recommend using direct API access. The underlying LLM inference engines run on dedicated infrastructure specifically designed to handle sensitive data. By using the API, you bypass the WebUI's storage layer while still utilizing our secure, locally-hosted models.
-</Callout>
 
 ### Model Infrastructure & Data Flow
 
