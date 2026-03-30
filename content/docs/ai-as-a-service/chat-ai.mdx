@@ -149,6 +149,19 @@ We evaluated selected models using [Aider Polyglot Benchmark](https://aider.chat
 |Kimi K2.5 (think)       | **92.3**  | **84.6**      | 74.5       | **93.9**         | **91.2**     | **90**     |
 |Kimi K2.5 (nothink)     | **92.3**  | 82.1          | **76.6**   | 89.8             | 82.4         | **90**     |
 
+
+## How Models are Added and Removed
+
+**Added:** New models are integrated based on a rigorous evaluation process. This includes analyzing performance across industry-standard benchmarks, assessing specific community feedback, and monitoring the evolving landscape of open-source AI.
+
+**Removed:** To ensure the highest quality of service, we retire models that have become obsolete. A model is typically phased out when newer, smaller models offer superior performance or when a more efficient architecture renders the older version redundant.
+
+**Deprecated:** An exception is when research groups need these models for reproducibility across various research types. In that case, we deprecate these models first and keep them up until such research concludes. 
+
+However, we still want to remove deprecated models as soon as possible, due to having limited GPU allocations specialized for deployed LLMs, and these GPUs should be diverted to more recent and better-performing models for the benefit of the whole NRP community. 
+
+Large, resource-intensive models are subject to stricter removal timelines if their performance-to-cost ratio falls significantly behind current standards.
+
 ## Examples
 Below is a step-by-step guide for leveraging LLM models in Open WebUI across various scenarios.
 
