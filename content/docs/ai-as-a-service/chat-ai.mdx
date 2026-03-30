@@ -307,19 +307,32 @@ While we could integrate external embedding models like OpenAI's `text-embedding
 
 ## Data Privacy
 
-Open WebUI displays model labels as either internal or external. This labeling is a feature of WebUI itself. Models are marked as internal if inference is handled via the Ollama API, and external if inference is done through an OpenAI-compatible API (in our case, the vLLM system).
+We prioritize the security of your data. While we maintain strict internal controls, it is essential to understand how your information is processed, stored, and protected within our infrastructure.
 
-All models accessible to users run on our infrastructure, and inference-related data does not leave our systems. However, we can provide access to truly external models—such as GPT-4o—upon special agreement. In such cases, data is understandably transmitted to a third party.
+<Callout type="info">
+User Responsibility: **Do not upload highly sensitive, classified, or PII (Personally Identifiable Information) files to the chat interface**. While our infrastructure is private, the platform is intended for general assistance and research; it is not currently certified for the processing of sensitive/protected documents.
+</Callout>
 
-The Ollama inference system has all request/response logging completely disabled. In contrast, the vLLM system logs requests and responses only while the associated Pod is running.
+<Callout type="info">
+Sensitive Data Workflows (API): For users working with sensitive or protected datasets, we recommend using direct API access. The underlying LLM inference engines run on dedicated infrastructure specifically designed to handle sensitive data. By using the API, you bypass the WebUI's storage layer while still utilizing our secure, locally-hosted models.
+</Callout>
 
-Open WebUI itself logs at the INFO level by default, meaning request/response data is not logged. Occasionally, when troubleshooting is required, the log level may be temporarily raised to DEBUG. In such cases, request/response data is stored until the Pod is restarted—typically when a new version is deployed.
+### Model Infrastructure & Data Flow
 
-Only system administrators have access to these logs, and they are not transmitted anywhere else.
+Open WebUI uses labels to distinguish how models are connected. Regardless of the label, your data remains within our controlled infrastructure unless explicitly stated otherwise.
 
-Saved conversations are stored in a PostgreSQL database hosted within our infrastructure. When a conversation is deleted, it should also be removed from the database—though we have not independently verified whether WebUI fully implements this behavior. The database is backed up to an S3 storage on CESNET with a 30-day retention period, meaning older backups are deleted after 30 days. Theoretically, a deleted conversation will be completely erased within that window. Again, access to this system is restricted to administrators only.
+* Internal Models (OpenAI-compatible API): All models accessible to users run on our infrastructure, and inference-related data does not leave our systems.
+* Truly External Services: Access to third-party models (e.g., GPT-5) is only provided through special agreements. In these specific cases, data is transmitted to the third-party provider.
 
-All administrators have signed NDAs.
+### Logging & Transparency
+
+We minimize data retention through the following logging policies:
+* Open WebUI itself logs at the INFO level by default, meaning request/response data is not logged. Occasionally, when troubleshooting is required, the log level may be temporarily raised to DEBUG. In such cases, request/response data is stored until the Pod is restarted—typically when a new version is deployed.
+* Only system administrators have access to these logs, and they are not transmitted anywhere else.
+* Saved conversations are stored in a PostgreSQL database hosted within our infrastructure. When a conversation is deleted, it should also be removed from the database—though we have not independently verified whether WebUI fully implements this behavior. 
+* The database is backed up to an S3 storage on CESNET with a 30-day retention period, meaning older backups are deleted after 30 days. Theoretically, a deleted conversation will be completely erased within that window. Again, access to this system is restricted to administrators only.
+
+Access to system logs and the underlying database is strictly limited to authorized system administrators. All administrators are bound by Non-Disclosure Agreements (NDAs) to ensure the confidentiality of your interactions.
 
 ## A Practical Guide to Using AI Chat
 
