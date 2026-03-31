@@ -1,26 +1,8 @@
 ---
 title: Rclone
 ---
-This guide provides instructions for configuring the rclone tool. Rclone is a versatile tool that supports connections to various types of storage, but this guide focuses specifically on Object Storage, namely the S3 service.It is applicable for both Windows and Linux users. Using rclone with S3 allows you to create buckets, sync folders, upload and download files, and much more.
 
-## List of Contents
-1. [Downloading and Installation](#downloading-and-installation-of-rclone-tool)
-    * [on Linux](#linux---manual-installation-in-user-profile)
-    * [on Windows](#windows---manual-installation-in-user-profile)
-1. [Basic Configuration](#basic-rclone-configuration)
-    * [using command line](#rclone-configuration-using-the-command-line)
-    * [using graphical user interface](#rclone-configuration-using-graphical-user-interface)
-    * [configuration file](#configuration-file)
-1. [Basic Controls](#rclone-basic-controls)
-1. [Configuration and Management of Encrypted Buckets](#configuration-and-management-of-encrypted-buckets)
-    * [using command line](#configuration-using-the-command-line)
-    * [using graphical user interface](#configuring-the-encrypted-bucket-using-the-graphical-user-interface)
-    * [verifying the integrity of encrypted data](#verifying-the-integrity-of-encrypted-data)
-    * [sharing encrypted buckets](#sharing-of-encrypted-buckets)
-    * [compromised or lost encryption password ](#compromise-of-encryption-passwords-vs-loss-of-encryption-passwords)
-1. [Mounting the remote as a filesystem or a drive](#mounting-the-remote-as-a-filesystem-or-a-drive)
-    * [Mounting in Widnows](#mounting-in-windows)
-    * [Mounting in Linux](#mounting-in-linux)
+This guide provides instructions for configuring the rclone tool. Rclone is a versatile tool that supports connections to various types of storage, but this guide focuses specifically on Object Storage, namely the S3 service.It is applicable for both Windows and Linux users. Using rclone with S3 allows you to create buckets, sync folders, upload and download files, and much more.
 
 ## Downloading and Installation of Rclone Tool
 First, you need to download and unzip the appropriate [rclone](https://rclone.org/downloads/) version according for your operating system.
@@ -162,7 +144,7 @@ Then, you will need to choose how to enter your S3 credentials. **In this case, 
 
 ![s3client](/img/data-care/rclone/rclone-cmd4.png)
 
-In the next steps, enter your **access_key_id** and **secret_access_key**, which you either received from the administrator or generated yourself on the [Gatekeeper server](https://access.du.cesnet.cz/) .
+In the next steps, enter your **access_key_id** and **secret_access_key**, which you either received from the administrator or generated yourself with the [Gatekeeper service](https://access.du.cesnet.cz/) .
 
 ![s3client](/img/data-care/rclone/rclone-cmd5.png)
 
@@ -170,7 +152,7 @@ Next, select the **Option region**. Leave **this field empty** and press **Enter
 
 ![s3client](/img/data-care/rclone/rclone-cmd6.png)
 
-Enter the **Option endpoint** corresponding to the data center for which you generated the credentials (**s3.cl2.du.cesnet.cz** as an example). Check the [Gatekeeper key generator page](https://access.du.cesnet.cz/) if you do not rememebr the endpoint address. 
+Enter the **Option endpoint** corresponding to the data center for which you generated the credentials (**s3.cl2.du.cesnet.cz** as an example). Check the [Gatekeeper service](https://access.du.cesnet.cz/) if you do not rememeber the endpoint address. 
 
 ![s3client](/img/data-care/rclone/rclone-cmd7.png)
 
