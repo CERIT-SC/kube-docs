@@ -308,16 +308,79 @@ Po dokončení je nastavení připraveno k použití.
 
 ---
 
-## Visual Studio Code
+## Integrace do Visual Studio Code
 
-AI chatbota lze integrovat do Visual Studio Code. K tomu lze využít rozšíření třetích stran, například [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) nebo [Roo Code](https://marketplace.visualstudio.com/items?itemName=RooCode.roocode). Tato rozšíření umožňují využít AI v různých rolích, které vám pomohou při programování ve Visual Studio Code. Role zahrnují jednoduchý chat, agentní režim nebo automatické doplňování kódu. Chat poskytuje známou konverzační zkušenost, agentní režim umožňuje analyzovat nebo upravovat soubory otevřené ve vašem projektu a role automatického doplňování navrhuje kód při jeho psaní.
+Claude Code a AI asistenci můžete integrovat do Visual Studio Code buď pomocí nativního rozšíření Claude Code, nebo rozšíření třetích stran. Tato rozšíření umožňují AI asistenci v různých rolích při programování, včetně jednoduchého chatu, režimu agenta a automatického doplňování. Chat poskytuje známý konverzační rozhraní, režim agenta analyzuje nebo upravuje soubory ve vašem projektu a automatické doplňování navrhuje kód během psaní.
 
-### Instalace rozšíření Continue
+
+### Nativní rozšíření Claude Code
+
+Nativní rozšíření Claude Code poskytuje přímou integraci s Claude Code ve Visual Studio Code.
+
+#### Krok 1: Instalace rozšíření
+
+1. Otevřete Visual Studio Code
+2. Přejděte na **Rozšíření** (`Ctrl+Shift+X`)
+3. Vyhledejte `Claude Code`
+4. Nainstalujte oficiální rozšíření Claude Code
+
+#### Konfigurace
+
+Pro konfiguraci nativního rozšíření Claude Code:
+
+1. Otevřete **Upravit** → **Předvolby** → **Nastavení** (nebo stiskněte `Ctrl+,`)
+2. Vyhledejte `Claude Code`
+3. Přejděte do sekce **Environment Variables** (Proměnné prostředí)
+4. Klikněte na **Edit in settings.json**
+5. Přidejte následující proměnné prostředí s vaším API klíčem z [AI Chat WebUI](../ai-as-a-service/chat-ai) ve formátu:
+
+```
+"claudeCode.environmentVariables": [
+    
+    {
+        "name": "ANTHROPIC_BASE_URL",
+        "value": "https://llm.ai.e-infra.cz/"
+    },
+    {
+        "name": "ANTHROPIC_AUTH_TOKEN",
+        "value": "sk-..."
+    },
+    {
+        "name": "ANTHROPIC_MODEL",
+        "value": "agentic"
+    },
+    {
+        "name": "ANTHROPIC_DEFAULT_OPUS_MODEL",
+        "value": "thinker"
+    },
+    {
+        "name": "ANTHROPIC_DEFAULT_SONNET_MODEL",
+        "value": "agentic"
+    },
+    {
+        "name": "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+        "value": "mini"
+    },
+    {
+        "name": "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC",
+        "value": "1"
+    }
+],
+```
+
+Nahraďte `sk-...` vaším skutečným API klíčem získaným z [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
+
+Jakmile je konfigurace hotová, rozšíření bude používat náš LLM backend pro AI asistované programátorské úkoly.
+
+### Rozšíření třetích stran
+
+AI chatboty můžete integrovat do Visual Studio Code taky pomocí rozšíření třetích stran, jako jsou [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) nebo [Roo Code](https://marketplace.visualstudio.com/items?itemName=RooCode.roocode).
+#### Instalace rozšíření Continue
 
 Když je Visual Studio Code spuštěné, otevřete kartu Extensions  (`Ctrl+Shift+X`) a vyhledejte `Continue`.  Klikněte na rozšíření a poté na tlačítko `Install`. Po dokončení instalace můžete k rozšíření `Continue` řistupovat kliknutím na ikonu `Continue` v levém postranním panelu.
 
 
-### Konfigurace rozšíření Continue
+#### Konfigurace rozšíření Continue
 
 Nejprve je třeba upravit konfigurační soubor  `config.yaml`. K rozšíření `Continue` ve Visual Studio Code se dostanete kliknutím na jeho ikonu v levém postranním panelu.
 
@@ -370,16 +433,16 @@ context:
 5. Uložte soubor. Nová konfigurace by se měla použít okamžitě.
 6. Zkontrolujte, že je pro automatické doplňování použit režim `FIM` , tím že se podíváte na tlačítko  `Continue` ve stavovém řádku Visual Studio Code (v pravém dolním rohu). Mělo by zobrazovat `Continue`. Nemělo by zobrazovat `Continue (NE)`. Pokud se zobrazí `Continue (NE)`, klikněte na tlačítko a vyberte možnost `Use FIM autocomplete over Next Edit`.
 
-### Použití AI ve Visual Studio Code
+#### Použití AI ve Visual Studio Code
 
 * Chat lze otevřít stisknutím ikony `Continue` v levém postranním panelu.
 * V chatu můžete zapnout režim agenta tím, že požádáte o analýzu, vysvětlení nebo úpravu souboru v aktuálně otevřeném projektu. Tato akce vyžaduje dodatečná oprávnění, například práva pro čtení/zápis do souvisejících souborů. Musíte udělit potřebná oprávnění, aby agent mohl úkol provést.
 * Funkce automatického doplňování bude při psaní průběžně nabízet nové návrhy kódu. Jakmile se návrh zobrazí, přijmete jej stisknutím klávesy `Tab`. Rychlost odezvy návrhů závisí na výkonu modelu. V konfiguraci autocomplete můžete změnit model `qwen3-coder` na `gpt-oss-120b`, který může být o něco rychlejší, ale výchozí model má lepší výsledky při programovacích úlohách.
 
-### Roo Code
+#### Roo Code
 [Roo Code](https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline) je rozšíření pro Visual Studio Code, které poskytuje asistenci AI s vylepšenými schopnostmi agenta a porozuměním kódu.
 
-#### Instalace rozšíření Roo Code
+##### Instalace rozšíření Roo Code
 Se spuštěným Visual Studio Code:
 1. Otevřete kartu Rozšíření (`Ctrl+Shift+X`)
 2. Vyhledejte `Roo Code`
@@ -388,7 +451,7 @@ Se spuštěným Visual Studio Code:
 
 
 
-#### Nakonfigurujte rozšíření Roo Code
+##### Nakonfigurujte rozšíření Roo Code
 Chcete-li používat self-hosted modely:
 1. Otevřete Roo Code pomocí ikony v postranním panelu
 2. Klikněte na ikonu ⚙️ **Settings** (vpravo nahoře)
@@ -400,12 +463,12 @@ Chcete-li používat self-hosted modely:
 4. Nastavte **Context Window Size** podle [této tabulky](../ai-as-a-service/chat-ai#guaranteed-models)
 5. Uložte nastavení
 
-#### Používání Roo Code
+##### Používání Roo Code
 - Vyberte agenty pomocí tlačítka v levém dolním rohu rozšíření
 - Po odeslání zadání agenti pracují autonomně, dokud není potřeba zásah
 - Pro pokročilé použití si prostudujte [Roo Code dokumentaci](https://docs.roocode.com/)
 
-#### Codebase indexování
+##### Codebase indexování
 
 Indexování codebase pomocí jednoho z našich [embedding modelů](../ai-as-a-service/chat-ai#embedding-models) pomáhá agentům lépe vyhledávat a porozumět vaší codebase.
 Pro uložení indexu je potřeba nastavit lokální databázi Qdrant. Zde je příklad souboru `docker-compose.yaml`:
@@ -439,7 +502,7 @@ Pro nastavení indexování codebase postupujte podle těchto kroků:
 6. Po dokončení indexování budou mít agenti přístup k databázi a budou schopni lépe vyhledávat a porozumět codebase.
 ---
 
-### Upozornění
+#### Upozornění
 
 Vypnite všetky ostatné rozšírenia pre Visual Studio Code, ktoré poskytujú AI funkcie automatického dopĺňania. V opačnom prípade nemusí rozšírenie `Continue` fungovať správne.
 
