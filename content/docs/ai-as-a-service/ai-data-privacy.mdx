@@ -27,7 +27,8 @@ If your workflow involves handling highly sensitive information, classified data
 Sensitive Data Workflows (API): For users working with sensitive or protected datasets, we recommend using **direct API access**. The underlying LLM inference engines run on dedicated infrastructure specifically designed to handle sensitive data. By using the API, you bypass the WebUI's storage layer while still utilizing our secure, locally-hosted models.
 </Callout>
 
-**WebUI (Chat Interface)**
+
+### WebUI (Chat Interface)
 
 The Open WebUI environment is intended for general research, coding assistance, and text processing.
 
@@ -39,7 +40,7 @@ Open WebUI uses labels to distinguish how models are connected. Regardless of th
 * Conversation History: If you use the WebUI, your chat history is stored in a local PostgreSQL database. When you delete a conversation in the WebUI, it is marked for removal from the database.
 
 
-**API (Direct Access)**
+### API (Direct Access)
 
 For workflows involving sensitive or protected datasets, we recommend using the OpenAI-compatible API.
 
@@ -69,12 +70,7 @@ Access to system logs and the underlying database is strictly limited to authori
 
 No Data Mining: CERIT-SC does not "train" or fine-tune global models on user chat data. Your prompts are used solely to generate the immediate response for your session.
 
-## Third-Party Models
 
-Access to truly external services (e.g., GPT-5 or other non-local models) is only provided through special agreements.
-
-* Explicit Labeling: These models will be clearly labeled in the interface.
-* Data Transmission: Using these specific models involves transmitting data to the respective third-party provider, and their specific privacy policies will apply.
 
 
 
