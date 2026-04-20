@@ -38,6 +38,7 @@ Open WebUI uses labels to distinguish how models are connected. Regardless of th
 * Truly External Services: Access to third-party models (e.g., GPT-5) is only provided through special agreements. In these specific cases, data is transmitted to the third-party provider.
 * User Discretion: Users acknowledge that uploading protected data to the WebUI is done at their own discretion and risk.
 * Conversation History: If you use the WebUI, your chat history is stored in a local PostgreSQL database. When you delete a conversation in the WebUI, it is marked for removal from the database.
+* Users should be aware that files uploaded to the WebUI (e.g., documents for RAG, images for analysis) are stored permanently within the platform's storage and cannot currently be deleted by the user.
 
 
 ### API (Direct Access)
