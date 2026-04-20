@@ -530,7 +530,7 @@ With your JetBrains IDE running:
 3. Add a custom provider (OpenAI-compatible) with:
 - **Base URL**: `https://llm.ai.e-infra.cz/v1`
 - **API Key**: Your key from [AI Chat WebUI](../ai-as-a-service/chat-ai)
-- **Model**: `kimi-k2.5` (or another supported model)
+- **Model**: `kimi-k2.6` (or another supported model)
 4. Save the settings and open AI chat in the IDE sidebar.
 
 <Callout type="warn">
@@ -560,7 +560,7 @@ If you use ProxyAI in JetBrains, add the following custom OpenAI provider config
         "Content-Type": "application/json"
       },
       "body": {
-        "model": "kimi-k2.5",
+        "model": "kimi-k2.6",
         "messages": "$OPENAI_MESSAGES",
         "temperature": 0.1,
         "max_tokens": 512
@@ -579,7 +579,7 @@ If you use ProxyAI in JetBrains, add the following custom OpenAI provider config
       "body": {
         "suffix": "$SUFFIX",
         "stream": true,
-        "model": "kimi-k2.5",
+        "model": "kimi-k2.6",
         "temperature": 0.6,
         "prompt": "$PREFIX",
         "max_tokens": 512
