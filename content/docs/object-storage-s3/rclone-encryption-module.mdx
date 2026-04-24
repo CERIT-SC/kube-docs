@@ -86,3 +86,28 @@ At this point, the encrypted configuration file is ready. You can now repeatedly
 
 ## End user utility
 
+The tool is not digitally signed. Warning from Microsoft Defender will be displayed.
+
+![](/img/data-care/rclone-encryption-module/01_ss.png)
+
+Click More info.
+
+![](/img/data-care/rclone-encryption-module/02_ss.png)
+
+Confirm by selecting Run anyway.
+
+![](/img/data-care/rclone-encryption-module/71_open.png)
+
+Open the configuration file provided by the DPO. Enter the password supplied by the DPO.
+
+![](/img/data-care/rclone-encryption-module/72_open2.png)
+
+The application will load the available parameters from the configuration file. Enter your S3 access credentials and validate the configuration using the **Test S3** button.
+
+![](/img/data-care/rclone-encryption-module/73_s3_ok.png)
+
+Enter a new password to encrypt the configuration file. This password will be required when using rclone to access the data provided by the DPO.
+
+![](/img/data-care/rclone-encryption-module/75_save.png)
+
+You now have your own rclone configuration file.
