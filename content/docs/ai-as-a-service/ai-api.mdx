@@ -193,3 +193,50 @@ curl https://llm.ai.e-infra.cz/v1/chat/completions \
 ```
 
 Use these options to control whether intermediate reasoning is included in API responses, depending on your application's needs.
+
+## Getting Model Metadata via the API
+
+You can retrieve metadata about all available models through the /model/info endpoint. This includes details such as model name, capabilities, context size, source, and quantization.
+
+**Request Example**
+
+```bash
+curl --location 'https://llm.ai.e-infra.cz/v1/model/info' --header 'Content-Type: application/json' --header 'Accept: application/json, text/event-stream' --header 'x-litellm-api-key: Bearer TOKEN'  | jq '[.data[] | {model_name, capabilities: .model_info.capabilities, context_size: .model_info.context_size, model_source: .model_info.model_source, quantization: .model_info.quantization}]'
+```
+
+**Response Example**
+
+The response is a JSON array containing metadata for each model.
+```
+{
+    "model_name": "kimi-k2.6",
+    "capabilities": [
+      "chat",
+      "multimodal",
+      "tools"
+    ],
+    "context_size": 262144,
+    "model_source": "https://huggingface.co/moonshotai/Kimi-K2.6",
+    "quantization": "int4"
+  },
+  {
+    "model_name": "gpt-oss-120b",
+    "capabilities": [
+      "chat",
+      "tools"
+    ],
+    "context_size": 131072,
+    "model_source": "https://huggingface.co/openai/gpt-oss-120b",
+    "quantization": "mxfp4"
+  },
+  {
+    "model_name": "gpt-oss-120b",
+    "capabilities": [
+      "chat",
+      "tools"
+    ],
+    "context_size": 131072,
+    "model_source": "https://huggingface.co/openai/gpt-oss-120b",
+    "quantization": "mxfp4"
+  }
+```
