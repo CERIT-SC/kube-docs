@@ -22,8 +22,9 @@ In case you want to generate the static pages locally (could be useful for large
 2. Clone CERIT-SC/fumadocs repo with some objects common to all eInfra docs: `git clone https://github.com/CERIT-SC/fumadocs`
 3. Copy the required files `cp -r fumadocs/components/* du-docs/components/`
 4. Enter the directory `cd du-docs`
-5. Run the build
+5. (Optional) Checkout to specific branch `git checkout branch_to_test`
+6. Run the build
 ```bash
-docker  run -it --rm -p 3000:3000 -e STARTPAGE=/en/docs -v ./public:/opt/fumadocs/public -v ./components:/opt/fumadocs/components -v ./content/docs:/opt/fumadocs/content/docs cerit.io/docs/fuma:v16.4.6 pnpm dev
+docker run -it --rm -p 3000:3000 -e STARTPAGE=/en/docs -v ./public:/opt/fumadocs/public -v ./components:/opt/fumadocs/components -v ./content/docs:/opt/fumadocs/content/docs cerit.io/docs/fuma:v16.4.6 pnpm dev
 ```
-6. Documentation will be available at `http://localhost:3000/en/docs/welcome` and automatically rebuilt on source change.
+7. Documentation will be available at [http://localhost:3000/en/docs/introduction/introduction](http://localhost:3000/en/docs/introduction/introduction) and automatically rebuilt on source change.
