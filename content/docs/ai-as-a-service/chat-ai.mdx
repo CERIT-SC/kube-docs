@@ -69,7 +69,7 @@ We categorize our models into several groups:
 
 1. **Guaranteed Models** – These models are maintained for long-term availability. Any updates, version transitions, or replacements will be communicated well in advance via this page and WebUI banners.
 2. **Experimental Models** – Subject to change during resource optimization and capability testing. Ideal for testing new features before they hit the mainstream.
-3. **Deprecated Models** – These models remain operational but are scheduled for decommissioning.
+3. **Deprecated Models** – These models may not remain operational and are scheduled for decommissioning.
 4. **Embedding Models** - Unlike generative models that "talk," these models convert text into numerical vectors. They are the primary tools for building Semantic Search, Recommendation Engines, and Retrieval-Augmented Generation (RAG), allowing your applications to understand the meaning and context behind your data.
 
 <Callout type="info">
@@ -100,15 +100,15 @@ Although some LLMs are designated as **guaranteed** models, please note:
 | **GLM 5**    | glm-5              |  `multimodal`, `coder`, `tool`    | The 744B GLM 5 fp4 language model for advanced "agentic" reasoning and superior multi-step task handling | 200k |
 | **Kimi K2.6**  | kimi-k2.6   |  `agentic`, `multimodal`, `coder`, `tool`       |  Large-scale MoE model with roughly 1 trillion parameters with significantly enhanced performance in coding tasks. | 256k   |
 | **Qwen 3.5**  | qwen3.5   |   `agentic`, `multimodal`, `coder`, `tool`   |  397B Multimodal advanced model for coding, tool use, and agentic workflows | 262k   |
-| **Mistral-small**  | mistral-small-4   |   `multimodal`, `coder`, `tool`  |  397B Multimodal advanced model for coding, tool use, and agentic workflows | 262k   |
-
-
+| **Mistral-Medium-3.5**  | mistral-medium-3.5   |   `multimodal`, `coder`, `tool`  |  128B Multimodal advanced model for coding, tool use, and agentic workflows | 262k   |
 
 #### Deprecated Models
 
 | Model              | Description |
 |--------------------|---------------|
-| **Gemma 3**        | A 27B FP16 language model from Google, part of the lightweight Gemma family built on Gemini technology. |
+| **DeepSeek V3.2**  |  deepseek-v3.2-thinking and deepseek-v3.2  | `coder`, `reasoning`, `tool` | A 685B reasoning and instruct (selectable) language model from DeepSeek AI. Excels at complex tasks, including mathematics, logical reasoning, and code generation. | 160k |
+| **Gemma 3**        | gemma3 | A 27B FP16 language model from Google, part of the lightweight Gemma family built on Gemini technology. |
+| **Mistral-small**  | mistral-small-4   |   `multimodal`, `coder`, `tool`  |  397B Multimodal advanced model for coding, tool use, and agentic workflows | 262k   |
 
 #### Embedding Models
 
