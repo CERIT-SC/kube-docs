@@ -2,6 +2,7 @@
   "title": "RBD Object Storage",
   "pages": [
     "rbd-service",
-    "rbd-setup"
+    "rbd-setup",
+    "rbd-setup-test"
   ]
 }
