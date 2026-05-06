@@ -49,7 +49,7 @@ Ideal for storing large data volumes, for example.
 </Callout>
 
 ### RBD Snapshots 
-Snapshots can be created at the RBD (replicated/erasure code) level and are managed from the client side. [RBD snapshotting](rbd-setup.md) supports rollback of data in case of unwanted rewrite or data corruption. Snapshots can be mirrored to another geographic location, as described below.
+Snapshots can be created at the RBD (replicated/erasure code) level and are managed from the client side. [RBD snapshotting](rbd-setup) supports rollback of data in case of unwanted rewrite or data corruption. Snapshots can be mirrored to another geographic location, as described below.
 
 ### Synchronous Geographical Replication
 Synchronous geographical replication provides protection against data center failure. It may reduce write speed, as the system waits for successful write confirmation at both geographical locations. If you believe you need this service, please contact us.
