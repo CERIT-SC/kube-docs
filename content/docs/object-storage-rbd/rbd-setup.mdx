@@ -310,3 +310,138 @@ mount /storage/rbd/image_name
 
 xfs_growfs /dev/mapper/image_name
 ```
+## Snapshots of RBD image
+
+<Callout type="info" emoji="ℹ️">
+If you want to be able to operate with snapshots yourself, you need to tell us this request.
+</Callout>
+
+A snapshot is a read-only logical copy of an image at a particular point in time: a checkpoint. One of the advanced features of Ceph block devices is that you can create snapshots of images to retain point-in-time state history. Ceph also supports snapshot layering, which allows you to clone images (e.g., a VM image) quickly and easily. Ceph block device snapshots are managed using the `rbd` command and multiple higher level interfaces, including QEMU, libvirt, OpenStack and CloudStack.
+
+<Callout type="warn" icon="⚠️">
+Because RBD does not know about any filesystem within an image (volume), snapshots are only crash-consistent unless they are coordinated within the mounting (attaching) operating system. It can be achieved either by unmounting of filesystem and unmapping the RBD image or by usage of **fsfreeze** command. You can choose any of those two approaches above depending on your use case and system environment. Below are described two basic scenarios.
+</Callout>
+
+**A** In case the RBD image is **NOT** shared across more machines (see the case **B**), but there is even minimal risk of mapping your RBD and mounting your filesystem on multiple machines we **recommend** you to use `--exclusive` option. In this case, you have to create RBD snapshot on the unmapped RBD image always. You should also make sure that your image is not being mapped on any other device. You can use the command `# rbd –id client_name status rbd_pool_name/rbd_image_name`. In case that image is not mapped on any machine you should get the following output **Watchers: none**.
+
+**B** In case you **don't** use the option `--exclusive` it is sufficient to use **fsfreeze** command. After the snapshot is done you can enable I/O via **fsfreeze** with the option `-unfreeze`. More detail can be found on the man page of `fsfreeze(8)`.
+
+### Snapshot basics
+
+The following procedures demonstrate how to create, list, and remove snapshots using the `rbd` command.
+
+<Callout type="info" emoji="ℹ️">
+Data increments resulting from the use of snapshots are included in the agreed quota.
+</Callout>
+
+### Create snapshot
+
+To create a snapshot with `rbd`, specify the `snap create` option, the pool name and the image name.
+
+```bash
+rbd snap create {pool-name}/{image-name}@{snap-name}
+```
+
+For example:
+
+```bash
+rbd snap create rbd/foo@snapname
+```
+
+### List snapshots
+
+To list snapshots of an image, specify the pool name and the image name.
+
+```bash
+rbd snap ls {pool-name}/{image-name}
+```
+
+For example:
+
+```bash
+rbd snap ls rbd/foo
+```
+
+### Rollback snapshot
+
+To rollback to a snapshot with `rbd`, specify the `snap rollback` option, the pool name, the image name and the snap name.
+
+```bash
+rbd snap rollback {pool-name}/{image-name}@{snap-name}
+```
+
+For example:
+
+```bash
+rbd snap rollback rbd/foo@snapname
+```
+
+<Callout type="info" emoji="ℹ️">
+Rolling back an image to a snapshot means overwriting the current version of the image with data from a snapshot. The time it takes to execute a rollback increases with the size of the image. It is faster to clone from a snapshot than to rollback an image to a snapshot, and is the preferred method of returning to a pre-existing state. For more information see [documentation](https://docs.ceph.com/en/pacific/rbd/rbd-snapshot/).
+</Callout>
+
+### Snapshot protection
+
+For safe snapshots handling we strongly recommend assigning **Protected** to each snapshot you create. **Protected** attribute ensures that you can't accidentally delete the existing snapshot.
+
+```bash
+rbd snap protect {pool-name}/{image-name}@{snapshot-name}
+```
+
+Example:
+
+```bash
+rbd snap protect rbd/foo@snapname
+```
+
+#### Unprotect the snapshots
+
+```bash
+rbd snap unprotect {pool-name}/{image-name}@{snapshot-name}
+```
+
+Example:
+
+```bash
+rbd snap unprotect rbd/foo@snapname
+```
+
+### Delete snapshot
+
+To delete a snapshot with `rbd`, specify the `snap rm` subcommand, the pool name, the image name and the snap name.
+
+```bash
+rbd snap rm {pool-name}/{image-name}@{snap-name}
+```
+
+For example:
+
+```bash
+rbd snap rm rbd/foo@snapname
+```
+
+<Callout type="info" emoji="ℹ️">
+Ceph deletes data asynchronously, so deleting a snapshot doesn't immediately free up the capacity/quota.
+</Callout>
+
+### Mapping and mounting the snapshot
+
+Snapshot is possible to map and mount in read-only mode:
+
+```bash
+rbd map {pool-name}/{image-name}@{snap-name}
+mount /dev/rbd/{pool-name}/{image-name}@{snap-name} /mnt/{mountpoint} -o ro
+```
+
+Example:
+
+```bash
+rbd map rbd/foo@snapname
+mount /dev/rbd/rbd-pool/foo@snapname /mnt/snap -o ro
+```
+
+Be aware: some filesystems require the use of additional options for the `mount` command — e.g. XFS:
+
+```bash
+mount /dev/rbd/rbd-pool/foo@snapname /mnt/snap -o ro,norecovery
+```
