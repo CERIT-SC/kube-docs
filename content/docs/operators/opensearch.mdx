@@ -1,0 +1,181 @@
+---
+title: OpenSearch
+---
+
+The [OpenSearch Operator](https://docs.opensearch.org/latest/install-and-configure/install-opensearch/operator/index/) provides easy deployment and management of OpenSearch clusters and dashboards on Kubernetes. The operator is installed by administrator cluster-wide and users are expected to only deploy OpenSearch clusters and dashboards.
+
+OpenSearch cluster can be deployed by creating `OpenSearchCluster` object in Kubernetes, as shown in the [documentation](https://github.com/opensearch-project/opensearch-k8s-operator/blob/main/docs/userguide/main.md#quickstart). However, it is recommended to use dedicated helm chart, [opensearch-cluster](https://github.com/opensearch-project/opensearch-k8s-operator/blob/main/docs/userguide/cluster-chart.md) which eases the configuration of both the cluster and the dashboard.
+
+
+The full OpenSearch cluster documentation is available at [OpenSearch documentation](https://docs.opensearch.org/latest/install-and-configure/install-opensearch/operator/operator-opensearch-config/), [OpenSearch Dasboards documnetation](https://docs.opensearch.org/latest/install-and-configure/install-opensearch/operator/operator-dashboards-config/), and [Kubernetes deployment customization](https://docs.opensearch.org/latest/install-and-configure/install-opensearch/operator/operator-kubernetes-custom/). For advanced configuration or YAML field descriptions, consult the official documentation or directly [opensearch-cluster helm chart](https://github.com/opensearch-project/opensearch-k8s-operator/tree/main/charts/opensearch-cluster). 
+
+## Deploying OpenSearch Instance
+In this example, we are using helm chart to install the cluster. First, add and update the repository:
+
+```shell
+helm repo add opensearch-operator https://opensearch-project.github.io/opensearch-k8s-operator/
+helm repo update
+```
+
+The following example deploys an OpenSearch instance with enabled OpenSearch Dasboard, proper security contexts, and resource limits. It is important to provide values instead of text in brackets and save the file, e.g. into file named `values-opensearch-cluster.yaml`. If you don't have hostname for dashboard and OpenSearch cluster, you may use `.dyn.cloud.e-infra.cz` with more information on exposing applications in [corresponding documentation section](https://docs.cerit.io/en/docs/kubernetes/expose).
+
+<Callout type="warn" icon="⚠️ ">
+Running an OpenSearch cluster requires the `zfs-csi` storage type, which binds data directly to the physical node where a pod is deployed. Because moving these pods to different nodes after startup results in data loss, you must carefully configure affinity settings upfront to ensure your desired cluster topology is established from the beginning. More information on topology are at the end of this page.
+</Callout>
+
+```yaml
+cluster:
+  name: [cluster_name]
+  general:
+    drainDataNodes: true
+    podSecurityContext:
+      fsGroup: 1000
+      runAsGroup: 1000
+      runAsUser: 1000
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+    setVMMaxMapCount: false
+    version: "3.2.0"
+  bootstrap:
+    resources:
+      requests:
+         memory: "1Gi"
+         cpu: "1"
+      limits:
+         memory: "1Gi"
+         cpu: "1"
+  dashboards:
+    podSecurityContext:
+      runAsUser: 1000
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+    version: "3.2.0"
+    resources:
+      requests:
+         memory: "1Gi"
+         cpu: 1
+      limits:
+         memory: "1Gi"
+         cpu: 1
+  nodePools:
+    - component: "nodes"
+      replicas: 3
+      diskSize: "10Gi"
+      persistence:
+        pvc:
+          accessModes:
+            - ReadWriteOnce
+          storageClass: "zfs-csi"
+      resources:
+        requests:
+          memory: "256Gi"
+          cpu: 8
+          ephemeral-storage: "512Gi"
+        limits:
+          memory: "256Gi"
+          cpu: 8
+          ephemeral-storage: "512Gi"
+      roles:
+        - "data"
+        - "cluster_manager"
+      env:
+        - name: DISABLE_INSTALL_DEMO_CONFIG
+          value: "false"
+        - name: OPENSEARCH_INITIAL_ADMIN_PASSWORD
+          value: [some_password]
+  ingress:                                                                      
+    opensearch:                                                                 
+      enabled: true                                                             
+      annotations:                                                              
+        cert-manager.io/cluster-issuer: letsencrypt-prod                        
+        kubernetes.io/ingress.class: nginx                                      
+        kubernetes.io/tls-acme: "true"                                          
+        nginx.ingress.kubernetes.io/proxy-body-size: "200m"                     
+      className: "nginx"                                                        
+      hosts:                                                                    
+       - host: [some_hostname] 
+         paths:                                                                 
+           - path: /                                                            
+             pathType: ImplementationSpecific                                   
+      tls:                                                                      
+        - hosts:                                                                
+          - [some_hostname]
+          secretName: [TLS_secret]
+    dashboards:                                                                 
+      enabled: true                                                             
+      annotations:                                                              
+        cert-manager.io/cluster-issuer: letsencrypt-prod                        
+        kubernetes.io/ingress.class: nginx                                      
+        kubernetes.io/tls-acme: "true"                                          
+      className: "nginx"                                                        
+      hosts:                                                                    
+       - host: [some_hostname]
+         paths:                                                                 
+           - path: /                                                            
+             pathType: ImplementationSpecific                                   
+      tls:                                                                      
+       - hosts:                                                                 
+           - [some_hostname]
+         secretName: [TLS_secret]
+```
+
+Resource limits can be adjusted based on your workload requirements. You may also split node pools into separate instances for `cluster_manager` and `data` roles if needed. Before applying the configuration, perform a dry-run to verify that the values render correctly into Kubernetes resources. Ensure you specify the correct namespace:
+
+```shell
+helm install [release_name] opensearch-operator/opensearch-cluster --values values-opensearch-cluster.yaml -n [namespace] --dry-run
+```
+
+If the output looks correct, you can install the chart:
+
+```shell
+helm install [release_name] opensearch-operator/opensearch-cluster --values values-opensearch-cluster.yaml -n [namespace]
+```
+
+The installation takes some time, you can check the status of the installation by querying the cluster with kubectl:
+
+```shell
+kubectl get opensearchclusters.opensearch.org -n [namespace]
+kubectl get pods -n [namespace]
+kubectl get ingress -n [namespace]
+```
+
+### Managing Credentials and Secrets
+
+By default, this configuration generates credentials automatically. The generated secrets are named:
+- Dashboard Password: [cluster_name]-dashboards-password
+- OpenSearch Admin Password: [cluster_name]-admin-password
+
+These values are base64 encoded. To provide your own credentials instead of letting the chart generate them, create a Kubernetes Secret containing your desired credentials and reference it in the Helm values according to the documentation.
+
+
+### Topology Constraints
+
+The HA-cluster, `kubh-cluster`, fetaures regions. It is possible to spread opensearch nodes among the regions using `affinity`. 
+
+Add the following configuration to any nodePool item in your values file (under `cluster.nodePools[i].affinity`). This ensures that no two pods belonging to the same cluster are scheduled on nodes within the same region. Label selectors are Pod labels (that are common among all Pods of an OpenSearch cluster) that the scheduler uses to enforce the anti-affinity among the Pods, essentially it means "Do not schedule this pod on a node where other pods matching this selector are already running". The `topologyKey` defines the specific node label (such as a region or zone) that Kubernetes uses to group nodes together, ensuring that pods with anti-affinity rules are distributed across different groups rather than being scheduled on nodes sharing the same value for that label. 
+
+
+
+```yaml
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                opensearch.org/opensearch-cluster: [cluster_name]
+            topologyKey: cerit.io/region
+```
+
+Replace `[cluster_name] with the actual label value corresponding to your `cluster.name` in the configuration above. The topology constraints may be applied to other Pods, specific nodenames or any other restrictions you require.
