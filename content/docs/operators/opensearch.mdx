@@ -46,9 +46,9 @@ cluster:
     resources:
       requests:
          memory: "1Gi"
-         cpu: "1"
+         cpu: "100m"
       limits:
-         memory: "1Gi"
+         memory: "2Gi"
          cpu: "1"
   dashboards:
     podSecurityContext:
@@ -65,9 +65,9 @@ cluster:
     resources:
       requests:
          memory: "1Gi"
-         cpu: 1
+         cpu: 500m
       limits:
-         memory: "1Gi"
+         memory: "2Gi"
          cpu: 1
   nodePools:
     - component: "nodes"
@@ -80,13 +80,11 @@ cluster:
           storageClass: "zfs-csi"
       resources:
         requests:
-          memory: "256Gi"
-          cpu: 8
-          ephemeral-storage: "512Gi"
+          memory: "1Gi"
+          cpu: 1
         limits:
-          memory: "256Gi"
-          cpu: 8
-          ephemeral-storage: "512Gi"
+          memory: "4Gi"
+          cpu: 2
       roles:
         - "data"
         - "cluster_manager"
@@ -154,8 +152,8 @@ kubectl get ingress -n [namespace]
 ### Managing Credentials and Secrets
 
 By default, this configuration generates credentials automatically. The generated secrets are named:
-- Dashboard Password: [cluster_name]-dashboards-password
-- OpenSearch Admin Password: [cluster_name]-admin-password
+- Dashboard Password: `[cluster_name]-dashboards-password`
+- OpenSearch Admin Password: `[cluster_name]-admin-password`
 
 These values are base64 encoded. To provide your own credentials instead of letting the chart generate them, create a Kubernetes Secret containing your desired credentials and reference it in the Helm values according to the documentation.
 
@@ -178,4 +176,4 @@ Add the following configuration to any nodePool item in your values file (under 
             topologyKey: cerit.io/region
 ```
 
-Replace `[cluster_name] with the actual label value corresponding to your `cluster.name` in the configuration above. The topology constraints may be applied to other Pods, specific nodenames or any other restrictions you require.
+Replace `[cluster_name]` with the actual label value corresponding to your `cluster.name` in the configuration above. The topology constraints may be applied to other Pods, specific nodenames or any other restrictions you require.
