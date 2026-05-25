@@ -1,0 +1,83 @@
+---
+title: DeepSec
+---
+
+## Introduction
+
+**DeepSec** is an **AI-powered vulnerability scanner** designed to run in your own infrastructure. It performs on-demand security reviews of entire codebases — including large-scale repositories — by combining fast regex-based candidate detection with deep AI investigation.
+
+Unlike traditional static analysis tools, DeepSec uses AI agents to trace control flow, recognize authentication boundaries, and judge whether inputs are attacker-controlled. It is optimized to surface hard-to-find issues that have been lurking in applications for a long time, providing actionable findings with severity ratings and remediation recommendations.
+
+DeepSec runs **exclusively on the e-INFRA CZ / CERIT-SC infrastructure**, ensuring:
+- **Data security and privacy**
+- Secure access through your **MetaCentrum account**.
+
+## Installation
+
+Download the latest Linux AMD64 binary from the Codeberg releases page:
+
+👉 [https://codeberg.org/CERIT-SC/deepsec/releases](https://codeberg.org/CERIT-SC/deepsec/releases)
+
+Place the binary in your `PATH` and make it executable:
+
+```bash
+chmod +x deepsec
+```
+
+<Callout type="info">
+Currently, only the **Linux AMD64** binary is provided.
+</Callout>
+
+## Prerequisites
+
+DeepSec requires an AI agent backend to perform investigations. You must have **at least one** of the following installed and available in your `PATH`:
+
+### Claude Code (recommended)
+
+Install the [Claude Code CLI](./llm-integration#claude-code) (`claude`). DeepSec will invoke it automatically when you pass `--agent claude`.
+
+### OpenAI Codex (default)
+
+Install the [Codex CLI](./llm-integration#codex). It is the **default agent** when `--agent` is not specified — if you have `codex` installed, DeepSec will use it out of the box.
+
+## Configuration
+
+No environment variables are required. DeepSec invokes the agent binaries (`claude` or `codex`) directly.
+
+You **must always specify a model** via `--model`. DeepSec has a hardcoded fallback default (`claude-opus-4.7`) that does not exist on the e-INFRA CZ API and will fail if omitted.
+
+| Model | Command flag |
+|---|---|
+| Kimi K2.6 | `--model kimi-k2.6` |
+| DeepSeek V4 Pro Thinking | `--model deepseek-v4-pro-thinking` |
+| Qwen 3.5 | `--model qwen3.5` |
+
+Example command:
+
+```bash
+deepsec process --project-id my-app --agent claude --model kimi-k2.6
+```
+
+## Usage
+
+Navigate to the root of the repository you want to scan and initialize DeepSec:
+
+```bash
+deepsec init       # creates .deepsec/ with this repo as the first project
+```
+
+Follow the instructions printed by `init`. A typical workflow then looks like:
+
+```bash
+cd .deepsec         # Yes, really, this new folder shall be created in the project directory
+deepsec scan        # find candidate sites with regex matchers
+deepsec process     # AI investigation; generates findings
+deepsec revalidate  # optional, reduces false positives
+deepsec export --format md-dir --out ./findings
+```
+
+For large codebases, work fans out automatically and interrupted runs resume where they left off when re-executed.
+
+<Callout type="info">
+For detailed configuration options, see the [DeepSec documentation on Codeberg](https://codeberg.org/CERIT-SC/deepsec).
+</Callout>

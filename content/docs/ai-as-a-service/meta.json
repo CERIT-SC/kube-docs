@@ -7,6 +7,7 @@
     "llm-integration",
     "deepsite",
     "n8n-agents",
+    "deepsec",
     "mcp",
     "ai-data-privacy"
   ]
