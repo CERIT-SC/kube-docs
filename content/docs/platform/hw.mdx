@@ -45,7 +45,9 @@ Storage is not backed up to another location, but file system snapshots are made
 
 ### kubh-cluster
 
-The kubh-cluster consists of 6 nodes dispersed across three different locations (2 nodes in each location: University Campus Bohunice — UKB, University Computer Center — CPS — at Komenského náměstí, and Faculty of Informatics at Botanická), making it a suitable option for HA setups (more information in the upcoming HA setup section).
+The kubh-cluster consists of 6 nodes dispersed across three different locations (2 nodes in each location: University Campus Bohunice — UKB, University Computer Center — CPS — at Komenského náměstí, and Faculty of Informatics at Botanická), making it a suitable option for HA setups.
+
+Affinities and antiaffinities are used to schedule Pods into same (or different) domains. When specifying the affinities, the *topologyKey* field is used by scheduler to determine the Pod placement. In our environment, use `cerit.io/region` as the value of the *topologyKey*. Current region values are `cerit.io/region: botanicka, cerit.io/region: komenskeho, cerit.io/region: kampus`. 
 
 <table>
   <thead>
@@ -78,6 +80,7 @@ Storage is provided only locally on each node.
 #### Data Backup
 
 Local storage is not backed up; it is up to the user to ensure backup.
+
 
 ## Secure cluster
 ### kubas-cluster

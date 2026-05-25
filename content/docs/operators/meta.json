@@ -5,6 +5,7 @@
     "logging",
     "minio",
     "mpi",
+    "opensearch",
     "postgres-cnpg",
     "spark"
   ]
