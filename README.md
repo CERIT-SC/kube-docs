@@ -27,4 +27,5 @@ In case you want to generate the static pages locally (could be useful for large
 ```bash
 docker run -it --rm -p 3000:3000 -e STARTPAGE=/en/docs -v ./public:/opt/fumadocs/public -v ./components:/opt/fumadocs/components -v ./content/docs:/opt/fumadocs/content/docs cerit.io/docs/fuma:v16.4.6 pnpm dev
 ```
-7. Documentation will be available at [http://localhost:3000/en/docs/introduction/introduction](http://localhost:3000/en/docs/introduction/introduction) and automatically rebuilt on source change.
+7. (Optional) To get the contents of the *app* directory to the container: open another terminal, find the container name (`docker container ls`), `cd du-docs` and copy *app* directory over container's *app* directory with `docker cp app <containername>:/opt/fumadocs`.
+8. Documentation will be available at [http://localhost:3000/en/docs/introduction/introduction](http://localhost:3000/en/docs/introduction/introduction) and automatically rebuilt on source change.
