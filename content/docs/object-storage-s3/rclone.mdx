@@ -598,6 +598,11 @@ In the case of encrypted buckets, the encryption is client-side. If you lose you
 
 You can mount (map) an existing remote storage (bucket) to be used by standard programs and tools.
 
+<Callout type="warn" icon="⚠️">
+Rclone mount creates a **virtual drive** that lets cloud storage behave **like** a local filesystem by translating file operations into on-demand network API calls with optional caching. It is well-suited for *streaming media, browsing large cloud archives, and occasional file access* where convenience matters more than raw performance or strict filesystem guarantees. It is **not well-suited** for *databases, virtual machines, or other workloads that require fast, reliable, and fully consistent disk behavior* because of network latency, caching delays, and weaker file-locking semantics.
+</Callout>
+
+
 ### Mounting in Windows
 
 Find a drive letter that is not used (let's say `Z:`) and run the following command in the Command Prompt window
