@@ -18,13 +18,18 @@ To use this service, you must have a valid **MetaCentrum account**.
 
 **How to Get Access**
 
-The CERIT-SC AI services are integrated with the national research infrastructure MetaCentrum. You can apply for access or manage your credentials through the [MetaCentrum registration form](https://metavo.metacentrum.cz/en/application/form).
+The CERIT-SC AI services are integrated with the national research infrastructure MetaCentrum. 
+You can apply for access through the
+👉 [MetaCentrum registration form](https://metavo.metacentrum.cz/en/application/form).
 
 <Callout type="info">
 **Masaryk University students and staff only!**
 Do you belong to Masaryk University and don’t have (or need) the MetaCentrum account yet?
-Quickly request access to our AI chat and API services [here](https://signup.e-infra.cz/registrar/?vo=e-infra.cz&group=projects%3Achat-ai&targetnew=https%3A%2F%2Fchat.ai.e-infra.cz&targetexisting=https%3A%2F%2Fchat.ai.e-infra.cz&targetextended=https%3A%2F%2Fchat.ai.e-infra.cz).
+Quickly request access to our AI chat and API services: 
+
+👉 [quick registration via Masaryk University account](https://signup.e-infra.cz/registrar/?vo=e-infra.cz&group=projects%3Achat-ai&targetnew=https%3A%2F%2Fchat.ai.e-infra.cz&targetexisting=https%3A%2F%2Fchat.ai.e-infra.cz&targetextended=https%3A%2F%2Fchat.ai.e-infra.cz).
 Your request will be approved automatically.
+
 ⚠️ **Note**: This fast-track registration grants access only to the AI chat and API services. For full access to all Kubernetes services, a standard MetaCentrum account is still required.
 </Callout>
 
@@ -101,6 +106,7 @@ Although some LLMs are designated as **guaranteed** models, please note:
 | **Kimi K2.6**  | kimi-k2.6   |  `agentic`, `multimodal`, `coder`, `tool`       |  Large-scale MoE model with roughly 1 trillion parameters with significantly enhanced performance in coding tasks. | 256k   |
 | **Qwen 3.5**  | qwen3.5   |   `agentic`, `multimodal`, `coder`, `tool`   |  397B Multimodal advanced model for coding, tool use, and agentic workflows | 262k   |
 | **Mistral-Medium-3.5**  | mistral-medium-3.5   |   `multimodal`, `coder`, `tool`  |  128B Multimodal advanced model for coding, tool use, and agentic workflows | 262k   |
+| **whisper-large-v3**  | whisper-large-v3  (API only) |   `audio`, `speech recognition`  |  OpenAI's 1.55-billion parameter automatic speech recognition (ASR) and speech translation model. It supports 99+ languages and offers a 10-20% reduction in Word Error Rate (WER) over previous versions, achieving robust transcription even in noisy conditions |    |
 
 #### Deprecated Models
 
@@ -211,7 +217,7 @@ Generate AI images from text prompts.
 
 Modify uploaded images using multimodal models.
 
-* Select a multimodal model (e.g., `RedHat AI Scout`) from the model dropdown.
+* Select a multimodal model (e.g., `Mistral Medium 3.5`) from the model dropdown.
 * Click the **+** icon → **Upload Files** → select an image (JPG/PNG)
 
 <div class="w-110">
@@ -236,7 +242,7 @@ Modify uploaded images using multimodal models.
 ### Image-to-Text (OCR Scanner)
 Extract text from images.
 
-* Select a text-generation model (e.g., `Gemma 3` or `RedHat AI Scout`)
+* Select a text-generation model (e.g., `Gemma 4` or `Mistral Medium 3.5`)
 * Click the **+** icon → **Upload Files** → select an image (JPG/PNG)
 
 <div class="w-110">
