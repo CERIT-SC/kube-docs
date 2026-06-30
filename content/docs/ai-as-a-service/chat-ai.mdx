@@ -100,12 +100,11 @@ Model names are case-sensitive and may include a quantization suffix (e.g. `qwen
 | **DeepSeek V4 Pro (thinking)** | `deepseek-v4-pro-thinking` | chat, tools, reasoning | 1M | 64k | fp4 | [deepseek-ai/DeepSeek-V4-Pro](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro) |
 | **GLM 5.2** | `glm-5.2` | chat, tools | 670k\* | 48k | fp8 | [zai-org/GLM-5.2-FP8](https://huggingface.co/zai-org/GLM-5.2-FP8) |
 | **Kimi K2.7** | `kimi-k2.7` | chat, multimodal, tools | 256k | 48k | int4 | [moonshotai/Kimi-K2.7-Code](https://huggingface.co/moonshotai/Kimi-K2.7-Code) |
-| **Qwen3.5 (397B)** | `qwen3.5` | chat, multimodal, tools | 256k | 32k | fp8 | [Qwen/Qwen3.5-397B-A17B-FP8](https://huggingface.co/Qwen/Qwen3.5-397B-A17B-FP8) |
 | **Qwen3.5 (397B, int4)** | `qwen3.5-int4` | chat, multimodal, tools | 256k | 32k | int4 | [QuantTrio/Qwen3.5-397B-A17B-AWQ](https://huggingface.co/QuantTrio/Qwen3.5-397B-A17B-AWQ) |
 | **Qwen3.5 122B** | `qwen3.5-122b` | chat, multimodal, tools | 256k | 32k | fp8 | [Qwen/Qwen3.5-122B-A10B-FP8](https://huggingface.co/Qwen/Qwen3.5-122B-A10B-FP8) |
 | **Mistral Medium 3.5** | `mistral-medium-3.5` | chat, multimodal, tools | 256k | — | fp8 | [mistralai/Mistral-Medium-3.5-128B](https://huggingface.co/mistralai/Mistral-Medium-3.5-128B) |
 | **Gemma 4** | `gemma4` | chat, multimodal, tools | 256k | 32k | bf16 | [google/gemma-4-31B-it](https://huggingface.co/google/gemma-4-31B-it) |
-| **Whisper Large v3** (API only) | `whisper-large-v3` | audio, speech recognition | — | — | — | — |
+| **Whisper Large v3** (API only) | `whisper-large-v3` | audio, speech recognition | 448 | — | FP16 | [openai/whisper-large-v3](https://huggingface.co/openai/whisper-large-v3) |
 
 \* **GLM 5.2** natively supports a 1M-token context, but the deployed endpoint is currently capped at **670k tokens** due to a hardware (GPU memory) limitation.
 
@@ -113,7 +112,7 @@ Model names are case-sensitive and may include a quantization suffix (e.g. `qwen
 - **DeepSeek V4 Pro** — 1.6T total / ~49B active parameters; excels at mathematics, logical reasoning, and code generation. The base `deepseek-v4-pro` runs with reasoning **off** by default (it can still be enabled explicitly), while `deepseek-v4-pro-thinking` runs with reasoning **on**. Both share the same underlying weights (`deepseek-v4`).
 - **GLM 5.2** — 756B model for advanced "agentic" reasoning and multi-step task handling.
 - **Kimi K2.7** — large-scale MoE model (~1T parameters) with strong coding performance; multimodal.
-- **Qwen3.5 (397B)** — 397B (A17B active) flagship for coding, tool use, and agentic workflows. An int4 (AWQ) build is also served as `qwen3.5-int4` for higher throughput at lower precision.
+- **Qwen3.5 (397B, int4)** — 397B (A17B active) flagship for coding, tool use, and agentic workflows. An int4 (AWQ) build is also served as `qwen3.5-int4` for higher throughput at lower precision.
 - **Qwen3.5 122B** — 122B (A10B active) successor to Qwen3-Coder; multimodal, with significantly improved coding performance.
 - **Mistral Medium 3.5** — 128B multimodal model for text, coding, tool use, and agentic workflows.
 - **Gemma 4** — Google's 31B multimodal model; useful for OCR/vision and general-purpose tasks.
@@ -131,6 +130,7 @@ Because exact model versions change often, we maintain a set of short, version-i
 | `deepseek-thinking` | `deepseek-v4-pro-thinking` | reasoning **on** |
 | `mini` | `gpt-oss-120b` | |
 | `coder`, `agentic` | `qwen3.5-122b` | |
+| `thinker` | `deepseek-v4-pro-thinking` | | 
 
 `deepseek` and `deepseek-thinking` point to the same underlying weights (`deepseek-v4`); they differ only in whether step-by-step reasoning is enabled by default.
 
@@ -139,7 +139,7 @@ Because exact model versions change often, we maintain a set of short, version-i
 - **Use an alias** (e.g. `kimi`, `deepseek`) for stability over time. The alias name is kept valid long-term and always points to a sensible current model, so your scripts keep running. The trade-off is that the underlying model — and therefore its outputs — changes as we upgrade.
 - **Use an exact model name** (e.g. `kimi-k2.7`) only when you need one specific version right now. Exact names are short-lived: they are retired as soon as a better model replaces them (usually at night, but possibly anytime), after which scripts referencing the old name stop working until updated.
 
-For backward compatibility, several legacy aliases (e.g. `glm-5`, `kimi-k2.6`, `thinker`, `qwen3-coder`, `qwen3-coder-30b`, `qwen3-coder-next`) continue to resolve to their current equivalents.
+For backward compatibility, several legacy aliases (e.g. `glm-5`, `kimi-k2.6`) resolve to their current equivalents, but they will be removed shortly.
 </Callout>
 
 #### Embedding Models
@@ -159,16 +159,14 @@ Embedding models are available via API endpoint: `https://llm.ai.e-infra.cz/v1` 
 
 We evaluated selected models using [Aider Polyglot Benchmark](https://aider.chat/2024/12/21/polyglot.html#the-polyglot-benchmark). For reference, key scores are summarized below:
 
-| Model                  | C++ Score | Go Lang Score | Java Score | Javascript Score | Python Score | Rust Score |
-|------------------------|-----------|---------------|------------|------------------|--------------|------------|
-|GPT-OSS-120B            |  50.0     | 59.0          | 40.4       | 61.2             | 70.6         | 53.3       |
-|DeepSeek V3.2 (think)   |  88.5     | 84.6          | 66.0       | 89.9             | 82.4         | 76.7       |
-|DeepSeek V3.2 (nothink) |  92.3     | 82.1          | 59.6       | 79.6             | 79.4         | 66.7       |
-|GLM 5.1 (think)         | 84.6      | 87.2          | 72.3       | 83.7             | 88.2         | 83.3       |
-|Kimi K2.5 (think)       | 92.3      | 84.6          | 74.5       | **93.9**         | 91.2         | 90         |
-|Kimi K2.5 (nothink)     | 92.3      | 82.1          | 76.6       | 89.8             | 82.4         | 90         |
-|Kimi K2.6 (think)       | **96.2**  | **89.7**      | **89.4**   | 91.8             | **97.1**     | **93.3**   |
-|Qwen 3.5 (think)        | **96.2**  | 79.5*         | 80.9       | 89.8             | 79.4         | 63.3       |
+| Model                    | C++ Score | Go Lang Score | Java Score | Javascript Score | Python Score | Rust Score |
+|--------------------------|-----------|---------------|------------|------------------|--------------|------------|
+|DeepSeek V4 Pro (think)   | 80.8      | 69.2          | 53.2       | 69.4             | 73.5         | 70         |
+|GLM 5.2 (think)           | 92.3      | **89.7**      | **85.1**   | **93.9**         | 97.1         | 86.7       | 
+|GPT-OSS-120B              | 50.0      | 59.0          | 40.4       | 61.2             | 70.6         | 53.3       |
+|Kimi K2.7 (think)         | **96.2**  | 84.6          | 83.0       | **93.9**         | **100.0**    | **96.7**   |
+|Mistral Medium 3.5 (high) | 50.0      | 59.0          | 44.7       | 57.1             | 67.6         | 46.7       |
+|Qwen 3.5, int4 (think)    | 88.5      | 82.1          | 74.5       | 89.8             | 85.3         | 70.0       |
 
 
 ## How Models are Added, Upgraded, and Removed
