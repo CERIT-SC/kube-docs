@@ -16,16 +16,18 @@
 
 ## How to compile on a local station
 
-In case you want to generate the static pages locally (could be useful for large changes) see below.
+In case you want to generate the static pages locally (could be useful for large changes) follow these steps:
 
-1. Clone the CESNET/du-docs repo `git clone https://github.com/CESNET/du-docs.git`
-2. Clone CERIT-SC/fumadocs repo with some objects common to all eInfra docs: `git clone https://github.com/CERIT-SC/fumadocs`
-3. Copy the required files `cp -r fumadocs/components/* du-docs/components/`
-4. Enter the directory `cd du-docs`
-5. (Optional) Checkout to specific branch `git checkout branch_to_test`
-6. Run the build
+1. Clone the CESNET/du-docs repo `git clone https://github.com/CESNET/du-docs.git`.
+2. Enter the directory `cd du-docs`.
+3. *(Optional)* Checkout to specific branch `git checkout branch_to_test`.
+4. Run the build (change the fumadocs version number if needed; version 16.11.1 was installed on July 15, 2016):
 ```bash
-docker run -it --rm -p 3000:3000 -e STARTPAGE=/en/docs -v ./public:/opt/fumadocs/public -v ./components:/opt/fumadocs/components -v ./content/docs:/opt/fumadocs/content/docs cerit.io/docs/fuma:v16.4.6 pnpm dev
+docker run -it --rm -p 3000:3000 -e STARTPAGE=/en/docs/introduction/introduction -v ./public:/opt/fumadocs/public -v ./content/docs:/opt/fumadocs/content/docs cerit.io/docs/fuma:v16.11.1
 ```
-7. (Optional) To get the contents of the *app* directory to the container: open another terminal, find the container name (`docker container ls`), `cd du-docs` and copy *app* directory over container's *app* directory with `docker cp app <containername>:/opt/fumadocs`.
-8. Documentation will be available at [http://localhost:3000/en/docs/introduction/introduction](http://localhost:3000/en/docs/introduction/introduction) and automatically rebuilt on source change.
+
+5. Open another terminal and change to *du-docs* `cd du-docs`. Find the container name (`docker container ls`), then copy local files in *app* and *components* directories over the container directories (replace *\<container_name\>* with the actual name of the container):
+```bash
+for dir in app components; do docker cp $dir <container_name>:/opt/fumadocs; done
+```
+6. Documentation will be available at [http://localhost:3000/en/docs/introduction/introduction](http://localhost:3000/en/docs/introduction/introduction); it is automatically rebuilt on source change.
