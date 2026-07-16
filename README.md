@@ -25,7 +25,6 @@ In case you want to generate the static pages locally (could be useful for large
 ```bash
 docker run -it --rm -p 3000:3000 -e STARTPAGE=/en/docs/introduction/introduction -v ./public:/opt/fumadocs/public -v ./content/docs:/opt/fumadocs/content/docs cerit.io/docs/fuma:v16.11.1
 ```
-
 5. Open another terminal and change to *du-docs* `cd du-docs`. Find the container name (`docker container ls`), then copy local files in *app* and *components* directories over the container directories (replace *\<container_name\>* with the actual name of the container):
 ```bash
 for dir in app components; do docker cp $dir <container_name>:/opt/fumadocs; done
