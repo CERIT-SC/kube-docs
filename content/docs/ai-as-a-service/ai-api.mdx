@@ -43,11 +43,11 @@ For client access and development, we recommend using either the [LiteLLM SDK](h
 
 ### Listing Available Models
 
+[Currently available models](/docs/ai-as-a-service/chat-ai#currently-available-models)
+
 <Callout type="info">
 The up‑to‑date status of all currently available models is displayed at [https://llm.ai.e-infra.cz/status/](https://llm.ai.e-infra.cz/status/)
 </Callout>
-
-
 
 Before querying a model, ensure you use the correct model name. To retrieve a list of all available models on the e-INFRA CZ infrastructure, run the following using `curl` and `jq` commands.
 Replace `${E_INFRA_API_TOKEN}` with your actual token.
@@ -72,18 +72,6 @@ This list reflects the model identifiers (`id`) that can be queried via the API.
 * A quantization tag (e.g., `fp16`, `q8_0`) that indicates how the model is optimized for inference (important for performance and resource consumption).
 * A variant or revision (e.g., `:latest`, `:70b-instruct-fp16`).
 
-### Model Aliases
-
-To simplify referencing LLM models, we provide **category aliases** for users who prefer not to update specific model designations in their tools. Please note that calling specific models by their exact names continues to work as before.
-
-| alias name | model |
-|------------|-------|
-| mini | gpt-oss-120b |
-| coder | qwen3.5-122b |
-| agentic | qwen3.5-122b |
-| thinker | kimi-k2.6 |
-
-[Currently available models](/docs/ai-as-a-service/chat-ai#currently-available-models)
 
 ### Example API Request
 
