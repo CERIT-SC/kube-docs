@@ -261,20 +261,20 @@ Ensure the `opencode` CLI is available in your `$PATH` after installation.
         "baseURL": "https://llm.ai.e-infra.cz/v1"
       },
       "models": {
-        "kimi-k2.6": {
-          "name": "kimi-k2.6"
+        "agentic": {
+          "name": "agentic"
         },
-        "gpt-oss-120b": {
-          "name": "gpt-oss-120b"
+        "mini": {
+          "name": "mini"
         },
-        "glm-5.1": {
-          "name": "glm-5.1"
+        "glm": {
+          "name": "glm"
         },
-        "qwen3.5": {
-          "name": "qwen3.5"
+        "coder": {
+          "name": "coder"
         },
-        "deepseek-v4-pro-thinking": {
-          "name": "deepseek-v4-pro-thinking"
+        "thinker": {
+          "name": "thinker"
         }
       }
     }
@@ -302,7 +302,7 @@ Check for the current model names, or use `agentic`, `coder`, `mini`, and `think
 
 6. Select the model:
    ```
-   qwen3-coder-next
+   coder
    ```
 
 Once completed, the setup is ready to use.
@@ -411,7 +411,7 @@ model_defaults: &model_defaults
 models:
   - name: autocomplete-coder
     <<: *model_defaults
-    model: qwen3-coder
+    model: coder
     promptTemplates:
       autocomplete: '<|fim_prefix|>{{{ prefix }}}<|fim_suffix|>{{{ suffix }}}<|fim_middle|>'
     autocompleteOptions:
@@ -423,7 +423,7 @@ models:
       - autocomplete
   - name: chat-coder
     <<: *model_defaults
-    model: qwen3-coder
+    model: coder
     env:
       useLegacyCompletionsEndpoint: false
     roles:
@@ -466,7 +466,7 @@ To use self-hosted models:
    - **API Provider**: `OpenAI Compatible`
    - **Base URL**: `https://llm.ai.e-infra.cz/v1`
    - **API Key**: Your key from [AI Chat WebUI](../ai-as-a-service/chat-ai)
-   - **Model**: `qwen3-coder` (or alternative)
+   - **Model**: `coder` (or alternative)
 4. Set **Context Window Size** using [this table](../ai-as-a-service/chat-ai#guaranteed-models)
 5. Save settings
 
@@ -537,7 +537,7 @@ With your JetBrains IDE running:
 3. Add a custom provider (OpenAI-compatible) with:
 - **Base URL**: `https://llm.ai.e-infra.cz/v1`
 - **API Key**: Your key from [AI Chat WebUI](../ai-as-a-service/chat-ai)
-- **Model**: `kimi-k2.6` (or another supported model)
+- **Model**: `coder` (or another supported model)
 4. Save the settings and open AI chat in the IDE sidebar.
 
 <Callout type="warn">
@@ -567,7 +567,7 @@ If you use ProxyAI in JetBrains, add the following custom OpenAI provider config
         "Content-Type": "application/json"
       },
       "body": {
-        "model": "kimi-k2.6",
+        "model": "kimi",
         "messages": "$OPENAI_MESSAGES",
         "temperature": 0.1,
         "max_tokens": 512
@@ -586,7 +586,7 @@ If you use ProxyAI in JetBrains, add the following custom OpenAI provider config
       "body": {
         "suffix": "$SUFFIX",
         "stream": true,
-        "model": "kimi-k2.6",
+        "model": "kimi",
         "temperature": 0.6,
         "prompt": "$PREFIX",
         "max_tokens": 512
