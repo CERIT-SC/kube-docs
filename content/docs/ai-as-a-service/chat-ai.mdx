@@ -153,12 +153,16 @@ Because exact model versions change often, we maintain a set of short, version-i
 `deepseek` and `deepseek-thinking` point to the same underlying weights (`deepseek-v4`); they differ only in whether step-by-step reasoning is enabled by default.
 
 <Callout type="info">
-**Which name should I use?**
-- **Use an alias** (e.g. `kimi`, `deepseek`) for stability over time. The alias name is kept valid long-term and always points to a sensible current model, so your scripts keep running. The trade-off is that the underlying model — and therefore its outputs — changes as we upgrade.
-- **Use an exact model name** (e.g. `kimi-k2.7`) only when you need one specific version right now. Exact names are short-lived: they are retired as soon as a better model replaces them (usually at night, but possibly anytime), after which scripts referencing the old name stop working until updated.
+**Which model name should I use?**
 
-For backward compatibility, several legacy aliases (e.g. `glm-5`, `kimi-k2.6`) resolve to their current equivalents, but they will be removed shortly.
+* **Use an alias** (e.g., `kimi`, `deepseek`) for **long-term stability**. Aliases always point to the latest recommended model version, ensuring your scripts don't break over time. 
+  * *Trade-off:* Outputs may shift slightly as underlying models are upgraded.
+* **Use an exact name** (e.g., `kimi-k3`) for **version consistency**. Recommended only when you need a specific, fixed model version. 
+  * *Trade-off:* Exact names are short-lived and will be retired when replaced, which will cause scripts using them to fail until updated.
+
+> **Note on legacy aliases:** Older aliases (e.g., `glm-5`, `kimi-k2.6`) currently resolve to their updated equivalents for backward compatibility, but will be deprecated soon. Please update your code to current aliases or exact names.
 </Callout>
+
 
 #### Embedding Models
 
