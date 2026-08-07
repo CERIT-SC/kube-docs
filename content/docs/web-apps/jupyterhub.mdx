@@ -75,15 +75,37 @@ It is possible to utilize GPU in your notebook, you can request whole GPU or MIG
 ## Working in JupyterLab environment
 
 ### Using RStudio
-1. Go to hub.cloud.e-infra.cz.
-2. Select the RStudio-AI image (version 4.6.1 with Posit Assistant support).
-3. Configure your required resources and click Start
 
-![rstudio](/img/ceritsc/apps/jupyterhub/rstudio-click.png)
+1. Go to [hub.cloud.e-infra.cz](https://hub.cloud.e-infra.cz).
+2. Select the **RStudio-AI** image (*version 4.6.1 with Posit Assistant support*).
+3. Configure your required server resources and click **Start**.
 
-Once the environment loads, RStudio will open automatically.
+![RStudio launcher](/img/ceritsc/apps/jupyterhub/rstudio-click.png)
 
-![rstudio](/img/ceritsc/apps/jupyterhub/rstudio.png)
+4. Once the environment finishes loading, RStudio will open automatically.
+
+**Setting Up Posit Assistant**
+
+1. In the top-right corner of the RStudio interface, click the **Posit Assistant** button.
+
+![Posit Assistant location in RStudio](/img/ceritsc/apps/jupyterhub/rstudio.png)
+
+2. Click **Install Posit Assistant**.
+
+![Install Posit Assistant interface](/img/ceritsc/apps/jupyterhub/rstudio-positassistant1.png)
+
+3. When prompted, select **Trust Workspace** to proceed.
+
+![Trust workspace confirmation dialog](/img/ceritsc/apps/jupyterhub/rstudio-positassistant2.png)
+
+4. Configure your preferred model:
+   * Click the **three dots** icon (**`...`**) in the bottom-left corner of the Assistant panel.
+   * From the dropdown menu, select your desired model under the **OpenAI Compatible** category.
+   * *Recommendation:* We suggest using either **mini** or **GPT-OSS-120B**.
+
+![Accessing Posit Assistant model settings](/img/ceritsc/apps/jupyterhub/rstudio-positassistant3.png)
+![Selecting OpenAI Compatible category](/img/ceritsc/apps/jupyterhub/rstudio-vybermodelu1.png)
+![Choosing the recommended model](/img/ceritsc/apps/jupyterhub/rstudio-vybermodelu2.png)
 
 ### Using Matlab
 Similarly, if you select Matlab image, click the `OpenMatlab` icon to access Matlab environment.
