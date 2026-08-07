@@ -134,7 +134,7 @@ It is possible to utilize GPU in your notebook, you can request whole GPU or MIG
 
 ![lab](/img/ceritsc/apps/jupyterhub/lab.png)
 
-## Resource utilization and Shutdown Mechanism
+## Resource Utilization and Shutdown Mechanism
 
 To promote effective computing, unused notebooks may be deleted based on resource usage. We have implemented a simple mechanism that decides if your notebook instance will be deleted. It performs evaluations once a day.
 
@@ -154,7 +154,7 @@ The mechanism works for both ways as following:
 >  - is over the threshold, nothing happens.
 
 
-### Low usage notification
+### Low Usage Notification
 
 If the notebook is marked for deletion, you will receive an e-mail informing about the situation for every warning until instance is truly removed. You will get an e-mail informing about deletion as well. You are not forced to do anything about instance if you receive an email --- if the usage does not go up, it will be deleted. We recommend saving the results or copying them elsewhere if you receive a warning. The email is sent to the address configured in your MetaCentrum account as a preferred address.
 
@@ -254,7 +254,7 @@ Check if environment is installed with `conda env list`. You can use the environ
 ![checkenv](/img/ceritsc/apps/jupyterhub/check_env.png)
 ![selenv](/img/ceritsc/apps/jupyterhub/select_env.png)
 
-#### Install Conda packages
+#### Install Conda Packages
 
 To install conda packages you have to create new conda environment (as described above). Then, install new packages in terminal into newly created environment e.g. `conda install keyring -n myenv`. 
 
