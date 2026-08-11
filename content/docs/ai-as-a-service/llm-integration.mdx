@@ -379,7 +379,8 @@ Once configured, the extension will use our LLM backend for AI-assisted coding t
 
 ### 3rd Party Extensions
 
-Integrate AI chatbots with Visual Studio Code using third-party extensions such as [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) or [Roo Code](https://marketplace.visualstudio.com/items?itemName=RooCode.roocode).
+Integrate AI chatbots with Visual Studio Code using third-party extensions such as [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) or [Zoo-Code](https://marketplace.visualstudio.com/items?itemName=IYRM.zoo-code).
+
 #### Install the Continue extension
 
 With Visual Studio Code running:
@@ -448,10 +449,69 @@ context:
 * **Agent mode**: In chat, engage agent mode by asking to analyze, explain, or edit files in your current project. This requires additional permissions such as read/write access to related files; you must grant these permissions for the agent to perform requested actions
 * **Autocomplete**: The autocomplete feature continuously suggests new code as you write. Press `Tab` to accept suggestions. Responsiveness depends on model speed. You can change the model from `qwen3-coder` to `gpt-oss-120b` in the autocomplete configuration section for faster responses, though the default model generally performs better on coding tasks
 
+#### Zoo-Code
+[Zoo-Code](https://marketplace.visualstudio.com/items?itemName=IYRM.zoo-code) is a Visual Studio Code extension offering AI assistance with agent and code understanding capabilities.
+
+##### Install the Zoo-Code extension
+With Visual Studio Code running:
+1. Open the Extensions tab (`Ctrl+Shift+X`)
+2. Search for `Zoo-Code`
+3. Select the extension and click `Install`
+4. After installation, access Zoo-Code via its icon in the left sidebar
+
+##### Configure the Zoo-Code extension
+To use self-hosted models:
+1. Open Zoo-Code using the sidebar icon
+2. Open **Settings**
+3. In the **Providers** section:
+   - **API Provider**: `OpenAI Compatible`
+   - **Base URL**: `https://llm.ai.e-infra.cz/v1`
+   - **API Key**: Your key from [AI Chat WebUI](../ai-as-a-service/chat-ai)
+   - **Model**: `coder` (or alternative)
+4. Set **Context Window Size** using [this table](../ai-as-a-service/chat-ai#guaranteed-models)
+5. Save settings
+
+##### Using Zoo-Code
+- Select agents via the agent/mode selector in the extension
+- After submitting a prompt, agents work autonomously until intervention is needed
+- For advanced usage, consult the [Zoo-Code documentation](https://github.com/11cafe/zoo-code)
+
+##### Codebase Indexing
+Index the codebase using one of our [embedding models](../ai-as-a-service/chat-ai#embedding-models) to help agents better search and understand your codebase.
+To store the index, set up a local Qdrant database. Here is an example `docker-compose.yaml`:
+
+```yaml
+services:
+  qdrant:
+    image: qdrant/qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+volumes:
+  qdrant_storage:
+```
+
+Configure codebase indexing by following these steps:
+
+1. Launch a new database instance by running `docker compose up -d` in the directory containing the `docker-compose.yaml` file
+2. In the Zoo-Code extension interface, open the codebase/indexing settings.
+3. Set the following values:
+   - **Provider**: `OpenAI Compatible`
+   - **Base URL**: `https://llm.ai.e-infra.cz/v1`
+   - **API Key**: Your API key from [AI Chat WebUI](../ai-as-a-service/chat-ai)
+   - **Model**: One of our [embedding models](../ai-as-a-service/chat-ai#embedding-models), e.g., `qwen3-embedding-4b`
+   - **Model Dimension**: The embedding vector size of the selected model, e.g., `2560` for `qwen3-embedding-4b`.
+5. Save settings.
+   - **Qdrant URL**: `http://localhost:6333`
+   - **Qdrant API Key**: Leave empty if you used the provided Docker Compose configuration.
+4. Create the index by clicking on `Start Indexing`.
+5. After the indexing is finished, the agents will have access to the database and be able to better search and understand the codebase.
+
 #### Roo Code
 [Roo Code](https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline) is a Visual Studio Code extension offering AI assistance with enhanced agent and code understanding capabilities.
 
-##### Install the Roo Code extension
+##### Install the Roo Code extension (the new version of Roo Code is not supported anymore)
 With Visual Studio Code running:
 1. Open the Extensions tab (`Ctrl+Shift+X`)
 2. Search for `Roo Code`
