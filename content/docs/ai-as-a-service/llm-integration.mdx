@@ -316,13 +316,11 @@ Once completed, the setup is ready to use.
 
 ## Visual Studio Code Integration
 
-You can integrate Claude Code and AI assistance into Visual Studio Code through either the native Claude Code extension or third-party extensions. These extensions enable AI assistance in various roles while coding, including simple chat, agent mode, and autocomplete. Chat provides a familiar conversational interface, agent mode analyzes or edits files in your project, and autocomplete suggests code as you write.
+You can integrate Claude Code and AI assistance into Visual Studio Code through either the native Claude Code extension or third-party extensions. These extensions enable AI assistance in various coding roles, including simple chat, agent mode, and autocomplete. Chat provides a familiar conversational interface, agent mode analyzes or edits files in your project, and autocomplete suggests code as you write.
 
 ### Installing Visual Studio Code
 
-First, install Visual Studio Code (VS Code).
-VS Code can be installed:
-
+First, install Visual Studio Code (VS Code)
 * By downloading the installation package from the official website.
 * Through the repository of your Linux distribution.
 
@@ -332,7 +330,6 @@ After installation, launch VS Code.
 
 This guide describes the configuration of the native Claude Code extension in Visual Studio Code so that AI models provided via the CERIT-SC API can be utilized.
 The procedure is primarily intended for Linux users, but the configuration principle is similar in other operating systems.
-
 
 #### Installation Steps
 
@@ -419,7 +416,7 @@ Configure `settings.json`:
 <Callout type="info">
 **API Token:** The parameter `ANTHROPIC_AUTH_TOKEN` contains your API token: `sk-...`.
 
-⚠️ **Replace `sk-...` with your actual [API key](../docs/ai-as-a-service/ai-api#creating-an-api-key)** obtained from [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
+⚠️ **Replace `sk-...` with your actual [API key](../ai-as-a-service/ai-api#creating-an-api-key)** obtained from [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
 
 Never share or publish your token.
 </Callout>
@@ -443,14 +440,14 @@ For example to aliases:
 * `mini`
 Specific names must correspond to the models available on the API endpoint.
 
-[Currently available models](../docs/ai-as-a-service/chat-ai#currently-available-models)
+[Currently available models](../ai-as-a-service/chat-ai#currently-available-models)
 </Callout>
 
 <div class="w-110">
 ![manage](/img/ceritsc/vscode06.png)
 </div>
 
-Once configured, save the file: **Ctrl + S**.
+Once configured, save the file: **Ctrl+S**.
 We then recommend restarting VS Code.
 The extension will use our LLM backend for AI-assisted coding tasks.
 
