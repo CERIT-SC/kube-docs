@@ -318,25 +318,68 @@ Once completed, the setup is ready to use.
 
 You can integrate Claude Code and AI assistance into Visual Studio Code through either the native Claude Code extension or third-party extensions. These extensions enable AI assistance in various roles while coding, including simple chat, agent mode, and autocomplete. Chat provides a familiar conversational interface, agent mode analyzes or edits files in your project, and autocomplete suggests code as you write.
 
+### Installing Visual Studio Code
+
+First, install Visual Studio Code (VS Code).
+VS Code can be installed:
+
+* By downloading the installation package from the official website.
+* Through the repository of your Linux distribution.
+
+After installation, launch VS Code.
+
 ### Native Claude Code Extension
 
-The native Claude Code extension provides direct integration with Claude Code in Visual Studio Code.
+This guide describes the configuration of the native Claude Code extension in Visual Studio Code so that AI models provided via the CERIT-SC API can be utilized.
+The procedure is primarily intended for Linux users, but the configuration principle is similar in other operating systems.
+
 
 #### Installation Steps
 
 1. Open Visual Studio Code
 2. Go to **Extensions** (`Ctrl+Shift+X`)
 3. Search for `Claude Code`
-4. Install the official Claude Code extension
+4. **Install** the official `Claude Code` extension
+
+<div class="w-110">
+![install-extension](/img/ceritsc/vscode01.png)
+</div>
 
 #### Configuration
 
-To configure the native Claude Code extension:
+After installation, the extension must be configured to use the CESRIT-SC API.
+For the Claude Code extension, click the icon:
+
+<div class="w-110">
+![manage](/img/ceritsc/vscode02.png)
+</div>
+
+* **Manage** → **Settings**
+
+VS Code will automatically set a filter for this extension's settings only.
+
+<div class="w-110">
+![manage](/img/ceritsc/vscode03.png)
+</div>
+
+At the top of the settings, a filter such as the following should be visible:
+`@ext:Anthropic.claude-code`
+
+<div class="w-110">
+![manage](/img/ceritsc/vscode04.png)
+</div>
+
+Configure `settings.json`:
 
 1. Open **Edit** → **Preferences** → **Settings** (or press `Ctrl+,`)
 2. Search for `Claude Code`
 3. Navigate to the **Environment Variables** section
 3. Click **Edit in settings.json**
+
+<div class="w-110">
+![manage](/img/ceritsc/vscode05.png)
+</div>
+
 4. Add the following environment variables with your API key from [AI Chat WebUI](../ai-as-a-service/chat-ai) in the following format: 
 
 ```
@@ -373,9 +416,47 @@ To configure the native Claude Code extension:
 ],
 ```
 
-Replace `sk-...` with your actual API key obtained from [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
+<Callout type="info">
+**API Token:** The parameter `ANTHROPIC_AUTH_TOKEN` contains your API token: `sk-...`.
 
-Once configured, the extension will use our LLM backend for AI-assisted coding tasks.
+⚠️ **Replace `sk-...` with your actual [API key](../docs/ai-as-a-service/ai-api#creating-an-api-key)** obtained from [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
+
+Never share or publish your token.
+</Callout>
+
+<div class="w-110">
+![manage](/img/ceritsc/vscode06.png)
+</div>
+
+<Callout type="info">
+**Model names:** Individual parameters specify which model Claude Code should use.
+For example:
+* `ANTHROPIC_MODEL` can contain: `coder` or `agentic`
+Similarly, you can set:
+* `ANTHROPIC_DEFAULT_OPUS_MODEL`
+* `ANTHROPIC_DEFAULT_SONNET_MODEL`
+* `ANTHROPIC_DEFAULT_HAIKU_MODEL`
+
+For example to aliases:
+* `thinker`
+* `agentic`
+* `mini`
+Specific names must correspond to the models available on the API endpoint.
+
+[Currently available models](../docs/ai-as-a-service/chat-ai#currently-available-models)
+</Callout>
+
+<div class="w-110">
+![manage](/img/ceritsc/vscode06.png)
+</div>
+
+Once configured, save the file: **Ctrl + S**.
+We then recommend restarting VS Code.
+The extension will use our LLM backend for AI-assisted coding tasks.
+
+<div class="w-110">
+![manage](/img/ceritsc/vscode07.png)
+</div>
 
 ### 3rd Party Extensions
 
