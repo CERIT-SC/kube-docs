@@ -4,31 +4,33 @@ title: Chat AI (LLM modely)
 
 ## Úvod
 
-Open WebUI je rozhraní pro AI chatování poháněné umělou inteligencí, které poskytuje bezpečný a lokální přístup k pokročilým jazykovým modelům pro konverzaci, programování, zpracování dokumentů a generování obrázků. Stejné modely jsou přístupné prostřednictvím dokumentovaného REST API a lze je připojit k dalším aplikacím, jako je například Visual Studio. Tato příručka obsahuje návod k přihlášení, používání modelů, generování obrázků a vytvoření API klíče. Naše AI služby běží kompletně v rámci bezpečné infrastruktury e-INFRA CZ – vaše data toto prostředí nikdy neopustí.
+Open WebUI je rozhraní AI chatbota, které poskytuje bezpečný, lokální přístup k pokročilým jazykovým modelům pro konverzaci, programování, zpracování dokumentů a generování obrázků. Stejné modely jsou přístupné prostřednictvím [dokumentovaného REST API](#vytvoření-api-klíče) a lze je připojit k dalším aplikacím, jako je například Visual Studio. Tato příručka obsahuje návod k přihlášení, používání modelů, generování obrázků a vytvoření API klíče. Naše AI služby běží zcela v rámci bezpečné infrastruktury e-INFRA CZ – vaše data toto prostředí nikdy neopustí.
 
+## Přístup k Open WebUI
 
-## Přístup k Open-WebUI
+**Předpoklady**
 
-K **Open-WebUI** K platformě můžete přistupovat přímo na adrese:
-👉 [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).  
+Pro používání platformy Open WebUI musíte mít aktivní účet v **MetaCentru**.
 
-Pro používání této služby je vyžadován platný účet z **MetaCentra**.
+**Jak získat přístup**
 
-### Jak získat přístup
+AI služby CERIT-SC jsou integrovány do národní výzkumné infrastruktury MetaCentrum.
+O přístup můžete požádat prostřednictvím
+👉 [registračního formuláře MetaCentra](https://metavo.metacentrum.cz/en/application/form).
 
-AI služby CERIT-SC jsou integrovány do národní výzkumné infrastruktury MetaCentrum. O přístup můžete požádat nebo své přihlašovací údaje spravovat prostřednictvím 
-👉 [registračního formuláře MetaCentra](https://metavo.metacentrum.cz/en/application/form)
-
-<Callout type="info"> 
+<Callout type="info">
 **Pouze pro studenty a zaměstnance Masarykovy univerzity!**
 Patříte pod Masarykovu univerzitu a účet v MetaCentru ještě nemáte (nebo jej nepotřebujete)?
-O rychlý přístup k našemu AI chatu a API službám žádejte na následujícím odkaze:
+O rychlý přístup k našemu AI chatu a API službám žádejte zde:
 
-👉 [Rychlý přístup pro zaměstnance a studenty MUNI](https://signup.e-infra.cz/registrar/?vo=e-infra.cz&group=projects%3Achat-ai&targetnew=https%3A%2F%2Fchat.ai.e-infra.cz&targetexisting=https%3A%2F%2Fchat.ai.e-infra.cz&targetextended=https%3A%2F%2Fchat.ai.e-infra.cz).
+👉 [rychlá registrace přes účet Masarykovy univerzity](https://signup.e-infra.cz/registrar/?vo=e-infra.cz&group=projects%3Achat-ai&targetnew=https%3A%2F%2Fchat.ai.e-infra.cz&targetexisting=https%3A%2F%2Fchat.ai.e-infra.cz&targetextended=https%3A%2F%2Fchat.ai.e-infra.cz).
 Vaše žádost bude schválena automaticky.
 
-⚠️ Poznámka: Tato **zrychlená registrace umožňuje přístup pouze k AI chatu a API službám**. Pro plný přístup ke všem službám Kubernetes je i nadále vyžadován standardní účet MetaCentra.
-</Callout> 
+⚠️ **Poznámka**: Tato zrychlená registrace umožňuje přístup pouze k AI chatu a API službám. Pro plný přístup ke všem službám Kubernetes je i nadále vyžadován standardní účet MetaCentra.
+</Callout>
+
+**Jakmile je váš účet zaregistrován a aktivován, můžete k platformě přistupovat přímo**:
+👉 https://chat.ai.e-infra.cz
 
 
 ---
@@ -40,17 +42,17 @@ Pokud narazíte na jakékoli potíže nebo potřebujete pomoc, kontaktujte nás 
 1. Otevřete webový prohlížeč a přejděte na adresu https://chat.ai.e-infra.cz.
 2. Klikněte na tlačítko Login.
 3. Vyberte možnost přihlášení pomocí e-INFRA CZ.
-4. Po úspěšném přihlášení budete přesměrováni na Open-WebUI dashboard.
+4. Po úspěšném přihlášení budete přesměrováni na Open WebUI dashboard.
 
 ## Používání AI modelů
 
-Open-WebUI poskytuje přístup k různým modelům umělé inteligence pro generování textu. Chcete-li je používat:
+Open WebUI poskytuje přístup k různým modelům umělé inteligence pro generování textu. Chcete-li je používat:
 
-1. Po přihlášení přejděte do rozhraní chatu..
+1. Po přihlášení přejděte do rozhraní chatu.
 2. Vyberte model z dostupných možností v rozbalovacím menu.
 3. Do vstupního pole napište svůj dotaz nebo požadavek.
 4. Stiskněte Enter nebo klikněte na Odeslat, abyste obdrželi odpověď od vybraného modelu.
-5. **Neváhejte procházet seznam modelů!** Je jich k dispozici více. 👇
+5. **Neváhejte procházet seznam modelů!** Je jich k dispozici více. 👇⬇️
 
 <center>
 <div class="w-96">
@@ -58,125 +60,177 @@ Open-WebUI poskytuje přístup k různým modelům umělé inteligence pro gener
 </div>
 </center>
 
+<Callout type="warning" title="Upozornění ohledně benchmarkování">
+**Spouštění nezávislých benchmarků není bez předchozí konzultace povoleno. Prosíme, domluvte se s námi předem.**
+Protože je naše LLM infrastruktura sdílena mnoha uživateli současně, vytváří nezávislé benchmarky ve špičce úzká hrdla a poskytují nepřesná data:
+- Požadavky se hromadí ve sdílené frontě, takže vaše metriky výkonu budou odrážet čekací dobu na serveru, nikoli skutečnou rychlost zpracování modelem.
+- Intenzivní testování omezuje zásadní zdroje pro kolegy, kteří tyto modely využívají k aktivnímu výzkumu.
+</Callout>
+
 ### Aktuálně dostupné modely
 
-Naše modely rozdělujeme do tří skupin::
-
-1. **Garantované modely** – Stabilní modely udržované pro dlouhodobou dostupnost. Jakékoli aktualizace nebo náhrady budou oznámeny na této stránce a prostřednictvím bannerů ve WebUI.
-2. **Experimentální modely** – Mohou se měnit v rámci optimalizace zdrojů nebo testování nových funkcí.
-3. **Zastaralé modely** – Momentálně funkční, ale určené k postupnému vyřazení z provozu.
-
 <Callout type="info">
-Pro zjištění přesných názvů modelů si zobrazte seznam modelů, jak je uvedeno [níže](#models-for-api-interface). Při přístupu z externího prostředí musíte používat přesné názvy modelů, například `llama3.3:latest`.
-
-Názvy modelů rozlišují velká a malá písmena a mohou obsahovat verzní označení jako `:latest` nebo specifické formáty kvantizace.
+Aktuální stav všech dostupných modelů je zobrazen na [https://llm.ai.e-infra.cz/status/](https://llm.ai.e-infra.cz/status/)
 </Callout>
 
 
 
-#### Garantované modely
+Platné k 30. červnu 2026
 
-| Model                | Popis | Velikost kontextu |
-|----------------------|-------|-------------------|
-| **GPT-OSS-120B**     | Jazykový model s 120B parametry od OpenAI. Špičkový výkon. | 128k |
-| **DeepSeek V3.2**    | Jazykový model s 685B parametry od Deepseek AI s volitelnými režimy reasoning a instruct. Vyniká ve složitých úlohách včetně matematiky, logického uvažování a generování kódu. | 160k |
-| **Qwen 3 Coder**     | Jazykový model s 480B parametry od Qwen. Nástupce Qwen 2.5 Coder se výrazně vylepšeným výkonem v programovacích úlohách. | 90k |
+Poskytujeme dva druhy modelů:
 
+1. **Generativní modely** – chatovací / multimodální / reasoning modely, se kterými komunikujete, uvedené níže.
+2. **Embedding modely** – místo „konverzace" převádějí text na numerické vektory. Pohánějí sémantické vyhledávání, doporučovací systémy a Retrieval-Augmented Generation (RAG), takže vaše aplikace mohou pracovat s významem a kontextem vašich dat.
 
+Modely již nedělíme na „garantované" a „experimentální". Protože je naše GPU kapacita omezená a sdílená, **může být jakýkoli model kdykoli aktualizován nebo nahrazen**, jakmile bude dostupná novější a výkonnější verze. Částí nabídky, která zůstává dlouhodobě stabilní, je sada udržovaných **[aliasů](#aliasy-modelů)** – krátkých názvů jako `kimi` nebo `deepseek`, které vždy ukazují na aktuální model.
 
-<Callout type="info">
-Ačkoliv jsou modely **Deepseek R1 0528** a **Qwen 3 Coder** označeny jako **garantované**, mějte prosím na paměti:
-- Jejich základní hardware může vyžadovat údržbu a nemáme záložní infrastrukturu srovnatelného rozsahu
-- Během urgentních prioritních úloh vyžadujících tento hardware může být dostupnost modelu dočasně pozastavena
-- O takových přerušeních bude předem informováno na této stránce a v rozhraní chatu.
+<Callout type="warn">
+**Žádná konkrétní verze modelu není zaručena trvale.** Protože provozujeme omezený sdílený GPU hardware, nahrazujeme modely lepšími, jakmile jsou k dispozici – obvykle v noci, ale možná i kdykoli jindy – a starý **přesný** název modelu vyřazujeme. Hardware může také příležitostně vyžadovat údržbu (nemáme záložní infrastrukturu srovnatelného rozsahu) nebo být dočasně přesměrován na urgentní prioritní úlohy, během nichž může být dostupnost pozastavena. O takových změnách informujeme na této stránce a prostřednictvím bannerů ve WebUI.
 </Callout>
 
-#### Experimentální modely
+<Callout type="warn">
+**Pro reprodukovatelnou práci (např. bakalářskou nebo magisterskou/diplomovou práci):** počítejte s tím, že k výměně modelu může dojít těsně před termínem odevzdání nebo obhajobou.
+Negarantujeme, že konkrétní model zůstane dostupný po celý semestr.
+- Volejte modely prostřednictvím udržovaného **[aliasu](#aliasy-modelů)**, aby váš kód fungoval i po aktualizaci podkladového modelu.
+- Alias udržuje funkční váš *kód*, nikoli vaše *výstupy* – novější model může odpovídat jinak, takže nepředpokládejte, že výsledky zůstanou v čase reprodukovatelné.
+- Uchovávejte si lokální kopie důležitých výsledků, a pokud je přesná reprodukovatelnost kritická, kontaktujte nás na **[k8s@cerit-sc.cz](mailto:k8s@cerit-sc.cz)** a prodiskutujte možnosti.
+</Callout>
 
-| Model              | Popis      |Context Size |
-|------------------------------|-------------|--------------|
-| **GLM 4.7** | Jazykový model GLM 4.7 s 385B parametry od Z.ai s volitelnými režimy uvažování a instrukcí, vynikající v programování, volání nástrojů a agentních úlohách. | 200k |
-| **GPT OSS 120B with Memory**            |  Model GPT OSS 120B slouží k uchovávání klíčových informací (např. preferencí nebo detailů o projektech). Zapnutí funkce paměti personalizuje odpovědi napříč konverzacemi. Pro aktivaci funkce `Paměť` klikněte na své uživatelské jméno (vlevo dole), přejděte do `Nastavení` → `Personalizace` → záložka `Paměť`. Přepínačem funkci zapněte. K přidání položek do paměti můžete použít jednu ze dvou metod: 1) Tlačítko Spravovat: V záložce Paměť klikněte na Spravovat a přidejte/upravte položky (např. „Můj projekt: CFD optimalizace“). alebo 2) Během chatu: Napište „remember [informace]“ (např. „remember Moje MetaCentrum přihlašovací jméno je xnovak12“). Model potvrdí uložení. Důležité: Po zapnutí se uložené informace používají napříč všemi podporovanými modely.| 128k |
-| **Mistral 3 Large** | Jazykový model Mistral 3 Large Instruct s 675B parametry od Mistral, nabízející multimodální (vision-language) schopnosti; jde o největší dostupný multimodální model, běžící ve variantě NVFP4. | 128k |
+<Callout type="info">
+Přesné aktuálně servované názvy modelů zjistíte dotazem na živý seznam modelů přes API (viz [Vytvoření API klíče](#vytvoření-api-klíče)) nebo na [statusové stránce](https://llm.ai.e-infra.cz/status/). Při externím přístupu musíte použít buď udržovaný alias, nebo přesný název modelu, např. `qwen3.5-122b` nebo `deepseek-v4-pro`.
 
-#### Zrušené modely
+Názvy modelů rozlišují velká a malá písmena a mohou obsahovat příponu kvantizace (např. `qwen3.5-int4`).
+</Callout>
 
-| Model              |  Popis        |
-|--------------------|---------------|
-| **Aya&nbsp;Expanse**      | Model s 32 miliardami parametrů, varianta Q8, vícejazyčný, od společnosti Cohere. Byl vyškolen pro vynikající výkon ve 23 jazycích, včetně češtiny.|
-| **Command-A**      | Model s 111 miliardami parametrů od společnosti Cohere. I když reaguje pomaleji, je mimořádně silný v programovacích úlohách a generování manifestů.|
-| **DeepSeek&nbsp;R1**    | Model s 32 miliardami parametrů, odvozený z modelu Qwen společností DeepSeek (Čína), navržený s důrazem na logické uvažování. Vyniká v komplexních úlohách, jako je matematika a generování kódu.|
-| **Gemma 3**        | Jazykový model s 27 miliardami parametrů (FP16) od Google, patřící do Lightweight rodiny Gemma postavené na technologii Gemini. |
-| **LLaMA 3.3**      | Jazykový model se 70 miliardami parametrů od Meta. Díky své efektivitě a všestrannosti se hodí pro širokou škálu úloh zpracování přirozeného jazyka. |
-| **Mistral&#8209;Small&nbsp;3.1**| Jazykový model s 24 miliardami parametrů od Mistral AI, který má integrované vizuální schopnosti. |
-| **Mistral&#8209;Small&nbsp;3.2**| Jazykový model s 24 miliardami parametrů od společnosti Mistral AI, vybavený vestavěnými vizuálními schopnostmi. |
-| **Phi-4**            | Model s 14 miliardami parametrů, varianta Q8, od společnosti Microsoft, vyškolený na kombinaci syntetických datasetů, filtrovaného veřejného webového obsahu, akademických knih a Q&A datasetů.Představuje současný špičkový stav ve volně dostupných modelech. |
+#### Generativní modely
 
-#### Embedding Modely
+| Model | API název | Schopnosti | Kontext | Max. výstup | Kvant. | Zdroj |
+|-------|-----------|------------|---------|-------------|--------|-------|
+| **GPT-OSS-120B** | `gpt-oss-120b` | chat, nástroje | 128k | 32k | mxfp4 | [openai/gpt-oss-120b](https://huggingface.co/openai/gpt-oss-120b) |
+| **DeepSeek-V4-Flash** | `DeepSeek-V4-Flash` | chat, nástroje | 1M | 64k | fp8 | [huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731) |
+| **GLM 5.2** | `glm-5.2` | chat, nástroje | 1M | 48k | fp8 | [zai-org/GLM-5.2-FP8](https://huggingface.co/zai-org/GLM-5.2-FP8) |
+| **Kimi K3** | `kimi-k3` | chat, multimodální, nástroje | 1M | 48k | fp8 | [moonshotai/Kimi-K3](https://huggingface.co/moonshotai/Kimi-K3) |
+| **Qwen3.5 (397B, int4)** | `qwen3.5-int4` | chat, multimodální, nástroje | 256k | 32k | int4 | [QuantTrio/Qwen3.5-397B-A17B-AWQ](https://huggingface.co/QuantTrio/Qwen3.5-397B-A17B-AWQ) |
+| **Qwen3.5 122B** | `qwen3.5-122b` | chat, multimodální, nástroje | 256k | 32k | fp8 | [Qwen/Qwen3.5-122B-A10B-FP8](https://huggingface.co/Qwen/Qwen3.5-122B-A10B-FP8) |
+| **Qwen3.8 27B** | `qwen3.8-27b` | chat, multimodální, nástroje | 256k | 32k | fp8 | [Qwen/Qwen3.8-27B-FP8](https://huggingface.co/Qwen/Qwen3.8-27B-FP8) |
+| **Mistral Medium 3.5** | `mistral-medium-3.5` | chat, multimodální, nástroje | 256k | — | fp8 | [mistralai/Mistral-Medium-3.5-128B](https://huggingface.co/mistralai/Mistral-Medium-3.5-128B) |
+| **Gemma 4** | `gemma4` | chat, multimodální, nástroje | 256k | 32k | bf16 | [google/gemma-4-31B-it](https://huggingface.co/google/gemma-4-31B-it) |
+| **Whisper Large v3** (pouze API) | `whisper-large-v3` | audio, rozpoznávání řeči | 448 | — | FP16 | [openai/whisper-large-v3](https://huggingface.co/openai/whisper-large-v3) |
 
-Embedding modely jsou dostupné přes API endpoint:  `https://llm.ai.e-infra.cz/v1 ` pomocí API tokenů z Open WebUI.
 
-| Model                          | Description |
-|--------------------------------|-------------|
+- **Kimi K3** — vlajkový model Moonshot AI s otevřenými váhami, 2,8 bilionu parametrů, typu Mixture-of-Experts (MoE). Nativně multimodální s podporou vision, kontextové okno 1M tokenů a silný výkon v dlouhých programovacích úlohách, uvažování, znalostní práci a agentních workflow.
+- **GLM 5.2** — jazykový model s 756B parametry optimalizovaný pro pokročilé uvažování, používání nástrojů a vícekrokové agentní úlohy.
+- **GPT-OSS-120B** — otevřený jazykový model OpenAI se 120B parametry nabízející silný obecný výkon v uvažování, programování a používání nástrojů.
+- **DeepSeek V4 Flash-0731** — efektivní reasoning model se 304B parametry, který dosahuje výkonu srovnatelného s předními proprietárními modely navzdory mnohem menšímu počtu aktivovaných parametrů. Vyniká v matematice, logickém uvažování a generování kódu.
+- **Qwen3.5 (397B, int4)** — vlajkový model 397B (A17B aktivních) pro programování, používání nástrojů a agentní workflow. Sestavení int4 (AWQ) je servováno také jako `qwen3.5-int4` pro vyšší propustnost při nižší přesnosti.
+- **Qwen3.5 122B** — 122B (A10B aktivních) nástupce Qwen3-Coder; multimodální, s výrazně vylepšeným výkonem v programování.
+- **Qwen3.8 27B** — 27B (dense) nástupce Qwen3.5 27B a Qwen3.6 27B; multimodální, s výrazně vylepšeným výkonem v programování.
+- **Mistral Medium 3.5** — multimodální model 128B pro text, programování, používání nástrojů a agentní workflow.
+- **Gemma 4** — multimodální model Google s 31B parametry; vhodný pro OCR/vision a obecné úlohy.
+- **Whisper Large v3** — model automatického rozpoznávání řeči (ASR) a překladu řeči od OpenAI s 1,55B parametry; podporuje více než 99 jazyků s robustním přepisem i v hlučných podmínkách. Dostupný pouze přes API.
+
+
+**Zastaralé modely**
+
+| Model | API název | Schopnosti | Kontext | Max. výstup | Kvant. | Zdroj |
+|-------|-----------|------------|---------|-------------|--------|-------|
+| **DeepSeek V4 Pro** | `deepseek-v4-pro` | chat, nástroje | 1M | 64k | fp4 | [deepseek-ai/DeepSeek-V4-Pro](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro) |
+| **DeepSeek V4 Pro (thinking)** | `deepseek-v4-pro-thinking` | chat, nástroje, reasoning | 1M | 64k | fp4 | [deepseek-ai/DeepSeek-V4-Pro](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro) |
+| **Kimi K2.7** | `kimi-k2.7` | chat, multimodální, nástroje | 256k | 48k | int4 | [moonshotai/Kimi-K2.7-Code](https://huggingface.co/moonshotai/Kimi-K2.7-Code) |
+
+#### Aliasy modelů
+
+Protože se přesné verze modelů často mění, udržujeme sadu krátkých, na verzi nezávislých **aliasů**. Tyto aliasy jsou částí naší nabídky, která zůstává dlouhodobě stabilní: alias vždy ukazuje na *aktuální* doporučený model ve své rodině, takže kód, který alias volá, funguje napříč aktualizacemi beze změn na vaší straně.
+
+| Alias | Aktuálně ukazuje na | Poznámky |
+|-------|---------------------|----------|
+| `glm` | `glm-5.2` | nejnovější GLM |
+| `kimi` | `kimi-k2.7` | nejnovější Kimi |
+| `deepseek` | `deepseek-v4-flash` | reasoning ve výchozím nastavení **vypnutý** (lze explicitně zapnout) |
+| `deepseek-thinking` | `deepseek-v4-flash-thinking` | reasoning **zapnutý** |
+| `mini` | `gpt-oss-120b` | |
+| `coder`, `agentic` | `qwen3.5-122b` | |
+| `thinker` | `deepseek-v4-flash-thinking` | |
+
+`deepseek` a `deepseek-thinking` ukazují na stejné podkladové váhy (`deepseek-v4`); liší se pouze tím, zda je ve výchozím nastavení zapnuté postupné uvažování (reasoning).
+
+<Callout type="info">
+**Který název mám použít?**
+- **Použijte alias** (např. `kimi`, `deepseek`) pro dlouhodobou stabilitu. Název aliasu zůstává dlouhodobě platný a vždy ukazuje na vhodný aktuální model, takže vaše skripty budou fungovat dál. Nevýhodou je, že podkladový model – a tedy i jeho výstupy – se s aktualizacemi mění.
+- **Použijte přesný název modelu** (např. `kimi-k2.7`) pouze tehdy, když právě teď potřebujete jednu konkrétní verzi. Přesné názvy jsou krátkověké: jsou vyřazeny, jakmile je nahradí lepší model (obvykle v noci, ale možná kdykoli), po čemž skripty odkazující na starý název přestanou fungovat, dokud je neaktualizujete.
+
+Pro zpětnou kompatibilitu několik starších aliasů (např. `glm-5`, `kimi-k2.6`) ukazuje na jejich aktuální ekvivalenty, ale brzy budou odstraněny.
+</Callout>
+
+#### Embedding modely
+
+Embedding modely jsou dostupné přes API endpoint: `https://llm.ai.e-infra.cz/v1` pomocí API tokenů z Open WebUI.
+
+| Model                          | Popis |
+|--------------------------------|-------|
 | qwen3-embedding-4b             | Embedding model QWen3 s kontextem o velikosti 40 960 tokenů a embedding vektorem o velikosti 2560. Vícejazyčný model s podporou více než 100 jazyků. |
-| qwen3-reranker-4b              | Reranker model QWen3 s kontextem o velikosti 40 960 tokenů.                              |
-| nomic-embed-text-v1.5          | Embedding model Nomic AI s kontextem o velikosti 512 tokenů a embedding vektorem o velikosti 768. Pouze angličtina.|
+| qwen3-reranker-4b              | Reranker model QWen3 s kontextem o velikosti 40 960 tokenů. |
+| nomic-embed-text-v1.5          | Embedding model Nomic AI s kontextem o velikosti 512 tokenů a embedding vektorem o velikosti 768. Pouze angličtina. |
+| nomic-embed-text-v2-moe        | Embedding model Nomic AI s kontextem o velikosti 512 tokenů a embedding vektorem o velikosti 768. Pouze angličtina. Aktualizovaná verze. |
 | mxbai-embed-large:latest       | Embedding model Mixedbread-AI s kontextem o velikosti 512 tokenů a embedding vektorem o velikosti 1024. Pouze angličtina. |
 | multilingual-e5-large-instruct | Embedding model Intfloat s kontextem o velikosti 514 tokenů a embedding vektorem o velikosti 1024. Vícejazyčný. |
-
-
-
-
-
-#### Znalost češtiny
-Vybrané modely jsme vyhodnotili pomocí benchmarku [BenCzechMark](https://huggingface.co/blog/benczechmark). Úplné výsledky jsou dostupné na uvedeném odkazu.
-Pro přehled uvádíme shrnutí hlavních skóre níže:
-
-| Model             | Průměrné skóre |
-|-------------------|------------|
-| DeepSeek-R1-0528  | 85.3       |
-| Command-A         | 82.8       |
-| LLaMA-3.3         | 73.5       |
-| LLaMA-4-Scout     | 71.5       |
-| Aya Expanse       | 63.5       |
-| Gemma 3           | 59.2       |
-| Phi-4             | 58.2       |
-
-<Callout type="info">
-Mistral-Small vykazuje problémy s kompatibilitou s tímto českým benchmarkem.
-</Callout>
 
 #### Znalost programovacích jazyků
 
 Vyhodnotili jsme vybrané modely pomocí [Aider Polyglot Benchmark](https://aider.chat/2024/12/21/polyglot.html#the-polyglot-benchmark). Pro orientaci jsou níže shrnuty hlavní výsledky:
 
-| Model                  | C++ Score | Go Lang Score | Java Score | Javascript Score | Python Score | Rust Score |
-|------------------------|-----------|---------------|------------|------------------|--------------|------------|
-|GPT-OSS-120B            |  50.0     | 59.0          | 40.4       | 61.2             | 70.6         | 53.3       |
-|DeepSeek V3.2 (think)   |  88.5     | 84.6          | 66.0       | 89.9             | 82.4         | 76.7       |
-|DeepSeek V3.2 (nothink) |  92.3     | 82.1          | 59.6       | 79.6             | 79.4         | 66.7       |
-|GLM 5.1 (think)         | 84.6      | 87.2          | 72.3       | 83.7             | 88.2         | 83.3       |
-|Kimi K2.5 (think)       | 92.3      | 84.6          | 74.5       | **93.9**         | 91.2         | 90         |
-|Kimi K2.5 (nothink)     | 92.3      | 82.1          | 76.6       | 89.8             | 82.4         | 90         |
-|Kimi K2.6 (think)       | **96.2**  | **89.7**      | **89.4**   | 91.8             | **97.1**     | **93.3**   |
-|Qwen 3.5 (think)        | **96.2**  | 79.5*         | 80.9       | 89.8             | 79.4         | 63.3       |
+| Model                    | C++ Score | Go Lang Score | Java Score | Javascript Score | Python Score | Rust Score |
+|--------------------------|-----------|---------------|------------|------------------|--------------|------------|
+|DeepSeek V4 Pro (think)   | 80.8      | 69.2          | 53.2       | 69.4             | 73.5         | 70         |
+|Gemma 4 (instant)         | 53.8      | 51.3          | 34.0       | 44.9             | 44.1         | 46.7       |
+|GLM 5.2 (think)           | 92.3      | 89.7          | 85.1       | **93.9**         | **97.1**     | 86.7       |
+|GPT-OSS-120B              | 50.0      | 59.0          | 40.4       | 61.2             | 70.6         | 53.3       |
+|Kimi K3 (think)           | *100*     | **92.3**      | **93.6**   | 91.8             | **97.1**     | **93.3**   |
+|Mistral Medium 3.5 (high) | 50.0      | 59.0          | 44.7       | 57.1             | 67.6         | 46.7       |
+|Qwen 3.5, int4 (think)    | 88.5      | 82.1          | 74.5       | 89.8             | 85.3         | 70.0       |
+|Qwen 3.5 122b (instant)   | 84.6      | 56.4          | 70.2       | 87.8             | 73.5         | 66.7       |
+|Qwen 3.8 27b (xhigh)      | 80.8      | 76.9          | 70.2       | 85.7             | 85.3         | 83.3       |
+
+## Jak jsou modely přidávány, aktualizovány a vyřazovány
+
+**Přidávání.** Nové modely integrujeme po vyhodnocení vůči standardním průmyslovým benchmarkům, zpětné vazbě komunity a nejnovějším open-source vydáním.
+
+**Aktualizace a vyřazování.** Naše GPU kapacita je omezená a sdílená, takže na ní udržujeme pouze nejvýkonnější model v každé rodině. Jakmile novější model jasně předčí ten, který hostujeme, nahradíme ho – obvykle v noci, ale možná kdykoli – a starý **přesný** název modelu vyřadíme. Starší verze neponecháváme: velké, náročné modely jsou okamžitě odstraněny, když jejich poměr výkonu k nákladům zaostává, aby tyto GPU mohly sloužit výkonnějším modelům pro celou komunitu.
+
+**Dlouhodobá stabilita.** Stabilní částí nabídky je sada udržovaných **[aliasů](#aliasy-modelů)**, nikoli jednotlivé verze modelů. Název aliasu zůstává platný napříč aktualizacemi a vždy ukazuje na aktuální model, takže workflow, která alias volají, fungují dál. Pokud potřebujete dlouhodobě reprodukovat výsledky konkrétní verze modelu, uložte si tyto výsledky lokálně a kontaktujte nás na **[k8s@cerit-sc.cz](mailto:k8s@cerit-sc.cz)** – nemůžeme zaručit, že jakákoli přesná verze zůstane dostupná.
+
+## Ochrana dat
+
+Naše AI platforma je postavena jako bezpečná, lokální (on-premise) alternativa ke komerčním AI službám, která zajišťuje, že vaše interakce a data zůstávají pod kontrolou národní výzkumné infrastruktury. Přestože udržujeme přísné interní kontroly, je důležité porozumět tomu, jak jsou vaše informace v rámci naší infrastruktury zpracovávány, ukládány a chráněny.
+
+<Callout type="warn">
+Prostředí WebUI je určeno pro obecný výzkum a asistenci a nesplňuje regulační bezpečnostní standardy požadované pro zpracování citlivých, utajovaných nebo osobních údajů (PII). Používáním této služby uživatel bere na vědomí, že platforma není certifikována pro chráněná data, a souhlasí s tím, že jakékoli nahrání takových informací je na jeho vlastní uvážení a riziko.
+Pokud vaše workflow vyžaduje práci s vysoce citlivými informacemi, utajovanými daty nebo osobními údaji (PII), kontaktujte nás prosím nejprve a prodiskutujte bezpečné alternativy.
+</Callout>
+
+<Callout type="info">
+Workflow s citlivými daty (API): Uživatelům pracujícím s citlivými nebo chráněnými datovými sadami doporučujeme používat přímý API přístup. Podkladové LLM inference enginy běží na dedikované infrastruktuře speciálně navržené pro zpracování citlivých dat. Použitím API obcházíte úložnou vrstvu WebUI a přitom stále využíváte naše bezpečné, lokálně hostované modely.
+</Callout>
+
+Více podrobností najdete v [sekci Ochrana dat AI](../ai-as-a-service/ai-data-privacy)
+
 
 ## Příklady
 Níže najdete podrobný návod, jak používat LLM modely v Open WebUI v různých situacích.
 
 ### Generování obrázků
 
-Generujte AI obrázky z textových promptů.  
-* **Vyberte** model pro generování textu (např. `GPT-OSS-120B`) v rozbalovacím menu vlevo nahoře. 
-* **Klikněte** na **Ikonu integracín** pod polem pro prompt → Přepněte **Image** posuvník na  **ON**.  
-  
-<div class="w-110">  
-![image-webui](/img/ceritsc/image-webui.png)  
-</div>  
+Generujte AI obrázky z textových promptů.
+* **Vyberte** model pro generování textu (např. `GPT-OSS-120B`) v rozbalovacím menu vlevo nahoře.
+* **Klikněte** na **ikonu integrace** pod polem pro prompt → přepněte **Image** posuvník do polohy **ON**.
 
-* Zadejte svůj textový prompt (např. `Nakresli dúhové mačiatko`).  
+<div class="w-110">
+![image-webui](/img/ceritsc/image-webui.png)
+</div>
+
+* Zadejte svůj textový prompt (např. `Nakresli duhové koťátko`).
 * Stiskněte Enter nebo klikněte na Odeslat.
-* Poté můžete zadávat dodatečné instrukce k úpravě vytvořeného obrázku. Po každé úpravě znovu stiskněte Enter.
+* Zadejte dodatečné textové instrukce k úpravě vytvořeného obrázku. Po každé úpravě znovu stiskněte Enter.
 * **Výsledek**: Vygenerovaný obrázek se zobrazí přímo v chatu.
 
 <div class="w-50">
@@ -188,45 +242,42 @@ Generujte AI obrázky z textových promptů.
 
 Upravujte nahrané obrázky pomocí multimodálních modelů.
 
-* Vyberte multimodální model (např., `Mistral Medium 3.5`) z nabídky modelů.
-* Klikněte na ikonu **+** → **Nahrát soubory** → Vyberte obrázek (JPG/PNG) 
+* Vyberte multimodální model (např. `Mistral Medium 3.5`) z nabídky modelů.
+* Klikněte na ikonu **+** → **Nahrát soubory** → vyberte obrázek (JPG/PNG)
 
 <div class="w-110">
 ![uploadfiles-webui](/img/ceritsc/uploadfiles-webui.png)
 </div>
 
 * Nahrajte obrázek, který chcete upravit.
-* **Klikněte** na **ikonu integrace** pod dotazom → Přepněte **Image** posuvník  do polohy **ZAPNUTO**. 
+* **Klikněte** na **ikonu integrace** pod polem pro prompt → přepněte **Image** posuvník do polohy **ON**.
 
 <div class="w-110">
 ![image-webui](/img/ceritsc/image-webui.png)
 </div>
 
-* Zadejte příkaz pro úpravu: např., `Přidej útočícího krokodýla`.
+* Zadejte příkaz pro úpravu: např. `Přidej útočícího krokodýla`.
 * Stiskněte Enter nebo klikněte na Odeslat.
-
 * **Výsledek:** Upravený obrázek se zobrazí v chatu.
 
 <div class="w-200">
 ![image-webui2](/img/ceritsc/kotata-ai-chat.png)
 </div>
 
-
-
 ### Převod obrazu na text (OCR skener)
 Extrahuje text z obrázků.
 
-* Vyberte model pro generování textu (např., `Gemma 4` nebo `Mistral Medium 3.5`)  
-* Klikněte na ikonu **+** → **Nahrát soubory** → Vyberte obrázek (JPG/PNG)  
+* Vyberte model pro generování textu (např. `Gemma 4` nebo `Mistral Medium 3.5`)
+* Klikněte na ikonu **+** → **Nahrát soubory** → vyberte obrázek (JPG/PNG)
 
 <div class="w-110">
 ![uploadfiles-webui](/img/ceritsc/uploadfiles-webui.png)
 </div>
 
 * Nahrajte obrázek obsahující text (např. skenovaný dokument, PDF nebo fotografii).
-* Zadejte pokyn pro OCR, např., `Extrahuj veškerý text z tohoto obrázku doslovně, zachovávající zalomení řádků.`
+* Zadejte pokyn pro OCR, např. `Extrahuj veškerý text z tohoto obrázku doslovně, se zachováním zalomení řádků.`
 * Stiskněte Enter nebo klikněte na Odeslat.
-* **Výsledek:**  Extrahovaný text se zobrazí jako odpověď.
+* **Výsledek:** Extrahovaný text se zobrazí jako odpověď.
 
 <div class="w-200">
 ![image-webui3](/img/ceritsc/OCR-chat-ai.png)
@@ -234,9 +285,9 @@ Extrahuje text z obrázků.
 
 
 ### Python Sandbox pro matematické/programovací úlohy
-Spouštějte Python pro matematické nebo programovací úlohy (*ne pro obecné programování*).  
-* Vyberte jakýkoli model podporující **Nástroje** (např., `GPT-OSS-120B`).
-* Klikněte na **ikonu integrace** → **Nástroje** → Přepněte **Python Sandbox** do polohy **ZAPNUTO**
+Spouštějte Python pro matematické nebo programovací úlohy (*ne pro obecné programování*).
+* Vyberte jakýkoli model podporující **nástroje** (např. `GPT-OSS-120B`).
+* Klikněte na **ikonu integrace** → **Nástroje** → přepněte **Python Sandbox** do polohy **ON**.
 
 <div class="w-110">
 ![python-webui](/img/ceritsc/python-webui.png)
@@ -246,99 +297,75 @@ Spouštějte Python pro matematické nebo programovací úlohy (*ne pro obecné 
 * Stiskněte Enter nebo klikněte na Odeslat.
 * **Výsledek**: Textový výstup (např. vyřešená úloha nebo kód v Pythonu pro datovou analytiku)
 
-
 <Callout type="info">
-Uživatelé mohou snadno nahrávat CSV soubory a žádat o analýzu. Aplikace generuje připravený Python kód, který lze přímo spustit v prohlížeči. I když sandbox nezobrazuje grafy, vytváří kompletní kód pro vizualizace, takže uživatelé mohou výsledky SPOUŠTĚT a zobrazovat ve svém preferovaném externím prostředí.
-
+Uživatelé mohou snadno nahrávat CSV soubory a žádat o analýzu. Aplikace generuje připravený Python kód, který lze přímo spustit v prohlížeči. I když sandbox nezobrazuje grafy, vytváří kompletní kód pro vizualizace, takže uživatelé mohou výsledky SPOUSTĚT a zobrazovat ve svém preferovaném externím prostředí.
 </Callout>
 
-<div class="w-200">  
-![image-python-webui](/img/ceritsc/chat-ai-python.png)  
-</div>  
+<div class="w-200">
+![image-python-webui](/img/ceritsc/chat-ai-python.png)
+</div>
 
 <Callout type="info">
-⚠️  **Obecné programování je zakázáno.**  Používejte výhradně pro specifické problémy, kde Python může poskytnout efektivní **textové řešení** (např. matematické výpočty, transformace dat). 
+⚠️  **Obecné programování je zakázáno.** Používejte výhradně pro specifické problémy, kde Python může poskytnout efektivní **textové řešení** (např. matematické výpočty, transformace dat).
 </Callout>
-
 
 ### Zapamatování (Personalizace)
 Ukládá uživatelský kontext (např. preference, přihlašovací údaje).
-Příklad: Po uložení „Preferuji Python před MATLABem“ budou budoucí programovací návrhy upřednostňovat Python.
+Příklad: Po uložení „Preferuji Python před MATLABem" budou budoucí programovací návrhy upřednostňovat Python.
 
-* Zapnutí paměti:
-    * Klikněte na své uživatelské jméno (vlevo dole) → **Nastavení** → **Personalizace** → **Karta Paměť**  
-	* Přepněte **Paměť** do polohy ZAPNUTO
+* **Zapnutí paměti**:
+    * Klikněte na své uživatelské jméno (vlevo dole) → **Nastavení** → **Personalizace** → **karta Paměť**
+    * Přepněte **Paměť** do polohy ZAPNUTO
 
 <div class="w-110">
 ![memory-webui](/img/ceritsc/memory-webui.png)
 </div>
 
 * Vyberte model podporující paměť: `GPT OSS 120B with Memory`
-* **Přidávání paměťových záznamů:**:
-	* **Manuálně**: Klikněte na **Spravovat** → Přidejte dvojice klíč/hodnota: *Projekt: CFD optimalizace; Termín: 2025-12-01*  
-	* **Příkazem v chatu**: Napište `remember [fakt]` (např., `remember my MetaCentrum login is xnovak12`). 
-Model potvrdí uložení. 
-* Ukládání kontextu funguje pouze s modelem `GPT OSS 120B with Memory model`
+* **Přidávání paměťových záznamů:**
+    * **Manuálně**: Klikněte na **Spravovat** → přidejte dvojice klíč/hodnota: *Projekt: CFD optimalizace; Termín: 2025-12-01*
+    * **Příkazem v chatu**: Napište `remember [fakt]` (např. `remember my MetaCentrum login is xnovak12`).
+* Model potvrdí uložení.
+* Ukládání kontextu funguje pouze s modelem `GPT OSS 120B with Memory`.
+
 <Callout type="info">
-Paměť se **automaticky používá u všech podporovaných modelů** jakmile je aktivována.
-</Callout>	
-
-
-
-
+Jakmile je paměť aktivována, **automaticky se používá u všech podporovaných modelů**.
+</Callout>
 
 ## Vytvoření API klíče
 
-Pro používání API Open-WebUI je potřeba vygenerovat API klíč.
+Pro používání API Open WebUI je potřeba vygenerovat API klíč.
 
-1. Přejděte do sekce Nastavení v rozhraní Open-WebUI.
+1. Přejděte do sekce Nastavení v rozhraní Open WebUI.
 2. Přejděte na Účet.
 3. Klikněte na API klíče (zobrazit).
 4. Ignorujte JWT token a zvolte API klíč – buď vygenerujte nový, nebo zobrazte existující.
 5. Zkopírujte vygenerovaný API klíč a bezpečně si ho uložte.
-6. Tento klíč používejte v API požadavcích k ověření a přístupu ke službám Open-WebUI.
+6. Tento klíč používejte v API požadavcích k ověření a přístupu ke službám Open WebUI.
 7. Adresa koncového bodu (endpoint) API je: [https://llm.ai.e-infra.cz/v1/](https://llm.ai.e-infra.cz/v1/).
 
 <Callout type="info">
-Použití API v Open-WebUI je popsáno v kapitole [OpenAI API](../ai-as-a-service/ai-api)
+Použití API v Open WebUI je popsáno v kapitole [OpenAI API](../ai-as-a-service/ai-api)
 </Callout>
-
 
 ## Funkce Knowledge (Alpha)
 
 Open WebUI obsahuje experimentální *Knowledge Function*, která v podstatě představuje systém [RAG (Retrieval-Augmented Generation)](https://en.wikipedia.org/wiki/Retrieval-augmented_generation). Tato funkce umožňuje uživatelům nahrávat vlastní texty a dotazovat se modelu, který generuje odpovědi na základě těchto nahraných dat.
 
-V současné době funkce Knowledge podporuje pouze globální konfiguraci, což znamená, že pro všechny uložené texty je používán jeden společný embedding model.Stále vyhodnocujeme, které embedding modely jsou pro tento účel nejvhodnější. Klíčovým omezením je, že při změně embedding modelu je nutné znovu zpracovat všechny dříve nahrané texty, protože systém RAG vyžaduje konzistentní embeddingy pro správné fungování.Z tohoto důvodu není tato funkce doporučena pro produkční použití a je určena především pro testování a náhled.
+V současné době funkce Knowledge podporuje pouze globální konfiguraci, což znamená, že pro všechny uložené texty je používán jeden společný embedding model. Stále vyhodnocujeme, které embedding modely jsou pro tento účel nejvhodnější. Klíčovým omezením je, že při změně embedding modelu je nutné znovu zpracovat všechny dříve nahrané texty, protože systém RAG vyžaduje konzistentní embeddingy pro správné fungování. Z tohoto důvodu není tato funkce doporučena pro produkční použití a je určena především pro testování a náhled.
 
-Další výzvou je nalezení vhodných embedding modelů, které podporují češtinu a zároveň velké vstupní kontexty.Většina dostupných modelů je omezena na vstup o délce 512 tokenů, což je pro delší texty nevýhodné, protože je nutné obsah rozdělit na malé fragmenty – často příliš malé na to, aby bylo možné generovat kvalitní a přesné odpovědi.
+Další výzvou je nalezení vhodných embedding modelů, které podporují češtinu a zároveň velké vstupní kontexty. Většina dostupných modelů je omezena na vstup o délce 512 tokenů, což je pro delší texty nevýhodné, protože je nutné obsah rozdělit na malé fragmenty – často příliš malé na to, aby bylo možné generovat kvalitní odpovědi.
 
 Ačkoli bychom mohli integrovat externí embedding modely, například OpenAI `text-embedding-3-small`, tento přístup by ohrozil ochranu dat, protože by znamenal odesílání dat třetí straně.
 
 
 
-## Ochrana dat
-
-V Open WebUI jsou nyní označení modelů standardizována pro lepší přehlednost. Všechny lokální modely jsou správně označeny jako interní, což zajišťuje konzistentní a přehlednou kategorizaci.
-
-Všechny modely, ke kterým mají uživatelé přístup, běží na naší vlastní infrastruktuře, a data související s inferencí tedy neopouštějí naše systémy. Můžeme však poskytnout přístup i k externím modelům – například GPT-4o – na základě speciální dohody. V takových případech jsou data pochopitelně přenášena třetí straně.
-
-Systém inference Ollama má veškeré logování požadavků a odpovědí zcela vypnuté. Naopak systém vLLM loguje požadavky a odpovědi pouze po dobu, kdy běží příslušný Pod.
-
-Samotné Open WebUI ve výchozím nastavení loguje na úrovni INFO, což znamená, že údaje o požadavcích a odpovědích se neukládají. Občas, když je potřeba provést diagnostiku, může být úroveň logování dočasně zvýšena na DEBUG. V takových případech jsou data o požadavcích a odpovědích ukládána až do restartu Podu – obvykle při nasazení nové verze.
-
-K těmto logům mají přístup pouze systémoví administrátoři a nikam jinam se nepřenášejí.
-
-Uložené konverzace jsou uchovávány v databázi PostgreSQL hostované v rámci naší infrastruktury. Když je konverzace smazána, měla by být odstraněna také z databáze – i když jsme samostatně neověřili, zda to WebUI zcela správně provádí. Databáze je zálohována do úložiště S3 na CESNETu s 30denní retenční lhůtou, což znamená, že starší zálohy jsou po 30 dnech odstraněny. Teoreticky tedy bude smazaná konverzace během této lhůty definitivně odstraněna. Přístup k tomuto systému mají opět pouze administrátoři.
-
-Všichni administrátoři mají podepsanou NDA (dohodu o mlčenlivosti).
-
-
 ## Praktický průvodce používáním AI chatů
 
-Jako vědec určitě nejste nováček ve vyhledávání informací a odborného poradenství, které vám pomáhá při práci. Při komunikaci s AI chatboty je klíčem k získání kvalitních výsledků efektivní formulace zadání. V tomto průvodci si ukážeme osvědčené postupy, jak vytvářet kvalitní prompty a vést produktivní konverzace s AI.
+Jako vědec určitě nejste nováček ve vyhledávání informací a odborného poradenství, které vám pomáhá při práci. Při komunikaci s AI chatboty je klíčem k získání kvalitních výsledků efektivní formulace zadání. V tomto průvodci si ukážeme osvědčené postupy, jak vytvářet kvalitní prompty a vést produktivní konverzace s AI chatboty.
 
-### Proč záleží na správném zadání 
-Špatně formulované zadání může vést k podprůměrné odpovědi. AI chatboty jsou tak dobré, jak dobrý je vstup, který obdrží. Poskytováním jasných a srozumitelných promptů můžete získat přesnější a relevantnější výsledky.
+### Proč záleží na správném zadání
+Špatně formulované zadání může vést k podprůměrné odpovědi. AI chatboti jsou tak dobří, jak dobrý je vstup, který obdrží. Poskytováním jasných a srozumitelných promptů můžete získat přesnější a relevantnější výsledky.
 
 ### Jak efektivně komunikovat s AI
 Interakce s chatovacími modely je podobná komunikaci s lidmi. Kvalita odpovědi závisí na jasnosti a konkrétnosti vašeho zadání. Nemusíte řešit složitost – zaměřte se na popis úkolu a kladení správných otázek.
@@ -347,34 +374,27 @@ Interakce s chatovacími modely je podobná komunikaci s lidmi. Kvalita odpověd
 1.	**Definujte svůj cíl**: Jasně uveďte, čeho chcete dosáhnout. Čím konkrétnější budete, tím lepší odpověď získáte. Vyhýbejte se vágním nebo příliš obecným zadáním, která mohou vést k neuspokojivým výsledkům.
 2.	**Poskytněte kontext**: Uveďte relevantní informace, které mohou AI pomoci lépe pochopit úkol a poskytnout přesnější odpověď. Kontext pomáhá AI pochopit účel a význam vašeho dotazu.
 3.	**Specifikujte podobu výstupu**: Uveďte, jak má odpověď vypadat – například délku, styl nebo tón. Tím zajistíte, že výstup bude odpovídat vašim potřebám.
-4.	**Vyberte vhodný dostupný jazykový model**: Vyzkoušejte více modelů a porovnejte výsledky.
+4.	**Vyberte vhodný jazykový model**: Vyzkoušejte více modelů a porovnejte výsledky.
 
 ### Nechte AI pomoci s tvorbou promptů
-1.	**Začněte základní myšlenkou**: Místo toho, abyste se snažili prompt složitě vymýšlet, požádejte AI, aby vám s jeho tvorbou pomohla. Například: „Vytvoř kvalitní prompt pro chatbota, který mi pomůže psát poutavé články na témata produktivity pro mé kolegy.“
-2.	Upřesněte účel: Přidejte kontext, jak hodláte prompt použít, například: „Tento prompt budu používat k psaní článků o produktivitě pro své kolegy.“
-3.	Vylaďte výsledek: AI vám poskytne kompletní prompt, který můžete použít tak, jak je, nebo jej dále upravit podle svých potřeb.
+1.	**Začněte základní myšlenkou**: Místo toho, abyste se snažili prompt složitě vymýšlet, požádejte AI chatbota, aby vám s jeho tvorbou pomohl. Například: „Vytvoř kvalitní prompt pro chatbota, který mi pomůže psát poutavé články na témata produktivity pro mé kolegy."
+2.	**Upřesněte účel**: Přidejte kontext, jak hodláte prompt použít, například: „Tento prompt budu používat k psaní článků o produktivitě pro své kolegy."
+3.	**Vylaďte výsledek**: AI vám poskytne kompletní prompt, který můžete použít tak, jak je, nebo jej dále upravit podle svých potřeb.
 
 ### Jak vést produktivní konverzace s AI
 1.	**Začněte kvalitním promptem**: Vytvořte co nejlepší zadání podle postupů uvedených výše.
 2.	**Vyhodnoťte odpověď**: Projděte si odpověď a určete, co by se dalo zlepšit. AI nemusí hned napoprvé dodat přesně to, co potřebujete.
-3.	**Upřesňujte svou žádost**: Pokračujte v konverzaci a poskytněte konkrétní zpětnou vazbu, například: „Napiš to stručněji“ nebo „Použij formálnější tón.“
+3.	**Upřesňujte svou žádost**: Pokračujte v konverzaci a poskytněte konkrétní zpětnou vazbu, například: „Napiš to stručněji" nebo „Použij formálnější tón."
 4.	**Opakujte proces**: Iterujte, dokud nedosáhnete požadovaného výsledku. Ptejte se, dávejte zpětnou vazbu a dolaďujte prompt, abyste získali co nejlepší odpověď.
 
-### Vylepšování promptů pomocí rolí a detailů 
-1.	**Přiřaďte AI roli**: Poskytněte kontext tím, že AI přiřadíte určitou roli, například: „Chovej se jako zkušený copywriter s 15 lety praxe.“ To pomůže AI vytvářet relevantnější a propracovanější odpovědi.
-2.	**Popište problém do detailu**: Jasně vysvětlete úkol nebo problém, se kterým potřebujete pomoci. Uveďte co nejvíce kontextu, aby AI přesně pochopila, co potřebujete.
+### Vylepšování promptů pomocí rolí a detailů
+1.	**Přiřaďte AI roli**: Poskytněte kontext tím, že AI přiřadíte určitou roli, například: „Chovej se jako zkušený copywriter s 15 lety praxe." To pomůže AI vytvářet relevantnější a propracovanější odpovědi.
+2.	**Popište problém do detailu**: Jasně vysvětlete problém nebo úkol, se kterým potřebujete pomoci. Uveďte co nejvíce kontextu, aby AI přesně pochopila, co potřebujete.
 3.	**Uveďte požadovaný formát výstupu**: Označte, jak má být odpověď strukturovaná, například jako seznam, tabulka nebo souvislý text.
-4.	**Definujte tón a styl**: Uveďte, v jakém tónu má být odpověď napsána, například: „Napiš to přátelským a přístupným tónem“ nebo „Použij formální a technický styl.“
+4.	**Definujte tón a styl**: Uveďte, v jakém tónu má být odpověď napsána, například: „Napiš to přátelským a přístupným tónem" nebo „Použij formální a technický styl."
 
 ### Používání příkladů pro lepší výsledky
 1.	**Poskytněte ukázku**: Uveďte příklad nebo vzor toho, co chcete. Pomůže to AI lépe pochopit vaše požadavky a dodat přesnější odpověď.
-2.	**Používejte pozitivní instrukce**: Místo toho, abyste říkali, co AI nemá dělat, zaměřte se na to, co má dělat. Například: „Použij jednoduchý jazyk“ místo „Nepoužívej odborný žargon.“
+2.	**Používejte pozitivní instrukce**: Místo toho, abyste říkali, co AI nemá dělat, zaměřte se na to, co má dělat. Například: „Použij jednoduchý jazyk" místo „Nepoužívej odborný žargon."
 3.	**Vyhněte se protichůdným pokynům**: Buďte ve svých požadavcích konzistentní a vyhněte se rozporům v zadání.
 4.	**Nechte AI klást otázky**: Podpořte AI, aby se ptala v případě nejasností nebo potřeby upřesnění. Pomůže to zajistit přesnější a relevantnější odpověď.
-
-
-
-
-
-
-
