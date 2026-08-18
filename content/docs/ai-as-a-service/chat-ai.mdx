@@ -112,6 +112,7 @@ Model names are case-sensitive and may include a quantization suffix (e.g. `qwen
 | **Kimi K3** | `kimi-k3` | chat, multimodal, tools | 1M | 48k | fp8 | [moonshotai/Kimi-K3](https://huggingface.co/moonshotai/Kimi-K3) |
 | **Qwen3.5 (397B, int4)** | `qwen3.5-int4` | chat, multimodal, tools | 256k | 32k | int4 | [QuantTrio/Qwen3.5-397B-A17B-AWQ](https://huggingface.co/QuantTrio/Qwen3.5-397B-A17B-AWQ) |
 | **Qwen3.5 122B** | `qwen3.5-122b` | chat, multimodal, tools | 256k | 32k | fp8 | [Qwen/Qwen3.5-122B-A10B-FP8](https://huggingface.co/Qwen/Qwen3.5-122B-A10B-FP8) |
+| **Qwen3.8 27B** | `qwen3.8-27b` | chat, multimodal, tools | 256k | 32k | fp8 | [Qwen/Qwen3.8-27B-FP8](https://huggingface.co/Qwen/Qwen3.8-27B-FP8) |
 | **Mistral Medium 3.5** | `mistral-medium-3.5` | chat, multimodal, tools | 256k | — | fp8 | [mistralai/Mistral-Medium-3.5-128B](https://huggingface.co/mistralai/Mistral-Medium-3.5-128B) |
 | **Gemma 4** | `gemma4` | chat, multimodal, tools | 256k | 32k | bf16 | [google/gemma-4-31B-it](https://huggingface.co/google/gemma-4-31B-it) |
 | **Whisper Large v3** (API only) | `whisper-large-v3` | audio, speech recognition | 448 | — | FP16 | [openai/whisper-large-v3](https://huggingface.co/openai/whisper-large-v3) |
@@ -123,6 +124,7 @@ Model names are case-sensitive and may include a quantization suffix (e.g. `qwen
 - **DeepSeek V4 Flash-0731** — 304B-parameter efficient reasoning model that achieves performance comparable to leading proprietary models despite a much smaller activated parameter count. Excels at mathematics, logical reasoning, and code generation.
 - **Qwen3.5 (397B, int4)** — 397B (A17B active) flagship for coding, tool use, and agentic workflows. An int4 (AWQ) build is also served as `qwen3.5-int4` for higher throughput at lower precision.
 - **Qwen3.5 122B** — 122B (A10B active) successor to Qwen3-Coder; multimodal, with significantly improved coding performance.
+- **Qwen3.8 27B** — 27B (dense) successor to Qwen3.5 27B and Qwen3.6 27B; multimodal, with significantly improved coding performance.
 - **Mistral Medium 3.5** — 128B multimodal model for text, coding, tool use, and agentic workflows.
 - **Gemma 4** — Google's 31B multimodal model; useful for OCR/vision and general-purpose tasks.
 - **Whisper Large v3** — OpenAI's 1.55B automatic speech recognition (ASR) and speech-translation model; supports 99+ languages with robust transcription even in noisy conditions. Available via API only.
@@ -181,12 +183,13 @@ We evaluated selected models using [Aider Polyglot Benchmark](https://aider.chat
 |--------------------------|-----------|---------------|------------|------------------|--------------|------------|
 |DeepSeek V4 Pro (think)   | 80.8      | 69.2          | 53.2       | 69.4             | 73.5         | 70         |
 |Gemma 4 (instant)         | 53.8      | 51.3          | 34.0       | 44.9             | 44.1         | 46.7       |
-|GLM 5.2 (think)           | 92.3      | **89.7**      | **85.1**   | **93.9**         | 97.1         | 86.7       | 
+|GLM 5.2 (think)           | 92.3      | 89.7          | 85.1       | **93.9**         | **97.1**     | 86.7       | 
 |GPT-OSS-120B              | 50.0      | 59.0          | 40.4       | 61.2             | 70.6         | 53.3       |
-|Kimi K2.7 (think)         | **96.2**  | 84.6          | 83.0       | **93.9**         | **100.0**    | **96.7**   |
+|Kimi K3 (think)           | *100*     | **92.3**      | **93.6**   | 91.8             | **97.1**     | **93.3**   |
 |Mistral Medium 3.5 (high) | 50.0      | 59.0          | 44.7       | 57.1             | 67.6         | 46.7       |
 |Qwen 3.5, int4 (think)    | 88.5      | 82.1          | 74.5       | 89.8             | 85.3         | 70.0       |
 |Qwen 3.5 122b (instant)   | 84.6      | 56.4          | 70.2       | 87.8             | 73.5         | 66.7       |
+|Qwen 3.8 27b (xhigh)      | 80.8      | 76.9          | 70.2       | 85.7             | 85.3         | 83.3       |
 
 ## How Models are Added, Upgraded, and Removed
 
