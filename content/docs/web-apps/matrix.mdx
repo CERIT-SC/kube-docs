@@ -1,0 +1,427 @@
+---
+title: Matrix / Element communication platform
+---
+
+## New Matrix User Platform for the LLM topics
+
+The topic of LLMs is generating significant interest among MetaCentrum users, with an increasing number of questions, discussions, and experiences worth sharing. We have therefore launched a dedicated communication channel on Matrix, a platform similar to Discord that runs locally within the e-INFRA CZ infrastructure.
+
+Two channels are currently available:
+- **LLM-General** – for sharing experiences, know-how, tips, and best practices among users,
+- **LLM – Status** – for information about outages and the current status of the services.
+
+Our goal is to gradually move the community discussion around LLMs to this space, where users can share their experiences, knowledge, and best practices, and help each other.
+
+For now, we are testing how this type of communication platform works in the MetaCentrum environment. If it proves useful, we may expand it to cover other topics in the future.
+
+<Callout type="info">
+**Matrix does not replace email or RT**. Routine questions and requests directed to MetaCentrum/CERIT-SC will continue to be handled through the standard RT process. Matrix is primarily intended for community communication and sharing knowledge and experiences among users.
+</Callout>
+
+
+## Accessing Matrix
+
+**Prerequisites**
+
+To use Matrix, you must have an active **MetaCentrum account**.
+
+**How to Get Access**
+
+The CERIT-SC AI services are integrated with the national research infrastructure MetaCentrum. If you don't have an account yet, apply through the:
+
+👉 [MetaCentrum registration form](https://metavo.metacentrum.cz/en/application/form)
+
+**Once your MetaCentrum account is active, access the platform directly**
+
+👉 [https://element.cloud.e-infra.cz/](https://element.cloud.e-infra.cz/)
+
+<Callout type="note">
+💡 **Recommended Setup Order:** We strongly recommend creating your account, completing the initial setup, and generating your Recovery Key using a desktop **web browser first**. Once your account is configured, you can set up and link the **mobile app** to your active session.
+</Callout>
+
+<Callout type="note"> 
+💡 **Important:** The official Matrix account service is not supported with our community open-source Matrix installation. Please use the e-INFRA CZ Matrix service described in this guide and authenticate using your MetaCentrum account via eduID.cz. 
+</Callout>
+
+---
+
+### Logging In
+
+Open your web browser and navigate to 
+
+👉 [https://element.cloud.e-infra.cz/](https://element.cloud.e-infra.cz/)
+
+Select your preferred authentication method:
+
+- **Option A – via Home Organization:**
+  - Select your home institution.
+  - Log in using your institutional credentials (eduID.cz).
+
+- **Option B – via e-INFRA CZ Password:**
+  - Select `e-INFRA CZ password`.
+  - Enter your MetaCentrum username and password.
+
+<center>
+<div class="w-100">
+![Login](/img/ceritsc/matrix-login.png)
+</div>
+</center>
+---
+
+### Import Your Account
+
+After authenticating, Matrix may prompt you to import settings or restore an existing session.
+
+- **First-time users:** Proceed with the standard setup.
+- **Existing users:** Follow the on-screen instructions to import your encrypted data from an active session or backup key.
+- Change server to: `matrix.cloud.e-infra.cz`
+
+<center>
+<div class="w-90">
+![Change account](/img/ceritsc/matrix-accountEN.jpg)
+</div>
+</center>
+
+<center>
+<div class="w-90">
+![Change account2](/img/ceritsc/matrix-serverEN.jpg)
+</div>
+</center>
+
+<center>
+<div class="w-90">
+![Import account](/img/ceritsc/matrix-import.png)
+</div>
+</center>
+
+<center>
+<div class="w-90">
+![Import account2](/img/ceritsc/matrix-import2.png)
+</div>
+</center>
+
+
+---
+
+## Welcome Screen & Initial Setup
+
+When signing in for the first time, you will see the welcome screen and be guided through two initial setup tasks before accessing your messages:
+
+1. **Encryption setup**
+2. **Notification settings**
+
+
+
+### Setting Up Encryption
+
+Matrix uses **End-to-End Encryption (E2EE)** to secure your messages.
+
+- Only conversation participants can read messages.
+- Server administrators cannot inspect your encrypted communication.
+- Your chats remain completely private.
+
+To start configuring key backup, click **Continue**.
+
+![Encryption setup welcome](/img/ceritsc/matrix-welcome.png)
+
+
+#### Get Your Recovery Key
+
+Matrix will generate a unique **Recovery Key**.
+
+![Encryption setup](/img/ceritsc/matrix-encryption.png)
+
+![Get recovery key](/img/ceritsc/matrix-get-key.png)
+
+This key is essential to:
+- Restore encrypted message history.
+- Verify new devices.
+- Recover access if you log out on all sessions.
+
+<Callout type="warning">
+**Important:** The Recovery Key is displayed **only once**.
+</Callout>
+
+#### Save Your Recovery Key
+
+Store your key in a safe, persistent location. Recommended options:
+
+- A secure password manager
+- An encrypted file store
+- A printed physical copy stored securely
+
+![Save recovery key](/img/ceritsc/matrix-save-key.png)
+
+<Callout type="warning">
+If you lose your Recovery Key and have no other verified active devices, you may permanently lose access to your encrypted message history.
+</Callout>
+
+
+#### Verify via Recovery Key
+
+When signing in on a new device, Matrix will ask for this key to unlock your historical chats.
+
+- Enter or paste your **Recovery Key**.
+- Click `Finish set up`.
+
+![Enter recovery key](/img/ceritsc/matrix-enter-key.png)
+
+Once entered, your encrypted conversations will be decrypted and available on the new device.
+
+
+### Notifications Setup
+
+Element will request permission to send browser notifications. 
+
+Enable notifications to receive real-time alerts for:
+- Direct messages
+- `@mentions`
+- Room invitations
+- New activity in active rooms
+
+![Enable notifications](/img/ceritsc/matrix-notification.png)
+
+<Callout type="warning">
+You can fine-tune notification preferences anytime in your account settings.
+</Callout>
+---
+
+## Main Interface (Home Page)
+
+Once setup is complete, you will land on the primary Matrix workspace.
+
+The main interface includes:
+
+- **Rooms** – Group chat rooms you have joined.
+- **People** – One-on-one direct messages.
+- **Spaces** – Collections or folders organizing related rooms.
+- **Search** – Global search for people, rooms, and message history.
+- **Settings** – Personal preferences, security, and profile configuration.
+
+![Home interface](/img/ceritsc/matrix-home.png)
+
+---
+
+## Finding & Messaging People
+
+### Search for People
+
+1. Click the **Search** field in the top bar or sidebar.
+2. Enter the person's name or Matrix ID.
+3. Select the user from the results list.
+
+![Search people](/img/ceritsc/matrix-searchpeople.png)
+
+<Callout type="warning">
+Only users who have already registered and logged into the e-INFRA CZ Matrix ecosystem will appear in search results.
+</Callout>
+
+
+### Start a Conversation
+
+1. Search for the user and select their profile.
+2. Click **Message** or **Start Chat**.
+3. Send your initial message.
+
+![Start conversation](/img/ceritsc/matrix-startconversation2.png)
+
+Once started, you can share messages, files, code snippets, links, and images securely.
+
+
+---
+
+## Joining Public Rooms
+
+Matrix hosts central public channels. Two main rooms are available for discussion regarding the infrastructure's LLM services:
+
+1. **LLM - Status** (System updates, releases, and outages)
+2. **LLM - General** (Open discussion on LLM topics and usage)
+
+### How to Find and Join Public Rooms:
+
+1. Click **Explore Rooms** (Room Directory).
+2. Enter a keyword (e.g., `LLM`) into the search bar.
+3. Browse the room directory list.
+4. Click **View** to preview a room.
+
+![Search rooms](/img/ceritsc/matrix-searchrooms.png)
+
+5. Click **Join the discussion** to become a member.
+
+![Join room](/img/ceritsc/matrix-add2room.png)
+
+Joined rooms will now remain saved on your sidebar home interface for quick access.
+
+![Home page with rooms](/img/ceritsc/matrix-home2.png)
+
+<Callout type="warning">
+Private or moderated rooms may require administrator approval before access is granted.
+</Callout>
+
+
+### Inviting Members to a Room
+
+If you have permission to invite members to a specific room:
+
+1. Open the designated room.
+2. Open the **Room Information** panel (top right).
+3. Select **Members**.
+4. Click **Invite**.
+5. Search for the user (must be a registered Matrix user).
+6. Send the invitation.
+
+The invited user will receive an in-app notification to accept or decline the room invitation.
+
+<Callout type="warning">
+**E-mail invitations are not supported**.
+Inviting external users via email requires third-party plugins that transmit internal data outside our infrastructure, which is disabled to comply with e-INFRA CZ security policies. Users must first register their account before they can be invited or found in search.
+</Callout>
+
+
+## Mobile Setup: Element X App
+
+Access your e-INFRA CZ Matrix account on mobile (iOS/Android) using **Element X**, the modern and lightweight Matrix client.
+
+### Install the App
+Download **Element X** from your official store:
+- **iOS:** [App Store](https://apps.apple.com) — Search for `Element X`
+- **Android:** [Google Play](https://play.google.com) — Search for `Element X`
+
+<Callout type="warning">
+**Important**: Do not use **Element Classic**, it will not connect to our Matrix server. Please install the **Element X** app instead.
+</Callout>
+
+<center>
+<div class="w-100">
+![Login](/img/ceritsc/matrix-elementxEN.jpg)
+</div>
+</center>
+
+<center>
+<div class="w-100">
+![Login](/img/ceritsc/matrix-elementx2EN.jpg)
+</div>
+</center>
+
+### Change the Server (Important)
+By default, Element X connects to public `matrix.org`. Point the client to the local e-INFRA CZ server:
+
+1. On the welcome screen, tap **Change Server** (or ** Choose Server**).
+2. Enter the custom server URL: `matrix.cloud.e-infra.cz`
+3. Tap **Continue** or **Confirm**.
+
+
+<center>
+<div class="w-100">
+![Login](/img/ceritsc/matrix-accountEN.jpg)
+</div>
+</center>
+
+<center>
+<div class="w-100">
+![Login](/img/ceritsc/matrix-serverEN.jpg)
+</div>
+</center>
+
+<center>
+<div class="w-100">
+![Login](/img/ceritsc/matrix-homeserverEN.jpg)
+</div>
+</center>
+
+
+### Login
+Authenticate through your mobile browser using your **eduID.cz** or **e-INFRA CZ password** credentials.
+
+<center>
+<div class="w-100">
+![Login](/img/ceritsc/matrix-login2EN.jpg)
+</div>
+</center>
+
+<center>
+<div class="w-100">
+![Login](/img/ceritsc/matrix-login3EN.jpg)
+</div>
+</center>
+
+
+### Verify Your Mobile Device
+To read encrypted history on your phone, verify your session using one of the following methods:
+
+- **Option A (Use another device):** Compare the sequence of emojis displayed on both your computer screen and mobile device. If they match, tap **Confirm** on both devices.
+
+- **Option B (Recovery Key):** If you don't have an active web session open on another device, select **Use Recovery Key** and enter your saved key.
+
+<center>
+<div class="w-100">
+![Login](/img/ceritsc/matrix-loginidentityEN.jpg)
+</div>
+</center>
+
+<center>
+<div class="w-100">
+![Login](/img/ceritsc/matrix-emojiEN.png)
+</div>
+</center>
+
+
+<center>
+<div class="w-100">
+![Login](/img/ceritsc/matrix-keyEN.jpg)
+</div>
+</center>
+
+
+<Callout type="warning">
+**Device Verification Note:** QR code verification is not supported on our infrastructure. Please use Emoji Match or your Recovery Key to verify new devices.
+</Callout>
+
+<center>
+<div class="w-100">
+![Login](/img/ceritsc/matrix-login4EN.jpg)
+</div>
+</center>
+
+
+### Configure Notifications
+
+To receive push notifications on your mobile device for incoming messages:
+
+1. When prompted after login, grant the app permission to send system notifications. Make sure notification permissions are also allowed in your mobile operating system settings.
+
+<center>
+<div class="w-100">
+![Login](/img/ceritsc/matrix-messageEN.jpg)
+</div>
+</center>
+
+2. Or later, open the app settings (tap your profile icon in the top left corner).
+3. Go to **Notifications**.
+4. Configure your alert levels:
+   - **All Messages:** Receive notifications for every message in joined rooms.
+   - **Mentions & Keywords Only:** Receive notifications only when your username is mentioned or tagged. 
+
+---
+
+## Quick Security & Best Practices Summary
+
+- **Safeguard your recovery key:** Keep it stored safely in a password manager. Loss of this key means losing historical encrypted messages.
+- **Configure notifications:** Ensure device notifications are active so you don't miss important user mentions or room invites.
+- **Use direct messages vs. rooms:** Use DMs for private 1-on-1 chats and Rooms for group projects and topic discussion.
+- **Verify devices:** Always verify newly logged-in mobile or browser sessions to ensure continuous end-to-end encryption integrity.
+
+Organization and Structure
+
+- **Separate topics**: Use dedicated text channels for different tasks or interests.
+- **Use threads**: Reply to specific messages using threads so you don't clutter the main chat.
+- **Post in the right places**: Always check whether you are writing in the appropriate channel for that topic.
+
+Communication Rules
+
+- **One message is enough**: Don't write every word on a separate line; write the whole thought at once.
+- **Tag with discretion**: Only use @mention when it's genuinely urgent or directed at a specific person.
+- ** Use reactions**: Emoji reactions can often replace an entire message like "I agree" or "understands."
+- **Format your text**: Put long code snippets or texts into code blocks or hide them under spoilers so they don't get in the way.
+
+

@@ -3,6 +3,7 @@
     "foldify",
     "binderhub",
     "jupyterhub",
+    "matrix",
     "polls"
   ]
 }

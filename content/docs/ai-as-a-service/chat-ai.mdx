@@ -110,6 +110,7 @@ Model names are case-sensitive and may include a quantization suffix (e.g. `qwen
 | **DeepSeek-V4-Flash** | `DeepSeek-V4-Flash` | chat, tools | 1M | 64k | fp8 | [huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731) |
 | **GLM 5.2** | `glm-5.2` | chat, tools | 1M | 48k | fp8 | [zai-org/GLM-5.2-FP8](https://huggingface.co/zai-org/GLM-5.2-FP8) |
 | **Kimi K3** | `kimi-k3` | chat, multimodal, tools | 1M | 48k | fp8 | [moonshotai/Kimi-K3](https://huggingface.co/moonshotai/Kimi-K3) |
+| **Qwen3.8 (27B, FP8)** | `qwen3.8-27b` | chat, multimodal, tools | 262k | 32k | fp8| [QuantTrio/Qwen3.8-27B-FP8](https://huggingface.co/Qwen/Qwen3.8-27B-FP8) |
 | **Qwen3.5 (397B, int4)** | `qwen3.5-int4` | chat, multimodal, tools | 256k | 32k | int4 | [QuantTrio/Qwen3.5-397B-A17B-AWQ](https://huggingface.co/QuantTrio/Qwen3.5-397B-A17B-AWQ) |
 | **Qwen3.5 122B** | `qwen3.5-122b` | chat, multimodal, tools | 256k | 32k | fp8 | [Qwen/Qwen3.5-122B-A10B-FP8](https://huggingface.co/Qwen/Qwen3.5-122B-A10B-FP8) |
 | **Qwen3.8 27B** | `qwen3.8-27b` | chat, multimodal, tools | 256k | 32k | fp8 | [Qwen/Qwen3.8-27B-FP8](https://huggingface.co/Qwen/Qwen3.8-27B-FP8) |
@@ -122,6 +123,7 @@ Model names are case-sensitive and may include a quantization suffix (e.g. `qwen
 - **GLM 5.2** — 756B-parameter language model optimized for advanced reasoning, tool use, and multi-step agentic tasks.
 - **GPT-OSS-120B** — OpenAI's 120B-parameter open-weight language model offering strong general-purpose performance across reasoning, coding, and tool use.
 - **DeepSeek V4 Flash-0731** — 304B-parameter efficient reasoning model that achieves performance comparable to leading proprietary models despite a much smaller activated parameter count. Excels at mathematics, logical reasoning, and code generation.
+- **Qwen3.8 (27B, FP8)** - 27B dense multimodal model for coding, research, professional tasks, and complex agentic workflows. Supports images and videos, with configurable thinking for balancing speed and reasoning.
 - **Qwen3.5 (397B, int4)** — 397B (A17B active) flagship for coding, tool use, and agentic workflows. An int4 (AWQ) build is also served as `qwen3.5-int4` for higher throughput at lower precision.
 - **Qwen3.5 122B** — 122B (A10B active) successor to Qwen3-Coder; multimodal, with significantly improved coding performance.
 - **Qwen3.8 27B** — 27B (dense) successor to Qwen3.5 27B and Qwen3.6 27B; multimodal, with significantly improved coding performance.
@@ -145,7 +147,7 @@ Because exact model versions change often, we maintain a set of short, version-i
 | Alias | Currently resolves to | Notes |
 |-------|-----------------------|-------|
 | `glm` | `glm-5.2` | latest GLM |
-| `kimi` | `kimi-k2.7` | latest Kimi |
+| `kimi` | `kimi-k3` | latest Kimi |
 | `deepseek` | `deepseek-v4-flash` | reasoning **off** by default (can be enabled explicitly) |
 | `deepseek-thinking` | `deepseek-v4-flash-thinking` | reasoning **on** |
 | `mini` | `gpt-oss-120b` | |
@@ -155,12 +157,16 @@ Because exact model versions change often, we maintain a set of short, version-i
 `deepseek` and `deepseek-thinking` point to the same underlying weights (`deepseek-v4`); they differ only in whether step-by-step reasoning is enabled by default.
 
 <Callout type="info">
-**Which name should I use?**
-- **Use an alias** (e.g. `kimi`, `deepseek`) for stability over time. The alias name is kept valid long-term and always points to a sensible current model, so your scripts keep running. The trade-off is that the underlying model — and therefore its outputs — changes as we upgrade.
-- **Use an exact model name** (e.g. `kimi-k2.7`) only when you need one specific version right now. Exact names are short-lived: they are retired as soon as a better model replaces them (usually at night, but possibly anytime), after which scripts referencing the old name stop working until updated.
+**Which model name should I use?**
 
-For backward compatibility, several legacy aliases (e.g. `glm-5`, `kimi-k2.6`) resolve to their current equivalents, but they will be removed shortly.
+* **Use an alias** (e.g., `kimi`, `deepseek`) for **long-term stability**. Aliases always point to the latest recommended model version, ensuring your scripts don't break over time. 
+  * *Trade-off:* Outputs may shift slightly as underlying models are upgraded.
+* **Use an exact name** (e.g., `kimi-k3`) for **version consistency**. Recommended only when you need a specific, fixed model version. 
+  * *Trade-off:* Exact names are short-lived and will be retired when replaced, which will cause scripts using them to fail until updated.
+
+**Note on legacy aliases:** Older aliases (e.g., `glm-5`, `kimi-k2.6`) currently resolve to their updated equivalents for backward compatibility, but will be deprecated soon. Please update your code to current aliases or exact names.
 </Callout>
+
 
 #### Embedding Models
 

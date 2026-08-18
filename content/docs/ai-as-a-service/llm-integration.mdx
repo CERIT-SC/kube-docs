@@ -223,7 +223,7 @@ Replace `sk-...` with your API key obtained from: https://chat.ai.e-infra.cz
 Run the application with the following command:
 
 ```bash
-codex --model qwen3-coder-next --full-auto
+codex --model coder --full-auto
 ```
 
 When prompted to sign in:
@@ -261,20 +261,20 @@ Ensure the `opencode` CLI is available in your `$PATH` after installation.
         "baseURL": "https://llm.ai.e-infra.cz/v1"
       },
       "models": {
-        "kimi-k2.6": {
-          "name": "kimi-k2.6"
+        "agentic": {
+          "name": "agentic"
         },
-        "gpt-oss-120b": {
-          "name": "gpt-oss-120b"
+        "mini": {
+          "name": "mini"
         },
-        "glm-5.1": {
-          "name": "glm-5.1"
+        "glm": {
+          "name": "glm"
         },
-        "qwen3.5": {
-          "name": "qwen3.5"
+        "coder": {
+          "name": "coder"
         },
-        "deepseek-v4-pro-thinking": {
-          "name": "deepseek-v4-pro-thinking"
+        "thinker": {
+          "name": "thinker"
         }
       }
     }
@@ -302,7 +302,7 @@ Check for the current model names, or use `agentic`, `coder`, `mini`, and `think
 
 6. Select the model:
    ```
-   qwen3-coder-next
+   coder
    ```
 
 Once completed, the setup is ready to use.
@@ -316,28 +316,61 @@ Once completed, the setup is ready to use.
 
 ## Visual Studio Code Integration
 
-You can integrate Claude Code and AI assistance into Visual Studio Code through either the native Claude Code extension or third-party extensions. These extensions enable AI assistance in various roles while coding, including simple chat, agent mode, and autocomplete. Chat provides a familiar conversational interface, agent mode analyzes or edits files in your project, and autocomplete suggests code as you write.
+You can integrate Claude Code and AI assistance into Visual Studio Code through either the native Claude Code extension or third-party extensions. These extensions enable AI assistance in various coding roles, including simple chat, agent mode, and autocomplete. Chat provides a familiar conversational interface, agent mode analyzes or edits files in your project, and autocomplete suggests code as you write.
+
+### Installing Visual Studio Code
+
+First, install Visual Studio Code (VS Code)
+* By downloading the installation package from the official website.
+* Through the repository of your Linux distribution.
+
+After installation, launch VS Code.
 
 ### Native Claude Code Extension
 
-The native Claude Code extension provides direct integration with Claude Code in Visual Studio Code.
+This guide describes the configuration of the native Claude Code extension in Visual Studio Code so that AI models provided via the CERIT-SC API can be utilized.
+The procedure is primarily intended for Linux users, but the configuration principle is similar in other operating systems.
 
 #### Installation Steps
 
 1. Open Visual Studio Code
 2. Go to **Extensions** (`Ctrl+Shift+X`)
 3. Search for `Claude Code`
-4. Install the official Claude Code extension
+4. **Install** the official `Claude Code` extension
+
+![install-extension](/img/ceritsc/vscode01.png)
 
 #### Configuration
 
-To configure the native Claude Code extension:
+After installation, the extension must be configured to use the CESRIT-SC API.
+For the Claude Code extension, click the icon:
+
+<div class="w-110">
+![manage](/img/ceritsc/vscode02.png)
+</div>
+
+**Manage** → **Settings**
+
+VS Code will automatically set a filter for this extension's settings only.
+
+![manage](/img/ceritsc/vscode03.png)
+
+At the top of the settings, a filter such as the following should be visible:
+
+`@ext:Anthropic.claude-code`
+
+![manage](/img/ceritsc/vscode04.png)
+
+**Configure `settings.json`**:
 
 1. Open **Edit** → **Preferences** → **Settings** (or press `Ctrl+,`)
 2. Search for `Claude Code`
 3. Navigate to the **Environment Variables** section
 3. Click **Edit in settings.json**
-4. Add the following environment variables with your API key from [AI Chat WebUI](../ai-as-a-service/chat-ai) in the following format: 
+
+![manage](/img/ceritsc/vscode05.png)
+
+Add the following environment variables with your API key from [AI Chat WebUI](../ai-as-a-service/chat-ai) in the following format: 
 
 ```
 "claudeCode.environmentVariables": [
@@ -373,13 +406,43 @@ To configure the native Claude Code extension:
 ],
 ```
 
-Replace `sk-...` with your actual API key obtained from [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
+<Callout type="info">
+**API Token:** The parameter `ANTHROPIC_AUTH_TOKEN` contains your API token: `sk-...`.
 
-Once configured, the extension will use our LLM backend for AI-assisted coding tasks.
+⚠️ **Replace `sk-...` with your actual [API key](../ai-as-a-service/ai-api#creating-an-api-key)** obtained from [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
+
+Never share or publish your token.
+</Callout>
+
+![manage](/img/ceritsc/vscode06.png)
+
+<Callout type="info">
+**Model names:** Individual parameters specify which model Claude Code should use.
+For example:
+- `ANTHROPIC_MODEL` can contain: `coder` or `agentic`
+
+Similarly, you can set:
+- `ANTHROPIC_DEFAULT_OPUS_MODEL`
+- `ANTHROPIC_DEFAULT_SONNET_MODEL`
+- `ANTHROPIC_DEFAULT_HAIKU_MODEL`
+
+to aliases:
+- `thinker`
+- `agentic`
+- `mini`
+Specific names must correspond to the models available on the API endpoint.
+
+[Currently available models](../ai-as-a-service/chat-ai#currently-available-models)
+</Callout>
+
+Once configured, save the file: `Ctrl+S`.
+We then recommend restarting VS Code.
+The extension will use our LLM backend for AI-assisted coding tasks.
 
 ### 3rd Party Extensions
 
-Integrate AI chatbots with Visual Studio Code using third-party extensions such as [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) or [Roo Code](https://marketplace.visualstudio.com/items?itemName=RooCode.roocode).
+Integrate AI chatbots with Visual Studio Code using third-party extensions such as [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) or [Zoo-Code](https://marketplace.visualstudio.com/items?itemName=IYRM.zoo-code).
+
 #### Install the Continue extension
 
 With Visual Studio Code running:
@@ -411,7 +474,7 @@ model_defaults: &model_defaults
 models:
   - name: autocomplete-coder
     <<: *model_defaults
-    model: qwen3-coder
+    model: coder
     promptTemplates:
       autocomplete: '<|fim_prefix|>{{{ prefix }}}<|fim_suffix|>{{{ suffix }}}<|fim_middle|>'
     autocompleteOptions:
@@ -423,7 +486,7 @@ models:
       - autocomplete
   - name: chat-coder
     <<: *model_defaults
-    model: qwen3-coder
+    model: coder
     env:
       useLegacyCompletionsEndpoint: false
     roles:
@@ -448,10 +511,69 @@ context:
 * **Agent mode**: In chat, engage agent mode by asking to analyze, explain, or edit files in your current project. This requires additional permissions such as read/write access to related files; you must grant these permissions for the agent to perform requested actions
 * **Autocomplete**: The autocomplete feature continuously suggests new code as you write. Press `Tab` to accept suggestions. Responsiveness depends on model speed. You can change the model from `qwen3-coder` to `gpt-oss-120b` in the autocomplete configuration section for faster responses, though the default model generally performs better on coding tasks
 
+#### Zoo-Code
+[Zoo-Code](https://marketplace.visualstudio.com/items?itemName=IYRM.zoo-code) is a Visual Studio Code extension offering AI assistance with agent and code understanding capabilities.
+
+##### Install the Zoo-Code extension
+With Visual Studio Code running:
+1. Open the Extensions tab (`Ctrl+Shift+X`)
+2. Search for `Zoo-Code`
+3. Select the extension and click `Install`
+4. After installation, access Zoo-Code via its icon in the left sidebar
+
+##### Configure the Zoo-Code extension
+To use self-hosted models:
+1. Open Zoo-Code using the sidebar icon
+2. Open **Settings**
+3. In the **Providers** section:
+   - **API Provider**: `OpenAI Compatible`
+   - **Base URL**: `https://llm.ai.e-infra.cz/v1`
+   - **API Key**: Your key from [AI Chat WebUI](../ai-as-a-service/chat-ai)
+   - **Model**: `coder` (or alternative)
+4. Set **Context Window Size** using [this table](../ai-as-a-service/chat-ai#guaranteed-models)
+5. Save settings
+
+##### Using Zoo-Code
+- Select agents via the agent/mode selector in the extension
+- After submitting a prompt, agents work autonomously until intervention is needed
+- For advanced usage, consult the [Zoo-Code documentation](https://github.com/11cafe/zoo-code)
+
+##### Codebase Indexing
+Index the codebase using one of our [embedding models](../ai-as-a-service/chat-ai#embedding-models) to help agents better search and understand your codebase.
+To store the index, set up a local Qdrant database. Here is an example `docker-compose.yaml`:
+
+```yaml
+services:
+  qdrant:
+    image: qdrant/qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+volumes:
+  qdrant_storage:
+```
+
+Configure codebase indexing by following these steps:
+
+1. Launch a new database instance by running `docker compose up -d` in the directory containing the `docker-compose.yaml` file
+2. In the Zoo-Code extension interface, open the codebase/indexing settings.
+3. Set the following values:
+   - **Provider**: `OpenAI Compatible`
+   - **Base URL**: `https://llm.ai.e-infra.cz/v1`
+   - **API Key**: Your API key from [AI Chat WebUI](../ai-as-a-service/chat-ai)
+   - **Model**: One of our [embedding models](../ai-as-a-service/chat-ai#embedding-models), e.g., `qwen3-embedding-4b`
+   - **Model Dimension**: The embedding vector size of the selected model, e.g., `2560` for `qwen3-embedding-4b`.
+5. Save settings.
+   - **Qdrant URL**: `http://localhost:6333`
+   - **Qdrant API Key**: Leave empty if you used the provided Docker Compose configuration.
+4. Create the index by clicking on `Start Indexing`.
+5. After the indexing is finished, the agents will have access to the database and be able to better search and understand the codebase.
+
 #### Roo Code
 [Roo Code](https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline) is a Visual Studio Code extension offering AI assistance with enhanced agent and code understanding capabilities.
 
-##### Install the Roo Code extension
+##### Install the Roo Code extension (the new version of Roo Code is not supported anymore)
 With Visual Studio Code running:
 1. Open the Extensions tab (`Ctrl+Shift+X`)
 2. Search for `Roo Code`
@@ -466,7 +588,7 @@ To use self-hosted models:
    - **API Provider**: `OpenAI Compatible`
    - **Base URL**: `https://llm.ai.e-infra.cz/v1`
    - **API Key**: Your key from [AI Chat WebUI](../ai-as-a-service/chat-ai)
-   - **Model**: `qwen3-coder` (or alternative)
+   - **Model**: `coder` (or alternative)
 4. Set **Context Window Size** using [this table](../ai-as-a-service/chat-ai#guaranteed-models)
 5. Save settings
 
@@ -537,7 +659,7 @@ With your JetBrains IDE running:
 3. Add a custom provider (OpenAI-compatible) with:
 - **Base URL**: `https://llm.ai.e-infra.cz/v1`
 - **API Key**: Your key from [AI Chat WebUI](../ai-as-a-service/chat-ai)
-- **Model**: `kimi-k2.6` (or another supported model)
+- **Model**: `coder` (or another supported model)
 4. Save the settings and open AI chat in the IDE sidebar.
 
 <Callout type="warn">
@@ -567,7 +689,7 @@ If you use ProxyAI in JetBrains, add the following custom OpenAI provider config
         "Content-Type": "application/json"
       },
       "body": {
-        "model": "kimi-k2.6",
+        "model": "kimi",
         "messages": "$OPENAI_MESSAGES",
         "temperature": 0.1,
         "max_tokens": 512
@@ -586,7 +708,7 @@ If you use ProxyAI in JetBrains, add the following custom OpenAI provider config
       "body": {
         "suffix": "$SUFFIX",
         "stream": true,
-        "model": "kimi-k2.6",
+        "model": "kimi",
         "temperature": 0.6,
         "prompt": "$PREFIX",
         "max_tokens": 512

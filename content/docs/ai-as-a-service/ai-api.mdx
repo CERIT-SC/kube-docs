@@ -82,7 +82,7 @@ curl https://llm.ai.e-infra.cz/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer ${E_INFRA_API_TOKEN}" \
   -d '{
-    "model": "llama3.3:latest",
+    "model": "mini",
     "messages": [
       {
         "role": "user",
@@ -98,7 +98,7 @@ Expected Output (example):
 {
   "id": "chatcmpl-XYZ123",
   "object": "chat.completion",
-  "model": "llama3.3:latest",
+  "model": "mini",
   "choices": [
     {
       "message": {
@@ -127,7 +127,7 @@ from pydantic_ai_provider import OpenAIModel, OpenAIProvider
 import os
 
 model = OpenAIModel(
-    'deepseek-r1',
+    'deepseek',
     provider=OpenAIProvider(
         base_url="https://llm.ai.e-infra.cz/v1",
         api_key=os.getenv("E_INFRA_API_TOKEN"),
@@ -148,16 +148,16 @@ Some models are **hybrid**, supporting both *reasoning (thinking)* and *non-reas
 
 In the chat UI, most hybrid models are preconfigured to run in reasoning mode, which means you may see intermediate `thinking` output before the final response is returned. In the API, however, the default behavior depends on the specific model.
 
-### DeepSeek v3.2
+### DeepSeek
 
-By default, **DeepSeek v3.2** runs *without* reasoning enabled. To enable reasoning, pass additional parameters via `chat_template_kwargs`:
+By default, **DeepSeek** runs *without* reasoning enabled. To enable reasoning, pass additional parameters via `chat_template_kwargs`:
 
 ```bash
 curl https://llm.ai.e-infra.cz/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer xxx" \
   -d '{
-    "model": "deepseek-v3.2",
+    "model": "deepseek",
     "messages": [
       {
         "role": "user",
@@ -170,29 +170,8 @@ curl https://llm.ai.e-infra.cz/v1/chat/completions \
   }'
 ```
 
-For convenience—and for environments where `chat_template_kwargs` cannot be used (for example, certain AI agents)—we also provide a dedicated reasoning variant named **`deepseek-v3.2-thinking`**, which is permanently forced into thinking mode.
+For convenience—and for environments where `chat_template_kwargs` cannot be used (for example, certain AI agents)—we also provide a dedicated reasoning variant named **`deepseek-thinking`**, which is permanently forced into thinking mode.
 
-### GLM-4.7
-
-In contrast, the **GLM-4.7** model enables reasoning mode by default. To disable reasoning and return only the final response, explicitly turn it off using `chat_template_kwargs`:
-
-```bash
-curl https://llm.ai.e-infra.cz/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer xxx" \
-  -d '{
-    "model": "glm-4.7",
-    "messages": [
-      {
-        "role": "user",
-        "content": "What are 5 creative things I could do with my kids'' art? I don''t want to throw them away, but it''s also so much clutter."
-      }
-    ],
-    "chat_template_kwargs": {
-      "enable_thinking": false
-    }
-  }'
-```
 
 Use these options to control whether intermediate reasoning is included in API responses, depending on your application's needs.
 
