@@ -404,6 +404,73 @@ To receive push notifications on your mobile device for incoming messages:
 
 ---
 
+## How to Set Up the Hermes Agent in Matrix 
+
+This guide walks you through deploying and configuring the Hermes agent in your Matrix private room via a web browser.
+
+### Create a Matrix Room
+First, create a new private room in your Matrix web client. 
+
+<Callout type="warning">
+**IMPORTANT:** The room **MUST NOT BE ENCRYPTED**. If end-to-end encryption is enabled, the agent will not be able to transfer files to and from the chat.
+</Callout>
+
+![matrix new room](/img/ceritsc/matrix-new-roomEN.jpg)
+
+### Get Your LLM API Key
+Make sure you have your [LLM API key generated](/docs/ai-as-a-service/chat-ai#creating-an-api-key). Copy it to your clipboard, as you will need it during the Rancher deployment phase.
+
+### Generate the Agent Configuration
+- Navigate to the agent portal at [https://app.matrix.cloud.e-infra.cz](https://app.matrix.cloud.e-infra.cz).
+- Follow the on-screen instructions to generate a new agent.
+- The system will output a block of environment variables (`env`). **Copy this entire text snippet**, as you will need it during the deployment phase.
+
+![generate agent](/img/ceritsc/matrix-create-agent.png)
+![agent provisioner](/img/ceritsc/matrix-agent-provisioner.png)
+
+### Configure the Deployment in Rancher
+
+- Log in to your [Rancher dashboard](https://rancher.cloud.e-infra.cz) and initiate the deployment for the `matrix-hermes` application.
+
+![hermes rancher](/img/ceritsc/matrix-hermes-rancher.png)
+
+- Locate the `matrix-hermes` deployment, type in a name for it, and click **Next**.
+
+![matrix rancher2](/img/ceritsc/matrix-hermes-rancher2.png)
+
+3. During the configuration step, you will be asked to provide the following parameters:
+   - **LLM API Key:** Paste the key you prepared in Step 2.
+   - **Matrix Room ID:** Paste the internal ID of the room you created in Step 1. 
+     **Note**: You can find this ID in the URL when you open the Matrix room in your browser. It looks something like this: `KeYNIOhcYaqpyBoGQN:matrix.cloud.e-infra.cz`
+   - **Environment Variables:** Paste the complete `env` block you copied from the agent portal during agent configuration.
+
+<Callout type="info">
+**Tip: Set Namespace Permissions**
+During the installation process, you will be prompted to select the agent's access level to your namespace. Choose the appropriate level for your use case:
+   * None
+   * Read-only
+   * Full access
+
+After initiating the installation in Rancher, it is highly recommended to check the logs of the deployed pod. This allows you to verify that the agent booted up successfully and connected without errors.
+</Callout>
+
+- Once all configurations are correctly filled out, click **Install** to deploy the `matrix-hermes` application in Rancher.
+
+### Invite the Agent to your Matrix Room
+Go back to your Matrix client, open the unencrypted room you created, and invite the newly created Hermes agent user to join.
+
+![matrix hermes agent invitation](/img/ceritsc/matrix-hermes-agentinvitationEN.jpg)
+
+Type the agent name you created to search for it, and send the invite.
+
+![matrix hermes agent invitation2](/img/ceritsc/matrix-hermes-agentinvitationEN2.jpg)
+
+Everything is set up! You can now start communicating with your Hermes agent directly in the Matrix room.
+
+
+
+---
+
 ## Quick Security & Best Practices Summary
 
 - **Safeguard your recovery key:** Keep it stored safely in a password manager. Loss of this key means losing historical encrypted messages.
