@@ -125,6 +125,24 @@ Expected Output (example):
 
 The e-INFRA CZ LLM API is designed to be compatible with the OpenAI API specification, meaning it can be integrated into frameworks originally built for OpenAI's services.
 
+### Recommended approach for MCP servers
+
+For requests sent from an MCP server, we recommend setting the `"stream": true` flag so that the gateway continuously sends SSE response chunks as the model generates and thereby keeps the connection active. The MCP server can append the individual chunks to a buffer and return one complete response to its client after the stream ends.
+
+<Callout type="warning" title="We recommend streaming requests from MCP servers">
+If this approach is not followed, the request may end with an HTTP `408` error regardless of the timeout configured in the MCP client or server. The e-INFRA infrastructure timeout for non-streaming calls is 30 minutes and cannot be overridden by application settings.
+</Callout>
+
+Recommended sequence:
+
+1. The MCP server sends the chat completions request with the `"stream": true` flag.
+2. As the model generates, the gateway continuously sends small SSE response chunks such as `…the`, ` filter`, and ` protects…`.
+3. The MCP server reads each chunk immediately and appends it to a buffer. The continuous flow of data keeps the connection active.
+4. When the stream ends, the server assembles the same complete object as for a non-streaming call — the answer text, model, `stop_reason`, `usage`, and any `thinking` content.
+5. It returns the assembled object to the MCP client once.
+
+The MCP server therefore processes the SSE stream continuously on its connection to the e-INFRA CZ LLM API, while preserving its existing client-facing interface and returning only the final complete object.
+
 **PyDanticAI Integration Example**
 
 PyDanticAI is a framework that simplifies LLM interactions using OpenAI-compatible models. Use the following configuration to authenticate with the e-INFRA CZ LLM endpoint:

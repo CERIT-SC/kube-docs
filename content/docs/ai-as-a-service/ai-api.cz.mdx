@@ -108,6 +108,24 @@ Očekávaný výstup (příklad):
 
 API e-INFRA CZ LLM je navrženo tak, aby bylo kompatibilní se specifikací OpenAI API, což znamená, že jej lze integrovat do frameworků původně vytvořených pro služby OpenAI.
 
+### Doporučený postup pro MCP servery
+
+U požadavků odesílaných z MCP serveru doporučujeme nastavit příznak `"stream": true`, aby gateway během generování průběžně posílala SSE části odpovědi a udržovala tak spojení aktivní. MCP server může jednotlivé části ukládat do bufferu a po ukončení streamu vrátit klientovi jednu kompletní odpověď.
+
+<Callout type="warning" title="Z MCP serveru doporučujeme používat streamování">
+Pokud tento postup není dodržen, může požadavek skončit chybou HTTP `408` bez ohledu na timeout nastavený v MCP klientovi nebo serveru. Infrastrukturní timeout e-INFRA pro nestreamovaná volání je 30 minut a aplikační nastavení jej nemůže přepsat.
+</Callout>
+
+Doporučená posloupnost:
+
+1. MCP server odešle požadavek na chat completions s příznakem `"stream": true`.
+2. Gateway během generování průběžně posílá malé SSE části odpovědi, například `…the`, ` filter` a ` protects…`.
+3. MCP server každou část ihned přečte a připojí do bufferu. Průběžný tok dat udržuje spojení aktivní.
+4. Po ukončení streamu server z bufferu sestaví stejný úplný objekt jako při nestreamovaném volání — text odpovědi, model, `stop_reason`, `usage` a případné `thinking`.
+5. Sestavený objekt jednorázově vrátí MCP klientovi.
+
+MCP server tedy průběžně zpracovává SSE stream na spojení s e-INFRA CZ LLM API, ale vůči MCP klientovi může zachovat své stávající rozhraní a vrátit až výsledný kompletní objekt.
+
 **Příklad integrace s PyDanticAI**
 
 PyDanticAI je framework, který zjednodušuje práci s LLM pomocí modelů kompatibilních s OpenAI. Pro autentizaci vůči e-INFRA CZ LLM endpointu použijte následující konfiguraci:
