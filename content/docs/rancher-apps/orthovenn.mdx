@@ -1,4 +1,8 @@
-# Deploying OrthoVenn 3 via Rancher
+---
+title: Orthovenn3
+---
+
+## Deploying OrthoVenn 3 via Rancher
 
 **OrthoVenn 3** is a web-based tool for whole-genome comparison across up to 12 species. It identifies orthologous gene clusters, visualizes overlaps via Venn diagrams, and provides functional enrichment analysis (GO terms and KEGG pathways) for selected gene subsets.
 
@@ -11,7 +15,7 @@ If you are not already logged in, log in to [rancher.cloud.e-infra.cz](https://r
 You can run a desktop application by following the steps below.
 
 
-## Installation Steps
+### Installation Steps
 
 1. Navigate to **Apps/Charts** in the Rancher dashboard.
 2. Search for **OrthoVenn 3** and click **Install**.
@@ -44,7 +48,7 @@ Click `Install` and wait. The first start takes a few minutes.
 </Callout>
 
 
-## Access & URL Routing
+### Access & URL Routing
 
 You do not have to pick one. The app gets its address from the name you gave it and the namespace it went into:
 
@@ -60,7 +64,7 @@ https://<name>-<namespace>.dyn.cloud.e-infra.cz
 
 
 
-## Login In
+### Login In
 
 OrthoVenn has no user accounts. Instead, the whole site asks for the **login name and password you entered during install** — the browser prompts for them the first time someone opens the page. Everyone shares that one login, so treat it as a door key rather than a personal account.
 
@@ -70,7 +74,7 @@ one.
 ![orthovenn8](/img/ceritsc/apps/orthovenn/orhovenn8.png)
 
 
-## Storage 
+### Storage 
 
 The application provisions two persistent volumes: 
 - a small one **database volume** for internal application data.
@@ -81,14 +85,16 @@ The data volume handles the majority of the storage and **cannot be downsized la
 Both volumes are retained automatically upon uninstallation to prevent accidental data loss. Reinstalling the app with the same name and namespace will reattach the existing volumes and restore your data.
 
 
-## Uninstallation & Cleanup
+### Uninstallation & Cleanup
 
 Delete Application: In Rancher, go to Installed Apps or running Pods, select OrthoVenn 3, and click Delete.
 
 ![orthovenn9](/img/ceritsc/apps/orthovenn/orhovenn9.png)
 
-NOTE: Uninstalling the application from Rancher removes the workload but preserves the persistent volumes. 
+<Callout type="info">
+**Note:** Uninstalling the application from Rancher removes the workload but preserves the persistent volumes. 
+</Callout>
 
-To permanently release the storage, navigate to Rancher’s Storage section and manually delete the two associated Persistent Volume Claims (named with the suffixes `-db` and `-home`). 
+
+To permanently release the storage, navigate to Rancher’s `Storage` -> `PersistantVolumeClaims` section and manually delete the two associated Persistent Volume Claims (named with the suffixes `-db` and `-home`). 
 Note that this deletion is irreversible.
-
