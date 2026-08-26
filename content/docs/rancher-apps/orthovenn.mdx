@@ -26,7 +26,7 @@ You can run a desktop application by following the steps below.
 
     - **login name and password**, which everyone who uses the app will share;
     - **data volume size** — how much room you want for genomes and results;
-    - how much** CPU and memory** the analyses may use.
+    - how much **CPU and memory** the analyses may use.
 
 Click `Install` and wait. The first start takes a few minutes.
 
@@ -73,7 +73,9 @@ Both volumes are retained automatically upon uninstallation to prevent accidenta
 
 Delete Application: In Rancher, go to Installed Apps, select OrthoVenn 3, and click Delete.
 
-NOTE: Uninstalling the application from Rancher removes the workload but preserves the persistent volumes. 
+<Callout type="info">
+**Note:** Uninstalling the application from Rancher removes the workload but preserves the persistent volumes. 
+</Callout>
 
 To permanently release the storage, navigate to Rancher’s Storage section and manually delete the two associated Persistent Volume Claims (named with the suffixes `-db` and `-home`). 
 Note that this deletion is irreversible.
