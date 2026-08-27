@@ -110,7 +110,7 @@ We do not guarantee that a specific model will remain available throughout the s
 </Callout>
 
 <Callout type="info">
-For exact, currently served model names, query the live model list via the API (see [Creating an API Key](#creating-an-api-key)) or check the [status page](https://llm.ai.e-infra.cz/status/). When accessing externally you must use either a maintained alias or the exact model name, e.g. `qwen3.5-122b` or `deepseek-v4-pro`.
+For exact, currently served model names, query the live model list via the API (see [Creating an API Key](#creating-an-api-key)) or check the [status page](https://llm.ai.e-infra.cz/status/). When accessing externally you must use either a maintained alias or the exact model name, e.g. `qwen3.8-27b` or `deepseek-v4-pro`.
 
 Model names are case-sensitive and may include a quantization suffix (e.g. `qwen3.5-int4`).
 </Callout>
@@ -124,7 +124,7 @@ Model names are case-sensitive and may include a quantization suffix (e.g. `qwen
 | **GLM 5.2** | `glm-5.2` | chat, tools | 1M | 48k | fp8 | [zai-org/GLM-5.2-FP8](https://huggingface.co/zai-org/GLM-5.2-FP8) |
 | **Kimi K3** | `kimi-k3` | chat, multimodal, tools | 1M | 48k | fp8 | [moonshotai/Kimi-K3](https://huggingface.co/moonshotai/Kimi-K3) |
 | **Qwen3.5 (397B, int4)** | `qwen3.5-int4` | chat, multimodal, tools | 256k | 32k | int4 | [QuantTrio/Qwen3.5-397B-A17B-AWQ](https://huggingface.co/QuantTrio/Qwen3.5-397B-A17B-AWQ) |
-| **Qwen3.5 122B** | `qwen3.5-122b` | chat, multimodal, tools | 256k | 32k | fp8 | [Qwen/Qwen3.5-122B-A10B-FP8](https://huggingface.co/Qwen/Qwen3.5-122B-A10B-FP8) |
+| **Qwen3.8 Flash Next** | `qwen3.8-flash-next` | chat, multimodal, tools | 256k | 48k | fp8 | — |
 | **Qwen3.8 27B** | `qwen3.8-27b` | chat, multimodal, tools | 256k | 32k | fp8 | [Qwen/Qwen3.8-27B-FP8](https://huggingface.co/Qwen/Qwen3.8-27B-FP8) |
 | **Mistral Medium 3.5** | `mistral-medium-3.5` | chat, multimodal, tools | 256k | — | fp8 | [mistralai/Mistral-Medium-3.5-128B](https://huggingface.co/mistralai/Mistral-Medium-3.5-128B) |
 | **Gemma 4** | `gemma4` | chat, multimodal, tools | 256k | 32k | bf16 | [google/gemma-4-31B-it](https://huggingface.co/google/gemma-4-31B-it) |
@@ -136,7 +136,7 @@ Model names are case-sensitive and may include a quantization suffix (e.g. `qwen
 - **GPT-OSS-120B** — OpenAI's 120B-parameter open-weight language model offering strong general-purpose performance across reasoning, coding, and tool use.
 - **DeepSeek V4 Flash-0731** — 304B-parameter efficient reasoning model that achieves performance comparable to leading proprietary models despite a much smaller activated parameter count. Excels at mathematics, logical reasoning, and code generation.
 - **Qwen3.5 (397B, int4)** — 397B (A17B active) flagship for coding, tool use, and agentic workflows. An int4 (AWQ) build is also served as `qwen3.5-int4` for higher throughput at lower precision.
-- **Qwen3.5 122B** — 122B (A10B active) successor to Qwen3-Coder; multimodal, with significantly improved coding performance.
+- **Qwen3.8 Flash Next** — 180B (MoE) successor to Qwen3.5 122B; multimodal, with improved coding performance. fp8 quantization, 256k context, and a maximum output of 48k tokens.
 - **Qwen3.8 27B** — 27B (dense) successor to Qwen3.5 27B and Qwen3.6 27B; multimodal, with significantly improved coding performance. Supports images and videos, with configurable thinking for balancing speed and reasoning.
 - **Mistral Medium 3.5** — 128B multimodal model for text, coding, tool use, and agentic workflows.
 - **Gemma 4** — Google's 31B multimodal model; useful for OCR/vision and general-purpose tasks.
@@ -150,6 +150,7 @@ Model names are case-sensitive and may include a quantization suffix (e.g. `qwen
 | **DeepSeek V4 Pro** | `deepseek-v4-pro` | chat, tools | 1M | 64k | fp4 | [deepseek-ai/DeepSeek-V4-Pro](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro) |
 | **DeepSeek V4 Pro (thinking)** | `deepseek-v4-pro-thinking` | chat, tools, reasoning | 1M | 64k | fp4 | [deepseek-ai/DeepSeek-V4-Pro](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro) |
 | **Kimi K2.7** | `kimi-k2.7` | chat, multimodal, tools | 256k | 48k | int4 | [moonshotai/Kimi-K2.7-Code](https://huggingface.co/moonshotai/Kimi-K2.7-Code) |
+| **Qwen3.5 122B** | `qwen3.5-122b` | chat, multimodal, tools | 256k | 32k | fp8 | [Qwen/Qwen3.5-122B-A10B-FP8](https://huggingface.co/Qwen/Qwen3.5-122B-A10B-FP8) |
 
 #### Model Aliases
 
@@ -162,7 +163,7 @@ Because exact model versions change often, we maintain a set of short, version-i
 | `deepseek` | `deepseek-v4-flash` | reasoning **off** by default (can be enabled explicitly) |
 | `deepseek-thinking` | `deepseek-v4-flash-thinking` | reasoning **on** |
 | `mini` | `gpt-oss-120b` | |
-| `coder`, `agentic` | `qwen3.5-122b` | |
+| `coder`, `agentic` | `qwen3.8-flash-next` | |
 | `thinker` | `deepseek-v4-flash-thinking` | | 
 
 `deepseek` and `deepseek-thinking` point to the same underlying weights (`deepseek-v4`); they differ only in whether step-by-step reasoning is enabled by default.
@@ -205,8 +206,8 @@ We evaluated selected models using [Aider Polyglot Benchmark](https://aider.chat
 |Kimi K3 (think)           | **100**   | **92.3**      | **93.6**   | 91.8             | **97.1**     | **93.3**   |
 |Mistral Medium 3.5 (high) | 50.0      | 59.0          | 44.7       | 57.1             | 67.6         | 46.7       |
 |Qwen 3.5, int4 (think)    | 88.5      | 82.1          | 74.5       | 89.8             | 85.3         | 70.0       |
-|Qwen 3.5 122b (instant)   | 84.6      | 56.4          | 70.2       | 87.8             | 73.5         | 66.7       |
 |Qwen 3.8 27b (xhigh)      | 80.8      | 76.9          | 70.2       | 85.7             | 85.3         | 83.3       |
+|Qwen 3.8 Flash Next       | 76.9      | 84.6          | 78.7       | 87.8             | 91.2         | 90.0       |
 
 ## How Models are Added, Upgraded, and Removed
 

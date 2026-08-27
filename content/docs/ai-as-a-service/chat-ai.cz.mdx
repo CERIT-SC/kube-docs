@@ -97,7 +97,7 @@ Negarantujeme, že konkrétní model zůstane dostupný po celý semestr.
 </Callout>
 
 <Callout type="info">
-Přesné aktuálně servované názvy modelů zjistíte dotazem na živý seznam modelů přes API (viz [Vytvoření API klíče](#vytvoření-api-klíče)) nebo na [statusové stránce](https://llm.ai.e-infra.cz/status/). Při externím přístupu musíte použít buď udržovaný alias, nebo přesný název modelu, např. `qwen3.5-122b` nebo `deepseek-v4-pro`.
+Přesné aktuálně servované názvy modelů zjistíte dotazem na živý seznam modelů přes API (viz [Vytvoření API klíče](#vytvoření-api-klíče)) nebo na [statusové stránce](https://llm.ai.e-infra.cz/status/). Při externím přístupu musíte použít buď udržovaný alias, nebo přesný název modelu, např. `qwen3.8-27b` nebo `deepseek-v4-pro`.
 
 Názvy modelů rozlišují velká a malá písmena a mohou obsahovat příponu kvantizace (např. `qwen3.5-int4`).
 </Callout>
@@ -111,7 +111,7 @@ Názvy modelů rozlišují velká a malá písmena a mohou obsahovat příponu k
 | **GLM 5.2** | `glm-5.2` | chat, nástroje | 1M | 48k | fp8 | [zai-org/GLM-5.2-FP8](https://huggingface.co/zai-org/GLM-5.2-FP8) |
 | **Kimi K3** | `kimi-k3` | chat, multimodální, nástroje | 1M | 48k | fp8 | [moonshotai/Kimi-K3](https://huggingface.co/moonshotai/Kimi-K3) |
 | **Qwen3.5 (397B, int4)** | `qwen3.5-int4` | chat, multimodální, nástroje | 256k | 32k | int4 | [QuantTrio/Qwen3.5-397B-A17B-AWQ](https://huggingface.co/QuantTrio/Qwen3.5-397B-A17B-AWQ) |
-| **Qwen3.5 122B** | `qwen3.5-122b` | chat, multimodální, nástroje | 256k | 32k | fp8 | [Qwen/Qwen3.5-122B-A10B-FP8](https://huggingface.co/Qwen/Qwen3.5-122B-A10B-FP8) |
+| **Qwen3.8 Flash Next** | `qwen3.8-flash-next` | chat, multimodální, nástroje | 256k | 48k | fp8 | — |
 | **Qwen3.8 27B** | `qwen3.8-27b` | chat, multimodální, nástroje | 256k | 32k | fp8 | [Qwen/Qwen3.8-27B-FP8](https://huggingface.co/Qwen/Qwen3.8-27B-FP8) |
 | **Mistral Medium 3.5** | `mistral-medium-3.5` | chat, multimodální, nástroje | 256k | — | fp8 | [mistralai/Mistral-Medium-3.5-128B](https://huggingface.co/mistralai/Mistral-Medium-3.5-128B) |
 | **Gemma 4** | `gemma4` | chat, multimodální, nástroje | 256k | 32k | bf16 | [google/gemma-4-31B-it](https://huggingface.co/google/gemma-4-31B-it) |
@@ -123,7 +123,7 @@ Názvy modelů rozlišují velká a malá písmena a mohou obsahovat příponu k
 - **GPT-OSS-120B** — otevřený jazykový model OpenAI se 120B parametry nabízející silný obecný výkon v uvažování, programování a používání nástrojů.
 - **DeepSeek V4 Flash-0731** — efektivní reasoning model se 304B parametry, který dosahuje výkonu srovnatelného s předními proprietárními modely navzdory mnohem menšímu počtu aktivovaných parametrů. Vyniká v matematice, logickém uvažování a generování kódu.
 - **Qwen3.5 (397B, int4)** — vlajkový model 397B (A17B aktivních) pro programování, používání nástrojů a agentní workflow. Sestavení int4 (AWQ) je servováno také jako `qwen3.5-int4` pro vyšší propustnost při nižší přesnosti.
-- **Qwen3.5 122B** — 122B (A10B aktivních) nástupce Qwen3-Coder; multimodální, s výrazně vylepšeným výkonem v programování.
+- **Qwen3.8 Flash Next** — 180B (MoE) nástupce Qwen3.5 122B; multimodální, se zlepšeným výkonem v programování. Kvantizace fp8, kontext 256k a maximální výstup 48k tokenů.
 - **Qwen3.8 27B** — 27B (dense) nástupce Qwen3.5 27B a Qwen3.6 27B; multimodální, s výrazně vylepšeným výkonem v programování.
 - **Mistral Medium 3.5** — multimodální model 128B pro text, programování, používání nástrojů a agentní workflow.
 - **Gemma 4** — multimodální model Google s 31B parametry; vhodný pro OCR/vision a obecné úlohy.
@@ -137,6 +137,7 @@ Názvy modelů rozlišují velká a malá písmena a mohou obsahovat příponu k
 | **DeepSeek V4 Pro** | `deepseek-v4-pro` | chat, nástroje | 1M | 64k | fp4 | [deepseek-ai/DeepSeek-V4-Pro](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro) |
 | **DeepSeek V4 Pro (thinking)** | `deepseek-v4-pro-thinking` | chat, nástroje, reasoning | 1M | 64k | fp4 | [deepseek-ai/DeepSeek-V4-Pro](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro) |
 | **Kimi K2.7** | `kimi-k2.7` | chat, multimodální, nástroje | 256k | 48k | int4 | [moonshotai/Kimi-K2.7-Code](https://huggingface.co/moonshotai/Kimi-K2.7-Code) |
+| **Qwen3.5 122B** | `qwen3.5-122b` | chat, multimodální, nástroje | 256k | 32k | fp8 | [Qwen/Qwen3.5-122B-A10B-FP8](https://huggingface.co/Qwen/Qwen3.5-122B-A10B-FP8) |
 
 #### Aliasy modelů
 
@@ -149,7 +150,7 @@ Protože se přesné verze modelů často mění, udržujeme sadu krátkých, na
 | `deepseek` | `deepseek-v4-flash` | reasoning ve výchozím nastavení **vypnutý** (lze explicitně zapnout) |
 | `deepseek-thinking` | `deepseek-v4-flash-thinking` | reasoning **zapnutý** |
 | `mini` | `gpt-oss-120b` | |
-| `coder`, `agentic` | `qwen3.5-122b` | |
+| `coder`, `agentic` | `qwen3.8-flash-next` | |
 | `thinker` | `deepseek-v4-flash-thinking` | |
 
 `deepseek` a `deepseek-thinking` ukazují na stejné podkladové váhy (`deepseek-v4`); liší se pouze tím, zda je ve výchozím nastavení zapnuté postupné uvažování (reasoning).
@@ -188,8 +189,8 @@ Vyhodnotili jsme vybrané modely pomocí [Aider Polyglot Benchmark](https://aide
 |Kimi K3 (think)           | **100**   | **92.3**      | **93.6**   | 91.8             | **97.1**     | **93.3**   |
 |Mistral Medium 3.5 (high) | 50.0      | 59.0          | 44.7       | 57.1             | 67.6         | 46.7       |
 |Qwen 3.5, int4 (think)    | 88.5      | 82.1          | 74.5       | 89.8             | 85.3         | 70.0       |
-|Qwen 3.5 122b (instant)   | 84.6      | 56.4          | 70.2       | 87.8             | 73.5         | 66.7       |
 |Qwen 3.8 27b (xhigh)      | 80.8      | 76.9          | 70.2       | 85.7             | 85.3         | 83.3       |
+|Qwen 3.8 Flash Next       | 76.9      | 84.6          | 78.7       | 87.8             | 91.2         | 90.0       |
 
 ## Jak jsou modely přidávány, aktualizovány a vyřazovány
 
