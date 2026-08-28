@@ -2,163 +2,186 @@
 title: JupyterHub
 ---
 
-Je nutné být **platným** členem MetaCentra, abyste měli přístup k JupyterHub na [hub.cloud.e-infra.cz](https://hub.cloud.e-infra.cz/).
+**JupyterHub** je open-source platforma navržená tak, aby poskytovala víceuživatelský přístup k prostředím Jupyter Notebook.
 
-## Členství v MetaCentru
-Pokud jste již členem MetaCentra, můžete zkontrolovat svůj stav členství v [uživatelském profilu](https://profile.e-infra.cz/profile/organizations), řádek `MetaCentrum`. Pokud je účet neplatný, požádejte o obnovení kliknutím na tlačítko ve stejném řádku.
+**JupyterLab / Jupyter Notebooks** jsou webové aplikace, které vám umožňují vytvářet a sdílet dokumenty obsahující živý kód, rovnice, vizualizace a narativní text. Jsou široce používány při analýze dat, strojovém učení a dalších výpočetních úlohách díky své interaktivní povaze a schopnosti kombinovat spouštění kódu s bohatým textovým vysvětlením.
 
-Pokud nejste členem, můžete se [přihlásit](https://metavo.metacentrum.cz/en/application/index.html) o účet MetaCentra.
+## Přístup k JupyterHub
 
-## Výběr obrazu
+Abyste měli přístup k JupyterHub na platformě [hub.cloud.e-infra.cz](https://hub.cloud.e-infra.cz/), musíte být platným členem MetaCentra.
 
-Předpřipravili jsme následující obrazy:
-- minimal-notebook ([spec](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-minimal-notebook))
-- datascience-notebook ([spec](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook))
-- scipy-notebook ([spec](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-scipy-notebook))
-- tensorflow-notebook ([spec](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-tensorflow-notebook))
-- tensorflow-notebook s podporou GPU ([spec](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-tensorflow-notebook), ale TF v. 2.7.0 a TensorBoard nainstalován)
-- RStudio s R 4.2.1, 4.3.1 nebo 4.4.1
-- Jupyter prostředí s Python 3.11 a R 4.3.1 jádry
-- MATLAB R2022b
-- MATLAB R2023a
-- Alphapose
+## Spuštění JupyterLab / Jupyter Notebook
 
-Můžete si zvolit vytvoření vlastního obrazu se všemi závislostmi a softwarem, který potřebujete. Nezapomeňte však zahrnout celý jupyter stack, jinak nasazení nebude fungovat. Doporučujeme stavět z [existujícího obrazu](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html), který již obsahuje veškerý potřebný software. Pokud si vyberete vlastní obraz, musíte poskytnout název obrazu spolu s jeho repozitářem a volitelným tagem --- zadejte text ve formátu `repo/imagename:tag`. Pokud vytvoříte vlastní obraz, musíte se ujistit, že repozitář je veřejný. Pokud nevíte, který repozitář zvolit, spravujeme vlastní docker registry, které můžete volně používat a nevyžaduje žádnou další konfiguraci. Další informace o registru jsou k dispozici [na stránkách harbor](../docker/harbor).
+### Spuštění serveru
 
-### Pracovní prostředí
+Pro spuštění výchozího prostředí JupyterLab jednoduše klikněte na tlačítko `My Server`.
+Pokud dáváte přednost vytvoření vlastního JupyterLab s personalizovaným názvem, postupujte takto:
+* Zvolte krátký, jednoznačný a výstižný název pro váš server, aby byl snadno identifikovatelný.
+* Klikněte na `Add new server` pro pokračování ve vytvoření vašeho přizpůsobeného prostředí JupyterLab.
 
-Pokud si vyberete RStudio, budete přesměrováni na jupyter lab. Poté je nutné kliknout na ikonu RStudio, abyste byli přesměrováni do prostředí RStudio. 
+### Výběr image (obrazu)
 
-![rstudio](/img/ceritsc/apps/jupyterhub/rstudio-click.png)
+Poskytujeme řadu předkonfigurovaných Docker images pro různé výpočetní nároky:
 
-![rstudio](/img/ceritsc/apps/jupyterhub/rstudio.png)
+*	**Simple Jupyter Images**, včetně verzí podporujících AI chat asistenci pro pomoc s kódovacími úlohami
+*	**R Images**, které vám umožňují používat různé verze RStudia, rovněž s AI funkcemi
+*	**TensorFlow a Pytorch Images**, optimalizované pro strojové učení a hluboké učení
+*	**Matlab Images**, umožňující přístup ke grafické, interaktivní instanci Matlabu
+*	**Folding images**, speciálně navržené pro speciální případy použití zahrnující Colabfold nebo ESM Fold
+*    Image s integrovaným **Claude Code**, pokročilou AI chat asistencí (Harbor: cerit.io/hubs/datasciencenb:2026-01-23-ai)
+*	Alternativně můžete použít i svůj vlastní **custom image**
 
-Ostatní obrazy jsou přesměrovány na verzi `/lab` JupyterHubu. 
-![lab](/img/ceritsc/apps/jupyterhub/lab.png)
+> Můžete si zvolit vytvoření vlastního image se všemi závislostmi a softwarem, které potřebujete. Nezapomeňte však zahrnout celý jupyter stack, jinak nasazení nebude fungovat. Doporučujeme stavět z [existujícího image](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html), který již obsahuje veškerý potřebný software. Pokud zvolíte custom image, musíte zadat název image spolu s jeho repozitářem a volitelným tagem --- vstup ve formátu `repo/imagename:tag`. Pokud si vytváříte vlastní image, musíte zajistit, aby byl repozitář veřejný. Pokud nevíte, jaký repozitář zvolit, provozujeme vlastní docker registry, které můžete svobodně používat a nevyžaduje žádnou další konfiguraci. Další informace o registry naleznete [na webu harbor](../docker/harbor).
 
-## Úložiště
-Ve výchozím nastavení každý notebook běží s trvalým úložištěm připojeným k `/home/jovyan`. Proto doporučujeme ukládat data do adresáře `/home/jovyan`, abyste k nim měli přístup pokaždé, když je notebook spuštěn. 
+### Výběr úložiště (Storage)
 
-Pokud vytvoříte nový pojmenovaný notebook, nové trvalé úložiště je k němu připojeno. Pokud jste někdy vytvořili notebook se stejným názvem, nové trvalé úložiště není vytvořeno, ale staré je připojeno. Můžete se však rozhodnout smazat existující úložiště, což povede ke ztrátě všech dat z něj. Dále se můžete rozhodnout připojit jakékoli již existující úložiště (k `/home/jovyan`) místo vytváření nového, což umožňuje sdílení dat mezi spuštěními a instancemi.
+#### Výchozí perzistentní úložiště
 
-### Domov MetaCentra
-Můžete připojit svůj domov MetaCentra --- zkontrolujte možnosti a vyberte požadovaný domov. V současnosti je možné připojit pouze jeden domov na notebook. V hubu se váš domov nachází v `/home/meta/{meta-username}`.
+Ve výchozím nastavení běží každý notebook s perzistentním úložištěm připojeným na `/home/jovyan`. Proto doporučujeme ukládat data do adresáře `/home/jovyan`, aby byla přístupná pokaždé, když je notebook spuštěn (spawned).
 
-Možnosti:
+Můžete vytvořit nové úložiště nebo zvolit připojení již existujícího úložiště (na /home/jovyan) místo vytváření nového, což umožňuje sdílení dat mezi jednotlivými spuštěními a instancemi.
+Můžete se však také rozhodnout stávající úložiště smazat, což povede ke ztrátě všech dat v něm uložených.
 
-brno11-elixir | brno12-cerit | brno14-ceitec 
---- | --- | --- |
-brno1-cerit | brno2 | praha1
-budejovice1 | du-cesnet | praha2-natur
-liberec3-tul | pruhonice1-ibot | praha5-elixir
-plzen1 | plzen4-ntis | vestec1-elixir        
+#### Integrace s domovským adresářem MetaCentra
 
-❗️ Pokud si vyberete úložiště, kde NEMÁTE domov, spuštění selže. Prosím, ujistěte se, že vybíráte úložiště, kde váš domov existuje. Pokud si nejste jisti umístěním domova, kontaktujte <a href="mailto:k8s@ics.muni.cz">IT Service desk</a>, který vám pomůže.
+Můžete připojit svůj domovský adresář MetaCentra nebo projektový adresář pro přístup ke svým souborům. Vyberte prosím požadovaný domovský adresář z dostupných možností. Upozorňujeme, že v současnosti lze na jeden notebook připojit pouze jeden domovský adresář. V hubu se váš domovský adresář nachází v `/home/meta/{meta-username}`.
 
-## Zdroje
-Každý Jupyter notebook může požadovat 3 typy zdrojů --- CPU, paměť, GPU --- až do stanoveného limitu. Protože chceme podporovat efektivní výpočty, implementovali jsme jednoduchý mechanismus vypnutí, který se vztahuje na každou instanci notebooku. Prosím, přečtěte si popis mechanismu níže.
+❗️ Pokud zvolíte úložiště, kde NEMÁTE domovský adresář, proces spuštění (spawn process)
+selže. Prosím, ujistěte se, že vybíráte úložiště, kde váš domovský adresář existuje. Pokud si nejste jisti umístěním domovského adresáře, kontaktujte <a href="mailto:k8s@cerit-sc.cz">IT Service desk</a>, který vám pomůže.
+### Přidělení prostředků (Resource Allocation)
+
+Každý Jupyter notebook může požadovat 3 typy prostředků --- CPU, paměť, GPU --- až do nastaveného limitu. Protože chceme podporovat efektivní výpočty, zavedli jsme jednoduchý mechanismus vypínání, který se vztahuje na každou instanci notebooku. Přečtěte si prosím popis mechanismu níže.
 
 #### CPU
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Máte zaručeno **1 CPU** a můžete požadovat až **32 CPU** limit. Limity zdrojů představují tvrdý limit, což znamená, že nemůžete použít více než stanovené množství pro tuto konkrétní instanci. Pokud výpočet uvnitř notebooku vyžaduje více CPU, než je přiděleno, nebude zabit, ale bude zpomalen --- výpočet bude pokračovat, možná jen pomaleji.  
+
+Máte zaručen **1 CPU** a můžete požadovat až **32 CPU** jako limit. Limity prostředků představují tvrdý limit, což znamená, že nemůžete použít více, než je nastavené množství pro danou konkrétní instanci. Pokud výpočet uvnitř notebooku vyžaduje více CPU, než je přiděleno, nebude usmrcen (killed), ale bude omezován (throttled) --- výpočet bude pokračovat, možná jen pomaleji.
 
 #### Paměť
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Máte zaručeno **4G RAM** a můžete požadovat až **256G RAM**. Limity zdrojů představují tvrdý limit, což znamená, že nemůžete použít více než stanovené množství pro tuto konkrétní instanci. Pokud výpočet uvnitř notebooku spotřebovává více paměti, než je přiděleno, bude zabit. Notebook nezmizí, ale výpočet buď skončí chybou, nebo náhle skončí.
+
+Máte zaručeny **4 GB RAM** a můžete požadovat až **256 GB RAM**. Limity prostředků představují tvrdý limit, což znamená, že nemůžete použít více, než je nastavené množství pro danou konkrétní instanci. Pokud výpočet uvnitř notebooku spotřebuje více paměti, než je přiděleno, bude usmrcen (killed). Notebook nezmizí, ale výpočet buď skončí chybou, nebo náhle skončí.
 
 #### GPU
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Je možné využít GPU ve vašem notebooku, můžete požádat o celé GPU nebo MIG GPU.
 
-- Pro celé GPU, **použití GPU vyžaduje konkrétní nastavení (např. ovladače, konfiguraci), takže může být efektivně použito pouze v obrazech s podporou GPU.** (označeno jako `...with GPU...` v nabídce výběru). Pokud přiřadíte GPU k jakémukoli jinému obrazu, nebude skutečně funkční.
+Ve svém notebooku je možné využít GPU; můžete požádat o celé GPU nebo o MIG GPU.
 
-- Pro MIG GPU, viz [NVIDIA MIG](https://www.nvidia.com/en-us/technologies/multi-instance-gpu/) dokumentaci o technologii MIG. Je možné požádat až o 4 části 10GB MIG karty NVIDIA A100/80GB pomocí možnosti `10GB part A100` a až o 4 části 20GB MIG karty NVIDIA A100/80GB pomocí možnosti `120GB part A100`. Paměť GPU je HW omezená, takže není problém, že by někdo jiný mohl nadměrně využívat požadované množství zdroje. Individuální MIG části (až 4) fungují jako izolované GPU, takže pro využití více než jedné MIG části je třeba nastavit výpočet s více GPU v aplikaci.
+- Pro celé GPU platí, že **použití GPU vyžaduje specifické nastavení (např. ovladače, konfiguraci), takže jej lze efektivně použít pouze v images s podporou GPU.** (označeno jako `...with GPU...` v nabídce výběru). Pokud přiřadíte GPU k jakémukoli jinému image, nebude skutečně funkční.
 
-### Využití zdrojů
-Po poskytování JupyterHub po více než rok jsme shromáždili dostatek dat, abychom mohli bezpečně prohlásit, že většina instancí notebooků požaduje nepřiměřeně vysoké množství zdrojů, které zůstávají nevyužité, ale blokované. Věříme, že efektivní využití zdrojů je klíčovým faktorem v efektivním výpočtu, a proto jsme implementovali jednoduchý mechanismus, který rozhoduje, zda bude vaše instance notebooku smazána. Provádí hodnocení jednou denně.
+- Pro MIG GPU se podívejte na dokumentaci o technologii MIG [NVIDIA MIG](https://www.nvidia.com/en-us/technologies/multi-instance-gpu/). Pomocí možnosti `10GB part A100` lze požádat až o 4 části 10GB MIG z karty NVIDIA A100/80GB a pomocí možnosti `120GB part A100` až o 4 části 20GB MIG z karty NVIDIA A100/80GB. GPU paměť je omezena na úrovni hardwaru, takže nehrozí, že by někdo jiný mohl nadměrně využít požadované množství daného prostředku. Jednotlivé MIG části (až 4) se chovají jako izolovaná GPU, takže pro využití více než jedné MIG části je třeba nastavit multi-GPU výpočet v aplikaci.
 
-Pokud **bylo požadováno alespoň 1 GPU**, mechanismus kontroluje využití GPU a nezajímá se o využití CPU (GPU je *drahší* zdroj). Po 2 dnech &lt;0.005 využití GPU je instance notebooku smazána. Prahová hodnota `0.005` byla zvolena, protože toto číslo je skutečně nevýznamné a znamená žádné využití.
+- Skutečně volné GPU prostředky se zobrazují pouze pro informaci.
 
-Pokud **žádné GPU** nebylo požadováno, mechanismus kontroluje pouze využití CPU. Po 7 dnech &lt;0.01 využití CPU je instance notebooku smazána. Prahová hodnota byla zvolena na základě dat shromážděných monitorováním --- využití CPU pod 0.01 naznačuje, že notebook pouze existuje a žádný výpočet není prováděn.
+## Práce v prostředí JupyterLab
 
-Mechanismus funguje oběma směry následujícím způsobem:
+### Použití RStudio
 
-> Využití CPU notebooku je měřeno po dobu 24 hodin a je vypočítáno jako průměrné využití CPU notebooku (v CPU sekundách) po 5minutových segmentech. Konečné maximum je zvoleno ze všech segmentů. Pokud výsledné maximum *je rovno nule/pod 0.01*, instance notebooku je interně označena "1" jako první varování. Pokud je využití nad 0.01, nic se neděje.
+1. Přejděte na [hub.cloud.e-infra.cz](https://hub.cloud.e-infra.cz).
+2. Vyberte image **RStudio-AI** (*verze 4.6.1 s podporou Posit Assistant*).
+3. Nakonfigurujte požadované prostředky serveru a klikněte na **Start**.
+
+![RStudio launcher](/img/ceritsc/apps/jupyterhub/rstudio-click.png)
+
+4. Jakmile se prostředí dokončí načítání, RStudio se otevře automaticky.
+
+**Nastavení Posit Assistant**
+
+1. V pravém horním rohu rozhraní RStudio klikněte na tlačítko **Posit Assistant**.
+
+![Posit Assistant location in RStudio](/img/ceritsc/apps/jupyterhub/rstudio.png)
+
+2. Klikněte na **Install Posit Assistant**.
+
+![Install Posit Assistant interface](/img/ceritsc/apps/jupyterhub/rstudio-positassistant1.png)
+
+3. Po zobrazení výzvy vyberte **Trust Workspace** pro pokračování.
+
+![Trust workspace confirmation dialog](/img/ceritsc/apps/jupyterhub/rstudio-positassistant2.png)
+
+4. Nakonfigurujte svůj preferovaný model:
+   * Klikněte na ikonu **tři tečky** (**`...`**) v levém dolním rohu (panel Assistant).
+   * Z rozbalovací nabídky vyberte požadovaný model v kategorii **OpenAI Compatible**.
+   * *Doporučení:* Doporučujeme použít buď **mini**, nebo **GPT-OSS-120B**.
+
+<center>
+<div class="w-90">
+![Selecting OpenAI Compatible category](/img/ceritsc/apps/jupyterhub/rstudio-vybermodelu1.png)
+</div>
+</center>
+
+<center>
+<div class="w-90">
+![Choosing the recommended model](/img/ceritsc/apps/jupyterhub/rstudio-vybermodelu2.png)
+</div>
+</center>
+
+### Použití Matlabu
+
+1. Přejděte na [hub.cloud.e-infra.cz](https://hub.cloud.e-infra.cz).
+2. Vyberte image **Matlab**.
+3. Nakonfigurujte požadované prostředky serveru a klikněte na **Start**.
+
+![lab](/img/ceritsc/apps/jupyterhub/matlab.png)
+
+### Další images
+
+1. Přejděte na [hub.cloud.e-infra.cz](https://hub.cloud.e-infra.cz).
+2. Vyberte image (python, datascience, from repo, ...)
+3. Nakonfigurujte požadované prostředky serveru a klikněte na **Start**.
+
+![lab](/img/ceritsc/apps/jupyterhub/lab.png)
+
+## Využití prostředků a mechanismus vypínání
+
+Pro podporu efektivních výpočtů mohou být nepoužívané notebooky smazány na základě využití prostředků. Zavedli jsme jednoduchý mechanismus, který rozhoduje, zda bude vaše instance notebooku smazána. Vyhodnocení provádí jednou denně.
+
+Pokud bylo požadováno **alespoň 1 GPU**, mechanismus kontroluje využití GPU a nezajímá se o využití CPU (GPU je *dražší* prostředek). Po 2 dnech využití GPU &lt;0.005 je instance notebooku smazána. Práh `0.005` byl zvolen, protože toto číslo je skutečně zanedbatelné a znamená žádné využití.
+
+Pokud **nebylo požadováno žádné GPU**, mechanismus kontroluje pouze využití CPU. Po 4 dnech využití CPU &lt;0.1 je instance notebooku smazána. Práh byl zvolen na základě dat shromážděných monitorováním --- využití CPU pod 0,1 naznačuje, že notebook pouze existuje a neprovádí se žádný výpočet.
+
+Mechanismus funguje pro oba případy takto:
+
+> Využití CPU notebooku se měří za 24 h a počítá se jako průměr využití CPU notebooku (v CPU vteřinách) přes 5minutové segmenty. Z vybraných segmentů je vybráno konečné maximum. Pokud je výsledné maximum *rovno nule/pod 0,1*, je instance notebooku interně označena číslem „1" jako první upozornění. Pokud je využití nad 0,1, nic se neděje.
 >
-> Využití GPU notebooku je měřeno po dobu 24 hodin a je vypočítáno jako průměrný podíl času, kdy byl grafický procesor aktivní, po 5minutových segmentech. Konečné maximum je zvoleno ze všech segmentů. Pokud výsledné maximum *je rovno nule/pod 0.005*, instance notebooku je interně označena "1" jako první varování. Pokud je využití nad 0.005, nic se neděje.
+> Využití GPU notebooku se měří za 24 h a počítá se jako průměrný podíl času, kdy byl aktivní grafický engine, přes 5minutové segmenty. Z vybraných segmentů je vybráno konečné maximum. Pokud je výsledné maximum *rovno nule/pod 0,005*, je instance notebooku interně označena číslem „1" jako první upozornění. Pokud je využití nad 0,005, nic se neděje.
 >
-> Další běh provádí totéž, ale pokud maximum:
-> - je stále méně než 0.01 pro CPU (0.005 pro GPU), čítač se zvýší o jeden. Pokud čítač dosáhne `threshold+1` (např. pro CPU, 8, protože 7 dní již uplynulo), instance je smazána.
-> - se změní z pod prahu nad něj, značka je zcela odstraněna (zjevně jste začali notebook znovu používat).
-> - je nad prahem, nic se neděje.
+>  Další spuštění provede totéž, ale pokud je maximum:
+>  - stále menší než 0,1 pro CPU (0,005 pro GPU), počítadlo se zvýší o jedničku. Pokud počítadlo dosáhne `threshold+1` (např. pro CPU 5, protože již uplynuly 4 dny), instance je smazána.
+>  - se změní z pod prahem na hodnotu nad ním, označení se zcela odstraní (zřejmě jste notebook opět začali používat).
+>  - je nad prahem, nic se neděje.
+### Upozornění na nízké využití
 
-#### Oznámení o nízkém využití
+Pokud je notebook označen ke smazání, obdržíte e-mail informující o této situaci pro každé upozornění, dokud není instance skutečně odstraněna. E-mail o smazání obdržíte rovněž. Pokud e-mail obdržíte, nejste nuceni s instancí nic dělat --- pokud využití nestoupne, bude smazána. Doporučujeme uložit výsledky nebo je zkopírovat jinam, pokud obdržíte upozornění. E-mail je odeslán na adresu nastavenou ve vašem účtu MetaCentra jako preferovanou adresu.
 
-Pokud je notebook označen k odstranění, obdržíte e-mail informující o situaci pro každé varování, dokud nebude instance skutečně odstraněna. Také obdržíte e-mail informující o smazání. Nejste nuceni nic dělat ohledně instance, pokud obdržíte e-mail --- pokud využití nepřijde nahoru, bude smazána. Doporučujeme uložit výsledky nebo je zkopírovat jinam, pokud obdržíte varování. E-mail je odeslán na adresu nakonfigurovanou ve vašem účtu MetaCentrum jako preferovanou adresu.
+## Správa JupyterHub
 
-## Pojmenované servery
-JupyterHub umožňuje spouštět více než jednu instanci notebooku; ve skutečnosti můžete současně spouštět více instancí různých obrazů. Chcete-li to provést, v levém horním rohu přejděte na `Soubor &rarr; Ovládací panel Hubu`. Vyplňte `Název serveru` a klikněte na `Přidat nový server`, zobrazí se vám stránka s formulářem pro vstup.
+Všechny vaše pojmenované servery jsou přístupné v `Hub Control panel`, kde s nimi můžete manipulovat (vytvářet, mazat, přihlašovat se).
+
+Kdykoli potřebujete spravovat své notebooky z prostředí JupyterLab, spusťte prostředí JupyterHub a přejděte na `File` &rarr; `Hub Control Panel` v levém horním rohu.
+Zde můžete přidávat nové notebooky, zastavovat je nebo mazat.
+
+Alternativně můžete spravovat běžící instance na adrese [https://hub.cloud.e-infra.cz/hub/home](https://hub.cloud.e-infra.cz/hub/home).
+
+### Smazání instance JupyterNotebook
+
+V levém horním rohu přejděte na `File` &rarr; `Hub Control Panel`. Pokud máte více instancí, klikněte na `Stop` vedle názvu instance, kterou chcete smazat. Počkejte, dokud se neobjeví modré tlačítko `Delete`, a klikněte na něj. Pokud máte pouze jeden server, bude v horní části stránky velké tlačítko `Stop My Server`. Klikněte na něj. Za pár sekund bude vaše instance notebooku (container) smazána (stop tlačítko zmizí). Pokud potřebujete instanci notebooku spustit znovu, vyplňte `Server name` a klikněte na `Add new server`; zobrazí se vám stránka s formulářem.
+
+### Přidávání serverů
+
+JupyterHub umožňuje spouštět více než jednu instanci notebooku; vlastně můžete současně spouštět více instancí různých images. Chcete-li to provést, přejděte v levém horním rohu na `File` &rarr; `Hub Control Panel`. Vyplňte `Server name` a klikněte na `Add new server`; zobrazí se vám stránka s formulářem.
 
 ![add1](/img/ceritsc/apps/jupyterhub/add1.png)
 ![add2](/img/ceritsc/apps/jupyterhub/add2.png)
 
-## Conda prostředí
-Conda je podporována ve všech poskytovaných obrazech a aktivuje se pomocí `conda init`. Nový terminál conda prostředí je vytvořen v terminálu notebooku příkazem `conda create -n tenv --yes python=3.8 ipykernel nb_conda_kernels` (část `ipykernel nb_conda_kernels` je povinná, alternativně irkernel).
+### Sdílení JupyterNotebook
 
-![moveenv](/img/ceritsc/apps/jupyterhub/move_env.png)
-
-Zkontrolujte, zda je prostředí nainstalováno pomocí `conda env list`. Můžete prostředí okamžitě použít, buď vytvořením nového notebooku, nebo změnou jádra existujícího (záložka `Jádro` → `Změnit jádro...` a vyberte to, které chcete použít).
-
-![checkenv](/img/ceritsc/apps/jupyterhub/check_env.png)
-![selenv](/img/ceritsc/apps/jupyterhub/select_env.png)
-
-## Instalace Conda balíčků
-Pro instalaci conda balíčků musíte vytvořit nové conda prostředí (jak je popsáno výše). Poté nainstalujte nové balíčky v terminálu do nově vytvořeného prostředí, např. `conda install keyring -n myenv`.
-
-Otevřete nový notebook a změňte jádro v záložce `Kernel` → `Change Kernel...` → `myenv` (nebo název jádra, do kterého jste nainstalovali balíčky).
-
-
-## Zpracování chyb
-Při přístupu na URL `/user/your_name` obdržíte _HTTP 500: Internal Server Error_. Nejpravděpodobněji je tato chyba způsobena:
-1. Vybrali jste MetaCentrum domov, který jste dosud nepoužívali - Červená chyba 500 je následována `Error in Authenticator.pre_spawn_start`
-2. Vybrali jste MetaCentrum domov, ke kterému nemáte přístup - Červená chyba 500 je následována `Error in Authenticator.pre_spawn_start`
-3. Při spouštění se objeví `Error: ImagePullBackOff`
-
-Řešení:
-1. Odhlaste se a znovu přihlaste
-2. Nemůžete přistupovat k domovu ani po odhlášení a přihlášení - nemáte povolení používat tento konkrétní domov
-3. Kliknutí na malou šipku `Event log` poskytuje více informací. S největší pravděpodobností je mezi nimi zpráva označená `[Warning]`, která poskytuje další popis. Je velmi pravděpodobné, že je název repozitáře a/nebo obrázku napsán chybně. 
- - prosím počkejte 10 minut
- - Služba má časový limit 10 minut a během této doby se snaží vytvořit všechny potřebné zdroje. V důsledku chyby se vytvoření nezdaří a po 10 minutách uvidíte červené pruhy s zprávou `Spawn failed: pod/jupyter-[username] did not start in 600 seconds!`. V tomto okamžiku stačí stránku znovu načíst a kliknout na `Relaunch server`.
-
-## Odstranění instance notebooku
-
-V levém horním rohu přejděte na `File ` &rarr; `Hub Control Panel` a klikněte na červené `Stop My Server`. Za pár sekund bude vaše kontejnerová instance notebooku odstraněna (tlačítko zastavení zmizí). Pokud potřebujete znovu spustit instanci notebooku, vyplňte `Server name` a klikněte na `Add new server`, zobrazí se vám stránka s formulářem pro vstup. 
-
-Všechny vaše pojmenované servery jsou přístupné v `Hub Control panel`, kde s nimi můžete manipulovat (vytvářet, mazat, přihlašovat se).
-
-## Požadavky na funkce
-Jakékoli tipy na funkce nebo nové typy notebooků jsou vítány na <a href="mailto:k8s@ics.muni.cz">IT Service desk</a>.
-
-## Vytváření vlastního obrazu
-
-Nejlepší a nejjednodušší způsob, jak vytvořit vlastní obraz, je vycházet z minimálního notebooku jupyterhub `jupyter/minimal-notebook:hub-4.0.2` a provést potřebné změny. Zdroj pro náš minimální notebook lze nalézt [zde](/examples/ceritsc/jupyterhub/Dockerfile-minimal).
-
-Pokud z jakéhokoli důvodu není žádoucí použít tento minimální notebook, můžete vytvořit nový z jakéhokoli základu, ale ujistěte se, že je připraven k běhu jako notebook:
-
-* Nainstalujte balíček `jupyterlab`
-* Přidejte soubory [start-notebook.py](/examples/ceritsc/jupyterhub/start-notebook.py), [start-notebook.sh](/examples/ceritsc/jupyterhub/start-notebook.sh), [start-singleuser.py](/examples/ceritsc/jupyterhub/start-singleuser.py), [start-singleuser.sh](/examples/ceritsc/jupyterhub/start-singleuser.sh), [start.sh](/examples/ceritsc/jupyterhub/start.sh) do `/usr/local/bin` a nastavte je jako spustitelné `chown a+rx start*`
-* Ujistěte se, že tyto `start` soubory nejsou upravovány na Windows a nemají Windows nové řádky. Hledejte řešení pomocí dotazu: windows vs unix newline.
-
-
-## Sdílení notebooku
-
-Pokud chcete sdílet notebook s jiným uživatelem nebo jej použít z jiné relace prohlížeče, musíte otevřít `Hub Control Panel`, jak je vidět níže:
+Pokud chcete notebook sdílet s jiným uživatelem nebo jej použít z jiné relace prohlížeče, musíte otevřít `Hub Control Panel`, jak vidíte níže:
 
 ![control](/img/ceritsc/apps/jupyterhub/token1.png)
 
-Poté vyberte menu `Token`:
+Poté vyberte nabídku `Token`:
 
 ![token](/img/ceritsc/apps/jupyterhub/token2.png)
 
-Poté zadejte název pro token (šipka 1 níže), stiskněte tlačítko `Request new API token` (šipka 2 níže) a uvidíte token (šipka 3 níže):
+Poté zadejte název pro token (šipka 1 níže), stiskněte tlačítko `Request new API token` (šipka 2 níže) a zobrazí se vám token (šipka 3 níže):
 
 ![token2](/img/ceritsc/apps/jupyterhub/token3.png)
 
@@ -166,27 +189,27 @@ Zkontrolujte aktuální URL ve vašem prohlížeči, mělo by vypadat takto:
 
 ![url](/img/ceritsc/apps/jupyterhub/token4.png)
 
-Zkopírujte URL, od samého začátku až po `lab`, včetně `lab`, např. vyberte část: `hub.cloud.e-infra.cz/user/xhejtman/AI/lab`. Rozšiřte tuto URL o token následujícím způsobem:
+Zkopírujte URL od samého začátku až po `lab`, včetně `lab`, např. vyberte část: `hub.cloud.e-infra.cz/user/xhejtman/AI/lab`. Rozšiřte tuto URL o token takto:
 
 ![urltoken](/img/ceritsc/apps/jupyterhub/token5.png)
 
-Tedy přidejte `?token=86c4dc52fa4e4d6298c4ba7d008fc085` (s vaším tokenem místo `86c4dc52fa4e4d6298c4ba7d008fc085`). Pošlete to příteli nebo to otevřete v jiném prohlížeči.
+Tzn. přidejte `?token=86c4dc52fa4e4d6298c4ba7d008fc085` (s vaším tokenem místo `86c4dc52fa4e4d6298c4ba7d008fc085`). Pošlete jej příteli nebo otevřete v jiném prohlížeči.
 
 <Callout type="info">
-URL bude přesměrována tak, aby část `?token=XXX` byla skryta, takže ji nebudete moci znovu zkopírovat, jakmile bude zobrazena v prohlížeči.
+URL bude přesměrována tak, že část `?token=XXX` je skrytá, takže ji po zobrazení v prohlížeči nebudete moci znovu zkopírovat.
 </Callout>
 
 <Callout type="warning">
-Token platí pro všechny vaše běžící notebooky, nejen pro konkrétní notebook. Buďte tedy opatrní při sdílení.
+Token platí pro všechny vaše běžící notebooky, nejen pro konkrétní notebook. Buďte tedy při sdílení opatrní.
 </Callout>
 
 <Callout type="warning">
-Uživatel, který chce použít sdílený odkaz s tokenem, nesmí být přihlášen, tj. musí použít okno inkognito prohlížeče.
+Uživatel, který chce použít sdílený odkaz s tokenem, nesmí být přihlášen, např. musí použít okno prohlížeče v režimu inkognito.
 </Callout>
 
 ## Zpřístupnění lokálních aplikací
 
-Flare tunnel umožňuje zpřístupnění vašich lokálních aplikací na doméně `flare.cloud.e-infra.cz`.
+Flare tunnel vám umožňuje zpřístupnit vaše lokální aplikace na doméně `flare.cloud.e-infra.cz`.
 
 Vytvoření tunelu:
 
@@ -199,28 +222,386 @@ pip install git+https://github.com/CERIT-SC/flare
 ```bash
 flare tunnel --port {port} --name {name}
 ```
-kde `{port}` je port, na kterém běží vaše aplikace, a `{name}` určuje URL, na kterém bude aplikace dostupná.  
+kde `{port}` je port, na kterém vaše aplikace běží, a `{name}` definuje URL, na které bude aplikace přístupná.
 Například následující příkaz zpřístupní aplikaci běžící na portu `8888` na URL `https://myapp.flare.cloud.e-infra.cz`:
 ```bash
 flare tunnel --port 8888 --name myapp
 ```
 
-## Podpora AI GPT
+## Speciální funkce
 
-Některé notebooky (označené `AI`) jsou integrovány s GPT, konkrétně s modelem gpt-4o-mini. Každý uživatel má přístup k předplacenému modelu s následujícími omezeními:
-
-* Model lze používat pouze z jupyterhub (API klíč nebude fungovat).
-
-* Uživatel může aktuálně utratit 1 $ měsíčně (pro model gpt-4o-mini je limit 1,3M vstupních + výstupních tokenů).
-
-* Používání GPT vyžaduje, aby uživatel souhlasil s [podmínkami použití OpenAI](https://openai.com/policies/terms-of-use/).
-
-* Podporován je pouze model gpt-4o-mini.
-
-<Callout type="warning">
-Vaše data budou odeslána třetí straně -- OpenAI. Pokud nesouhlasíte, nepoužívejte AI verze notebooků.
+<Callout type="info">
+Jakékoli tipy na funkce nebo nové typy notebooků jsou vítány na <a href="mailto:k8s@cerit-sc.cz">IT Service desk</a>.
 </Callout>
 
-### Aktuálně integrované notebooky
+### Prostředí Conda
 
-* Minimal NB AI -- viz [https://jupyter-ai.readthedocs.io/en/latest/](https://jupyter-ai.readthedocs.io/en/latest/) pro dokumentaci.
+Conda je podporována ve všech poskytovaných images a aktivuje se pomocí `conda init`. Nové prostředí conda se vytvoří v terminálu notebooku příkazem `conda create -n tenv --yes python=3.8 ipykernel nb_conda_kernels` (část `ipykernel nb_conda_kernels` je vyžadována, alternativně irkernel).
+
+![moveenv](/img/ceritsc/apps/jupyterhub/move_env.png)
+
+Zkontrolujte, zda je prostředí nainstalováno, příkazem `conda env list`. Prostředí můžete použít okamžitě, a to buď vytvořením nového notebooku, nebo změnou kernelu existujícího (záložka `Kernel` → `Change Kernel...` a vyberte ten, který chcete použít).
+
+![checkenv](/img/ceritsc/apps/jupyterhub/check_env.png)
+![selenv](/img/ceritsc/apps/jupyterhub/select_env.png)
+
+#### Instalace conda balíčků
+
+Chcete-li nainstalovat conda balíčky, musíte vytvořit nové prostředí conda (jak je popsáno výše). Poté nainstalujte nové balíčky v terminálu do nově vytvořeného prostředí, např. `conda install keyring -n myenv`.
+
+Otevřete nový notebook a změňte kernel v záložce `Kernel` → `Change Kernel...` → `myenv` (nebo název kernelu, do kterého jste balíčky nainstalovali).
+
+### Podpora Notebook Intelligence v Jupyter Noteboocích
+
+Naše platforma nabízí specializované Jupyter Notebook images předkonfigurované s funkcemi generativní AI. Tyto images jsou navrženy tak, aby zefektivnily váš workflow vložením kódovacích asistentů přímo do vašeho prostředí.
+
+Při spouštění nového serveru hledejte images označené tagem AI (např. Minimal NB AI, Datascience NB AI). Tyto images obsahují potřebné závislosti a předkonfigurované extenze pro komunikaci s naší interní LLM infrastrukturou.
+
+**Aktuálně integrované notebooky**
+
+`Minimal NB with AI` je odlehčené prostředí, které přichází s oficiální extenzí Jupyter AI předinstalovanou. Tato integrace poskytuje výkonné rozhraní pro interakci s velkými jazykovými modely (LLMs) přímo z buněk vašeho notebooku nebo prostřednictvím vyhrazeného chat panelu.
+
+![Minimal NB with AI](/img/ceritsc/apps/jupyterhub/jupyter-intelligence.png)
+
+* Chat rozhraní: Asistent v postranním panelu (Jupyternaut), který umí odpovídat na otázky, generovat snippety a učit se z vašich lokálních souborů.
+* Pro úplný průvodce syntaxí a možnostmi se obraťte na oficiální [dokumentaci Jupyter AI](https://jupyter-ai.readthedocs.io/en/latest/).
+
+<Callout type="info">
+Bezpečnostní upozornění: Vaše data jsou v bezpečí. Veškeré zpracování probíhá pomocí naší interní LLM platformy. Žádný kód ani data nejsou odesílány na veřejné API endpoiny.
+</Callout>
+
+## Integrace Claude Code
+
+Claude Code není jen chatbot; je to agentický kódovací asistent. Umí číst váš notebook, analyzovat vaše datové struktury a procházet váš souborový systém, aby pomohl se složitými úlohami --- od pipeline pro čištění dat po vizualizaci a ladění. Tato integrace plně podporuje „Vibe Coding".
+
+<Callout type="info">
+Bezpečnostní upozornění: Vaše data jsou v bezpečí. Veškeré zpracování probíhá pomocí naší interní LLM platformy. Žádný kód ani data nejsou odesílány na veřejné API endpoiny.
+</Callout>
+
+Pro zachování bezpečnosti a stability je Claude Code navržen s filozofií „Human-in-the-loop".
+* Claude Code má omezeno automatické spouštění buněk notebooku. Přestože umí psát, upravovat nebo refaktorovat kód, funguje na principu oprávnění na prvním místě. Budete vyzváni k explicitnímu schválení spuštění jakéhokoli kódu, který navrhne.
+* Při určitých operacích se soubory nebo změnách na úrovni systému se agent může pozastavit a požádat o vaše oprávnění. Můžete být požádáni, abyste explicitně „add rights" nebo schválili akci, než Claude pokračuje. Tím se zabrání tomu, aby AI omylem upravila kritické soubory bez vašeho dohledu.
+
+<Callout type="warning">
+**Nečinnost Cloud Code**: Uvědomte si prosím, že integrace Cloud Code závisí na úložišti založeném na prohlížeči. V případě vypršení časového limitu relace kvůli nečinnosti nebo pokud je okno prohlížeče zavřeno, může být tento kontext vymazán, což způsobí, že asistent přestane reagovat v Jupyter Notebook, RStudio nebo VS Code.
+
+Řešení: Přejděte na **JupyterHub dashboard**, explicitně **Stop** běžící server a **Start** novou instanci pro obnovení funkčnosti.
+</Callout>
+
+### Claude Code v Jupyter Notebook
+
+Tento průvodce popisuje kroky ke spuštění a inicializaci AI asistenta Claude Code v rámci JupyterNotebook.
+
+Podporovaný image: `DataScience NB AI`
+
+Pro přístup k Claude Code musíte spustit svou relaci pomocí specifického custom image, který obsahuje potřebné AI závislosti.
+
+1. Přihlaste se do svého JupyterHub dashboardu [hub.cloud.e-infra.cz](https://hub.cloud.e-infra.cz/), spusťte nový server
+
+2. Vyberte image:
+```
+DataScience NB AI
+```
+
+![Minimal NB with AI](/img/ceritsc/apps/jupyterhub/claude-image.png)
+
+<Callout type="info">
+Doporučuje se spouštět Claude Code v rámci specifického kontextu projektu, aby lépe porozuměl struktuře vašich souborů.
+</Callout>
+
+<Callout type="info">
+Více informací a příkladů najdete na našem [blogu e-INFRA CZ](https://blog.cerit.io/blog/claude-jupyter/).
+</Callout>
+
+![Minimal NB with AI](/img/ceritsc/apps/jupyterhub/claude-example1.png)
+
+### Integrace Claude Code v RStudio
+
+Tento průvodce popisuje kroky ke spuštění a inicializaci AI asistenta Claude Code v prostředí RStudio na JupyterHub.
+
+Podporovaný image: `cerit.io/hubs/rstudio:4.5.2-ai`
+
+Pro přístup k Claude Code musíte spustit svou relaci pomocí specifického custom image, který obsahuje potřebné AI závislosti.
+
+1. Přihlaste se do svého JupyterHub dashboardu [hub.cloud.e-infra.cz](https://hub.cloud.e-infra.cz/), spusťte nový server
+
+2. Vyberte Custom Image:
+```
+cerit.io/hubs/datasciencenb:2026-01-23-ai
+```
+
+![rstudio](/img/ceritsc/apps/jupyterhub/rstudio-image.png)
+
+<Callout type="info">
+Doporučuje se spouštět Claude Code v rámci specifického kontextu projektu, aby lépe porozuměl struktuře vašich souborů.
+</Callout>
+
+**Inicializace nového projektu**
+
+1. Jakmile se RStudio načte, přejděte na File -> New Project
+
+2. Zvolte New Directory -> New Project
+
+3. Pojmenujte svůj adresář a ujistěte se, že je vytvořen ve vašem Home
+
+4. Klikněte na Create Project
+
+**Aktivace Claude Code**
+
+1. V RStudio najděte záložku Terminal
+
+2. Zadejte následující příkaz a stiskněte Enter:
+
+```bash
+claude
+```
+
+3. Po spuštění příkazu může Claude požádat o oprávnění nebo autentizaci. Postupujte podle pokynů na obrazovce a potvrďte všechny žádosti (např. povolení device code přihlášení nebo přijetí podmínek).
+
+![rstudio](/img/ceritsc/apps/jupyterhub/rstudio-claude2.png)
+
+### Integrace Claude Code ve VSCode
+
+Tento průvodce popisuje kroky ke spuštění a inicializaci AI asistenta Claude Code v prostředí VS Code na JupyterHub.
+
+Podporovaný image: `cerit.io/hubs/minimalnb-cs:06-02-2026-ai`
+
+Pro přístup k Claude Code musíte spustit svou relaci pomocí specifického custom image, který obsahuje potřebné AI závislosti.
+
+1. Přihlaste se do svého JupyterHub dashboardu [hub.cloud.e-infra.cz](https://hub.cloud.e-infra.cz/), spusťte nový server
+
+2. Vyberte Custom Image:
+```
+cerit.io/hubs/datasciencenb:2026-01-23-ai
+```
+![rstudio](/img/ceritsc/apps/jupyterhub/vscode-claude.png)
+
+## Vytvoření vlastního image
+
+Nejlepší a nejjednodušší způsob vytvoření custom image je postavit minimal notebook ze jupyterhub image `jupyter/minimal-notebook:hub-4.0.2` a provést potřebné změny. Zdroj pro náš Minimal notebook naleznete [zde](/examples/ceritsc/jupyterhub/Dockerfile-minimal).
+
+Pokud z jakéhokoli důvodu není žádoucí použít tento minimal notebook jako základ, můžete vytvořit nový z jakéhokoli základu, ale ujistěte se, že je připraven běžet jako notebook:
+
+* Nainstalujte balíček `jupyterlab`
+* Přidejte soubory [start-notebook.py](/examples/ceritsc/jupyterhub/start-notebook.py), [start-notebook.sh](/examples/ceritsc/jupyterhub/start-notebook.sh), [start-singleuser.py](/examples/ceritsc/jupyterhub/start-singleuser.py), [start-singleuser.sh](/examples/ceritsc/jupyterhub/start-singleuser.sh), [start.sh](/examples/ceritsc/jupyterhub/start.sh) do `/usr/local/bin` a učinte je spustitelnými `chown a+rx start*`
+* Ujistěte se, že tyto `start` soubory nebyly upravovány ve Windows a nemají Windows řádky. Hledejte řešení dotazem: windows vs unix newline.
+
+## SSH přístup k JupyterNotebook
+
+<Callout type="warning">
+SSH přístup funguje pouze ze sítí s podporou IPv6. Bude fungovat pouze ze sítě s IPv4 -- většina domácích sítí, obvykle budete potřebovat použít VPN službu, jako je Edu VPN.
+</Callout>
+
+Je možné povolit SSH přístup při spuštění notebooku; musíte použít image, který obsahuje `sshd` se správným nastavením. V současnosti je dostupný image `Minimal NB with SSH access`.
+
+Jak je znázorněno níže, zobrazí se adresa ssh endpointu, v tomto příkladu `jovyan@jupyter-xhejtman---54est.dyn.cloud.e-infra.cz`. Zapište si tuto adresu, protože UI JupyterHub tuto adresu znovu nezobrazí. Lze ji získat příkazem `kubectl get svc -n jupyterhub-[yourlogin]-prod-ns -o yaml | grep external-dns.alpha.kubernetes.io/hostname`, pokud je v notebooku nainstalován nástroj `kubectl`.
+
+![ssh](/img/ceritsc/apps/jupyterhub/ssh.png)
+
+### SSH klíče
+
+Dále musíte přidat svůj (z vašeho notebooku) *veřejný* ssh klíč do Jupyter Notebbooku, do souboru `/home/jovyan/.ssh/authorized_keys`. Pokud adresář `.ssh` v domovském adresáři jovyan neexistuje, vytvořte jej pomocí `mkdir .ssh`. Nevynechávejte tečku na začátku názvu. Všimněte si také, že `ls` nezobrazuje soubory začínající tečkou; pro zobrazení adresáře `.ssh` musíte použít `ls -a`.
+
+Pokud nemáte na svém notebooku vygenerovaný pár ssh klíčů, můžete použít příkaz `ssh-keygen -b 4096 -t rsa`. Vygenerované klíče budou uloženy v `[HOME]/.ssh/id_rsa` (soukromá část) a `[HOME]/.ssh/id_rsa.pub` (veřejná část).
+
+Po přidání veřejného ssh klíče do domovského adresáře Jupyter Notebook zkontrolujte, zda běží proces `sshd`, příkazem `ps -fax`. Tento příkaz zobrazí aktuálně běžící procesy, podobně jako
+
+```bash
+    PID TTY      STAT   TIME COMMAND
+    163 pts/1    Ss     0:00 /bin/sh
+    169 pts/1    R+     0:00  \_ ps -fax
+      1 ?        Ss     0:00 dumb-init start-notebook.sh --ServerApp.default_url=/lab --ServerApp.max_body_size=16291456000
+      7 ?        Ssl    0:04 /opt/conda/bin/python3.11 /opt/conda/bin/jupyterhub-singleuser --ip=0.0.0.0 --ServerApp.default_url=/lab --ServerApp.max_body_size=16291456000
+     96 pts/0    Ss+    0:00  \_ /usr/bin/sh -l
+     25 ?        Ss     0:00 sshd: /usr/sbin/sshd [listener] 0 of 10-100 startups
+```
+
+Pokud nevidíte běžící proces `sshd` (poslední řádek), spusťte v terminálu Jupyter Notebook příkaz `/usr/sbin/sshd`. Je možné, že obdržíte upozornění o neshodě verze OpenSSL, které by nemělo zabránit spuštění `sshd`. Pokud toto upozornění obdržíte, zkontrolujte výstup `ps -fax`; pokud běží proces `sshd`, vše je funkční i přes upozornění.
+
+V tomto okamžiku byste se měli být schopni připojit pomocí ssh podobně jako `ssh jovyan@jupyter-xhejtman---54est.dyn.cloud.e-infra.cz`.
+
+<Callout type="info">
+ssh někdy vypíše upozornění o změněném ssh klíči (zejména po restartu notebooku), to je v pořádku, při použití SSH klíče.<br/>NEIGNORUJTE TOTO UPOZORNĚNÍ PŘI ZADÁVÁNÍ HESLA.
+</Callout>
+
+### Vytvoření vlastního SSH image
+
+Můžete snadno použít jako základ náš minimal notebook image s názvem: `cerit.io/hubs/minimalnb:26-09-2024-ssh`. Nebo si můžete vytvořit vlastní od začátku. Postupujte podle výše uvedených pokynů, jak vytvořit vlastní notebook image, a navíc nainstalujte balíček `openssh-server`.
+
+Vložte následující konfiguraci do `/etc/ssh/sshd_config.d/sshd.conf`, nebo pokud vaše základní distribuce nepoužívá `/etc/ssh/sshd_config.d`, pak přímo do `/etc/ssh/sshd_config`:
+
+```ini title="sshd.conf"
+Port 2222
+AddressFamily any
+ListenAddress 0.0.0.0
+ListenAddress ::
+StrictModes no
+PubkeyAuthentication yes
+UsePAM yes
+X11Forwarding no
+PrintMotd no
+TCPKeepAlive yes
+PubkeyAcceptedKeyTypes +ssh-rsa
+```
+
+Také odstraňte všechny soubory `/etc/ssh/ssh_host_*` v image.
+
+<Callout type="warning">
+Je zásadní odstranit soubory `ssh_host_*` z image a vytvořit nové soubory při spuštění image. Jinak ssh připojení není bezpečné!
+</Callout>
+
+Posledním krokem je upravit původní soubor `start-notebook.sh` umístěný v image v `/usr/local/bin/start-notebook.sh` a přidat řádky:
+
+```bash
+(export LD_LIBRARY_PATH='';
+ rm -f /etc/ssh/ssh_host_*;
+ for i in rsa dsa ecdsa ed25519; do
+   ssh-keygen -q -f /etc/ssh/ssh_host_${i}_key -N '' -t $i;
+   ssh-keygen -f /etc/ssh/ssh_host_${i}_key.pub;
+ done)
+
+LD_LIBRARY_PATH='' /usr/sbin/sshd
+```
+
+celý soubor by měl vypadat takto:
+```bash title="start-notebook.sh"
+#!/bin/bash
+# Shim to emit warning and call start-notebook.py
+echo "WARNING: Use start-notebook.py instead"
+
+(export LD_LIBRARY_PATH='';
+ rm -f /etc/ssh/ssh_host_*;
+ for i in rsa dsa ecdsa ed25519; do
+   ssh-keygen -q -f /etc/ssh/ssh_host_${i}_key -N '' -t $i;
+   ssh-keygen -f /etc/ssh/ssh_host_${i}_key.pub;
+ done)
+
+LD_LIBRARY_PATH='' /usr/sbin/sshd
+
+exec /usr/local/bin/start-notebook.py "$@"
+```
+## Spuštění Job z notebooku
+
+Jupyter Notebooks jsou skvělým nástrojem pro interaktivní výpočty, ale někdy vaše skripty mohou obsahovat část, která je náročnější na zdroje. V takovém případě je vhodnější spustit tuto část jako `Job` spíše než uvnitř Notebooku. Některé z důvodů jsou:
+1. Musíte notebooku alokovat hodně prostředků, i když je většinu času nepotřebujete.
+2. Pokud je výpočet příliš náročný, nemusíte být schopni interagovat s prostředím notebooku, protože přidělené prostředky jsou spotřebovávány výpočtem &rarr; nemůžete interaktivně analyzovat data z notebooku
+
+### Potřebné nástroje
+
+<Callout type="info" emoji="ℹ️">
+  Aktivně pracujeme na snižování počtu kroků, které je třeba provést.
+</Callout>
+
+Pro spuštění jobu musíte do svého notebooku nainstalovat nástroj `kubectl`.
+Pro images založené na RStudio:
+- Otevřete terminál a spusťte
+```curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"```
+  - Pokud dostanete chybu `curl: command not found`, pak proveďte
+  ```
+  fakeroot apt-get update
+  ```
+  počkejte, dokud aktualizace neskončí
+  ```
+  fakeroot apt-get install curl
+  ```
+  a znovu spusťte výše zmíněný curl
+- Spusťte
+  ```
+  fakeroot install -o rstudio -m 0755 kubectl /usr/local/bin/kubectl
+  ```
+- Spusťte
+  ```
+  export KUBERNETES_PORT=tcp://10.43.0.1:443 KUBERNETES_PORT_443_TCP=tcp://10.43.0.1:443 KUBERNETES_PORT_443_TCP_ADDR=10.43.0.1 KUBERNETES_PORT_443_TCP_PORT=443 KUBERNETES_PORT_443_TCP_PROTO=tcp KUBERNETES_SERVICE_HOST=10.43.0.1 KUBERNETES_SERVICE_PORT=443 KUBERNETES_SERVICE_PORT_HTTPS=443
+  ```
+- Nyní můžete pomocí `kubectl` interagovat s prostředky ve vašem namespace. Ověřte příkazem:
+  ```
+  kubectl get pods
+  ```
+  který vrátí seznam vašich běžících notebooků.
+
+### Sdílení dat z notebooku do Jobu
+
+Je pravděpodobné, že byste chtěli znovu použít data (nebo skript) umístěná ve vaší instanci Jupyter Notebook v `Job`. Protože `Job` je nový objekt, musíte k němu data připojit.
+
+Váš notebook může připojit dva různé tzv. `volumes`, které lze sdílet:
+1. Váš notebook má perzistentní volume připojený na `/home/jovyan` (nebo `/home/rstudio`), který je interně realizován objektem nazvaným `PersistentVolumeClaim`. Tento objekt má užitečnou vlastnost - lze jej znovu použít a připojit k jakémukoli jinému Notebooku nebo Jobu na libovolnou cestu.
+2. Pokud jste se rozhodli připojit svůj metacentrum home (připojený na `/home/meta/[vaše_meta_uživatelské_jméno]`), byl pro tento home vytvořen další objekt `PersistentVolumeClaim`. Tento objekt lze rovněž znovu použít a připojit k jakémukoli jinému Notebooku nebo Jobu na libovolnou cestu.
+
+Abyste mohli tyto dva objekty (`PersistentVolumeClaims` = PVCs) později použít, musíte znát jejich názvy:
+1. Zjistěte název PVC připojeného na `/home/jovyan` (nebo `/home/rstudio`) zadáním příkazu
+```
+kubectl get pvc | awk -v volume=$(df -h | awk '$1 ~ /^147\.251\.6\.218:/ {split($1, a, "/"); print a[length(a)]}') '$3 == volume {print $1}'
+```
+např.
+```
+rstudio@jupyter-testuser--pipemaster2:~$ kubectl get pvc | awk -v volume=$(df -h | awk '$1 ~ /^147\.251\.6\.218:/ {split($1, a, "/"); print a[length(a)]}') '$3 == volume {print $1}'
+testuser-home-pipemaster <---- NÁZEV PVC PŘIPOJENÉHO NA /home/rstudio
+```
+
+2. Zjistěte název PVC připojeného na `/home/meta/[vaše_uživatelské_jméno]` zadáním dvou příkazů:
+  2.1 Nejprve zjistěte, jaké úložiště jste připojili. Pokud jste nepřipojili žádné meta úložiště, výstup bude prázdný.
+  ```
+  df -h | awk '$NF ~ /^\/home\/meta/ {match($1, /@([^:]+):/, m); print m[1]}'
+  ```
+  např.
+  ```
+  rstudio@jupyter-testuser--pipemaster2:~$ df -h | awk '$NF ~ /^\/home\/meta/ {match($1, /@([^:]+):/, m);
+  print m[1]}'
+  storage-brno2.metacentrum.cz <---- PŘIPOJENÉ META ÚLOŽIŠTĚ
+  ```
+  2.2 Zadruhé získejte název PVC pro metacentrum home zadáním příkazu a porovnáním jeho názvu s vámi zvoleným úložištěm, např. `brno2, brno12, plzen1, ...`
+  ```
+  kubectl get pvc | awk '$3 ~ /-data-sshfs$/ {print $1}'
+  ```
+  např.
+  ```
+  rstudio@jupyter-testuser--pipemaster2:~$kubectl get pvc | awk '$3 ~ /-data-sshfs$/ {print $1}'
+  testuser-brno12-cerit-claim
+  testuser-brno2-claim <---- TOTO JE TEN, protože připojený meta home je storage-brno2.metacentrum.cz
+  ```
+
+Nyní byste měli znát názvy objektů, které použijeme jako volume mounts v další části o vytvoření samotného Jobu.
+
+### Vytvoření Jobu
+
+V `Job` budete muset zadat 4 věci:
+1. Název image ke spuštění
+2. Skript/Příkaz ke spuštění
+3. Prostředky (Resources)
+4. Volumes k připojení
+
+#### Image
+
+Job musí začínat nějakým image. Měli byste vytvořit Docker image, který bude obsahovat všechny potřebné knihovny, které váš skript vyžaduje, nebo software, který chcete spustit pro zpracování dat.
+
+#### Skript
+
+Skript může být zabudován do image, nebo můžete spustit skript umístěný v připojených volumes (tj. z PVC, které jsme zmínili výše).
+
+Pokud jste interagovali s Notebookem a uložili skript, který chcete spustit jako Job, na cestu `/home/rstudio` (`/home/jovyan`) nebo do svého meta home, budete moci tento skript spustit v Jobu, pokud je volume připojený (více níže)
+
+#### Prostředky (Resources)
+
+Budete muset specifikovat, jaké paměťové a CPU prostředky váš Job potřebuje.
+
+#### Volumes k připojení
+
+Můžete specifikovat, zda chcete k Jobu připojit některý ze dvou PVC z předchozí části (tj. perzistentní home nebo metahome). Obecně dává smysl připojit oba (pokud používáte Meta home), protože můžete přímo sdílet data mezi Meta home, Notebookem a Jobem. Navíc Job může zapisovat své výstupy buď do Meta home, nebo do home adresáře Notebooku, což vám usnadní práci s výstupy (nevyžaduje žádné kopírování)
+
+## Řešení chyb
+
+Při přístupu na URL `/user/your_name` obdržíte _HTTP 500:Internal Server Error_. S největší pravděpodobností je tato chyba způsobena:
+1. Zvolili jste MetaCentrum home, který jste dříve nepoužívali -- Červený 500 Error je následován `Error in Authenticator.pre_spawn_start`
+2. Zvolili jste MetaCentrum home, ke kterému nemáte přístup -- Červený 500 Error je následován `Error in Authenticator.pre_spawn_start`
+3. Během spouštění se objeví `Error: ImagePullBackOff`
+
+Řešení:
+1. Odhlaste se a znovu přihlaste
+2. K home nemůžete získat přístup ani po odhlášení a přihlášení -- nemáte oprávnění tento konkrétní home používat
+3. Kliknutí na malou šipku `Event log` poskytne více informací. Téměř jistě je mezi nimi zpráva označená `[Warning]`, která poskytuje podrobnější popis. Je velmi pravděpodobné, že repo a/nebo název image je přepsán (misspelled).
+   - počkejte prosím 10 minut
+   - Služba má časový limit 10 minut a během této doby se snaží vytvořit všechny potřebné prostředky. Kvůli chybě se vytvoření nezdaří a po 10 minutách uvidíte červené pruhy průběhu se zprávou `Spawn failed: pod/jupyter-[username] did not start in 600 seconds!`. V tomto okamžiku stačí znovu načíst stránku a kliknout na `Relaunch server`.
+
+<Callout>
+  Pokud si nejste jisti, jak vytvořit image pro svůj `Job`, nebo máte jiné otázky, kontaktujte nás na **k8s@cerit-sc.cz**.
+</Callout>
