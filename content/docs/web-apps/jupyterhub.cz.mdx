@@ -28,7 +28,7 @@ Poskytujeme řadu předkonfigurovaných Docker images pro různé výpočetní n
 *	**TensorFlow a Pytorch Images**, optimalizované pro strojové učení a hluboké učení
 *	**Matlab Images**, umožňující přístup ke grafické, interaktivní instanci Matlabu
 *	**Folding images**, speciálně navržené pro speciální případy použití zahrnující Colabfold nebo ESM Fold
-*    Image s integrovaným **Claude Code**, pokročilou AI chat asistencí (Harbor: cerit.io/hubs/datasciencenb:2026-01-23-ai)
+*    Image s integrovaným **Claude Code**, pokročilou AI chat asistencí 
 *	Alternativně můžete použít i svůj vlastní **custom image**
 
 > Můžete si zvolit vytvoření vlastního image se všemi závislostmi a softwarem, které potřebujete. Nezapomeňte však zahrnout celý jupyter stack, jinak nasazení nebude fungovat. Doporučujeme stavět z [existujícího image](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html), který již obsahuje veškerý potřebný software. Pokud zvolíte custom image, musíte zadat název image spolu s jeho repozitářem a volitelným tagem --- vstup ve formátu `repo/imagename:tag`. Pokud si vytváříte vlastní image, musíte zajistit, aby byl repozitář veřejný. Pokud nevíte, jaký repozitář zvolit, provozujeme vlastní docker registry, které můžete svobodně používat a nevyžaduje žádnou další konfiguraci. Další informace o registry naleznete [na webu harbor](../docker/harbor).
