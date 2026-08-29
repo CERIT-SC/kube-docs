@@ -108,7 +108,7 @@ Názvy modelů rozlišují velká a malá písmena a mohou obsahovat příponu k
 |-------|-----------|------------|---------|-------------|--------|-------|
 | **GPT-OSS-120B** | `gpt-oss-120b` | chat, nástroje | 128k | 32k | mxfp4 | [openai/gpt-oss-120b](https://huggingface.co/openai/gpt-oss-120b) |
 | **DeepSeek-V4-Flash** | `DeepSeek-V4-Flash` | chat, nástroje | 1M | 64k | fp8 | [huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731) |
-| **GLM 5.2** | `glm-5.2` | chat, nástroje | 1M | 48k | fp8 | [zai-org/GLM-5.2-FP8](https://huggingface.co/zai-org/GLM-5.2-FP8) |
+| **GLM 5.3** | `glm-5.3` | chat, nástroje | 1M | 64k | fp8 | [zai-org/GLM-5.3](https://huggingface.co/zai-org/GLM-5.3) |
 | **Kimi K3** | `kimi-k3` | chat, multimodální, nástroje | 1M | 48k | fp8 | [moonshotai/Kimi-K3](https://huggingface.co/moonshotai/Kimi-K3) |
 | **Qwen3.5 (397B, int4)** | `qwen3.5-int4` | chat, multimodální, nástroje | 256k | 32k | int4 | [QuantTrio/Qwen3.5-397B-A17B-AWQ](https://huggingface.co/QuantTrio/Qwen3.5-397B-A17B-AWQ) |
 | **Qwen3.8 Flash Next** | `qwen3.8-flash-next` | chat, multimodální, nástroje | 256k | 48k | fp8 | — |
@@ -119,7 +119,7 @@ Názvy modelů rozlišují velká a malá písmena a mohou obsahovat příponu k
 
 
 - **Kimi K3** — vlajkový model Moonshot AI s otevřenými váhami, 2,8 bilionu parametrů, typu Mixture-of-Experts (MoE). Nativně multimodální s podporou vision, kontextové okno 1M tokenů a silný výkon v dlouhých programovacích úlohách, uvažování, znalostní práci a agentních workflow.
-- **GLM 5.2** — jazykový model s 756B parametry optimalizovaný pro pokročilé uvažování, používání nástrojů a vícekrokové agentní úlohy.
+- **GLM 5.3** — jazykový model s 756B parametry optimalizovaný pro pokročilé uvažování, používání nástrojů a vícekrokové agentní úlohy.
 - **GPT-OSS-120B** — otevřený jazykový model OpenAI se 120B parametry nabízející silný obecný výkon v uvažování, programování a používání nástrojů.
 - **DeepSeek V4 Flash-0731** — efektivní reasoning model se 304B parametry, který dosahuje výkonu srovnatelného s předními proprietárními modely navzdory mnohem menšímu počtu aktivovaných parametrů. Vyniká v matematice, logickém uvažování a generování kódu.
 - **Qwen3.5 (397B, int4)** — vlajkový model 397B (A17B aktivních) pro programování, používání nástrojů a agentní workflow. Sestavení int4 (AWQ) je servováno také jako `qwen3.5-int4` pro vyšší propustnost při nižší přesnosti.
@@ -145,7 +145,7 @@ Protože se přesné verze modelů často mění, udržujeme sadu krátkých, na
 
 | Alias | Aktuálně ukazuje na | Poznámky |
 |-------|---------------------|----------|
-| `glm` | `glm-5.2` | nejnovější GLM |
+| `glm` | `glm-5.3` | nejnovější GLM |
 | `kimi` | `kimi-k2.7` | nejnovější Kimi |
 | `deepseek` | `deepseek-v4-flash` | reasoning ve výchozím nastavení **vypnutý** (lze explicitně zapnout) |
 | `deepseek-thinking` | `deepseek-v4-flash-thinking` | reasoning **zapnutý** |
