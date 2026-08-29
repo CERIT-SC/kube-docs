@@ -6,6 +6,10 @@ spec:
   instances: 1
   enableSuperuserAccess: true
 
+  managed:
+    services:
+      disabledDefaultServices: ["r", "ro"]
+
   imageName: 'cerit.io/cloudnative-pg/postgresql:15.0'
 
   primaryUpdateStrategy: unsupervised

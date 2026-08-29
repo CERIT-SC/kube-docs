@@ -28,6 +28,12 @@ spec:
 
   primaryUpdateStrategy: unsupervised
 
+  managed:
+    services:
+      disabledDefaultServices:
+        - "r"
+        - "ro"
+
   bootstrap:
    initdb:
      database: mydb        # db to create, can be modified
@@ -76,6 +82,9 @@ Použijte `dbuser:password` jako přihlašovací údaje pro připojení.
 ### Přístup k databázi 
 
 K databázi lze přistupovat (připojit se) ze stejného namespace, kde je nasazena, z jiného namespace nebo zvenčí Kubernetes clusteru. Databáze běžně používají připojení pouze pro čtení (obvykle směrované na repliky) a připojení pro čtení i zápis (směrované na hlavní instance).
+<Callout type="info">
+Výchozí příklady manifestů clusteru zakazují automaticky generované služby pouze pro čtení (`<name>-r` a `<name>-ro`). Pokud chcete používat repliky pouze pro čtení, potřebujete **alespoň 2 instance** a musíte **vynechat** sekci `spec.managed.services.disabledDefaultServices` z manifestu clusteru.
+</Callout>
 
 
 #### Přístup ze stejného namespace
@@ -351,6 +360,12 @@ spec:
   imageName: 'ghcr.io/cloudnative-pg/postgresql:14.7-3'
 
   primaryUpdateStrategy: unsupervised
+
+  managed:
+    services:
+      disabledDefaultServices:
+        - "r"
+        - "ro"
 
   bootstrap:
     initdb:

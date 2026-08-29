@@ -5,6 +5,10 @@ metadata:
 spec:
   instances: 1
 
+  managed:
+    services:
+      disabledDefaultServices: ["r", "ro"]
+
   imageName: 'ghcr.io/cloudnative-pg/postgresql:15.3-2'
 
   primaryUpdateStrategy: unsupervised

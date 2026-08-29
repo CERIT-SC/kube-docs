@@ -26,6 +26,12 @@ spec:
 
   primaryUpdateStrategy: unsupervised
 
+  managed:
+    services:
+      disabledDefaultServices:
+        - "r"
+        - "ro"
+
   bootstrap:
    initdb:
      database: mydb        # db to create, can be modified
@@ -75,6 +81,10 @@ Use `dbuser:password` as credentials to connect.
 ### Database Access
 
 Database can be accessed (connected to) from the same namespace where it is deployed, a different namespace, or from outside of the Kubernetes cluster. Databases commonly use read-only connections (targeting usually replicas) and read-write connections (targeting master instances).
+
+<Callout type="info">
+By default, the example cluster manifests disable the auto-generated read-only services (`<name>-r` and `<name>-ro`). If you want to use read-only replicas, you need **at least 2 instances** and you must **omit** the `spec.managed.services.disabledDefaultServices` section from the cluster manifest.
+</Callout>
 
 #### Access From the Same Namespace
 
@@ -339,6 +349,12 @@ spec:
 
   primaryUpdateStrategy: unsupervised
 
+  managed:
+    services:
+      disabledDefaultServices:
+        - "r"
+        - "ro"
+
   bootstrap:
    initdb:
      database: mydb        # db to create, can be modified
@@ -387,6 +403,12 @@ spec:
   imageName: 'ghcr.io/cloudnative-pg/postgresql:14.7-3'
 
   primaryUpdateStrategy: unsupervised
+
+  managed:
+    services:
+      disabledDefaultServices:
+        - "r"
+        - "ro"
 
   bootstrap:
     initdb:
