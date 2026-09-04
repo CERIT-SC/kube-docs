@@ -314,6 +314,29 @@ Once completed, the setup is ready to use.
 
 ---
 
+## Hermes
+
+[Hermes](https://hermes.nousresearch.com/) is an AI coding agent from Nous Research that can be configured to work with our models by pointing it to our API endpoint.
+
+### Installation
+
+Install Hermes using the official installation script:
+
+```bash
+curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --skip-setup
+```
+
+### Configuration
+
+After installation, download the Hermes configuration file from the [config download](#) link (placeholder) and place it at `~/.hermes/config.yaml`.
+
+To authenticate with our API, either:
+
+- Set the `OPENAI_API_KEY` environment variable to your e-infra API key, or
+- Replace the API key directly in the downloaded `config.yaml` file.
+
+---
+
 ## Visual Studio Code Integration
 
 You can integrate Claude Code and AI assistance into Visual Studio Code through either the native Claude Code extension or third-party extensions. These extensions enable AI assistance in various coding roles, including simple chat, agent mode, and autocomplete. Chat provides a familiar conversational interface, agent mode analyzes or edits files in your project, and autocomplete suggests code as you write.
