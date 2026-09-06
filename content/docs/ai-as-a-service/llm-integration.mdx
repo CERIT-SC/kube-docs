@@ -593,65 +593,7 @@ Configure codebase indexing by following these steps:
 4. Create the index by clicking on `Start Indexing`.
 5. After the indexing is finished, the agents will have access to the database and be able to better search and understand the codebase.
 
-#### Roo Code
-[Roo Code](https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline) is a Visual Studio Code extension offering AI assistance with enhanced agent and code understanding capabilities.
 
-##### Install the Roo Code extension (the new version of Roo Code is not supported anymore)
-With Visual Studio Code running:
-1. Open the Extensions tab (`Ctrl+Shift+X`)
-2. Search for `Roo Code`
-3. Select the extension and click `Install`
-4. After installation, access Roo Code via its icon in the left sidebar
-
-##### Configure the Roo Code extension
-To use self-hosted models:
-1. Open Roo Code using the sidebar icon
-2. Click the ⚙️ **Settings** icon (top-right corner)
-3. In the **Providers** section:
-   - **API Provider**: `OpenAI Compatible`
-   - **Base URL**: `https://llm.ai.e-infra.cz/v1`
-   - **API Key**: Your key from [AI Chat WebUI](../ai-as-a-service/chat-ai)
-   - **Model**: `coder` (or alternative)
-4. Set **Context Window Size** using [this table](../ai-as-a-service/chat-ai#guaranteed-models)
-5. Save settings
-
-##### Using Roo Code
-- Select agents via the button in the extension's bottom-left corner
-- After submitting a prompt, agents work autonomously until intervention is needed
-- For advanced usage, consult the [Roo Code documentation](https://docs.roocode.com/)
-
-##### Codebase Indexing
-
-Index the codebase using one of our [embedding models](../ai-as-a-service/chat-ai#embedding-models) to help agents better search and understand your codebase.
-To store the index, set up a local Qdrant database. Here is an example `docker-compose.yaml`:
-
-```yaml
-services:
-  qdrant:
-    image: qdrant/qdrant
-    ports:
-      - "6333:6333"
-    volumes:
-      - qdrant_storage:/qdrant/storage
-volumes:
-  qdrant_storage:
-```
-
-Configure codebase indexing by following these steps:
-
-1. Launch a new database instance by running `docker compose up -d` in the directory containing the `docker-compose.yaml` file
-2. In the Roo Code extension interface, click on the database icon in the bottom right corner.
-3. Open the `Setup` section.
-4. Set the following values:
-   - **Embedder Provider**: `OpenAI Compatible`
-   - **Base URL**: `https://llm.ai.e-infra.cz/v1`
-   - **API Key**: Your API key from [AI Chat WebUI](../ai-as-a-service/chat-ai)
-   - **Model**: One of our [embedding models](../ai-as-a-service/chat-ai#embedding-models), e.g., `qwen3-embedding-4b`
-   - **Model Dimension**: The embedding vector size of the selected model, e.g., `2560` for `qwen3-embedding-4b`.
-   - **Qdrant URL**: `http://localhost:6333`
-   - **Qdrant API Key**: Leave empty if you used the provided Docker Compose configuration.
-5. Create the index by clicking on `Start Indexing`.
-6. After the indexing is finished, the agents will have access to the database and be able to better search and understand the codebase.
 
 ---
 
