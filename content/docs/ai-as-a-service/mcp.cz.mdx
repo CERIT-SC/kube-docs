@@ -1,0 +1,40 @@
+---
+title: MCP servery (Model Context Protocol)
+---
+
+**MCP server** je služba, která vystavuje nástroje, datové zdroje nebo schopnosti AI modelům prostřednictvím standardizovaného rozhraní. Funguje jako most mezi modelem a externími systémy a umožňuje modelu žádat o informace nebo provádět akce kontrolovaným, strukturovaným způsobem. MCP servery definují, k čemu může model přistupovat, jak jsou požadavky zpracovávány a jak jsou odpovědi vraceny, což činí integrace předvídatelnými a bezpečnými.
+
+MCP servery lze použít k připojení AI modelů k databázím, API, souborovým systémům, obchodní logice nebo jiným službám. Centralizací přístupu a vynucováním jasných kontraktů umožňují modelům rozšířit svou funkcionalitu nad rámec jejich vestavěných znalostí při zachování spolehlivosti, bezpečnosti a škálovatelnosti.
+
+## Dostupné MCP servery
+
+Poskytujeme několik MCP serverů, které jsou dostupné přes API [https://llm.ai.e-infra.cz](https://llm.ai.e-infra.cz). Každý MCP server je přístupný na `https://llm.ai.e-infra.cz/[servername]/mcp`, kde `[servername]` je název serveru.
+
+| Název MCP serveru | Popis |
+|-------------------|-------|
+| `ddg_search` | Vyhledává na živém internetu pomocí DuckDuckGo a vrací stručné, formátované webové výsledky. Také načítá, parsuje a extrahuje čitelný obsah z konkrétní URL webové stránky. |
+| `DocFork` | Vyhledává dokumentaci v repozitářích GitHub nebo na webu, načítá a vrací plný obsah dokumentační stránky jako markdown. |
+| `k8scerit` | Generuje ukázkové manifesty pro podporované Kubernetes prostředky, validuje Kubernetes YAML manifesty a opravuje manifesty podle osvědčených postupů. Všechny manifesty jsou vhodné pro CERIT‑SC Kubernetes. |
+| `npmjs` | Poskytuje základní údaje o balíčcích, vypisuje dostupné verze balíčků spolu s daty jejich vydání a nabízí komplexnější sadu informací včetně správců, URL repozitáře, domovské stránky a klíčových slov. |
+| `prolog` | Spouští Trealla Prolog dotaz proti načteným definicím. |
+| `shadcn` | Poskytuje detailní, strukturované informace o komponentách shadcn/ui, aby vývojářům pomohl správně je implementovat. |
+| `solver` | Poskytuje pokročilé matematické výpočetní schopnosti včetně symbolické matematiky, statistické analýzy a maticových operací. |
+| `tailwind` | Poskytuje detailní, strukturované informace o komponentách Tailwind, aby vývojářům pomohl správně je implementovat. |
+
+## Integrace Claude Code
+
+Pro integraci MCP serveru s Claude Code přidejte jeho endpoint pomocí tohoto příkazu:
+
+```bash
+claude mcp add-json tailwind '{"type":"http","scope":"user","url":"https://llm.ai.e-infra.cz/tailwind/mcp","headers":{"Authorization":"Bearer BEARER"}}'
+```
+
+Nahraďte `BEARER` svým API tokenem z [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
+
+<Callout type="warn">
+Nepřidávejte všechny MCP servery "pro jistotu". Přidávejte pouze požadované servery, protože spotřebovávají kontext modelu.
+</Callout>
+
+<Callout type="info">
+Interní nástroje Web Search a Web Fetch v Claude Code fungují pouze s Anthropic API a proto v tomto nastavení nejsou k dispozici. Jejich funkcionalitu lze nahradit MCP serverem `ddg_search`.
+</Callout>
