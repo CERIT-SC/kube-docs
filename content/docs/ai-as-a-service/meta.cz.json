@@ -6,6 +6,7 @@
     "ai-api",
     "llm-integration",
     "deepsite",
+    "deepsec",
     "n8n-agents", 
     "mcp",
     "ai-data-privacy"
