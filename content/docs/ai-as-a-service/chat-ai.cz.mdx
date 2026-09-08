@@ -73,7 +73,19 @@ Protože je naše LLM infrastruktura sdílena mnoha uživateli současně, vytv�
 Aktuální stav všech dostupných modelů je zobrazen na [https://llm.ai.e-infra.cz/status/](https://llm.ai.e-infra.cz/status/)
 </Callout>
 
+<Callout type="info">
+Zajímá vás, kolik tokenů vaše skripty a aplikace spotřebovávají?
+Své statistiky si nyní můžete zobrazit přímo na [https://llm.ai.e-infra.cz/usage](https://llm.ai.e-infra.cz/usage/).
 
+- Dostupné po přihlášení účtem e-INFRA CZ.
+- Dashboard sleduje tokeny spotřebované výhradně přes API endpoint.
+Poznámka: Tokeny vygenerované přes WebUI se zde nesledují.
+</Callout>
+
+Reference
+
+    API token usage
+    LLM monitoring status page
 
 Platné k 30. červnu 2026
 
@@ -107,7 +119,7 @@ Názvy modelů rozlišují velká a malá písmena a mohou obsahovat příponu k
 | Model | API název | Schopnosti | Kontext | Max. výstup | Kvant. | Zdroj |
 |-------|-----------|------------|---------|-------------|--------|-------|
 | **GPT-OSS-120B** | `gpt-oss-120b` | chat, nástroje | 128k | 32k | mxfp4 | [openai/gpt-oss-120b](https://huggingface.co/openai/gpt-oss-120b) |
-| **DeepSeek-V4-Flash** | `DeepSeek-V4-Flash` | chat, nástroje | 1M | 64k | fp8 | [huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731) |
+| **DeepSeek-V4-Flash** | `deepseek-v4-flash` | chat, nástroje | 1M | 64k | fp8 | [huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731) |
 | **GLM 5.3** | `glm-5.3` | chat, nástroje | 1M | 64k | fp8 | [zai-org/GLM-5.3](https://huggingface.co/zai-org/GLM-5.3) |
 | **Kimi K3** | `kimi-k3` | chat, multimodální, nástroje | 1M | 48k | fp8 | [moonshotai/Kimi-K3](https://huggingface.co/moonshotai/Kimi-K3) |
 | **Qwen3.5 (397B, int4)** | `qwen3.5-int4` | chat, multimodální, nástroje | 256k | 32k | int4 | [QuantTrio/Qwen3.5-397B-A17B-AWQ](https://huggingface.co/QuantTrio/Qwen3.5-397B-A17B-AWQ) |
@@ -146,7 +158,7 @@ Protože se přesné verze modelů často mění, udržujeme sadu krátkých, na
 | Alias | Aktuálně ukazuje na | Poznámky |
 |-------|---------------------|----------|
 | `glm` | `glm-5.3` | nejnovější GLM |
-| `kimi` | `kimi-k2.7` | nejnovější Kimi |
+| `kimi` | `kimi-k3` | nejnovější Kimi |
 | `deepseek` | `deepseek-v4-flash` | reasoning ve výchozím nastavení **vypnutý** (lze explicitně zapnout) |
 | `deepseek-thinking` | `deepseek-v4-flash-thinking` | reasoning **zapnutý** |
 | `mini` | `gpt-oss-120b` | |
@@ -157,10 +169,13 @@ Protože se přesné verze modelů často mění, udržujeme sadu krátkých, na
 
 <Callout type="info">
 **Který název mám použít?**
-- **Použijte alias** (např. `kimi`, `deepseek`) pro dlouhodobou stabilitu. Název aliasu zůstává dlouhodobě platný a vždy ukazuje na vhodný aktuální model, takže vaše skripty budou fungovat dál. Nevýhodou je, že podkladový model – a tedy i jeho výstupy – se s aktualizacemi mění.
-- **Použijte přesný název modelu** (např. `kimi-k2.7`) pouze tehdy, když právě teď potřebujete jednu konkrétní verzi. Přesné názvy jsou krátkověké: jsou vyřazeny, jakmile je nahradí lepší model (obvykle v noci, ale možná kdykoli), po čemž skripty odkazující na starý název přestanou fungovat, dokud je neaktualizujete.
 
-Pro zpětnou kompatibilitu několik starších aliasů (např. `glm-5`, `kimi-k2.6`) ukazuje na jejich aktuální ekvivalenty, ale brzy budou odstraněny.
+* **Použijte alias** (např. `kimi`, `deepseek`) pro **dlouhodobou stabilitu**. Aliasy vždy ukazují na nejnovější doporučenou verzi modelu, takže vaše skripty nebudou v čase přestávat fungovat.
+  * *Nevýhoda:* Výstupy se mohou mírně měnit s aktualizacemi podkladových modelů.
+* **Použijte přesný název** (např. `kimi-k3`) pro **konzistenci verze**. Doporučeno pouze tehdy, když potřebujete konkrétní, pevnou verzi modelu.
+  * *Nevýhoda:* Přesné názvy jsou krátkověké a budou vyřazeny, jakmile jsou nahrazeny, což způsobí, že skripty, které je používají, přestanou fungovat, dokud je neaktualizujete.
+
+**Poznámka ke starším aliasům:** Starší aliasy (např. `glm-5`, `kimi-k2.6`) v současnosti pro zpětnou kompatibilitu ukazují na své aktualizované ekvivalenty, ale brzy budou zrušeny. Aktualizujte prosím svůj kód na aktuální aliasy nebo přesné názvy.
 </Callout>
 
 #### Embedding modely
