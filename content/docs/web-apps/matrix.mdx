@@ -444,11 +444,14 @@ Make sure you have your [LLM API key generated](/docs/ai-as-a-service/chat-ai#cr
 
 ### Configure the Deployment in Rancher
 
-- Log in to your [Rancher dashboard](https://rancher.cloud.e-infra.cz) and initiate the deployment for the `matrix-hermes` application.
+- Log in to your [Rancher dashboard](https://rancher.cloud.e-infra.cz) and initiate the deployment for the `matrix-hermes` application,
 
 ![hermes rancher](/img/ceritsc/matrix-hermes-rancher.png)
 
-- Locate the `matrix-hermes` deployment, type in a name for it (small letters or numbers), and click **Next**.
+- Locate the `matrix-hermes` deployment,
+- Select your namespace (e.g., `ns-...`),
+- Enter a unique name  (lowercase letters only),
+- Click **Next**.
 
 ![matrix rancher2](/img/ceritsc/matrix-hermes-rancher2.png)
 
@@ -485,6 +488,10 @@ Type the agent name you created to search for it, and send the invite.
 ![matrix hermes agent invitation2](/img/ceritsc/matrix-hermes-agentinvitationEN2.jpg)
 </div>
 </center>
+
+<Callout type="info">
+To allow invited users to interact with your agent, you must update your environment variables in Rancher. Add each user's Matrix ID to the `MATRIX_ALLOWED_USERS` variable in the .env file.
+</Callout>
 
 Everything is set up! You can now start communicating with your Hermes agent directly in the Matrix room.
 
