@@ -3,6 +3,7 @@ title: JupyterHub
 ---
 
 **JupyterHub** je open-source platforma navržená tak, aby poskytovala víceuživatelský přístup k prostředím Jupyter Notebook.
+Umožňuje spravovat a škálovat nasazení interaktivních výpočetních prostředí pro více uživatelů, což z ní činí ideální volbu pro vzdělávací instituce, výzkumné laboratoře a podniky, které potřebují podporovat společnou datovou vědu a vědecké výpočty.
 
 **JupyterLab / Jupyter Notebooks** jsou webové aplikace, které vám umožňují vytvářet a sdílet dokumenty obsahující živý kód, rovnice, vizualizace a narativní text. Jsou široce používány při analýze dat, strojovém učení a dalších výpočetních úlohách díky své interaktivní povaze a schopnosti kombinovat spouštění kódu s bohatým textovým vysvětlením.
 
@@ -362,19 +363,11 @@ claude
 
 ### Integrace Claude Code ve VSCode
 
-Tento průvodce popisuje kroky ke spuštění a inicializaci AI asistenta Claude Code v prostředí VS Code na JupyterHub.
-
-Podporovaný image: `cerit.io/hubs/minimalnb-cs:06-02-2026-ai`
-
 Pro přístup k Claude Code musíte spustit svou relaci pomocí specifického custom image, který obsahuje potřebné AI závislosti.
 
 1. Přihlaste se do svého JupyterHub dashboardu [hub.cloud.e-infra.cz](https://hub.cloud.e-infra.cz/), spusťte nový server
-
-2. Vyberte Custom Image:
-```
-cerit.io/hubs/datasciencenb:2026-01-23-ai
-```
-![rstudio](/img/ceritsc/apps/jupyterhub/vscode-claude.png)
+2. Vyberte image
+3. Nastavte LLM integraci -- viz [integrace LLM](/docs/ai-as-a-service/llm-integration)
 
 ## Vytvoření vlastního image
 
