@@ -5,7 +5,7 @@ title: Integrace AI asistentů pro programování
 ## Úvod
 AI infrastruktura CERIT-SC zpřístupňuje velké jazykové modely (LLM) prostřednictvím standardních API protokolů, což vám umožňuje integrovat výkonné AI asistenty přímo do vašeho lokálního vývojového prostředí. Propojením vašich nástrojů s naším backendem můžete využívat výkonné modely (například qwen3-coder nebo gpt-oss-120b) pro programátorské úlohy, aniž byste je museli provozovat na vlastním hardwaru nebo spoléhat na externí komerční poskytovatele.
 
-Tato kapitola popisuje, jak nakonfigurovat dva populární nástroje tak, aby komunikovaly s naším API.
+Tato příručka vysvětluje, jak nakonfigurovat několik populárních nástrojů tak, aby komunikovaly s naším API.
 
 <Callout type="info"> 
 Prerekvizita: Před pokračováním se ujistěte, že jste vygenerovali API klíč z  [AI Chat WebUI](../ai-as-a-service/chat-ai). Tento klíč budete potřebovat k autentizaci vašeho klienta.
@@ -223,7 +223,7 @@ Nahraďte `sk-...` svým API klíčem získaným z: https://chat.ai.e-infra.cz
 Aplikaci spusťte následujícím příkazem:
 
 ```bash
-codex --model qwen3-coder --full-auto
+codex --model coder --full-auto
 ```
 
 Po vyzvání k přihlášení:  
@@ -245,11 +245,11 @@ Nejprve nainstalujte Open Code pro váš operační systém podle oficiálních 
 
 - [Open Code – Instalace](https://github.com/anomalyco/opencode?tab=readme-ov-file#installation)
 
-Ujistěte se, že CLI `opencode je po instalaci k dispozici ve vašem `$PATH`.
+Ujistěte se, že `opencode` CLI je po instalaci k dispozici ve vašem `$PATH`.
 
 ### Konfigurace
 
-1. Uložte následující konfiguraci do souboru `~/.config/opencode/opencode.json`:
+1. Uložte konfiguraci níže do souboru `~/.config/opencode/opencode.json`:
 
 ```json title="~/.config/opencode/opencode.json"
 {
@@ -262,26 +262,30 @@ Ujistěte se, že CLI `opencode je po instalaci k dispozici ve vašem `$PATH`.
         "baseURL": "https://llm.ai.e-infra.cz/v1"
       },
       "models": {
-        "kimi-k2.6": {
-          "name": "kimi-k2.6"
+        "agentic": {
+          "name": "agentic"
         },
-        "gpt-oss-120b": {
-          "name": "gpt-oss-120b"
+        "mini": {
+          "name": "mini"
         },
-        "glm-5.1": {
-          "name": "glm-5.1"
+        "glm": {
+          "name": "glm"
         },
-        "qwen3.5": {
-          "name": "qwen3.5"
+        "coder": {
+          "name": "coder"
         },
-        "deepseek-v4-pro-thinking": {
-          "name": "deepseek-v4-pro-thinking"
+        "thinker": {
+          "name": "thinker"
         }
       }
     }
   }
 }
 ```
+
+<Callout type="idea">
+Ověřte aktuální názvy modelů, nebo použijte `agentic`, `coder`, `mini` a `thinker` jako aliasy.
+</Callout>
 
 2. Spusťte aplikaci příkazem:
    ```bash
@@ -299,15 +303,38 @@ Ujistěte se, že CLI `opencode je po instalaci k dispozici ve vašem `$PATH`.
 
 6. Vyberte model:
    ```
-   qwen3-coder
+   coder
    ```
 
 Po dokončení je nastavení připraveno k použití.
 
 <Callout type="info">
 - Model `gpt-oss-120b` má **částečnou podporu** a nemusí fungovat podle očekávání.
-- Model `qwen3-coder` by měl fungovat stejně dobře jako `glm-4.7`.
+- Model `qwen3-coder-next` by měl fungovat stejně dobře jako `qwen3-coder`.
 </Callout>
+
+---
+
+## Hermes
+
+[Hermes](https://hermes.nousresearch.com/) je AI kódovací agent od Nous Research, který lze nakonfigurovat pro práci s našimi modely nasměrováním na náš API endpoint.
+
+### Instalace
+
+Nainstalujte Hermes pomocí oficiálního instalačního skriptu:
+
+```bash
+curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --skip-setup
+```
+
+### Konfigurace
+
+Po instalaci stáhněte konfigurační soubor Hermes z odkazu [config download](/examples/ceritsc/hermes/config.yaml) a umístěte jej na `~/.hermes/config.yaml`.
+
+Pro autentizaci vůči našemu API buď:
+
+- Nastavte proměnnou prostředí `OPENAI_API_KEY` na váš e-INFRA API klíč, nebo
+- Nahraďte API klíč přímo ve staženém souboru `config.yaml`.
 
 ---
 
@@ -316,26 +343,59 @@ Po dokončení je nastavení připraveno k použití.
 Claude Code a AI asistenci můžete integrovat do Visual Studio Code buď pomocí nativního rozšíření Claude Code, nebo rozšíření třetích stran. Tato rozšíření umožňují AI asistenci v různých rolích při programování, včetně jednoduchého chatu, režimu agenta a automatického doplňování. Chat poskytuje známý konverzační rozhraní, režim agenta analyzuje nebo upravuje soubory ve vašem projektu a automatické doplňování navrhuje kód během psaní.
 
 
+### Instalace Visual Studio Code
+
+Nejprve nainstalujte Visual Studio Code (VS Code)
+* Stažením instalačního balíčku z oficiálních webových stránek.
+* Prostřednictvím repozitáře vaší linuxové distribuce.
+
+Po instalaci spusťte VS Code.
+
 ### Nativní rozšíření Claude Code
 
-Nativní rozšíření Claude Code poskytuje přímou integraci s Claude Code ve Visual Studio Code.
+Tato příručka popisuje konfiguraci nativního rozšíření Claude Code ve Visual Studio Code tak, aby bylo možné využívat AI modely poskytované prostřednictvím CERIT-SC API.
+Postup je primárně určen pro uživatele Linuxu, avšak princip konfigurace je podobný i v jiných operačních systémech.
 
-#### Krok 1: Instalace rozšíření
+#### Kroky instalace
 
 1. Otevřete Visual Studio Code
 2. Přejděte na **Rozšíření** (`Ctrl+Shift+X`)
 3. Vyhledejte `Claude Code`
-4. Nainstalujte oficiální rozšíření Claude Code
+4. **Nainstalujte** oficiální rozšíření `Claude Code`
+
+![install-extension](/img/ceritsc/vscode01.png)
 
 #### Konfigurace
 
-Pro konfiguraci nativního rozšíření Claude Code:
+Po instalaci musí být rozšíření nakonfigurováno pro použití CERIT-SC API.
+Pro rozšíření Claude Code klikněte na ikonu:
+
+<div class="w-110">
+![manage](/img/ceritsc/vscode02.png)
+</div>
+
+**Manage** → **Settings**
+
+VS Code automaticky nastaví filtr pouze pro nastavení tohoto rozšíření.
+
+![manage](/img/ceritsc/vscode03.png)
+
+Nahoře v nastavení by měl být viditelný filtr jako následující:
+
+`@ext:Anthropic.claude-code`
+
+![manage](/img/ceritsc/vscode04.png)
+
+**Konfigurace `settings.json`**:
 
 1. Otevřete **Upravit** → **Předvolby** → **Nastavení** (nebo stiskněte `Ctrl+,`)
 2. Vyhledejte `Claude Code`
 3. Přejděte do sekce **Environment Variables** (Proměnné prostředí)
-4. Klikněte na **Edit in settings.json**
-5. Přidejte následující proměnné prostředí s vaším API klíčem z [AI Chat WebUI](../ai-as-a-service/chat-ai) ve formátu:
+3. Klikněte na **Edit in settings.json**
+
+![manage](/img/ceritsc/vscode05.png)
+
+Přidejte následující proměnné prostředí s vaším API klíčem z [AI Chat WebUI](../ai-as-a-service/chat-ai) v následujícím formátu:
 
 ```
 "claudeCode.environmentVariables": [
@@ -371,13 +431,43 @@ Pro konfiguraci nativního rozšíření Claude Code:
 ],
 ```
 
-Nahraďte `sk-...` vaším skutečným API klíčem získaným z [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
+<Callout type="info">
+**API Token:** Parametr `ANTHROPIC_AUTH_TOKEN` obsahuje váš API token: `sk-...`.
 
-Jakmile je konfigurace hotová, rozšíření bude používat náš LLM backend pro AI asistované programátorské úkoly.
+⚠️ **Nahraďte `sk-...` svým skutečným [API klíčem](../ai-as-a-service/ai-api#creating-an-api-key)** získaným z [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
+
+Nikdy svůj token nesdílejte ani nepublikujte.
+</Callout>
+
+![manage](/img/ceritsc/vscode06.png)
+
+<Callout type="info">
+**Názvy modelů:** Jednotlivé parametry určují, který model má Claude Code používat.
+Například:
+- `ANTHROPIC_MODEL` může obsahovat: `coder` nebo `agentic`
+
+Podobně můžete nastavit:
+- `ANTHROPIC_DEFAULT_OPUS_MODEL`
+- `ANTHROPIC_DEFAULT_SONNET_MODEL`
+- `ANTHROPIC_DEFAULT_HAIKU_MODEL`
+
+na aliasy:
+- `thinker`
+- `agentic`
+- `mini`
+Konkrétní názvy musí odpovídat modelům dostupným na API endpointu.
+
+[Aktuálně dostupné modely](../ai-as-a-service/chat-ai#currently-available-models)
+</Callout>
+
+Po dokončení konfigurace uložte soubor: `Ctrl+S`.
+Dále doporučujeme restartovat VS Code.
+Rozšíření bude používat náš LLM backend pro AI asistované programátorské úkoly.
 
 ### Rozšíření třetích stran
 
-AI chatboty můžete integrovat do Visual Studio Code taky pomocí rozšíření třetích stran, jako jsou [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) nebo [Roo Code](https://marketplace.visualstudio.com/items?itemName=RooCode.roocode).
+Integrujte AI chatboty do Visual Studio Code pomocí rozšíření třetích stran, jako jsou [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) nebo [Zoo-Code](https://marketplace.visualstudio.com/items?itemName=IYRM.zoo-code).
+
 #### Instalace rozšíření Continue
 
 Když je Visual Studio Code spuštěné, otevřete kartu Extensions  (`Ctrl+Shift+X`) a vyhledejte `Continue`.  Klikněte na rozšíření a poté na tlačítko `Install`. Po dokončení instalace můžete k rozšíření `Continue` řistupovat kliknutím na ikonu `Continue` v levém postranním panelu.
