@@ -1,0 +1,74 @@
+---
+title: Overleaf
+---
+
+## Provozování Overleaf
+
+Pokud ještě nejste přihlášeni, přihlaste se na [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz). Podrobnosti viz sekce [Rancher](../rancher/rancher).
+
+Overleaf je kolaborativní editor LaTeXu. Nasazení Community Edition Plus (CEP) zahrnuje reference, linked-url-proxy a integraci Zotera. Aplikace běží jako jeden pod se sidecary MongoDB a Redis, s perzistentním úložištěm pro projektové soubory a výstupy překladu.
+
+<Callout type="warn">
+Zadání správné e-mailové adresy je zásadní. Bez ní neobdržíte aktivační e-mail a nebudete se moci přihlásit. Před instalací e-mail dvakrát zkontrolujte.
+</Callout>
+
+<Callout type="warn">
+Uložená data nejsou ve výchozím nastavení zálohována. Pokud potřebujete zálohy, kontaktujte [podporu](mailto:k8s@cerit-sc.cz).
+</Callout>
+
+<Callout type="info">
+Registrace uživatelů je vypnutá. Přihlásit se mohou pouze počáteční administrátorský uživatel a uživatelé pozvaní prostřednictvím e-mailového odkazu. Další uživatele lze pozvat zasláním pozvánky přímo z Overleaf po přihlášení jako administrátor.
+</Callout>
+
+### Instalace aplikace
+
+Ujistěte se, že nemáte vybrán žádný namespace a že v horní části stránky Rancher vidíte `User namespaces only`.
+
+Přejděte přes `Apps`, `Charts`, omezte charty pouze na `cerit-sc` a vyberte `Overleaf CE Plus`.
+
+<center>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/2LgyaFKwKDI?si=zrmGB9-MHkFJrt7o" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</center>
+
+<Callout type="warn">
+Aktivační e-mail může spadnout do složky se spamem. Pokud jej neobdržíte během několika minut, zkontrolujte složku se spamem.
+</Callout>
+
+### Nastavení hesla účtu
+
+Po spuštění aplikace je automaticky vytvořen počáteční administrátorský uživatel a na zadanou adresu je odeslán aktivační e-mail. E-mail obsahuje odkaz pro nastavení hesla.
+
+![mail](/img/ceritsc/apps/overleaf/mail.png)
+
+Klikněte na odkaz v e-mailu, nastavte si heslo a aktivujte svůj účet. Pokud e-mail během několika minut neobdržíte, zkontrolujte složku se spamem.
+
+<Callout type="warn">
+Pokud zadaný e-mail nebyl správný, aktivační e-mail neobdržíte a nebudete se moci přihlásit. V takovém případě aplikaci smažte a začněte znovu se správným e-mailem, nebo kontaktujte [podporu](mailto:k8s@cerit-sc.cz).
+</Callout>
+
+Budete přesměrováni přímo do aplikace Overleaf.
+
+### Připojení k běžící instanci
+
+Jakmile aplikace běží a váš účet je aktivován, přejděte na URL uvedenou v poznámkách k instalaci:
+
+```
+https://<host>-<namespace>.dyn.cloud.e-infra.cz/
+```
+
+Přihlaste se svým e-mailem a heslem, které jste nastavili při aktivaci.
+
+## Smazání běžící instance
+
+Pokud aplikaci již nepotřebujete, můžete ji smazat. Tím se odstraní aplikace a všechny související prostředky Kubernetes.
+
+<center>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Kztl6c3CvZk?si=WCn5Q1h1WfiaaACE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</center>
+
+<Callout type="warn">
+Smazání aplikace odstraní všechna data včetně projektů, souborů a výstupů překladu, i když máte povolené perzistentní úložiště.
+Vezměte na vědomí, že uložená data nejsou ve výchozím nastavení zálohována. Pokud potřebujete po smazání data obnovit, kontaktujte [podporu](mailto:k8s@cerit-sc.cz).
+</Callout>
+
+Pro trvalé smazání aplikace včetně všech dat odstraňte aplikaci z `Apps` → `Installed Applications`.
