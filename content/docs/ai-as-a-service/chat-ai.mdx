@@ -110,7 +110,7 @@ We do not guarantee that a specific model will remain available throughout the s
 </Callout>
 
 <Callout type="info">
-For exact, currently served model names, query the live model list via the API (see [Creating an API Key](#creating-an-api-key)) or check the [status page](https://llm.ai.e-infra.cz/status/). When accessing externally you must use either a maintained alias or the exact model name, e.g. `qwen3.8-27b` or `deepseek-v4-pro`.
+For exact, currently served model names, query the live model list via the API (see [Creating an API Key](#creating-an-api-key)) or check the [status page](https://llm.ai.e-infra.cz/status/). When accessing externally you must use either a maintained alias or the exact model name, e.g. `qwen3.8-27b` or `deepseek-v4-flash`.
 
 Model names are case-sensitive and may include a quantization suffix (e.g. `qwen3.5-int4`).
 </Callout>
@@ -199,9 +199,9 @@ We evaluated selected models using [Aider Polyglot Benchmark](https://aider.chat
 
 | Model                    | C++ Score | Go Lang Score | Java Score | Javascript Score | Python Score | Rust Score |
 |--------------------------|-----------|---------------|------------|------------------|--------------|------------|
-|DeepSeek V4 Pro (think)   | 80.8      | 69.2          | 53.2       | 69.4             | 73.5         | 70         |
+|DeepSeek V4 Flash-0731    | 69.2      | 79.5          | 72.3       | 91.8             | 88.2         | 83.3       |
 |Gemma 4 (instant)         | 53.8      | 51.3          | 34.0       | 44.9             | 44.1         | 46.7       |
-|GLM 5.2 (think)           | 92.3      | 89.7          | 85.1       | **93.9**         | **97.1**     | 86.7       | 
+|GLM 5.3                   | 88.5      | 87.2          | 87.2       | **93.9**         | **100.0**    | 86.7       |
 |GPT-OSS-120B              | 50.0      | 59.0          | 40.4       | 61.2             | 70.6         | 53.3       |
 |Kimi K3 (think)           | **100**   | **92.3**      | **93.6**   | 91.8             | **97.1**     | **93.3**   |
 |Mistral Medium 3.5 (high) | 50.0      | 59.0          | 44.7       | 57.1             | 67.6         | 46.7       |
