@@ -1,0 +1,67 @@
+---
+title: Zásady ochrany dat AI
+---
+
+CERIT-SC upřednostňuje bezpečnost a soukromí výzkumných dat. Naše AI platforma je postavena jako bezpečná, lokální (on-premise) alternativa ke komerčním AI službám, která zajišťuje, že vaše interakce a data zůstávají pod kontrolou národní výzkumné infrastruktury e-INFRA CZ.
+
+## Umístění dat a infrastruktura
+
+Všechny standardní AI služby běží zcela v rámci bezpečné infrastruktury e-INFRA CZ.
+
+* On-premise inference: Lokální modely běží lokálně na dedikovaných systémech NVIDIA DGX nebo podobných, umístěných v našich datových centrech.
+* Žádné externí úniky: Ve výchozím nastavení nejsou vaše dotazy ani odpovědi AI přenášeny ani logovány externími poskytovateli (jako OpenAI, Google nebo Anthropic).
+* Přístup k internetu: Jedinou výjimkou je případ, kdy uživatel explicitně povolí nástroje "Vyhledávání na internetu". V takových případech jsou extením vyhledávacím strojům odeslány pouze vygenerované vyhledávací dotazy za účelem získání relevantního kontextu.
+* Soulad s institucionálními a právními požadavky.
+
+## Práce s citlivými daty
+
+Přestože je naše infrastruktura vysoce bezpečná, musí si uživatelé zvolit vhodný způsob přístupu podle citlivosti svých výzkumných dat.
+
+<Callout type="warn">
+Prostředí **WebUI** je určeno pro obecný výzkum a asistenci a nesplňuje regulační bezpečnostní standardy požadované pro zpracování citlivých, utajovaných nebo osobních údajů (PII). Používáním této služby uživatel bere na vědomí, že platforma není certifikována pro chráněná data, a souhlasí s tím, že jakékoli nahrání takových informací je na jeho vlastní uvážení a riziko.
+Pokud vaše workflow zahrnuje práci s vysoce citlivými informacemi, utajovanými daty nebo osobními údaji (PII), kontaktujte nás prosím nejprve a prodiskutujte bezpečné alternativy.
+</Callout>
+
+<Callout type="info">
+Workflow s citlivými daty (API): Uživatelům pracujícím s citlivými nebo chráněnými datovými sadami doporučujeme používat **přímý API přístup**. Podkladové LLM inference enginy běží na dedikované infrastruktuře speciálně navržené pro zpracování citlivých dat. Použitím API obcházíte úložnou vrstvu WebUI a přitom stále využíváte naše bezpečné, lokálně hostované modely.
+</Callout>
+
+### WebUI (chatovací rozhraní)
+
+Prostředí Open WebUI je určeno pro obecný výzkum, programovací asistenci a zpracování textu.
+
+Open WebUI používá štítky k rozlišení, jak jsou modely připojeny. Bez ohledu na štítek zůstávají vaše data v rámci naší kontrolované infrastruktury, pokud není výslovně uvedeno jinak.
+
+* Interní modely (OpenAI-kompatibilní API): Všechny modely přístupné uživatelům běží na naší infrastruktuře a data související s inferencí neopouštějí naše systémy.
+* Skutečně externí služby: Přístup k modelům třetích stran (např. GPT-5) je poskytován pouze na základě speciálních smluv. V těchto konkrétních případech jsou data přenášena poskytovateli třetí straně.
+* Uvědomění uživatele: Uživatelé berou na vědomí, že nahrání chráněných dat do WebUI je na jejich vlastní uvážení a riziko.
+* Historie konverzace: Pokud používáte WebUI, vaše historie chatu je uložena v lokální databázi PostgreSQL. Když ve WebUI smažete konverzaci, je označena k odstranění z databáze.
+* Uživatelé by si měli být vědomi, že soubory nahrané do WebUI (např. dokumenty pro RAG, obrázky pro analýzu) jsou trvale uloženy v úložišti platformy a uživatel je v současné době nemůže smazat.
+
+### API (přímý přístup)
+
+Pro workflow zahrnující citlivé nebo chráněné datové sady doporučujeme použít OpenAI-kompatibilní API.
+
+* Obcházení úložiště: Použití API vám umožňuje komunikovat přímo s inference enginy a obejít úložné vrstvy používané ve WebUI.
+* Dedikovaná infrastruktura: Podkladové inference enginy běží na infrastruktuře speciálně navržené pro bezpečné zpracování citlivých výzkumných dat.
+
+<Callout type="info">
+**Potřebujete specializované prostředí?** Pokud váš výzkum zahrnuje vysoce citlivé informace nebo specifické požadavky na shodu (např. zdravotní data podle GDPR), kontaktujte nás na k8s@cerit-sc.cz a prodiskutujte dedikované, izolované nasazení.
+</Callout>
+
+## Logování a uchovávání dat
+
+Dodržujeme **politiku minimálního uchovávání dat** na ochranu soukromí uživatelů.
+
+**Systémové logy**
+
+* Samotné Open WebUI loguje ve výchozím nastavení na úrovni INFO, což znamená, že data požadavků/odpovědí nejsou logována. Příležitostně, když je vyžadováno řešení problémů, může být úroveň logování dočasně zvýšena na DEBUG. V takových případech jsou data požadavků/odpovědí uložena do restartu Podu — obvykle při nasazení nové verze.
+* Přístup k těmto logům mají pouze systémoví administrátoři a nejsou nikam přenášeny.
+* Uložené konverzace jsou uloženy v databázi PostgreSQL hostované v naší infrastruktuře. Když je konverzace smazána, měla by být odstraněna i z databáze — i když jsme nezávisle neověřili, zda WebUI plně implementuje toto chování.
+* Databáze je zálohována na úložiště S3 v CESNETu s 30denní dobou uchovávání, což znamená, že starší zálohy jsou po 30 dnech smazány. Teoreticky bude smazaná konverzace zcela vymazána v tomto okně. Opět, přístup k tomuto systému je omezen pouze na administrátory.
+
+## Administrativní přístup a důvěrnost
+
+Přístup k systémovým logům a podkladové databázi je přísně omezen na autorizované systémové administrátory. Všichni administrátoři jsou vázáni dohodami o mlčenlivosti (NDA), aby byla zajištěna důvěrnost vašich interakcí.
+
+Žádné dolování dat: CERIT-SC netrénuje ani nefine-tunuje globální modely na uživatelských chatovacích datech. Vaše prompty jsou použity výhradně k vygenerování okamžité odpovědi pro vaši relaci.

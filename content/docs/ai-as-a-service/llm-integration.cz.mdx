@@ -5,7 +5,7 @@ title: Integrace AI asistentů pro programování
 ## Úvod
 AI infrastruktura CERIT-SC zpřístupňuje velké jazykové modely (LLM) prostřednictvím standardních API protokolů, což vám umožňuje integrovat výkonné AI asistenty přímo do vašeho lokálního vývojového prostředí. Propojením vašich nástrojů s naším backendem můžete využívat výkonné modely (například qwen3-coder nebo gpt-oss-120b) pro programátorské úlohy, aniž byste je museli provozovat na vlastním hardwaru nebo spoléhat na externí komerční poskytovatele.
 
-Tato kapitola popisuje, jak nakonfigurovat dva populární nástroje tak, aby komunikovaly s naším API.
+Tato příručka vysvětluje, jak nakonfigurovat několik populárních nástrojů tak, aby komunikovaly s naším API.
 
 <Callout type="info"> 
 Prerekvizita: Před pokračováním se ujistěte, že jste vygenerovali API klíč z  [AI Chat WebUI](../ai-as-a-service/chat-ai). Tento klíč budete potřebovat k autentizaci vašeho klienta.
@@ -223,7 +223,7 @@ Nahraďte `sk-...` svým API klíčem získaným z: https://chat.ai.e-infra.cz
 Aplikaci spusťte následujícím příkazem:
 
 ```bash
-codex --model qwen3-coder --full-auto
+codex --model coder --full-auto
 ```
 
 Po vyzvání k přihlášení:  
@@ -245,11 +245,11 @@ Nejprve nainstalujte Open Code pro váš operační systém podle oficiálních 
 
 - [Open Code – Instalace](https://github.com/anomalyco/opencode?tab=readme-ov-file#installation)
 
-Ujistěte se, že CLI `opencode je po instalaci k dispozici ve vašem `$PATH`.
+Ujistěte se, že `opencode` CLI je po instalaci k dispozici ve vašem `$PATH`.
 
 ### Konfigurace
 
-1. Uložte následující konfiguraci do souboru `~/.config/opencode/opencode.json`:
+1. Uložte konfiguraci níže do souboru `~/.config/opencode/opencode.json`:
 
 ```json title="~/.config/opencode/opencode.json"
 {
@@ -262,26 +262,30 @@ Ujistěte se, že CLI `opencode je po instalaci k dispozici ve vašem `$PATH`.
         "baseURL": "https://llm.ai.e-infra.cz/v1"
       },
       "models": {
-        "kimi-k2.6": {
-          "name": "kimi-k2.6"
+        "agentic": {
+          "name": "agentic"
         },
-        "gpt-oss-120b": {
-          "name": "gpt-oss-120b"
+        "mini": {
+          "name": "mini"
         },
-        "glm-5.1": {
-          "name": "glm-5.1"
+        "glm": {
+          "name": "glm"
         },
-        "qwen3.5": {
-          "name": "qwen3.5"
+        "coder": {
+          "name": "coder"
         },
-        "deepseek-v4-pro-thinking": {
-          "name": "deepseek-v4-pro-thinking"
+        "thinker": {
+          "name": "thinker"
         }
       }
     }
   }
 }
 ```
+
+<Callout type="idea">
+Ověřte aktuální názvy modelů, nebo použijte `agentic`, `coder`, `mini` a `thinker` jako aliasy.
+</Callout>
 
 2. Spusťte aplikaci příkazem:
    ```bash
@@ -299,15 +303,38 @@ Ujistěte se, že CLI `opencode je po instalaci k dispozici ve vašem `$PATH`.
 
 6. Vyberte model:
    ```
-   qwen3-coder
+   coder
    ```
 
 Po dokončení je nastavení připraveno k použití.
 
 <Callout type="info">
 - Model `gpt-oss-120b` má **částečnou podporu** a nemusí fungovat podle očekávání.
-- Model `qwen3-coder` by měl fungovat stejně dobře jako `glm-4.7`.
+- Model `qwen3-coder-next` by měl fungovat stejně dobře jako `qwen3-coder`.
 </Callout>
+
+---
+
+## Hermes
+
+[Hermes](https://hermes.nousresearch.com/) je AI kódovací agent od Nous Research, který lze nakonfigurovat pro práci s našimi modely nasměrováním na náš API endpoint.
+
+### Instalace
+
+Nainstalujte Hermes pomocí oficiálního instalačního skriptu:
+
+```bash
+curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --skip-setup
+```
+
+### Konfigurace
+
+Po instalaci stáhněte konfigurační soubor Hermes z odkazu [config download](/examples/ceritsc/hermes/config.yaml) a umístěte jej na `~/.hermes/config.yaml`.
+
+Pro autentizaci vůči našemu API buď:
+
+- Nastavte proměnnou prostředí `OPENAI_API_KEY` na váš e-INFRA API klíč, nebo
+- Nahraďte API klíč přímo ve staženém souboru `config.yaml`.
 
 ---
 
@@ -316,26 +343,59 @@ Po dokončení je nastavení připraveno k použití.
 Claude Code a AI asistenci můžete integrovat do Visual Studio Code buď pomocí nativního rozšíření Claude Code, nebo rozšíření třetích stran. Tato rozšíření umožňují AI asistenci v různých rolích při programování, včetně jednoduchého chatu, režimu agenta a automatického doplňování. Chat poskytuje známý konverzační rozhraní, režim agenta analyzuje nebo upravuje soubory ve vašem projektu a automatické doplňování navrhuje kód během psaní.
 
 
+### Instalace Visual Studio Code
+
+Nejprve nainstalujte Visual Studio Code (VS Code)
+* Stažením instalačního balíčku z oficiálních webových stránek.
+* Prostřednictvím repozitáře vaší linuxové distribuce.
+
+Po instalaci spusťte VS Code.
+
 ### Nativní rozšíření Claude Code
 
-Nativní rozšíření Claude Code poskytuje přímou integraci s Claude Code ve Visual Studio Code.
+Tato příručka popisuje konfiguraci nativního rozšíření Claude Code ve Visual Studio Code tak, aby bylo možné využívat AI modely poskytované prostřednictvím CERIT-SC API.
+Postup je primárně určen pro uživatele Linuxu, avšak princip konfigurace je podobný i v jiných operačních systémech.
 
-#### Krok 1: Instalace rozšíření
+#### Kroky instalace
 
 1. Otevřete Visual Studio Code
 2. Přejděte na **Rozšíření** (`Ctrl+Shift+X`)
 3. Vyhledejte `Claude Code`
-4. Nainstalujte oficiální rozšíření Claude Code
+4. **Nainstalujte** oficiální rozšíření `Claude Code`
+
+![install-extension](/img/ceritsc/vscode01.png)
 
 #### Konfigurace
 
-Pro konfiguraci nativního rozšíření Claude Code:
+Po instalaci musí být rozšíření nakonfigurováno pro použití CERIT-SC API.
+Pro rozšíření Claude Code klikněte na ikonu:
+
+<div class="w-110">
+![manage](/img/ceritsc/vscode02.png)
+</div>
+
+**Manage** → **Settings**
+
+VS Code automaticky nastaví filtr pouze pro nastavení tohoto rozšíření.
+
+![manage](/img/ceritsc/vscode03.png)
+
+Nahoře v nastavení by měl být viditelný filtr jako následující:
+
+`@ext:Anthropic.claude-code`
+
+![manage](/img/ceritsc/vscode04.png)
+
+**Konfigurace `settings.json`**:
 
 1. Otevřete **Upravit** → **Předvolby** → **Nastavení** (nebo stiskněte `Ctrl+,`)
 2. Vyhledejte `Claude Code`
 3. Přejděte do sekce **Environment Variables** (Proměnné prostředí)
-4. Klikněte na **Edit in settings.json**
-5. Přidejte následující proměnné prostředí s vaším API klíčem z [AI Chat WebUI](../ai-as-a-service/chat-ai) ve formátu:
+3. Klikněte na **Edit in settings.json**
+
+![manage](/img/ceritsc/vscode05.png)
+
+Přidejte následující proměnné prostředí s vaším API klíčem z [AI Chat WebUI](../ai-as-a-service/chat-ai) v následujícím formátu:
 
 ```
 "claudeCode.environmentVariables": [
@@ -371,16 +431,46 @@ Pro konfiguraci nativního rozšíření Claude Code:
 ],
 ```
 
-Nahraďte `sk-...` vaším skutečným API klíčem získaným z [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
+<Callout type="info">
+**API Token:** Parametr `ANTHROPIC_AUTH_TOKEN` obsahuje váš API token: `sk-...`.
 
-Jakmile je konfigurace hotová, rozšíření bude používat náš LLM backend pro AI asistované programátorské úkoly.
+⚠️ **Nahraďte `sk-...` svým skutečným [API klíčem](../ai-as-a-service/ai-api#creating-an-api-key)** získaným z [https://chat.ai.e-infra.cz](https://chat.ai.e-infra.cz).
+
+Nikdy svůj token nesdílejte ani nepublikujte.
+</Callout>
+
+![manage](/img/ceritsc/vscode06.png)
+
+<Callout type="info">
+**Názvy modelů:** Jednotlivé parametry určují, který model má Claude Code používat.
+Například:
+- `ANTHROPIC_MODEL` může obsahovat: `coder` nebo `agentic`
+
+Podobně můžete nastavit:
+- `ANTHROPIC_DEFAULT_OPUS_MODEL`
+- `ANTHROPIC_DEFAULT_SONNET_MODEL`
+- `ANTHROPIC_DEFAULT_HAIKU_MODEL`
+
+na aliasy:
+- `thinker`
+- `agentic`
+- `mini`
+Konkrétní názvy musí odpovídat modelům dostupným na API endpointu.
+
+[Aktuálně dostupné modely](../ai-as-a-service/chat-ai#currently-available-models)
+</Callout>
+
+Po dokončení konfigurace uložte soubor: `Ctrl+S`.
+Dále doporučujeme restartovat VS Code.
+Rozšíření bude používat náš LLM backend pro AI asistované programátorské úkoly.
 
 ### Rozšíření třetích stran
 
-AI chatboty můžete integrovat do Visual Studio Code taky pomocí rozšíření třetích stran, jako jsou [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) nebo [Roo Code](https://marketplace.visualstudio.com/items?itemName=RooCode.roocode).
+Integrujte AI chatboty do Visual Studio Code pomocí rozšíření třetích stran, jako jsou [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) nebo [Zoo-Code](https://marketplace.visualstudio.com/items?itemName=IYRM.zoo-code).
+
 #### Instalace rozšíření Continue
 
-Když je Visual Studio Code spuštěné, otevřete kartu Extensions  (`Ctrl+Shift+X`) a vyhledejte `Continue`.  Klikněte na rozšíření a poté na tlačítko `Install`. Po dokončení instalace můžete k rozšíření `Continue` řistupovat kliknutím na ikonu `Continue` v levém postranním panelu.
+Když je Visual Studio Code spuštěné, otevřete kartu Extensions (`Ctrl+Shift+X`) a vyhledejte `Continue`. Klikněte na rozšíření a poté na tlačítko `Install`. Po dokončení instalace můžete k rozšíření `Continue` přistupovat kliknutím na ikonu `Continue` v levém postranním panelu.
 
 
 #### Konfigurace rozšíření Continue
@@ -406,7 +496,7 @@ model_defaults: &model_defaults
 models:
   - name: autocomplete-coder
     <<: *model_defaults
-    model: qwen3-coder
+    model: coder
     promptTemplates:
       autocomplete: '<|fim_prefix|>{{{ prefix }}}<|fim_suffix|>{{{ suffix }}}<|fim_middle|>'
     autocompleteOptions:
@@ -416,9 +506,9 @@ models:
       maxTokens: 512
     roles:
       - autocomplete
-  - name: chat-coder    
+  - name: chat-coder
     <<: *model_defaults
-    model: qwen3-coder
+    model: coder
     env:
       useLegacyCompletionsEndpoint: false
     roles:
@@ -438,45 +528,42 @@ context:
 
 #### Použití AI ve Visual Studio Code
 
-* Chat lze otevřít stisknutím ikony `Continue` v levém postranním panelu.
-* V chatu můžete zapnout režim agenta tím, že požádáte o analýzu, vysvětlení nebo úpravu souboru v aktuálně otevřeném projektu. Tato akce vyžaduje dodatečná oprávnění, například práva pro čtení/zápis do souvisejících souborů. Musíte udělit potřebná oprávnění, aby agent mohl úkol provést.
-* Funkce automatického doplňování bude při psaní průběžně nabízet nové návrhy kódu. Jakmile se návrh zobrazí, přijmete jej stisknutím klávesy `Tab`. Rychlost odezvy návrhů závisí na výkonu modelu. V konfiguraci autocomplete můžete změnit model `qwen3-coder` na `gpt-oss-120b`, který může být o něco rychlejší, ale výchozí model má lepší výsledky při programovacích úlohách.
+* **Chat**: Chat lze otevřít stisknutím ikony `Continue` v levém postranním panelu
+* **Režim agenta**: V chatu můžete zapnout režim agenta tím, že požádáte o analýzu, vysvětlení nebo úpravu souborů v aktuálně otevřeném projektu. Tato akce vyžaduje dodatečná oprávnění, například práva pro čtení/zápis do souvisejících souborů; musíte udělit potřebná oprávnění, aby agent mohl požadované akce provést
+* **Automatické doplňování**: Funkce automatického doplňování průběžně navrhuje nový kód během psaní. Stisknutím klávesy `Tab` návrh přijmete. Rychlost odezvy závisí na rychlosti modelu. V konfigurační sekci autocomplete můžete model `qwen3-coder` změnit na `gpt-oss-120b` pro rychlejší odezvu, i když výchozí model obecně dosahuje lepších výsledků při programovacích úlohách
 
-#### Roo Code
-[Roo Code](https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline) je rozšíření pro Visual Studio Code, které poskytuje asistenci AI s vylepšenými schopnostmi agenta a porozuměním kódu.
+#### Zoo-Code
+[Zoo-Code](https://marketplace.visualstudio.com/items?itemName=IYRM.zoo-code) je rozšíření pro Visual Studio Code nabízející AI asistenci se schopnostmi agenta a porozuměním kódu.
 
-##### Instalace rozšíření Roo Code
+##### Instalace rozšíření Zoo-Code
 Se spuštěným Visual Studio Code:
 1. Otevřete kartu Rozšíření (`Ctrl+Shift+X`)
-2. Vyhledejte `Roo Code`
+2. Vyhledejte `Zoo-Code`
 3. Vyberte rozšíření a klikněte na `Install`
-4. Po instalaci získáte přístup k Roo Code pomocí jeho ikony v levém postranním panelu
+4. Po instalaci získáte přístup k Zoo-Code pomocí jeho ikony v levém postranním panelu
 
-
-
-##### Nakonfigurujte rozšíření Roo Code
+##### Konfigurace rozšíření Zoo-Code
 Chcete-li používat self-hosted modely:
-1. Otevřete Roo Code pomocí ikony v postranním panelu
-2. Klikněte na ikonu ⚙️ **Settings** (vpravo nahoře)
+1. Otevřete Zoo-Code pomocí ikony v postranním panelu
+2. Otevřete **Nastavení**
 3. V sekci **Providers**:
    - **API Provider**: `OpenAI Compatible`
    - **Base URL**: `https://llm.ai.e-infra.cz/v1`
    - **API Key**: Váš klíč z [AI Chat WebUI](../ai-as-a-service/chat-ai)
-   - **Model**: `qwen3-coder` (nebo alternativní)
+   - **Model**: `coder` (nebo alternativní)
 4. Nastavte **Context Window Size** podle [této tabulky](../ai-as-a-service/chat-ai#guaranteed-models)
 5. Uložte nastavení
 
-##### Používání Roo Code
-- Vyberte agenty pomocí tlačítka v levém dolním rohu rozšíření
-- Po odeslání zadání agenti pracují autonomně, dokud není potřeba zásah
-- Pro pokročilé použití si prostudujte [Roo Code dokumentaci](https://docs.roocode.com/)
+##### Používání Zoo-Code
+- Vyberte agenty pomocí přepínače agent/režim v rozšíření
+- Po odeslání promptu agenti pracují autonomně, dokud není potřeba zásah
+- Pro pokročilé použití viz [dokumentace Zoo-Code](https://github.com/11cafe/zoo-code)
 
 ##### Codebase indexování
+Indexujte codebase pomocí jednoho z našich [embedding modelů](../ai-as-a-service/chat-ai#embedding-models), aby agenti mohli lépe vyhledávat a porozumět vaší codebase.
+Pro uložení indexu nastavte lokální databázi Qdrant. Zde je příklad `docker-compose.yaml`:
 
-Indexování codebase pomocí jednoho z našich [embedding modelů](../ai-as-a-service/chat-ai#embedding-models) pomáhá agentům lépe vyhledávat a porozumět vaší codebase.
-Pro uložení indexu je potřeba nastavit lokální databázi Qdrant. Zde je příklad souboru `docker-compose.yaml`:
-
-```
+```yaml
 services:
   qdrant:
     image: qdrant/qdrant
@@ -488,26 +575,115 @@ volumes:
   qdrant_storage:
 ```
 
-Pro nastavení indexování codebase postupujte podle těchto kroků:
+Nakonfigurujte codebase indexování podle těchto kroků:
 
-1. Spusťte novou instanci databáze příkazem `docker compose up -d` ve stejném adresáři, kde je uložen poskytnutý soubor `docker-compose.yaml`.
-2. V rozhraní rozšíření Roo Code klikněte na ikonu databáze v pravém dolním rohu.
-3. Otevřete sekci `Setup`.
-4. Nastavte následující hodnoty:
-   - **Embedder Provider**: `OpenAI Compatible`
+1. Spusťte novou instanci databáze příkazem `docker compose up -d` v adresáři obsahujícím soubor `docker-compose.yaml`
+2. V rozhraní rozšíření Zoo-Code otevřete nastavení codebase/indexování.
+3. Nastavte následující hodnoty:
+   - **Provider**: `OpenAI Compatible`
    - **Base URL**: `https://llm.ai.e-infra.cz/v1`
    - **API Key**: Váš API klíč z [AI Chat WebUI](../ai-as-a-service/chat-ai)
-   - **Model**: Model: Jeden z našich  [embedding modelů](https://docs.cerit.io/en/docs/ai-as-a-service/chat-ai#embedding-models) např. `qwen3-embedding-4b`
-   - **Model Dimension**: The embedding vector size of the selected model e.g. `2560` for `qwen3-embedding-4b`.
+   - **Model**: Jeden z našich [embedding modelů](../ai-as-a-service/chat-ai#embedding-models), např. `qwen3-embedding-4b`
+   - **Model Dimension**: Velikost embedding vektoru vybraného modelu, např. `2560` pro `qwen3-embedding-4b`.
+5. Uložte nastavení.
    - **Qdrant URL**: `http://localhost:6333`
-   - **Qdrant API Key**: Ponechte prázdné, pokud byl použit poskytnutý docker compose.
-5. Vytvořte index kliknutím na `Start Indexing`.
-6. Po dokončení indexování budou mít agenti přístup k databázi a budou schopni lépe vyhledávat a porozumět codebase.
+   - **Qdrant API Key**: Ponechte prázdné, pokud jste použili poskytnutou konfiguraci Docker Compose.
+4. Vytvořte index kliknutím na `Start Indexing`.
+5. Po dokončení indexování budou mít agenti přístup k databázi a budou schopni lépe vyhledávat a porozumět codebase.
+
+
+
 ---
 
-#### Upozornění
+### Upozornění
 
-Vypnite všetky ostatné rozšírenia pre Visual Studio Code, ktoré poskytujú AI funkcie automatického dopĺňania. V opačnom prípade nemusí rozšírenie `Continue` fungovať správne.
+Vypněte všechna ostatní rozšíření Visual Studio Code, která poskytují AI funkce automatického doplňování. V opačném případě nemusí rozšíření `Continue` správně fungovat.
+
+---
+
+## JetBrains IDE
+
+Modely CERIT-SC můžete integrovat s JetBrains IDE pomocí vestavěného AI Assistant a poskytovatelů kompatibilních s OpenAI. Toto nastavení funguje dobře pro chatová workflow přímo v IDE.
+
+### JetBrains AI Assistant
+
+#### Instalace pluginu AI Assistant
+
+Se spuštěným JetBrains IDE:
+
+1. Otevřete `Settings/Preferences`.
+2. Přejděte na `Plugins` a vyhledejte `AI Assistant`.
+3. Nainstalujte plugin a v případě výzvy restartujte IDE.
+
+#### Konfigurace vlastního poskytovatele
+
+1. Otevřete `Settings/Preferences`.
+2. Přejděte na `Tools` -> `AI Assistant`.
+3. Přidejte vlastního poskytovatele (OpenAI-kompatibilního) s:
+- **Base URL**: `https://llm.ai.e-infra.cz/v1`
+- **API Key**: Váš klíč z [AI Chat WebUI](../ai-as-a-service/chat-ai)
+- **Model**: `coder` (nebo jiný podporovaný model)
+4. Uložte nastavení a otevřete AI chat v postranním panelu IDE.
+
+<Callout type="warn">
+    Vlastní poskytovatelé JetBrains AI Assistant v současnosti fungují pouze v **režimu chatu**.
+</Callout>
+
+### Integrace agenta
+
+Pro autonomní/agentní workflow použijte místo vlastních poskytovatelů JetBrains AI Assistant [Claude Code](#claude-code). Nastavení v sekci **Claude Code** funguje pro integraci ve stylu agenta s naším backendem.
+
+### Vlastní OpenAI poskytovatel ProxyAI
+
+Pokud používáte ProxyAI v JetBrains, přidejte následující konfiguraci vlastního poskytovatele OpenAI:
+
+```json
+[
+  {
+    "id": "f925c0bd-7387-483b-8a55-3fb6572ad4d2",
+    "name": "CERIT-SC",
+    "template": "OPENAI",
+    "apiKey": "",
+    "chatCompletionSettings": {
+      "url": "https://llm.ai.e-infra.cz/v1/chat/completions",
+      "headers": {
+        "Authorization": "Bearer $CUSTOM_SERVICE_API_KEY",
+        "X-LLM-Application-Tag": "proxyai",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "model": "kimi",
+        "messages": "$OPENAI_MESSAGES",
+        "temperature": 0.1,
+        "max_tokens": 512
+      }
+    },
+    "codeCompletionSettings": {
+      "codeCompletionsEnabled": true,
+      "parseResponseAsChatCompletions": false,
+      "infillTemplate": "OPENAI",
+      "url": "https://llm.ai.e-infra.cz/v1/completions",
+      "headers": {
+        "Authorization": "Bearer $CUSTOM_SERVICE_API_KEY",
+        "X-LLM-Application-Tag": "proxyai",
+        "Content-Type": "text/event-stream"
+      },
+      "body": {
+        "suffix": "$SUFFIX",
+        "stream": true,
+        "model": "kimi",
+        "temperature": 0.6,
+        "prompt": "$PREFIX",
+        "max_tokens": 512
+      }
+    }
+  }
+]
+```
+
+<Callout type="info">
+    Ponechte `apiKey` v JSON prázdný a poskytněte svůj klíč prostřednictvím příslušného nastavení.
+</Callout>
 
 ---
 
