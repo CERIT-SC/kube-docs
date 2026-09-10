@@ -159,12 +159,14 @@ Because exact model versions change often, we maintain a set of short, version-i
 | Alias | Currently resolves to | Notes |
 |-------|-----------------------|-------|
 | `glm` | `glm-5.3` | latest GLM |
+| `glm-5` | `glm-5.3` | legacy alias |
 | `kimi` | `kimi-k3` | latest Kimi |
 | `deepseek` | `deepseek-v4-flash` | reasoning **off** by default (can be enabled explicitly) |
 | `deepseek-thinking` | `deepseek-v4-flash-thinking` | reasoning **on** |
+| `thinker` | `deepseek-v4-flash-thinking` | |
 | `mini` | `gpt-oss-120b` | |
 | `coder`, `agentic` | `qwen3.8-flash-next` | |
-| `thinker` | `deepseek-v4-flash-thinking` | | 
+| `qwen3.5` | `qwen3.5-int4` | | 
 
 `deepseek` and `deepseek-thinking` point to the same underlying weights (`deepseek-v4`); they differ only in whether step-by-step reasoning is enabled by default.
 
@@ -176,7 +178,7 @@ Because exact model versions change often, we maintain a set of short, version-i
 * **Use an exact name** (e.g., `kimi-k3`) for **version consistency**. Recommended only when you need a specific, fixed model version. 
   * *Trade-off:* Exact names are short-lived and will be retired when replaced, which will cause scripts using them to fail until updated.
 
-**Note on legacy aliases:** Older aliases (e.g., `glm-5`, `kimi-k2.6`) currently resolve to their updated equivalents for backward compatibility, but will be deprecated soon. Please update your code to current aliases or exact names.
+**Note on legacy aliases:** The `glm-5` alias still resolves to its updated equivalent for backward compatibility, but will be deprecated soon. Please update your code to `glm`.
 </Callout>
 
 

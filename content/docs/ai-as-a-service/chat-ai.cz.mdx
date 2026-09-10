@@ -158,12 +158,14 @@ Protože se přesné verze modelů často mění, udržujeme sadu krátkých, na
 | Alias | Aktuálně ukazuje na | Poznámky |
 |-------|---------------------|----------|
 | `glm` | `glm-5.3` | nejnovější GLM |
+| `glm-5` | `glm-5.3` | starší alias |
 | `kimi` | `kimi-k3` | nejnovější Kimi |
 | `deepseek` | `deepseek-v4-flash` | reasoning ve výchozím nastavení **vypnutý** (lze explicitně zapnout) |
 | `deepseek-thinking` | `deepseek-v4-flash-thinking` | reasoning **zapnutý** |
+| `thinker` | `deepseek-v4-flash-thinking` | |
 | `mini` | `gpt-oss-120b` | |
 | `coder`, `agentic` | `qwen3.8-flash-next` | |
-| `thinker` | `deepseek-v4-flash-thinking` | |
+| `qwen3.5` | `qwen3.5-int4` | | 
 
 `deepseek` a `deepseek-thinking` ukazují na stejné podkladové váhy (`deepseek-v4`); liší se pouze tím, zda je ve výchozím nastavení zapnuté postupné uvažování (reasoning).
 
@@ -175,7 +177,7 @@ Protože se přesné verze modelů často mění, udržujeme sadu krátkých, na
 * **Použijte přesný název** (např. `kimi-k3`) pro **konzistenci verze**. Doporučeno pouze tehdy, když potřebujete konkrétní, pevnou verzi modelu.
   * *Nevýhoda:* Přesné názvy jsou krátkověké a budou vyřazeny, jakmile jsou nahrazeny, což způsobí, že skripty, které je používají, přestanou fungovat, dokud je neaktualizujete.
 
-**Poznámka ke starším aliasům:** Starší aliasy (např. `glm-5`, `kimi-k2.6`) v současnosti pro zpětnou kompatibilitu ukazují na své aktualizované ekvivalenty, ale brzy budou zrušeny. Aktualizujte prosím svůj kód na aktuální aliasy nebo přesné názvy.
+**Poznámka ke starším aliasům:** Alias `glm-5` pro zpětnou kompatibilitu stále ukazuje na svůj aktualizovaný ekvivalent, ale brzy bude zrušen. Aktualizujte prosím svůj kód na `glm`.
 </Callout>
 
 #### Embedding modely
