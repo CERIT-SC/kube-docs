@@ -5,7 +5,112 @@ title: Spark Operator
 [Cílem Spark Operatoru](https://github.com/GoogleCloudPlatform/spark-on-k8s-operator) je usnadnit specifikaci a spuštění Spark aplikací tak, aby to bylo stejně jednoduché a idiomatické jako spuštění jiných  workloadů v Kubernetes. Nasadili jsme Spark Operator na úrovni clusteru, který definuje typy `ScheduledSparkApplication` a `SparkApplication`, úplná dokumentace o struktuře typů je k dispozici [zde](https://github.com/GoogleCloudPlatform/spark-on-k8s-operator/blob/master/docs/api-docs.md). Oficiální a podrobný uživatelský průvodce je k dispozici [zde](https://www.kubeflow.org/docs/components/spark-operator/getting-started/).
 
 ## Důležitá konfigurace
-Musíte nastavit `spec.driver.serviceAccount` na `default`, jinak vaše Spark aplikace selže z důvodu problémů s oprávněním. Ukázkový příklad pro Spark používá jako zdroj svazku `hostPath`, ale to nebude fungovat v clusteru, protože připojení hostitelských svazků je zakázáno. Místo toho použijte `persistentVolumeClaim` ([příklady](https://www.kubeflow.org/docs/components/spark-operator/user-guide/writing-sparkapplication/#mounting-volumes)) a nezapomeňte vytvořit [PVC](../kubernetes/pvc#pvc).
+
+Musíte nastavit `spec.driver.serviceAccount` na `default`, jinak vaše Spark aplikace selže z důvodu problémů s oprávněním.
+
+Oficiální příklady pro Spark používají jako zdroj svazku `hostPath`. To nebude fungovat v clusteru, protože připojení hostitelských svazků je zakázáno. Místo toho použijte `configMap` nebo `persistentVolumeClaim` ([příklady](https://www.kubeflow.org/docs/components/spark-operator/user-guide/writing-sparkapplication/#mounting-volumes)). Pro `persistentVolumeClaim` nejprve vytvořte [PVC](../kubernetes/pvc#pvc).
+
+Pody driveru a executora musí běžet s bezpečnostním kontextem. Nastavte `podSecurityContext` a `securityContext` na `spec.driver` a `spec.executor`, jak ukazuje níže uvedený příklad. To zajistí, že pody poběží jako uživatel `1000`, budou mít odstraněny všechny capability, zakázán privilege escalation a aplikován seccomp profil `RuntimeDefault`.
+
+## Minimální fungující příklad
+
+Následující příklad funguje s naším nasazením. Odešle malou PySpark úlohu, která zobrazí JSON řetězec a ponechá driver spuštěný, abyste se dostali do Spark UI.
+
+<Callout type="warn" icon="⚠️ ">
+Spark UI nemá žádné ověření. Přístup k ní má každý, kdo zná adresu. Tento příklad ponechává driver spuštěný, abyste se mohli dostat do UI. Buďte opatrní, jak dlouho UI necháváte dostupné. Nemůžete ovlivnit, co UI zobrazuje, a UI může ukazovat citlivá data, například logy nebo obsah úloh. Po skončení práce aplikaci smažte, abyste UI přestali vystavovat.
+</Callout>
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spark-example-app
+data:
+  app.py: |
+    from pyspark.sql import SparkSession
+    import time
+
+    spark = SparkSession.builder.appName("spark-example").getOrCreate()
+
+    jsonStrings = ['{"hello":"world"}']
+    rdd = spark.sparkContext.parallelize(jsonStrings)
+    df = spark.read.json(rdd)
+    df.show()
+
+    # to make it possible to access the UI, the driver
+    # is kept alive with an endless loop at the end
+    while True: 
+        time.sleep(1)
+
+---
+apiVersion: sparkoperator.k8s.io/v1beta2
+kind: SparkApplication
+metadata:
+  name: spark-example
+
+spec:
+  type: Python
+  mode: cluster
+  image: apache/spark:4.1.3-python3
+  imagePullPolicy: IfNotPresent
+
+  mainApplicationFile: local:///app/app.py
+  sparkVersion: 4.1.3
+
+  sparkUIOptions:
+    ingressTLS:
+      - hosts:
+          - spark-[namespace].dyn.cloud.e-infra.cz
+        secretName: spark-ui-tls
+
+  driver:
+    javaOptions: "-Duser.home=/tmp"
+    serviceAccount: default
+
+    podSecurityContext:
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+
+    volumeMounts:
+      - name: spark-app
+        mountPath: /app
+
+  executor:
+    javaOptions: "-Duser.home=/tmp"
+
+    podSecurityContext:
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+
+    volumeMounts:
+      - name: spark-app
+        mountPath: /app
+
+  volumes:
+    - name: spark-app
+      configMap:
+        name: spark-example-app
+        items:
+          - key: app.py
+            path: app.py
+```
 
 ## Další konfigurace
 

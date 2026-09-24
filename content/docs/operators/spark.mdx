@@ -5,7 +5,112 @@ title: Spark Operator
 The [Spark Operator](https://github.com/GoogleCloudPlatform/spark-on-k8s-operator) aims to make specifying and running Spark applications as easy and idiomatic as running other workloads on Kubernetes. We have deployed cluster-wide Spark Operator that defines kinds `ScheduledSparkApplication` and `SparkApplication`, full documentation on kinds' structure is available [here](https://github.com/GoogleCloudPlatform/spark-on-k8s-operator/blob/master/docs/api-docs.md). The official and detailed user guide is available [here](https://www.kubeflow.org/docs/components/spark-operator/getting-started/).
 
 ## Important Configuration
-You have to set `spec.driver.serviceAccount` to  `default`, otherwise your spark application will fail on permission issues. The Spark example feature `hostPath` as volume source but this won't work in the cluster since host mounts are forbidden. Please use `persistentVolumeClaim` instead ([examples](https://www.kubeflow.org/docs/components/spark-operator/user-guide/writing-sparkapplication/#mounting-volumes)) and don't forget to create [PVC](../kubernetes/pvc#pvc).
+
+You have to set `spec.driver.serviceAccount` to `default`, otherwise your Spark application fails on permission issues.
+
+The official Spark examples use `hostPath` as the volume source. This does not work in the cluster because host mounts are forbidden. Use `configMap` or `persistentVolumeClaim` instead ([examples](https://www.kubeflow.org/docs/components/spark-operator/user-guide/writing-sparkapplication/#mounting-volumes)). For `persistentVolumeClaim`, create the [PVC](../kubernetes/pvc#pvc) first.
+
+Driver and executor pods must run with a security context. Set `podSecurityContext` and `securityContext` on `spec.driver` and `spec.executor`, as shown in the example below. This makes the pods run as user `1000`, drop all capabilities, disable privilege escalation, and apply the `RuntimeDefault` seccomp profile.
+
+## Minimal Working Example
+
+The following example works with our deployment. It submits a small PySpark job that shows a JSON string and keeps the driver running, so you can reach the Spark UI.
+
+<Callout type="warn" icon="⚠️ ">
+The Spark UI has no authentication. Anyone who knows the address can access it. This example keeps the driver running so you can reach the UI. Be careful to keep it there. You cannot control what the UI shows, and it can display sensitive data such as logs or job contents. Delete the application when you are done to stop exposing it.
+</Callout>
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spark-example-app
+data:
+  app.py: |
+    from pyspark.sql import SparkSession
+    import time
+
+    spark = SparkSession.builder.appName("spark-example").getOrCreate()
+
+    jsonStrings = ['{"hello":"world"}']
+    rdd = spark.sparkContext.parallelize(jsonStrings)
+    df = spark.read.json(rdd)
+    df.show()
+
+    # to make it possible to access the UI, the driver
+    # is kept alive with an endless loop at the end
+    while True: 
+        time.sleep(1)
+
+---
+apiVersion: sparkoperator.k8s.io/v1beta2
+kind: SparkApplication
+metadata:
+  name: spark-example
+
+spec:
+  type: Python
+  mode: cluster
+  image: apache/spark:4.1.3-python3
+  imagePullPolicy: IfNotPresent
+
+  mainApplicationFile: local:///app/app.py
+  sparkVersion: 4.1.3
+
+  sparkUIOptions:
+    ingressTLS:
+      - hosts:
+          - spark-[namespace].dyn.cloud.e-infra.cz
+        secretName: spark-ui-tls
+
+  driver:
+    javaOptions: "-Duser.home=/tmp"
+    serviceAccount: default
+
+    podSecurityContext:
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+
+    volumeMounts:
+      - name: spark-app
+        mountPath: /app
+
+  executor:
+    javaOptions: "-Duser.home=/tmp"
+
+    podSecurityContext:
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+
+    volumeMounts:
+      - name: spark-app
+        mountPath: /app
+
+  volumes:
+    - name: spark-app
+      configMap:
+        name: spark-example-app
+        items:
+          - key: app.py
+            path: app.py
+```
 
 ## Other Configuration
 
