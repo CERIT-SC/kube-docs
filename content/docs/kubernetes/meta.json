@@ -5,6 +5,8 @@
     "job",
     "certificates",
     "expose",
+    "expose-http",
+    "expose-network",
     "pvc",
     "resources",
     "security",

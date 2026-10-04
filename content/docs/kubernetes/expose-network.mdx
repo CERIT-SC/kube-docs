@@ -1,0 +1,157 @@
+---
+title: Exposing Non-HTTP Applications
+---
+
+This page covers exposing applications that do **not** speak HTTP — SSH servers, databases, message brokers, custom TCP protocols. For web-based (HTTP) applications see [Exposing HTTP Applications](./expose-http).
+
+Unlike HTTP apps, non-HTTP applications cannot share the cluster's web load balancer. Each one needs a dedicated public IP address from the cluster's MetalLB pool. IPs are limited, so prefer HTTP whenever possible.
+
+Throughout this documentation, YAML fragments are provided. Deploy them using:
+
+```shell
+kubectl create -f file.yaml -n namespace
+```
+
+where `file.yaml` contains the YAML definitions and `namespace` is the namespace where the application is running.
+
+<Callout title="Prerequisite" icon="✅"> 
+This guide assumes that your application (`Deployment`) is already deployed. If you are unsure, refer to the [Hello World example](../examples/helloworld).
+</Callout>
+
+## LoadBalancer Service
+
+Non-HTTP applications are exposed directly with a `LoadBalancer` Service. Add an `external-dns` annotation to get a DNS name automatically:
+
+```yaml title="service.yaml"
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-svc
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: application.dyn.cloud.e-infra.cz
+spec:
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  ports:
+  - port: 22
+    targetPort: 2222
+  selector:
+    app: application
+```
+
+- The `selector.app: application` must match the `Deployment`.
+- If the `external-dns.alpha.kubernetes.io/hostname` annotation is within `dyn.cloud.e-infra.cz`, the DNS record is automatically registered against the load-balancer IP.
+
+### Checking the Assigned Public IP
+
+Run:
+
+```shell copy
+kubectl get svc -n namespace
+```
+
+The IP address is displayed in the `EXTERNAL-IP` column.
+
+### Private MUNI IP
+
+To expose the application only within the **MUNI network** or **MUNI VPN**, use the following annotation:
+
+```yaml
+metallb.io/address-pool: privmuni
+```
+
+This method is preferred as it avoids consuming a public IPv4 address.
+
+```yaml title="service.yaml"
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-svc
+  annotations:
+    metallb.io/address-pool: privmuni
+    external-dns.alpha.kubernetes.io/hostname: application.dyn.cloud.e-infra.cz
+spec:
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  ports:
+  - port: 22
+    targetPort: 2222
+  selector:
+    app: application
+```
+
+### LoadBalancer Firewall
+
+It is recommended to restrict external access to publicly exposed applications. This can be achieved either at the `NetworkPolicy` level (note that this works only when `externalTrafficPolicy` is set to `Local`) or by using the `loadBalancerSourceRanges` field in the `Service` object.
+
+The example below limits access to the MUNI network `147.251.0.0/16` and to a single IP `1.2.3.4/32`. `loadBalancerSourceRanges` expects CIDR notation, so even a single IP must be expressed with a `/32` mask. If you serve both IPv4 and IPv6, include source ranges for both families.
+
+```yaml title="service.yaml"
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-svc-rw
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: application.dyn.cloud.e-infra.cz
+spec:
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: Cluster
+  ports:
+  - port: 5432
+    targetPort: 5432
+  selector:
+    app: application-rw
+  loadBalancerSourceRanges:
+  - 147.251.0.0/16
+  - 1.2.3.4/32
+```
+
+### Sharing an IP Address Across Multiple Services
+
+Since IPv4 addresses are a scarce resource, it's beneficial to share a single IP address across multiple `LoadBalancer` services differentiated by port numbers. This can be accomplished by using the `metallb.io/allow-shared-ip` annotation.
+
+The annotation's value is a **grouping key**: all services with the same key will attempt to share the same IP address. Choose a unique key per application to avoid unintended IP sharing between unrelated services.
+
+```yaml title="service1.yaml"
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-svc-rw
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: application.dyn.cloud.e-infra.cz
+    metallb.io/allow-shared-ip: my-shared-key-for-application
+spec:
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: Cluster
+  ports:
+  - port: 5432
+    targetPort: 5432
+  selector:
+    app: application-rw
+```
+
+```yaml title="service2.yaml"
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-svc-ro
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: application.dyn.cloud.e-infra.cz
+    metallb.io/allow-shared-ip: my-shared-key-for-application
+spec:
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: Cluster
+  ports:
+  - port: 5433
+    targetPort: 5432
+  selector:
+    app: application-ro
+```
+
+#### Limitations
+
+- If `externalTrafficPolicy` is set to `Local`, **all target Pods must be scheduled on the same node** to ensure accessibility.
+- If `externalTrafficPolicy` is set to `Cluster`, Pods can be distributed across multiple nodes — better resilience and load distribution.

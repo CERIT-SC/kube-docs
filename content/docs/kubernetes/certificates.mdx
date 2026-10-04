@@ -6,11 +6,12 @@ Kubernetes can issue and manage custom trusted certificates using the ACME proto
 
 This is especially important for enabling TLS when exposing non-web applications (without Ingress).
 
-There are currently four issuers available:
+There are currently five issuers available:
 
-* The `letsencrypt-prod` issuer is web-only and automatically checks the web on the specified domain name during the issuance process. It is automatically used when exposing an application via [Ingress](./expose#web-based-applications).
-* The `letsencrypt-prod-dns` issuer is for other applications. The difference is the DNS check. However, the DNS check is slower because DNS changes must propagate first.
-* `letsencrypt-stage` is the same as `letsencrypt-prod` but uses staging servers suitable for testing.
+* The `letsencrypt-gateway` issuer is the **current** web-oriented issuer. Its HTTP-01 solver is wired to the Traefik gateway, so it works with all three supported ingress mechanisms — Gateway API (`HTTPRoute`), Traefik `IngressRoute`, and the `nginx-traefik` Ingress class. Use this for everything in [Exposing HTTP Applications](./expose-http).
+* The `letsencrypt-prod` issuer is the **legacy** web-only issuer from the old nginx-ingress era. It works only with the legacy `nginx` Ingress class and will **not work with any of the current Traefik-based ingress mechanisms** (Gateway API, `IngressRoute`, `nginx-traefik`). Kept for backward compatibility with old manifests; do not use in new deployments.
+* The `letsencrypt-prod-dns` issuer is for non-web applications (TCP/UDP services, custom protocols). It uses DNS-01 validation instead of HTTP-01, which is slower because DNS changes must propagate first.
+* `letsencrypt-stage` is the same as `letsencrypt-prod` but uses staging servers suitable for testing — also legacy-only.
 * `letsencrypt-stage-dns` is the same as `letsencrypt-prod-dns` but uses staging servers suitable for testing.
 
 To issue a Kubernetes-managed certificate, use the following configuration:

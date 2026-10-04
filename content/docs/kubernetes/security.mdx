@@ -4,7 +4,7 @@ title: Security and Network Policy
 
 ## Ingress Authentication
 
-If you want to use basic auth or OAuth for an Ingress, follow the instructions in the [official documentation](https://kubernetes.github.io/ingress-nginx/examples/auth/basic/) or in [our documentation](./expose).
+If you want to use basic auth or OAuth for an Ingress, follow the instructions in the [official documentation](https://kubernetes.github.io/ingress-nginx/examples/auth/basic/) or in [our documentation](./expose-http#authentication). Note that on this cluster the nginx `auth-type`/`auth-secret` annotations are **not** emulated — use a Traefik `Middleware` instead.
 
 This approach has a significant security flaw: authentication is only required when connecting via Ingress, for example, from outside the Kubernetes cluster. However, platform users can also connect from inside the cluster directly to the corresponding Service (they would need to guess its IP address). In such cases, no authentication is required.
 
