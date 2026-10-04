@@ -1,25 +1,15 @@
 ---
 title: Exposing Applications
+description: Make applications running in the cluster reachable from outside — web (HTTP) applications and non-HTTP services.
 ---
 
-This chapter explains how to configure external access to your application from an external network. There are two main types of applications that can be exposed, distinguished by the protocol they speak:
+This chapter explains how to make your application reachable from outside the cluster. How you do it depends on the protocol your application speaks:
 
-- **HTTP(S) applications** — web servers, REST APIs, dashboards. These share the cluster's HTTP load balancer together with every other web app, so a single public IP serves many applications.
-- **Non-HTTP applications** — SSH, databases, custom TCP/UDP protocols. These each need a dedicated public IP of their own.
+- **[HTTP(S) applications](./expose/expose-http)** — web servers, REST APIs, dashboards. These share the cluster's HTTP load balancer with every other web application, so a single public IP serves many of them. They are exposed using Gateway API (`HTTPRoute`), Traefik `IngressRoute`, or nginx `Ingress` (`nginx-traefik`).
+- **[Non-HTTP applications](./expose/expose-network)** — SSH, databases, message brokers, custom TCP/UDP protocols. These cannot share the HTTP load balancer; they are exposed via `LoadBalancer` Services, each with an IP address of its own (public, or private within the MUNI network). Several of your Services can share one IP on different ports.
 
-The IP-address difference is a consequence of the protocol, not the defining property. Because dedicated IPs are scarce, prefer HTTP whenever your application can speak it.
-
-The content is split into two separate pages:
-
-- **[Exposing HTTP Applications](./expose/expose-http)** — web applications, REST APIs, dashboards, etc. using Gateway API (HTTPRoute), Traefik IngressRoute, or nginx Ingress (`nginx-traefik`).
-- **[Exposing Non-HTTP Applications](./expose/expose-network)** — SSH, databases, message brokers, custom TCP/UDP protocols, exposed via `LoadBalancer` Services.
+The difference in IP addresses follows from the protocol: the HTTP load balancer tells applications apart by hostname, while plain TCP/UDP traffic can only be told apart by IP address and port. Public IPv4 addresses are scarce, so prefer HTTP whenever your application can speak it.
 
 <Callout title="Prerequisite" icon="✅">
 These guides assume that your application (`Deployment`) is already deployed. If you are unsure, refer to the [Hello World example](../../examples/helloworld).
 </Callout>
-
-Throughout the sub-pages, YAML fragments are provided. Deploy them using:
-
-```shell
-kubectl create -f file.yaml -n namespace
-```

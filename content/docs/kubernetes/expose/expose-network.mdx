@@ -1,22 +1,23 @@
 ---
 title: Exposing Non-HTTP Applications
+description: Expose SSH servers, databases, and other TCP/UDP services using LoadBalancer Services.
 ---
 
-This page covers exposing applications that do **not** speak HTTP — SSH servers, databases, message brokers, custom TCP protocols. For web-based (HTTP) applications see [Exposing HTTP Applications](./expose-http).
+This page covers exposing applications that do **not** speak HTTP — SSH servers, databases, message brokers, custom TCP protocols. For web-based (HTTP) applications, see [Exposing HTTP Applications](./expose-http).
 
-Unlike HTTP apps, non-HTTP applications cannot share the cluster's web load balancer. Each one needs a dedicated public IP address from the cluster's MetalLB pool. IPs are limited, so prefer HTTP whenever possible.
+Unlike HTTP applications, non-HTTP applications cannot share the cluster's web load balancer. Each one needs its own IP address from the cluster's MetalLB pool — public, or private within the MUNI network (see [Private MUNI IP](#private-muni-ip)). Public IPv4 addresses are limited, so prefer HTTP whenever possible.
 
-Throughout this documentation, YAML fragments are provided. Deploy them using:
+<Callout title="Prerequisite" icon="✅">
+This guide assumes that your application (`Deployment`) is already deployed. If you are unsure, refer to the [Hello World example](../../examples/helloworld).
+</Callout>
+
+Throughout this page, YAML fragments are provided. Deploy them using:
 
 ```shell
 kubectl create -f file.yaml -n namespace
 ```
 
 where `file.yaml` contains the YAML definitions and `namespace` is the namespace where the application is running.
-
-<Callout title="Prerequisite" icon="✅"> 
-This guide assumes that your application (`Deployment`) is already deployed. If you are unsure, refer to the [Hello World example](../../examples/helloworld).
-</Callout>
 
 ## LoadBalancer Service
 
@@ -39,14 +40,14 @@ spec:
     app: application
 ```
 
-- The `selector.app: application` must match the `Deployment`.
+- The `selector` must match the labels of your Pods (`spec.template.metadata.labels` in the `Deployment`).
 - If the `external-dns.alpha.kubernetes.io/hostname` annotation is within `dyn.cloud.e-infra.cz`, the DNS record is automatically registered against the load-balancer IP.
 
 ### Checking the Assigned Public IP
 
 Run:
 
-```shell copy
+```shell
 kubectl get svc -n namespace
 ```
 
@@ -60,7 +61,7 @@ To expose the application only within the **MUNI network** or **MUNI VPN**, use 
 metallb.io/address-pool: privmuni
 ```
 
-This method is preferred as it avoids consuming a public IPv4 address.
+Prefer this whenever the application doesn't need to be reachable from the internet, as it avoids consuming a public IPv4 address.
 
 ```yaml title="service.yaml"
 apiVersion: v1
@@ -84,7 +85,7 @@ spec:
 
 It is recommended to restrict external access to publicly exposed applications. This can be achieved either at the `NetworkPolicy` level (note that this works only when `externalTrafficPolicy` is set to `Local`) or by using the `loadBalancerSourceRanges` field in the `Service` object.
 
-The example below limits access to the MUNI network `147.251.0.0/16` and to a single IP `1.2.3.4/32`. `loadBalancerSourceRanges` expects CIDR notation, so even a single IP must be expressed with a `/32` mask. If you serve both IPv4 and IPv6, include source ranges for both families.
+The example below, for a PostgreSQL database, limits access to the MUNI network `147.251.0.0/16` and to a single IP `1.2.3.4/32`. `loadBalancerSourceRanges` expects CIDR notation, so even a single IP must be expressed with a `/32` mask. If you serve both IPv4 and IPv6, include source ranges for both families.
 
 ```yaml title="service.yaml"
 apiVersion: v1
@@ -109,9 +110,9 @@ spec:
 
 ### Sharing an IP Address Across Multiple Services
 
-Since IPv4 addresses are a scarce resource, it's beneficial to share a single IP address across multiple `LoadBalancer` services differentiated by port numbers. This can be accomplished by using the `metallb.io/allow-shared-ip` annotation.
+Since IPv4 addresses are a scarce resource, it's beneficial to share a single IP address across multiple `LoadBalancer` Services differentiated by port numbers. This can be accomplished by using the `metallb.io/allow-shared-ip` annotation.
 
-The annotation's value is a **grouping key**: all services with the same key will attempt to share the same IP address. Choose a unique key per application to avoid unintended IP sharing between unrelated services.
+The annotation's value is a **sharing key**: all Services with the same key may share the same IP address. Choose a unique key per application to avoid unintended IP sharing between unrelated Services.
 
 ```yaml title="service1.yaml"
 apiVersion: v1
@@ -153,5 +154,10 @@ spec:
 
 #### Limitations
 
-- If `externalTrafficPolicy` is set to `Local`, **all target Pods must be scheduled on the same node** to ensure accessibility.
-- If `externalTrafficPolicy` is set to `Cluster`, Pods can be distributed across multiple nodes — better resilience and load distribution.
+MetalLB puts several Services on the same IP address only if all of the following hold:
+
+- They have the same `metallb.io/allow-shared-ip` key.
+- They use different ports.
+- Either all of them use `externalTrafficPolicy: Cluster`, or all of them select exactly the same Pods (identical selectors).
+
+The example above uses `Cluster` because the two Services select different Pods (`application-rw` and `application-ro`). With `Cluster`, the Pods can also run on any nodes, which gives better resilience and load distribution.
