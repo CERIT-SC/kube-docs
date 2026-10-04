@@ -8,7 +8,7 @@ This is especially important for enabling TLS when exposing non-web applications
 
 There are currently five issuers available:
 
-* The `letsencrypt-gateway` issuer is the **current** web-oriented issuer. Its HTTP-01 solver is wired to the Traefik gateway, so it works with all three supported ingress mechanisms — Gateway API (`HTTPRoute`), Traefik `IngressRoute`, and the `nginx-traefik` Ingress class. Use this for everything in [Exposing HTTP Applications](./expose-http).
+* The `letsencrypt-gateway` issuer is the **current** web-oriented issuer. Its HTTP-01 solver is wired to the Traefik gateway, so it works with all three supported ingress mechanisms — Gateway API (`HTTPRoute`), Traefik `IngressRoute`, and the `nginx-traefik` Ingress class. Use this for everything in [Exposing HTTP Applications](./expose/expose-http).
 * The `letsencrypt-prod` issuer is the **legacy** web-only issuer from the old nginx-ingress era. It works only with the legacy `nginx` Ingress class and will **not work with any of the current Traefik-based ingress mechanisms** (Gateway API, `IngressRoute`, `nginx-traefik`). Kept for backward compatibility with old manifests; do not use in new deployments.
 * The `letsencrypt-prod-dns` issuer is for non-web applications (TCP/UDP services, custom protocols). It uses DNS-01 validation instead of HTTP-01, which is slower because DNS changes must propagate first.
 * `letsencrypt-stage` is the same as `letsencrypt-prod` but uses staging servers suitable for testing — also legacy-only.
