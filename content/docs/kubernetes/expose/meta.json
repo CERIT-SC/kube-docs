@@ -1,0 +1,6 @@
+{
+  "pages": [
+    "expose-http",
+    "expose-network"
+  ]
+}

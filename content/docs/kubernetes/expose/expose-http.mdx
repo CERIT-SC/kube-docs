@@ -14,9 +14,9 @@ This guide assumes your application `Deployment` and `Service` are already runni
 
 | Method | Recommended for | TLS cert handled by | HTTPS backend | Notes |
 |---|---|---|---|---|
-| Gateway API `HTTPRoute` | `*.dyn.cloud.e-infra.cz` names, new apps | shared gateway, zero config | via `BackendTLSPolicy` | Modern, stable API |
-| Traefik `IngressRoute` | anything else, TLS-passthrough, middlewares | cert-manager `Certificate` | yes (via `ServersTransport`) | Most flexible |
-| nginx Ingress (`nginx-traefik`) | existing nginx-flavored manifests you don't want to port | cert-manager `Certificate` | yes (via `backend-protocol: HTTPS` annotation) | Emulation on top of Traefik |
+| Gateway API `HTTPRoute` (with shared `traefik-gateway`) | `*.dyn.cloud.e-infra.cz` names, new apps | shared gateway, zero config | via `BackendTLSPolicy` | Modern, stable API — Traefik middlewares attachable via `extensionRef` |
+| Traefik `IngressRoute` | anything else, TLS-passthrough, middlewares | cert-manager `Certificate` (must create explicitly) | yes (via `ServersTransport`) | Most flexible, uses Traefik's native middleware CRD |
+| nginx Ingress (`nginx-traefik`) | existing nginx-flavored manifests you don't want to port | automatic via `cert-manager.io/cluster-issuer` annotation (shim-driven) | yes (via `backend-protocol: HTTPS` annotation) | Emulation on top of Traefik |
 
 <Callout title="Important" icon="⚠️">
 TLS is **terminated at the cluster boundary** in all three cases. Traffic between the ingress/gateway and your Pod is plain HTTP unless you configure the backend to speak HTTPS (see [HTTPS backend](#https-backend)).
@@ -41,15 +41,15 @@ spec:
     app: application
 ```
 
+The overall architecture — external client → ingress layer → Service → Pods — is shared by all three methods and illustrated in the following figure:
+
+![Networking](/img/ceritsc/expose-overview.svg)
+
 ---
 
 ## Gateway API (HTTPRoute)
 
 The cluster has a shared `traefik-gateway` in the `kube-system` namespace that already owns the `*.dyn.cloud.e-infra.cz` wildcard TLS certificate and DNS. For hostnames under that suffix, **you only create HTTPRoutes** — no `Gateway` object, no `Certificate`, DNS and TLS happen automatically.
-
-The overall architecture is illustrated in the following figure:
-
-![Networking](/img/ceritsc/expose-overview.svg)
 
 <Callout title="Notes" icon="📌">
 - `HTTPRoute` has no `ingressClassName` field — the equivalent knob is `spec.parentRefs`: pointing at `traefik-gateway` selects the controller, and `sectionName: web|websecure` selects the listener.
@@ -190,8 +190,10 @@ spec:
 
 Note the differences vs. the flat case:
 
-- **Listener ports are 8000 (HTTP) and 8443 (HTTPS)** — the Gateway is internal to the cluster and never binds 80/443 directly. External users still reach it on 443 via the load balancer, which forwards `:443 → :8443` and `:80 → :8000`.
-- The `cert-manager.io/cluster-issuer: letsencrypt-gateway` annotation on the `Gateway` makes cert-manager issue a cert covering the listener hostname into the `application-tls` Secret — you don't create the `Certificate` yourself.
+- **Listener ports 8000 and 8443 are platform conventions, not yours to change.** They are not the application's port and have nothing to do with the HTTPRoute `backendRefs.port`. The shared `traefik-gateway` in `kube-system` binds 8000 (HTTP) and 8443 (HTTPS) as system-level entrypoints; the LB outside forwards external `:80 → :8000` and `:443 → :8443`. Your application Service still exposes whatever port it likes (e.g. 80, 8080, 3000) on the cluster network, and the HTTPRoute's `backendRefs` port targets that.
+- **The `hostname` field on each listener is required in practice.** The Gateway API CRD marks it optional, but on this cluster two things break without it: cert-manager's gateway-shim won't know which hostname to issue the cert for, and Traefik won't program the listener for your host. Always set `hostname` on both listeners and keep it identical across `web`/`websecure`.
+- The `cert-manager.io/cluster-issuer: letsencrypt-gateway` annotation on the `Gateway` makes cert-manager's gateway-shim auto-create the `Certificate` covering the listener hostname into the `application-tls` Secret — you don't create the `Certificate` yourself (verified: the shim fills it in within seconds once DNS resolves).
+- **No automatic HTTP→HTTPS redirect.** If you only attach a HTTPS route to `websecure`, plain-HTTP requests hit the gateway's `:8000` listener and get `404 / no server available` — Traefik has nothing to serve there. Always include the `web` redirect `HTTPRoute` alongside your `websecure` one.
 - The headless `application-dns-anchor` Service exists only to carry the `external-dns.alpha.kubernetes.io/hostname` annotation. The selector intentionally matches no Pods.
 
 **Timing pitfall:** after deploying, the first ACME request often happens before external-dns has propagated your new DNS record to Let's Encrypt's authoritative resolvers; the resulting Order goes `invalid` with `urn:ietf:params:acme:error:dns: NXDOMAIN`. cert-manager does not retry the same authorization. Fix: wait until DNS resolves publicly (`host api.application.dyn.cloud.e-infra.cz 8.8.8.8`), then delete the `Certificate` plus its derived `CertificateRequest`, `Order`, and `Challenge` and let cert-manager re-issue cleanly:
@@ -210,11 +212,12 @@ If you have a pre-existing DNS name (say `app.example.org` with a `CNAME` to `ku
 
 ## Traefik IngressRoute
 
-`IngressRoute` is Traefik's own CRD and exposes everything Traefik can do (middlewares! forwardAuth, header rewrites, TCP+UDP variants via `IngressRouteTCP/UDP`).
+`IngressRoute` is Traefik's own CRD and exposes everything Traefik can do — middleware support, forwardAuth, header rewrites, TCP+UDP variants via `IngressRouteTCP/UDP`. The middleware CRD itself isn't IngressRoute-only though: Traefik middlewares can also be attached to Gateway API `HTTPRoute`s via an `extensionRef` filter, which is documented in the [Authentication](#authentication) and [IP allow-list / deny-list](#ip-allow-list--deny-list) sections below.
 
-<Callout title="Two hard requirements for IngressRoute" icon="⚠️">
+<Callout title="Hard requirements for IngressRoute" icon="⚠️">
 1. **Use `letsencrypt-gateway` as the `ClusterIssuer`**, not `letsencrypt-prod` / `letsencrypt-stage`. The `-gateway` issuer is the only one whose HTTP-01 solver is wired to the Traefik gateway; `letsencrypt-prod` expects a plain-nginx ingress class that is not routed to the LB on this cluster and its ACME challenge never answers.
 2. **Set the ingress class via the `kubernetes.io/ingress.class: traefik` annotation** — Traefik's IngressRoute CRD has no `spec.ingressClassName` field, so the annotation is the only selector. Without it, Traefik does not see the route and no TLS cert is attached to the hostname.
+3. **Create the `Certificate` object explicitly.** Unlike the `Gateway` and `Ingress` methods (where cert-manager's gateway/ingress shim auto-creates the `Certificate` from the `cert-manager.io/cluster-issuer` annotation), there is no shim for `IngressRoute`. If you forget the `Certificate`, the route goes live but Traefik serves its default self-signed cert and browsers warn.
 </Callout>
 
 Three pieces are needed:
@@ -295,36 +298,26 @@ Notes:
 
 The cluster runs Traefik with the **`nginx-traefik`** ingress class that emulates common nginx Ingress annotations, so you can bring most existing `networking.k8s.io/v1 Ingress` manifests unchanged.
 
-<Callout title="Two hard requirements for nginx-traefik Ingress" icon="⚠️">
-1. **Use `letsencrypt-gateway` as the `ClusterIssuer`**, not `letsencrypt-prod` / `letsencrypt-stage` — see the "Do NOT use letsencrypt-prod for Ingress" callout below for the failure mode.
-2. **Set the class in BOTH places**: `metadata.annotations.kubernetes.io/ingress.class: nginx-traefik` **and** `spec.ingressClassName: nginx-traefik`. Different consumers read different fields — Traefik watches by `ingressClassName`, cert-manager's issuer shim hears the `ingress.class` annotation, and external-dns reads the annotation to know which DNS records to manage. Missing either one leaves a partially-working route (no DNS, no cert, or no Traefik pickup).
+<Callout title="Hard requirements for nginx-traefik Ingress" icon="⚠️">
+1. **Use `letsencrypt-gateway` as the `ClusterIssuer`** via the `cert-manager.io/cluster-issuer: letsencrypt-gateway` annotation — see the "Do NOT use letsencrypt-prod for Ingress" callout below for the failure mode. You do not need to create a `Certificate` object yourself; cert-manager's ingress-shim auto-creates one from the annotation (verified on this cluster).
+2. **Set the class in BOTH places**: `metadata.annotations.kubernetes.io/ingress.class: nginx-traefik` **and** `spec.ingressClassName: nginx-traefik`. Different consumers read different fields — Traefik watches by `ingressClassName`, cert-manager's ingress-shim hears the `ingress.class` annotation, and external-dns reads the annotation to know which DNS records to manage. Missing either one leaves a partially-working route (no DNS, no cert, or no Traefik pickup).
+3. **No automatic HTTP→HTTPS redirect on plain HTTP.** The Ingress listens on HTTP and serves the app on both: nothing redirects HTTP to HTTPS by default. If you want HTTP requests upgraded, add the annotation `nginx.ingress.kubernetes.io/ssl-redirect: "true"` (or `force-ssl-redirect`) — by Traefik-default it's off and users get your app on `:80` over plain HTTP.
 </Callout>
 
 ```yaml title="ingress.yaml"
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: application-tls
-spec:
-  secretName: application-tls
-  issuerRef:
-    name: letsencrypt-gateway
-    kind: ClusterIssuer
-  dnsNames:
-    - application.dyn.cloud.e-infra.cz
----
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: application-ingress
   annotations:
     kubernetes.io/ingress.class: nginx-traefik
+    cert-manager.io/cluster-issuer: letsencrypt-gateway
 spec:
   ingressClassName: nginx-traefik
   tls:
     - hosts:
         - application.dyn.cloud.e-infra.cz
-      secretName: application-tls
+      secretName: application-tls   # created automatically by cert-manager ingress-shim
   rules:
     - host: application.dyn.cloud.e-infra.cz
       http:
@@ -338,10 +331,10 @@ spec:
                   number: 80
 ```
 
-Traefik automatically redirects `http://application.dyn.cloud.e-infra.cz → https://...` with a 308. external-dns picks up the host and registers `application.dyn.cloud.e-infra.cz` against `kuba-lb.cloud.e-infra.cz`. The TLS cert is the one issued by your explicit `Certificate`.
+After applying, cert-manager creates a `Certificate` named after the Ingress in the same namespace and populates the `application-tls` Secret once the ACME challenge succeeds. You can watch progress with `kubectl get certificate`.
 
 <Callout title="Do NOT use letsencrypt-prod for Ingress" icon="⚠️">
-The legacy annotation pair `kubernetes.io/tls-acme: "true"` + `cert-manager.io/cluster-issuer: letsencrypt-prod` does **not** work on this cluster: the ACME HTTP-01 solver creates its own solver Ingress with `ingressClassName: nginx` (not `nginx-traefik`), which is routed via the wrong LB IP and never answers the challenge. Always create an explicit `Certificate` against **`letsencrypt-gateway`** and reference its Secret in `tls.secretName`, as in the example above.
+The legacy annotation pair `kubernetes.io/tls-acme: "true"` + `cert-manager.io/cluster-issuer: letsencrypt-prod` does **not** work on this cluster: the ACME HTTP-01 solver creates its own solver Ingress with `ingressClassName: nginx` (not `nginx-traefik`), which is routed via the wrong LB IP and never answers the challenge. Always put the issuer annotation against **`letsencrypt-gateway`** and let the ingress-shim produce the Certificate for you.
 </Callout>
 
 ### Useful nginx-annotation equivalents under `nginx-traefik`
@@ -481,6 +474,18 @@ annotations:
   nginx.ingress.kubernetes.io/whitelist-source-range: 147.251.254.207/32
 ```
 
+<Callout title="IPv6 matters — the cluster is dual-stack" icon="📌">
+The cluster is dual-stack (every Service, Pod, and the LB have both an IPv4 and an IPv6 address). The same client can reach you under either family depending on their own stack. **Filtering applies to both**: if you allow-list `147.251.254.207/32` only, a client whose DNS happens to resolve the LB over IPv6 comes in with an IPv6 source and is **denied**, even though "they" are the right person. Always include both representations of your allow/deny ranges, e.g.
+
+```yaml
+sourceRange:
+  - 147.251.254.207/32
+  - 2001:718:801:42f1::207/128      # same host, IPv6 form — adjust for your host
+```
+
+or use the appropriate IPv6 CIDR prefix for the network you intend to match.
+</Callout>
+
 ### Deny-list — everyone except listed IPs
 
 Traefik has no native "deny" verb — invert an allow-list with `ipStrategy.excludedIPs`:
@@ -512,9 +517,17 @@ All three methods see the **real client IP** because Traefik is configured to tr
 
 ### Slow backends (read timeouts)
 
-There's **no per-route timeout knob** on any of the three CRDs. Traefik's read/write/idle timeouts are configured at the **entrypoint level** of the Traefik deployment itself — not via `IngressRoute`, `HTTPRoute`, or `Ingress` annotations. The shared `traefik-gateway` is operated by the platform team; if your application needs longer timeouts than the default `readTimeout` (typically 60 s), file a ticket with the platform team — the change affects every tenant of that gateway.
+There's **no per-route timeout knob** on any of the three CRDs. Traefik's read/write/idle timeouts are configured at the **entrypoint level** of the Traefik deployment itself — not via `IngressRoute`, `HTTPRoute`, or `Ingress` annotations.
 
-The only workaround you own today is running **your own** Traefik instance as a DaemonSet/Deployment and pointing a custom `Gateway` (`gatewayClassName: traefik`) at it — heavy, and usually not worth it for slow backends.
+On this cluster the shared Traefik gateway is launched with
+
+```
+--entrypoints.websecure.transport.respondingtimeouts.readtimeout=3600
+```
+
+i.e. **read timeout of 3600 s (1 h)** on the `websecure` entrypoint. That is plenty for slow APIs, long-running admin jobs, and polling endpoints — you don't normally need to do anything.
+
+If a specific request genuinely runs longer than an hour, you either need to restructure the application (split the work, background it, use WebSockets) or open a platform ticket. Do **not** try to run your own Traefik instance inside your namespace to work around it — the shared gateway's entrypoint timeout is a platform-level convention, and bypassing it just splits DNS/LB/routing state between two controllers.
 
 ### Long-poll / streaming responses
 

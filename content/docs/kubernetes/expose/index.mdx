@@ -2,14 +2,17 @@
 title: Exposing Applications
 ---
 
-This chapter explains how to configure external access to your application from an external network. There are two main types of applications that can be exposed. The primary distinction between them is their IP address requirements — web-based applications share a single IP address with all other web-based applications (via the cluster's HTTP load balancer), whereas non-HTTP applications require a dedicated IP address for each service.
+This chapter explains how to configure external access to your application from an external network. There are two main types of applications that can be exposed, distinguished by the protocol they speak:
+
+- **HTTP(S) applications** — web servers, REST APIs, dashboards. These share the cluster's HTTP load balancer together with every other web app, so a single public IP serves many applications.
+- **Non-HTTP applications** — SSH, databases, custom TCP/UDP protocols. These each need a dedicated public IP of their own.
+
+The IP-address difference is a consequence of the protocol, not the defining property. Because dedicated IPs are scarce, prefer HTTP whenever your application can speak it.
 
 The content is split into two separate pages:
 
 - **[Exposing HTTP Applications](./expose-http)** — web applications, REST APIs, dashboards, etc. using Gateway API (HTTPRoute), Traefik IngressRoute, or nginx Ingress (`nginx-traefik`).
 - **[Exposing Non-HTTP Applications](./expose-network)** — SSH, databases, message brokers, custom TCP/UDP protocols, exposed via `LoadBalancer` Services.
-
-Since the number of available dedicated IP addresses is limited, prefer HTTP whenever possible.
 
 <Callout title="Prerequisite" icon="✅">
 These guides assume that your application (`Deployment`) is already deployed. If you are unsure, refer to the [Hello World example](../examples/helloworld).
