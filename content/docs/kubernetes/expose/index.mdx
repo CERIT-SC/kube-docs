@@ -11,8 +11,8 @@ The IP-address difference is a consequence of the protocol, not the defining pro
 
 The content is split into two separate pages:
 
-- **[Exposing HTTP Applications](./expose-http)** — web applications, REST APIs, dashboards, etc. using Gateway API (HTTPRoute), Traefik IngressRoute, or nginx Ingress (`nginx-traefik`).
-- **[Exposing Non-HTTP Applications](./expose-network)** — SSH, databases, message brokers, custom TCP/UDP protocols, exposed via `LoadBalancer` Services.
+- **[Exposing HTTP Applications](./expose/expose-http)** — web applications, REST APIs, dashboards, etc. using Gateway API (HTTPRoute), Traefik IngressRoute, or nginx Ingress (`nginx-traefik`).
+- **[Exposing Non-HTTP Applications](./expose/expose-network)** — SSH, databases, message brokers, custom TCP/UDP protocols, exposed via `LoadBalancer` Services.
 
 <Callout title="Prerequisite" icon="✅">
 These guides assume that your application (`Deployment`) is already deployed. If you are unsure, refer to the [Hello World example](../examples/helloworld).
