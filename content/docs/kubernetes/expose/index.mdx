@@ -9,6 +9,28 @@ This chapter explains how to make your application reachable from outside the cl
 
 The difference in IP addresses follows from the protocol: the HTTP load balancer tells applications apart by hostname, while plain TCP/UDP traffic can only be told apart by IP address and port. Public IPv4 addresses are scarce, so prefer HTTP whenever your application can speak it.
 
+## Load balancer addresses
+
+Each cluster publishes its HTTP load balancer under a DNS name:
+
+| Cluster | Load balancer DNS name |
+| --- | --- |
+| `kuba-cluster` | `kuba-lb.cloud.e-infra.cz` |
+| `kubh-cluster` | `kubh-lb.cerit-sc.cz` |
+| `kubas-cluster` | `kubas-lb.cloud.trusted.e-infra.cz` |
+| `nrp-cluster` | `app1.nrp1.du.cesnet.cz` |
+| `nma-cluster` | `apps.kub1.du.cesnet.cz` |
+
+`kuba-pub.cerit-sc.cz` is the legacy load balancer address of the `kuba-cluster`. Use the new address `kuba-lb.cloud.e-infra.cz` and migrate to it.
+
+For your own external address, create a `CNAME` record that points to the load balancer name of the cluster you use. A `CNAME` is preferred over an `A`/`AAAA` record, because the load balancer IP address can change.
+
+<Callout title="An application behind a CNAME must not send e-mail" icon="⚠️">
+An application that uses a `CNAME` to the load balancer must not send e-mail. If it sends e-mail, the mail server sees the real hostname of the machine, not your name.
+
+If your application sends e-mail, make the DNS name an `IN` (`A`/`AAAA`) record that points to the same IP address as our alias. Then the mail keeps your name.
+</Callout>
+
 <Callout title="Prerequisite" icon="✅">
 These guides assume that your application (`Deployment`) is already deployed. If you are unsure, refer to the [Hello World example](../../examples/helloworld).
 </Callout>
