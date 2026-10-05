@@ -1,0 +1,158 @@
+---
+title: Legacy in-tree backup reference
+description: Reference for the deprecated in-tree Barman Cloud backup (`.spec.backup.barmanObjectStore`). Use it only for Clusters that you did not migrate to the barman-cloud plugin yet.
+---
+
+<Callout type="warn">
+This page is for Clusters that still use the in-tree Barman Cloud backup. CloudNativePG deprecates this backup since version 1.26, and version 1.31.0 removes it. For new Clusters, follow [Deploy a cluster with the barman-cloud plugin](./deploy). To move an existing Cluster, follow [Migrate from the legacy in-tree backup](./migrate-from-legacy).
+</Callout>
+
+For connections, NetworkPolicy examples, custom credentials, and high availability, see [Access and operations](./operations). That page applies to all Clusters.
+
+The commands use the current namespace of your kubectl context.
+
+## How the in-tree backup works
+
+The operator configures continuous WAL archiving to S3. It also makes physical base backups when a `ScheduledBackup` or a `Backup` resource requests one. The `barman-cloud` tools do this work in the `postgres` container of each instance. For this reason, the image must contain Barman Cloud. The CloudNativePG "system" images contain it.
+
+## S3 credentials
+
+Get an access key pair from your S3 provider, for example [DU CESNET](https://du.cesnet.cz/en/navody/object_storage/cesnet_s3/start). The key pair must have read and write access to the bucket. Put the key pair in a `Secret`:
+
+```yaml title="secret.yaml"
+apiVersion: v1
+kind: Secret
+metadata:
+  name: aws-creds
+type: Opaque
+stringData:
+  ACCESS_KEY_ID: "<your-access-key>"
+  ACCESS_SECRET_KEY: "<your-secret-key>"
+```
+
+You can also use the [template](/examples/ceritsc/manifests/secret-cn.yaml). In the template, replace `KEY-ID` and `SECRET-ID` with the real values.
+
+## Backup configuration
+
+Add the `backup` section to the Cluster manifest. The last section of the [template](/examples/ceritsc/manifests/minimal-cn-backup.yaml) shows it.
+
+```yaml
+  backup:
+    barmanObjectStore:
+      destinationPath: "s3://<bucket>"
+      endpointURL: "https://<s3-endpoint>"
+      s3Credentials:
+        accessKeyId:
+          name: aws-creds
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: aws-creds
+          key: ACCESS_SECRET_KEY
+    retentionPolicy: "30d"
+```
+
+Replace `<bucket>` and `<s3-endpoint>` with your values. The `key` values are the key names in the `Secret`. Do not change them, unless you also change the key names in the `Secret`.
+
+The barman-cloud plugin uses the same structure. When you migrate, copy the `barmanObjectStore` block without changes to the `ObjectStore`. See [Step 2 of the migration guide](./migrate-from-legacy#step-2-create-the-objectstore).
+
+## Scheduled base backups
+
+```yaml title="scheduled-backup.yaml"
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: <backup-name>
+spec:
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: <cluster>
+```
+
+- `<backup-name>` is the name of this resource. It must be unique in the namespace.
+- `<cluster>` is the `metadata.name` of the Cluster.
+- The schedule has six fields: seconds, minutes, hours, day of month, month, and day of week. Standard cron has five fields. This example starts a base backup every day at midnight.
+
+## boto3 and S3 endpoints that are not AWS
+
+<Callout type="warn">
+Some images contain newer versions of the `boto3` library. These versions can fail with some S3 endpoints, for example DU CESNET. The `postgres` container then logs this error:
+`ERROR: Error received from upload worker: An error occurred (MissingContentLength) when calling the UploadPart operation: Unknown`
+
+To prevent the error, add these environment variables to `spec.env` of the Cluster:
+
+```yaml
+- name: AWS_REQUEST_CHECKSUM_CALCULATION
+  value: when_required
+- name: AWS_RESPONSE_CHECKSUM_VALIDATION
+  value: when_required
+- name: AWS_NO_CHUNKED_ENCODING
+  value: "true"
+```
+
+With the in-tree backup, `spec.env` is the correct location, because barman-cloud runs in the `postgres` container. The barman-cloud plugin needs these variables in the `ObjectStore`.
+</Callout>
+
+## Example Cluster
+
+This example has the in-tree backup and the boto3 variables:
+
+```yaml title="cluster-legacy.yaml"
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: test-cluster       # name of the Cluster, you can change it
+spec:
+  instances: 1             # one instance
+
+  # A "system" image contains Barman Cloud, which the in-tree backup needs.
+  imageName: ghcr.io/cloudnative-pg/postgresql:15-system-trixie
+
+  primaryUpdateStrategy: unsupervised
+
+  # Do not create the read-only Services test-cluster-ro and test-cluster-r.
+  # Remove this block only if you need read-only connections to the replicas.
+  managed:
+    services:
+      disabledDefaultServices: ["r", "ro"]
+
+  bootstrap:
+    initdb:
+      database: mydb       # database to create, you can change it
+      owner: myowner       # user to create, you can change it
+
+  env:
+    - name: AWS_REQUEST_CHECKSUM_CALCULATION
+      value: when_required
+    - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+      value: when_required
+    - name: AWS_NO_CHUNKED_ENCODING
+      value: "true"
+
+  backup:
+    barmanObjectStore:
+      destinationPath: "s3://<bucket>"
+      endpointURL: "https://<s3-endpoint>"
+      s3Credentials:
+        accessKeyId:
+          name: aws-creds
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: aws-creds
+          key: ACCESS_SECRET_KEY
+    retentionPolicy: "30d"
+
+  storage:
+    size: 10Gi
+    storageClass: nfs-csi  # storage class, you can change it
+```
+
+## RBAC error with the in-tree backup
+
+With the in-tree backup, the ServiceAccount of the Cluster runs the archiver in the `postgres` container. This ServiceAccount must have permission to read the `Secret`. If the operator installation does not give this permission, archiving fails. The `postgres` container log then shows an error like this:
+
+```text
+while getting secret aws-creds: secrets "aws-creds" is forbidden ... clusterrole ... not found
+```
+
+The barman-cloud plugin manages its own access rules and does not have this problem. This is one more reason to [migrate](./migrate-from-legacy).

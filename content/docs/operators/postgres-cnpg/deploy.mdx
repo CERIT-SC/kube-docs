@@ -1,0 +1,301 @@
+---
+title: Deploy a cluster with the barman-cloud plugin
+description: Deploy a new CloudNativePG Cluster that uses the barman-cloud plugin for backups to S3. Use this procedure for all new PostgreSQL databases on the Kubernetes cluster.
+---
+
+This page shows how to deploy a new PostgreSQL database with backups to S3. Use this procedure for all new deployments. It uses these components:
+
+- The **CloudNativePG** operator. One operator manages the databases of the whole Kubernetes cluster.
+- The **barman-cloud plugin** (`barman-cloud.cloudnative-pg.io`). It archives the WAL files and makes the base backups. CloudNativePG deprecates the in-tree `barmanObjectStore` configuration since version 1.26, and version 1.31.0 removes it. If your database uses it, see [Migrate from the legacy in-tree backup](./migrate-from-legacy).
+- An S3-compatible bucket for the backups. The examples use the endpoint `s3.a.cloud.e-infra.cz`. You supply the bucket and the credentials.
+
+In this chapter, `Cluster` is the CloudNativePG resource. "Kubernetes cluster" is the platform.
+
+The commands use the current namespace of your kubectl context. To set the namespace, run `kubectl config set-context --current --namespace=<namespace>`.
+
+## Resources
+
+The deployment has five resources in your namespace:
+
+1. `Secret`: the S3 credentials.
+2. `ObjectStore` (`barmancloud.cnpg.io/v1`): the bucket, the endpoint, the credentials, and the retention policy for the plugin.
+3. `Cluster` (`postgresql.cnpg.io/v1`): the PostgreSQL instances. Its `plugins` section enables the barman-cloud plugin.
+4. `ScheduledBackup` (`postgresql.cnpg.io/v1`) with `method: plugin`: base backups on a schedule.
+5. `NetworkPolicy`: the sources that can connect to the instances.
+
+WAL archiving starts when the Cluster is healthy. Then it runs all the time. Base backups run on the schedule.
+
+## Step 1: S3 credentials
+
+Get an access key pair from your S3 provider, for example [DU CESNET](https://du.cesnet.cz/en/navody/object_storage/cesnet_s3/start). The key pair must have read and write access to the bucket. The plugin uses these S3 operations: `PutObject`, `GetObject`, `DeleteObject`, and `ListBucket`.
+
+Put the key pair in a `Secret` in your namespace:
+
+```yaml title="00-credentials.yaml"
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pg-backup
+type: Opaque
+stringData:
+  AWS_ACCESS_KEY_ID: "<your-access-key>"
+  AWS_SECRET_ACCESS_KEY: "<your-secret-key>"
+```
+
+This example uses the keys `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. You can use other key names, because the `ObjectStore` refers to each key by name. Under `stringData`, write the values as plain text. Under `data`, encode the values in base64.
+
+Apply the file:
+
+```shell
+kubectl apply -f 00-credentials.yaml
+```
+
+The bucket check on [Verify backups end-to-end](./verify) reads the same values from this `Secret`.
+
+## Step 2: ObjectStore
+
+The `ObjectStore` tells the plugin where to write the backups. It refers to the `Secret` by name and key:
+
+```yaml title="01-objectstore.yaml"
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: pg-backup-store
+spec:
+  configuration:
+    destinationPath: "s3://<bucket>"
+    endpointURL: "https://s3.a.cloud.e-infra.cz"
+    s3Credentials:
+      accessKeyId:
+        name: pg-backup
+        key: AWS_ACCESS_KEY_ID
+      secretAccessKey:
+        name: pg-backup
+        key: AWS_SECRET_ACCESS_KEY
+  retentionPolicy: "30d"
+  # Workaround for boto3 and S3 endpoints that are not AWS (CESNET, MinIO, and others).
+  # The plugin gives these variables to its sidecar, which runs barman-cloud.
+  instanceSidecarConfiguration:
+    env:
+      - name: AWS_REQUEST_CHECKSUM_CALCULATION
+        value: when_required
+      - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+        value: when_required
+      - name: AWS_NO_CHUNKED_ENCODING
+        value: "true"
+```
+
+Apply the file:
+
+```shell
+kubectl apply -f 01-objectstore.yaml
+```
+
+- The `retentionPolicy` is a field of the `ObjectStore`, not of the `Cluster`. The plugin applies it every 30 minutes by default.
+- Put the boto3 variables in `instanceSidecarConfiguration.env`. Variables in `Cluster.spec.env` go only to the `postgres` container, so they have no effect on the backups.
+
+<Callout type="warn" title="Use an empty path for a new Cluster">
+Before a new Cluster archives its first WAL file, the plugin makes sure that the WAL archive is empty. The archive is the folder with the Cluster name in the `destinationPath`. If this folder already has WAL files, for example from an earlier Cluster with the same name, archiving fails with `Expected empty archive`. In this case, use a new bucket or a new path, for example `s3://<bucket>/<folder>`. This check does not apply to an existing Cluster that you [migrate from the in-tree backup](./migrate-from-legacy).
+</Callout>
+
+## Step 3: Cluster
+
+```yaml title="02-cluster.yaml"
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg
+spec:
+  instances: 3
+
+  # A "standard" image works with the plugin and contains all locales.
+  # For production, use a tag with a minor version: <major>.<minor>-standard-trixie.
+  imageName: ghcr.io/cloudnative-pg/postgresql:15-standard-trixie
+
+  primaryUpdateStrategy: unsupervised
+
+  # Do not create the read-only Services pg-ro and pg-r.
+  # Remove this block only if you need read-only connections to the replicas.
+  managed:
+    services:
+      disabledDefaultServices: ["r", "ro"]
+
+  bootstrap:
+    initdb:
+      database: appdb
+      owner: appuser
+
+  storage:
+    size: 5Gi
+    storageClass: zfs-csi
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+
+  postgresql:
+    parameters:
+      max_connections: "100"
+      shared_buffers: 128MB
+
+  # WAL archiving and base backups through the plugin.
+  # Do not add .spec.backup.barmanObjectStore.
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: pg-backup-store
+```
+
+Apply the file and wait until the Cluster is ready:
+
+```shell
+kubectl apply -f 02-cluster.yaml
+kubectl wait cluster.postgresql.cnpg.io/pg --for=condition=Ready --timeout=300s
+kubectl get pods -l cnpg.io/cluster=pg
+# NAME   READY   STATUS    RESTARTS   AGE
+# pg-1   2/2     Running   0          2m
+# pg-2   2/2     Running   0          90s
+# pg-3   2/2     Running   0          30s
+```
+
+Each pod shows `READY 2/2` because it runs two containers: `postgres` and the plugin sidecar `plugin-barman-cloud`. The sidecar runs `barman-cloud-wal-archive` for each WAL file.
+
+PostgreSQL keeps each WAL file in the instance volume until the plugin archives it. If archiving fails, the WAL files collect in the volume. On `zfs-csi`, the volume size is a hard limit. When the volume is full, PostgreSQL stops. To find archiving problems early, use the [periodic checks](./verify#periodic-checks).
+
+### Services
+
+The operator creates Services with the name of the Cluster:
+
+| Service | Points to | Use for |
+|---|---|---|
+| `pg-rw` | the primary instance | Read-write connections from applications. |
+| `pg-ro` | the replicas | Read-only queries and reports. Available only if you remove the `disabledDefaultServices` block. |
+| `pg-r` | any instance | General reads. Available only if you remove the `disabledDefaultServices` block. |
+
+Read-only connections need at least two instances.
+
+Applications in the same namespace connect to `pg-rw:5432`. Applications in other namespaces connect to `pg-rw.<namespace>.svc.cluster.local:5432`. For these applications, add their namespaces to the NetworkPolicy in [Step 5](#step-5-networkpolicy).
+
+The application credentials are in the `Secret` `pg-app`. To show them, run:
+
+```shell
+kubectl get secret pg-app -o 'jsonpath={.data.pgpass}' | base64 -d
+# pg-rw:5432:appdb:appuser:uLUmkvAMwR0lJtw5ksUVKihd5OvCrD28...
+```
+
+The format is `host:port:database:user:password`.
+
+## Step 4: ScheduledBackup
+
+```yaml title="03-scheduled-backup.yaml"
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: pg-daily
+spec:
+  # Six fields: seconds, minutes, hours, day of month, month, day of week.
+  schedule: "0 0 2 * * *"   # every day at 02:00 UTC
+  immediate: true           # also make a base backup now
+  backupOwnerReference: self
+  cluster:
+    name: pg
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+```
+
+The schedule has six fields. Standard cron has five fields. The first field is seconds.
+
+A restore needs a base backup. Without `immediate: true`, the first base backup starts at the first scheduled time. Until then, you cannot restore the database.
+
+Apply the file and examine the result:
+
+```shell
+kubectl apply -f 03-scheduled-backup.yaml
+kubectl get scheduledbackups.postgresql.cnpg.io pg-daily
+kubectl get backups.postgresql.cnpg.io
+```
+
+## Step 5: NetworkPolicy
+
+This policy allows incoming traffic only from these sources:
+
+- Pods in your namespace, to the PostgreSQL port 5432.
+- The CloudNativePG operator in the namespace `cloudnativepg`, to ports 5432 and 8000. The operator uses port 8000 to manage the instances.
+- The instances of the same Cluster, to ports 5432 and 8000.
+- Prometheus in the namespace `cattle-monitoring-system`, to the metrics port 9187.
+
+```yaml title="04-networkpolicy.yaml"
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: pg-netpol
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: pg
+  policyTypes: [Ingress]
+  ingress:
+    # Applications. Add one namespaceSelector for each other namespace.
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: <namespace>
+      ports:
+        - { protocol: TCP, port: 5432 }
+    # The operator and the other instances of the Cluster
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cloudnativepg
+        - podSelector:
+            matchLabels:
+              cnpg.io/cluster: pg
+      ports:
+        - { protocol: TCP, port: 5432 }
+        - { protocol: TCP, port: 8000 }
+    # Prometheus
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cattle-monitoring-system
+      ports:
+        - { protocol: TCP, port: 9187 }
+```
+
+Replace `<namespace>` with your namespace. Then apply the file:
+
+```shell
+kubectl apply -f 04-networkpolicy.yaml
+```
+
+For more examples, for example egress rules, see [Access and operations](./operations#networkpolicy).
+
+## Smoke test
+
+This test writes rows on the primary and reads them on a replica:
+
+```shell
+PRIMARY=$(kubectl get cluster.postgresql.cnpg.io pg -o jsonpath='{.status.currentPrimary}')
+REPLICA=$(kubectl get pods -l cnpg.io/cluster=pg,cnpg.io/instanceRole=replica -o jsonpath='{.items[0].metadata.name}')
+PGPASS=$(kubectl get secret pg-app -o 'jsonpath={.data.password}' | base64 -d)
+
+kubectl exec -i $PRIMARY -c postgres -- env PGPASSWORD="$PGPASS" psql -U appuser -d appdb -h localhost \
+  -c "CREATE TABLE smoke_test (x int); INSERT INTO smoke_test VALUES (1), (2), (3); SELECT count(*) FROM smoke_test;"
+sleep 3
+kubectl exec -i $REPLICA -c postgres -- env PGPASSWORD="$PGPASS" psql -U appuser -d appdb -h localhost \
+  -c "SELECT pg_is_in_recovery(); SELECT count(*) FROM smoke_test;"
+kubectl exec -i $PRIMARY -c postgres -- env PGPASSWORD="$PGPASS" psql -U appuser -d appdb -h localhost \
+  -c "DROP TABLE smoke_test;"
+```
+
+Expected result: the primary returns 3. The replica returns `pg_is_in_recovery = t` and 3. This result shows that the deployment and the streaming replication operate correctly.
+
+## Next step
+
+Do not trust the status fields only. To make sure that the backups work, follow [Verify backups end-to-end](./verify). That page also shows a restore test.

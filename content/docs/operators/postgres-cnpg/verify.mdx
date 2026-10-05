@@ -1,0 +1,343 @@
+---
+title: Verify backups end-to-end
+description: Make sure that WAL archiving and base backups reach S3, and that you can restore a Cluster from them. The page includes the queries, the bucket check, and a restore test.
+---
+
+The status fields of the CloudNativePG resources show what the operator expects. The bucket shows what the backup really wrote. A restore shows that you can use the backup. Do the checks on this page after you deploy a new Cluster or migrate an existing Cluster. See [Deploy a cluster with the barman-cloud plugin](./deploy) and [Migrate from the legacy in-tree backup](./migrate-from-legacy).
+
+## Before you start
+
+Set these shell variables. The commands on this page use them.
+
+```shell
+CLUSTER="<cluster>"   # name of the Cluster
+BUCKET="<bucket>"     # bucket from destinationPath in the ObjectStore
+PRIMARY=$(kubectl get cluster.postgresql.cnpg.io $CLUSTER -o jsonpath='{.status.currentPrimary}')
+REPLICA=$(kubectl get pods -l cnpg.io/cluster=$CLUSTER,cnpg.io/instanceRole=replica \
+  -o jsonpath='{.items[0].metadata.name}')
+```
+
+After a failover, another instance is the primary. In that case, set `PRIMARY` and `REPLICA` again.
+
+The commands use the current namespace of your kubectl context. Some commands run `psql` as the user `postgres` in the database `postgres`. The `postgres` container allows this user through peer authentication on the local socket.
+
+The example outputs come from a Cluster with the name `pg`.
+
+## 1. Cluster and pods
+
+```shell
+kubectl get cluster.postgresql.cnpg.io $CLUSTER
+kubectl get pods -l cnpg.io/cluster=$CLUSTER -o wide
+```
+
+Healthy output:
+
+```text
+NAME   AGE   INSTANCES   READY   STATUS                     PRIMARY
+pg     10m   3           3       Cluster in healthy state   pg-1
+
+NAME   READY   STATUS    RESTARTS   AGE   ...   NODE
+pg-1   2/2     Running   0          10m   ...   kub-d2
+pg-2   2/2     Running   0          10m   ...   kub-d7
+pg-3   2/2     Running   0          10m   ...   kub-d8
+```
+
+`READY 2/2` means that each pod runs two containers: `postgres` and the plugin sidecar `plugin-barman-cloud`. A Cluster with the legacy in-tree backup shows `1/1`.
+
+To make sure that the second container is the plugin sidecar, run:
+
+```shell
+kubectl get pod $PRIMARY -o jsonpath='{.spec.initContainers[*].name}{"\n"}'
+# bootstrap-controller plugin-barman-cloud
+kubectl get pod $PRIMARY -o jsonpath='{.spec.containers[*].name}{"\n"}'
+# postgres
+```
+
+The sidecar is a Kubernetes native sidecar: an init container with `restartPolicy: Always`. It continues to run after the pod starts.
+
+## 2. WAL archiving
+
+WAL archiving runs on the primary. Read the archiver counters on the primary:
+
+```shell
+kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres -c \
+  "SELECT archived_count, failed_count, last_archived_wal, last_archived_time FROM pg_stat_archiver;"
+```
+
+Healthy output:
+
+```text
+ archived_count | failed_count |    last_archived_wal     |      last_archived_time
+----------------+--------------+--------------------------+-------------------------------
+             10 |            0 | 000000010000000000000008 | 2026-10-04 22:15:41.587741+00
+```
+
+Write a marker row and force a WAL switch. The restore test in step 7 looks for the marker rows.
+
+```shell
+kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres \
+  -c "CREATE TABLE IF NOT EXISTS backup_check (id serial PRIMARY KEY, note text, created_at timestamptz DEFAULT now());" \
+  -c "INSERT INTO backup_check (note) VALUES ('before-backup');" \
+  -c "SELECT pg_switch_wal();"
+sleep 10
+```
+
+Then run the archiver query again. These are the expected changes:
+
+- `archived_count` increases.
+- `last_archived_wal` shows a newer file.
+- `failed_count` does not increase. A small increase during the first minutes after a deployment is acceptable if it stops.
+
+## 3. Replication
+
+Read the replication status on the primary:
+
+```shell
+kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres -c \
+  "SELECT application_name, state, sync_state, replay_lag FROM pg_stat_replication;"
+```
+
+Healthy output has one row for each replica, all with the state `streaming`:
+
+```text
+ application_name |   state   | sync_state | replay_lag
+------------------+-----------+------------+------------
+ pg-2             | streaming | async      |
+ pg-3             | streaming | async      |
+```
+
+Then read the marker rows on a replica:
+
+```shell
+kubectl exec $REPLICA -c postgres -- psql -U postgres -d postgres -c "SELECT count(*) FROM backup_check;"
+```
+
+The replica must return the same count as the primary. This result shows that the replication delivers data, not only a connection.
+
+## 4. Plugin sidecar log
+
+```shell
+kubectl logs $PRIMARY -c plugin-barman-cloud --tail=50
+```
+
+Healthy lines:
+
+```text
+{"level":"info","ts":"...","msg":"Executing barman-cloud-wal-archive","logging_pod":"pg-1","walName":"/var/lib/postgresql/data/pgdata/pg_wal/000000010000000000000008",...}
+{"level":"info","ts":"...","msg":"Archived WAL file","logging_pod":"pg-1"}
+{"level":"info","ts":"...","msg":"Applying backup retention policy","logging_pod":"pg-1"}
+```
+
+Problems and their causes:
+
+| Message in the sidecar log | Cause and fix |
+|---|---|
+| `An error occurred (InvalidAccessKeyId) when calling the PutObject` | The sidecar can reach S3, but the credentials are wrong. Correct the `Secret` that `ObjectStore.spec.configuration.s3Credentials` refers to. |
+| `secrets "<name>" is forbidden`, or other RBAC errors | The sidecar cannot read the `Secret` or the `ObjectStore`. The plugin manages this access. Contact k8s@cerit-sc.cz. |
+| `MissingContentLength` on `UploadPart`, or an `x-amz-content-sha256` error | The S3 endpoint does not accept the checksums from boto3. Add the variables to `instanceSidecarConfiguration.env` in the `ObjectStore`. See [Step 2 of the deploy guide](./deploy#step-2-objectstore). |
+| Many retries without `Archived WAL file` between them | The endpoint URL, the bucket name, or an S3 permission is wrong. |
+
+By default, CloudNativePG makes base backups on a replica. The log lines of a base backup are in the sidecar of that replica.
+
+## 5. Bucket
+
+The steps above show that the process runs. Only the bucket shows that the files arrive.
+
+The script below needs Python 3 and boto3 (`pip install boto3`). First, read the credentials from the `Secret` that the `ObjectStore` refers to. Use your `Secret` name and key names:
+
+```shell
+export AWS_ACCESS_KEY_ID=$(kubectl get secret pg-backup -o jsonpath='{.data.AWS_ACCESS_KEY_ID}' | base64 -d)
+export AWS_SECRET_ACCESS_KEY=$(kubectl get secret pg-backup -o jsonpath='{.data.AWS_SECRET_ACCESS_KEY}' | base64 -d)
+```
+
+Save this script as `s3-list.py`. It reads all objects of the Cluster, also when there are more than 1000:
+
+```python title="s3-list.py"
+#!/usr/bin/env python3
+"""Show the base backups and the newest WAL files of a Cluster in S3.
+
+Usage: python3 s3-list.py <bucket> <path>
+<path> is the Cluster name, or <folder>/<cluster> if destinationPath has a folder.
+"""
+import os
+import re
+import sys
+
+import boto3
+
+# A WAL segment has a name of 24 hex digits, with an optional compression suffix.
+WAL_FILE = re.compile(r"^[0-9A-F]{24}(\.[a-z0-9]+)?$")
+
+bucket, path = sys.argv[1], sys.argv[2].strip("/")
+s3 = boto3.client(
+    "s3",
+    endpoint_url="https://s3.a.cloud.e-infra.cz",
+    aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+    aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+)
+
+backups, wals = set(), []
+for page in s3.get_paginator("list_objects_v2").paginate(Bucket=bucket, Prefix=f"{path}/"):
+    for obj in page.get("Contents", []):
+        parts = obj["Key"][len(path) + 1:].split("/")
+        if parts[0] == "base" and len(parts) > 2:
+            backups.add(parts[1])
+        elif parts[0] == "wals" and WAL_FILE.match(parts[-1]):
+            wals.append(obj["Key"])
+
+print("Base backups:")
+for backup in sorted(backups):
+    print(f"  {path}/base/{backup}/")
+print(f"WAL files: {len(wals)}. Newest 5:")
+for wal in sorted(wals, key=lambda key: key.rsplit("/", 1)[-1])[-5:]:
+    print(f"  {wal}")
+```
+
+Run the script:
+
+```shell
+python3 s3-list.py "$BUCKET" "$CLUSTER"
+```
+
+If `destinationPath` has a folder, use `"<folder>/$CLUSTER"` as the second argument.
+
+Healthy output:
+
+```text
+Base backups:
+  pg/base/20261004T221041/
+WAL files: 8. Newest 5:
+  pg/wals/0000000100000000/000000010000000000000004
+  pg/wals/0000000100000000/000000010000000000000005
+  pg/wals/0000000100000000/000000010000000000000006
+  pg/wals/0000000100000000/000000010000000000000007
+  pg/wals/0000000100000000/000000010000000000000008
+```
+
+Run the script before and after a WAL switch (step 2). After the switch, the newest WAL file must have a higher number.
+
+After a migration, the legacy base backups stay next to the new base backups. This is correct, because the plugin continues in the same path.
+
+## 6. On-demand base backup
+
+This backup does not change the scheduled backups.
+
+```yaml title="backup.yaml"
+apiVersion: postgresql.cnpg.io/v1
+kind: Backup
+metadata:
+  name: <cluster>-manual-1
+spec:
+  cluster:
+    name: <cluster>
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+```
+
+```shell
+kubectl apply -f backup.yaml
+kubectl get backups.postgresql.cnpg.io $CLUSTER-manual-1
+# NAME          CLUSTER   METHOD   PHASE       ERROR
+# pg-manual-1   pg        plugin   completed
+```
+
+The phase changes from `started` to `completed`. Then run the S3 script again. A new folder `<cluster>/base/<timestamp>/` must appear.
+
+## 7. Restore test
+
+A backup is good only if you can restore it. This test creates a temporary Cluster from the backups in the bucket. The test does not change the source Cluster.
+
+1. Write a second marker row on the primary and force a WAL switch. This row is newer than the base backup. The restore gets it only if it replays the archived WAL files.
+
+   ```shell
+   kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres \
+     -c "INSERT INTO backup_check (note) VALUES ('after-backup');" \
+     -c "SELECT pg_switch_wal();"
+   sleep 10
+   ```
+
+2. Run the archiver query from step 2. Make sure that `last_archived_wal` shows a newer file.
+
+3. Save this manifest as `restore-test.yaml`. Use the same image as the source Cluster. Set `serverName` to the name of the source Cluster. Set `database` and `owner` to the values of the source Cluster.
+
+   ```yaml title="restore-test.yaml"
+   apiVersion: postgresql.cnpg.io/v1
+   kind: Cluster
+   metadata:
+     name: <cluster>-restore-test
+   spec:
+     instances: 1
+
+     # Use the same image as the source Cluster.
+     imageName: ghcr.io/cloudnative-pg/postgresql:15-standard-trixie
+
+     # Do not create the read-only Services.
+     # Remove this block only if you need read-only connections to the replicas.
+     managed:
+       services:
+         disabledDefaultServices: ["r", "ro"]
+
+     storage:
+       size: 5Gi              # at least the size of the source volume
+       storageClass: zfs-csi
+
+     bootstrap:
+       recovery:
+         source: origin
+         database: <db>       # database of the source Cluster
+         owner: <owner>       # owner of that database
+
+     externalClusters:
+       - name: origin
+         plugin:
+           name: barman-cloud.cloudnative-pg.io
+           parameters:
+             barmanObjectName: pg-backup-store
+             serverName: <cluster>
+
+     # No "plugins" section: the test Cluster must not archive WAL files.
+   ```
+
+4. Apply the manifest. Then wait until the test Cluster is ready. The time depends on the size of the database.
+
+   ```shell
+   kubectl apply -f restore-test.yaml
+   kubectl wait cluster.postgresql.cnpg.io/$CLUSTER-restore-test --for=condition=Ready --timeout=1800s
+   ```
+
+5. Read the marker rows in the restored database:
+
+   ```shell
+   kubectl exec $CLUSTER-restore-test-1 -c postgres -- psql -U postgres -d postgres -c \
+     "SELECT note, created_at FROM backup_check ORDER BY id;"
+   ```
+
+   The result must contain `before-backup` and `after-backup`. The row `before-backup` comes from the base backup. The row `after-backup` comes from the WAL archive.
+
+6. Delete the test Cluster. The operator also deletes its volume.
+
+   ```shell
+   kubectl delete cluster.postgresql.cnpg.io $CLUSTER-restore-test
+   ```
+
+Notes for the restore test:
+
+- The test Cluster uses resources from your namespace quota. Make sure that the quota has space for one more instance.
+- Do not add a `plugins` section to the test Cluster. If you add it, the test Cluster writes its own WAL archive to the bucket. The next restore test then fails the empty-archive check.
+- If a NetworkPolicy in your namespace denies traffic by default, allow the same traffic for the test Cluster. See [Step 5 of the deploy guide](./deploy#step-5-networkpolicy).
+- To restore to a point in time, add `recoveryTarget` under `bootstrap.recovery`, for example `recoveryTarget: { targetTime: "2026-10-04 22:15:00+00" }`.
+
+## Periodic checks
+
+Add these values to your monitoring:
+
+- `barman_cloud_cloudnative_pg_io_last_failed_backup_timestamp`: must not change.
+- `barman_cloud_cloudnative_pg_io_last_available_backup_timestamp`: must follow the schedule.
+- `barman_cloud_cloudnative_pg_io_first_recoverability_point`: must move forward when the retention policy deletes old backups.
+- `cnpg_pg_stat_archiver_failed_count`: must not increase.
+- `cnpg_pg_stat_archiver_seconds_since_last_archival`: must stay low on a database with write activity. A high value can mean that WAL files collect in the volume.
+
+The first three metrics come from the plugin. The legacy in-tree backup uses other names: `cnpg_collector_last_failed_backup_timestamp`, `cnpg_collector_last_available_backup_timestamp`, and `cnpg_collector_first_recoverability_point`.
+
+Also repeat the restore test at regular intervals, for example one time each month.

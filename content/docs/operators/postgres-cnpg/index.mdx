@@ -1,0 +1,35 @@
+---
+title: PostgreSQL with CloudNativePG
+description: Run PostgreSQL on the Kubernetes cluster with the CloudNativePG operator. Deploy a database with the barman-cloud plugin, verify and restore backups, and migrate from the in-tree backup.
+---
+
+[CloudNativePG](https://cloudnative-pg.io/) is an operator that runs PostgreSQL on Kubernetes. We provide one CloudNativePG operator for the whole Kubernetes cluster. You define a `Cluster` resource, and the operator creates and manages the PostgreSQL instances for it.
+
+For the complete operator documentation, see the [CloudNativePG website](https://cloudnative-pg.io/). The [quickstart](https://cloudnative-pg.io/documentation/current/quickstart/) shows a minimal `Cluster`.
+
+In this chapter, `Cluster` is the CloudNativePG resource that defines a PostgreSQL database cluster. "Kubernetes cluster" is the platform that runs it.
+
+## Pages in this chapter
+
+- **[Deploy a cluster with the barman-cloud plugin](./postgres-cnpg/deploy)**: A replicated `Cluster`, an `ObjectStore` with your S3 credentials, a daily `ScheduledBackup`, and a NetworkPolicy. Use this page for all new deployments.
+- **[Verify backups end-to-end](./postgres-cnpg/verify)**: Checks for WAL archiving, the bucket contents, and an on-demand backup. The page also has a restore test.
+- **[Access and operations](./postgres-cnpg/operations)**: Connections from inside and outside the Kubernetes cluster, NetworkPolicy examples, custom credentials, high availability, storage, images, and known problems.
+- **[Migrate from the legacy in-tree backup](./postgres-cnpg/migrate-from-legacy)**: Move an existing `Cluster` from `.spec.backup.barmanObjectStore` to the plugin. The data stays in place, and the backups continue in the same S3 path.
+- **[Legacy in-tree backup reference](./postgres-cnpg/legacy)**: The deprecated backup configuration, for Clusters that you did not migrate yet.
+
+## Which backup does your Cluster use?
+
+CloudNativePG deprecates the in-tree Barman Cloud backup since version 1.26. Version 1.31.0 removes it. To find the backup type of a `Cluster`, run:
+
+```shell
+kubectl get cluster.postgresql.cnpg.io <cluster> \
+  -o jsonpath='{.spec.backup.barmanObjectStore.destinationPath}{"\n"}{.spec.plugins[*].name}{"\n"}'
+```
+
+- If the first line shows an S3 path, the Cluster uses the in-tree backup. Follow the [migration guide](./postgres-cnpg/migrate-from-legacy).
+- If the second line shows `barman-cloud.cloudnative-pg.io`, the Cluster uses the plugin. Follow [Verify backups end-to-end](./postgres-cnpg/verify).
+- If both lines are empty, the Cluster has no backup to S3. Add the `ObjectStore`, the `plugins` section, and the `ScheduledBackup` from [Deploy a cluster](./postgres-cnpg/deploy).
+
+<Callout type="info">
+Two CRDs with the kind `Cluster` exist on this Kubernetes cluster: cluster-api (`cluster.x-k8s.io`) and CloudNativePG (`postgresql.cnpg.io`). The short name `cluster` selects the cluster-api CRD, and the command fails with a permission error. Always use the full name `cluster.postgresql.cnpg.io`.
+</Callout>

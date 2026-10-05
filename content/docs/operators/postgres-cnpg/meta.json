@@ -1,0 +1,10 @@
+{
+  "title": "PostgreSQL (CloudNativePG)",
+  "pages": [
+    "deploy",
+    "verify",
+    "operations",
+    "migrate-from-legacy",
+    "legacy"
+  ]
+}

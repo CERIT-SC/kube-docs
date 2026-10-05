@@ -1,0 +1,408 @@
+---
+title: Migrate from the legacy in-tree backup to the barman-cloud plugin
+description: Move an existing CloudNativePG Cluster from the deprecated `.spec.backup.barmanObjectStore` configuration to the barman-cloud plugin. The data stays in place, and the backups continue in the same S3 path.
+---
+
+CloudNativePG deprecates the in-tree Barman Cloud backup since version 1.26. Version 1.31.0 removes it. Each change of a Cluster with the in-tree configuration shows this warning:
+
+```text
+Warning: Native support for Barman Cloud backups and recovery is deprecated
+and will be completely removed in CloudNativePG 1.31.0. Found usage in:
+spec.backup.barmanObjectStore.
+```
+
+This guide moves an existing Cluster to the barman-cloud plugin. The data stays in place, and the backups continue in the same S3 path. During the change, each instance restarts one time. While the primary restarts, the database does not accept writes. In the example run below, this took about 20 seconds.
+
+## Why the plugin
+
+With the in-tree backup, barman-cloud runs in the `postgres` container. With the plugin, barman-cloud runs in a separate sidecar container in the same pod. Both containers use the ServiceAccount of the pod. The plugin manages the access rules that the sidecar needs to read the `ObjectStore` and the `Secret`.
+
+On this Kubernetes cluster, the in-tree backup can fail with an RBAC error, for example `secrets "aws-creds" is forbidden ... clusterrole "fleet-content" not found`. The plugin does not have this problem.
+
+CloudNativePG 1.31.0 does not accept the in-tree configuration. Migrate your Clusters before the administrators upgrade the operator to that version.
+
+## Before you start
+
+You need:
+
+1. The plugin CRDs. To examine them, run `kubectl api-resources | grep barmancloud`. The output must show `objectstores` in `barmancloud.cnpg.io/v1`. If the output is empty, ask k8s@cerit-sc.cz to install the barman-cloud plugin.
+2. A Cluster that uses `.spec.backup.barmanObjectStore`.
+3. The S3 credentials `Secret` of the in-tree configuration. The new `ObjectStore` uses the same `Secret`.
+4. A name for the new `ObjectStore`, for example `<cluster>-s3`. The Cluster refers to the `ObjectStore` by this name.
+
+Also read these conditions:
+
+- If a GitOps tool manages the Cluster, make the changes of Steps 2 to 4 in Git. Examples of such tools are Fleet and Argo CD. The tool reverts changes that you make with kubectl.
+- If the Cluster uses `primaryUpdateStrategy: supervised`, the operator does not restart the primary without your action. See [If the migration stops](#if-the-migration-stops).
+
+The commands use the current namespace of your kubectl context. Set these shell variables:
+
+```shell
+CLUSTER="<cluster>"   # name of the Cluster
+PRIMARY=$(kubectl get cluster.postgresql.cnpg.io $CLUSTER -o jsonpath='{.status.currentPrimary}')
+```
+
+Save the current Cluster definition. You need it for a rollback:
+
+```shell
+kubectl get cluster.postgresql.cnpg.io $CLUSTER -o yaml > cluster-before.yaml
+```
+
+## Migration plan
+
+1. Record the current state: instances, primary, archiver counters, replication, and the bucket contents.
+2. Create an `ObjectStore` with the same S3 configuration and the `retentionPolicy`.
+3. With one patch, remove the in-tree configuration from the Cluster and add the plugin. The operator restarts the instances one at a time.
+4. Change the `ScheduledBackup` to `method: plugin`.
+5. Verify the replication, the archiver counters, the sidecar log, and the new files in the bucket.
+6. Make an on-demand base backup with the plugin and do a restore test.
+
+## Step 1: Record the current state
+
+With this information, you can show later that the migration did not lose WAL files and did not break the replicas.
+
+```shell
+# Cluster and pods
+kubectl get cluster.postgresql.cnpg.io $CLUSTER
+kubectl get pods -l cnpg.io/cluster=$CLUSTER -o wide
+
+# Archiver counters on the primary
+kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres -c \
+  "SELECT archived_count, failed_count, last_archived_wal, last_archived_time FROM pg_stat_archiver;"
+
+# Replication status
+kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres -c \
+  "SELECT application_name, state, sync_state, replay_lag FROM pg_stat_replication;"
+
+# Marker row. Step 5 looks for it.
+kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres \
+  -c "CREATE TABLE IF NOT EXISTS backup_check (id serial PRIMARY KEY, note text, created_at timestamptz DEFAULT now());" \
+  -c "INSERT INTO backup_check (note) VALUES ('before-migration');"
+```
+
+Then list the bucket. Use the `s3-list.py` script from [Verify backups end-to-end](./verify#5-bucket). Read the credentials from the `Secret` of the in-tree configuration, with its key names. For the `Secret` from the [legacy reference](./legacy#s3-credentials), use:
+
+```shell
+export AWS_ACCESS_KEY_ID=$(kubectl get secret aws-creds -o jsonpath='{.data.ACCESS_KEY_ID}' | base64 -d)
+export AWS_SECRET_ACCESS_KEY=$(kubectl get secret aws-creds -o jsonpath='{.data.ACCESS_SECRET_KEY}' | base64 -d)
+python3 s3-list.py "<bucket>" "$CLUSTER"
+```
+
+The output shows the files of the in-tree backup:
+
+```text
+Base backups:
+  pgmig/base/20261004T221041/
+WAL files: 6. Newest 5:
+  pgmig/wals/0000000100000000/000000010000000000000002
+  pgmig/wals/0000000100000000/000000010000000000000003
+  pgmig/wals/0000000100000000/000000010000000000000004
+  pgmig/wals/0000000100000000/000000010000000000000005
+  pgmig/wals/0000000100000000/000000010000000000000006
+```
+
+## Step 2: Create the ObjectStore
+
+The `configuration` section of the `ObjectStore` has the same fields as the `barmanObjectStore` block of the Cluster. Copy the block without changes, also the `s3Credentials` with the `Secret` name and the key names. Then move `retentionPolicy` from the Cluster to the `ObjectStore`.
+
+```yaml title="objectstore.yaml"
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: <cluster>-s3
+spec:
+  # Copy of .spec.backup.barmanObjectStore from the Cluster
+  configuration:
+    destinationPath: "s3://<bucket>"
+    endpointURL: "https://s3.a.cloud.e-infra.cz"
+    s3Credentials:
+      accessKeyId:
+        name: aws-creds
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: aws-creds
+        key: ACCESS_SECRET_KEY
+  # From .spec.backup.retentionPolicy of the Cluster
+  retentionPolicy: "30d"
+  # Workaround for boto3 and S3 endpoints that are not AWS.
+  # The in-tree backup had these variables in Cluster.spec.env. The plugin sidecar needs them here.
+  instanceSidecarConfiguration:
+    env:
+      - name: AWS_REQUEST_CHECKSUM_CALCULATION
+        value: when_required
+      - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+        value: when_required
+      - name: AWS_NO_CHUNKED_ENCODING
+        value: "true"
+```
+
+If the `barmanObjectStore` block has `serverName`, remove it from the `ObjectStore`. Set it in the plugin `parameters` in Step 3 instead.
+
+Apply the file:
+
+```shell
+kubectl apply -f objectstore.yaml
+```
+
+The `ObjectStore` has a status section, but the status does not show if the plugin can reach S3. Step 5 verifies the connection.
+
+<Callout type="warn" title="Keep the same destinationPath">
+The plugin makes sure that the WAL archive is empty only for a new Cluster. An existing Cluster continues in its current path. The new base backups then stay next to the legacy base backups, and the recovery history continues without a gap.
+</Callout>
+
+## Step 3: Patch the Cluster
+
+One patch removes the in-tree configuration and adds the plugin. Two separate changes would stop WAL archiving for a short time.
+
+Use `kubectl patch`, not `kubectl apply`. `kubectl apply` removes a field only if an earlier `kubectl apply` set it. For a Cluster that you created with `kubectl create`, `kubectl apply` keeps `.spec.backup.barmanObjectStore`.
+
+The patch removes only `barmanObjectStore` and `retentionPolicy`. Other fields under `.spec.backup`, for example `target` or `volumeSnapshot`, stay.
+
+1. Write the patch to a file. The shell puts the name of the Cluster into the file.
+
+   ```shell
+   cat > plugin-patch.json <<EOF
+   [
+     {"op": "remove", "path": "/spec/backup/barmanObjectStore"},
+     {"op": "remove", "path": "/spec/backup/retentionPolicy"},
+     {"op": "add", "path": "/spec/plugins", "value": [
+       {"name": "barman-cloud.cloudnative-pg.io",
+        "isWALArchiver": true,
+        "parameters": {"barmanObjectName": "$CLUSTER-s3"}}
+     ]}
+   ]
+   EOF
+   ```
+
+   - If the Cluster has no `retentionPolicy`, remove that line. Otherwise the patch fails and changes nothing.
+   - If the Cluster already has a `plugins` section, the `add` operation replaces it. In this case, add the plugin to the existing list in the patch.
+   - If you moved `serverName` in Step 2, add `"serverName": "<name>"` to `parameters`.
+
+2. Preview the result. The server validates the patch but does not save it.
+
+   ```shell
+   kubectl patch cluster.postgresql.cnpg.io $CLUSTER --type=json --patch-file=plugin-patch.json \
+     --dry-run=server -o yaml | grep -E -A6 '^  (backup|plugins):'
+   ```
+
+   The output must show `plugins` with `barman-cloud.cloudnative-pg.io`. It must not show `barmanObjectStore`.
+
+3. Apply the patch:
+
+   ```shell
+   kubectl patch cluster.postgresql.cnpg.io $CLUSTER --type=json --patch-file=plugin-patch.json
+   ```
+
+   The deprecation warning does not appear. The operator starts a rolling update. It restarts the replicas first and the primary last. Each pod restarts one time and then has two containers: `postgres` and `plugin-barman-cloud`.
+
+4. Change your stored manifest in the same way. If you do not change it, the next `kubectl apply` of the old file adds the in-tree configuration again.
+
+5. Watch the rolling update. The loop stops when all pods show `2/2` and the Cluster is healthy. After 5 minutes, it stops with a message.
+
+   ```shell
+   for i in $(seq 1 60); do
+     PHASE=$(kubectl get cluster.postgresql.cnpg.io $CLUSTER -o jsonpath='{.status.phase}')
+     PODS=$(kubectl get pods -l cnpg.io/cluster=$CLUSTER --no-headers)
+     echo "$(date +%T) $PHASE | $(echo "$PODS" | awk '{printf "%s(%s %s) ", $1, $2, $3}')"
+     NOT_READY=$(echo "$PODS" | awk '$2 != "2/2"' | wc -l)
+     [ "$PHASE" = "Cluster in healthy state" ] && [ "$NOT_READY" -eq 0 ] && break
+     sleep 5
+   done
+   [ "$NOT_READY" -eq 0 ] || echo "The rolling update did not finish in 5 minutes."
+   ```
+
+Example output from a 3-instance Cluster with the name `pgmig`:
+
+```text
+00:12:32 Upgrading cluster                     | pgmig-1(1/1 Running) pgmig-2(1/1 Running) pgmig-3(1/1 Terminating)
+00:12:54 Waiting for the instances to become... | pgmig-1(1/1 Running) pgmig-2(1/1 Running) pgmig-3(1/2 Running)
+00:13:31 Waiting for the instances to become... | pgmig-1(1/1 Running) pgmig-2(0/1 Terminating) pgmig-3(2/2 Running)
+00:13:56 Waiting for the instances to become... | pgmig-1(1/1 Running) pgmig-2(1/2 Running) pgmig-3(2/2 Running)
+00:14:13 Primary instance is being restarted... | pgmig-1(0/2 Init:0/2) pgmig-2(2/2 Running) pgmig-3(2/2 Running)
+00:14:32 Cluster in healthy state               | pgmig-1(2/2 Running) pgmig-2(2/2 Running) pgmig-3(2/2 Running)
+```
+
+The change from `1/1` to `2/2` shows the new sidecar. The operator restarted the primary last. The primary kept its role, and no switchover occurred.
+
+## Step 4: Change the ScheduledBackup
+
+Do this step immediately after Step 3. A scheduled backup with the old method fails, because the Cluster no longer has the in-tree configuration. Keep the name and the schedule of your current `ScheduledBackup`.
+
+```yaml title="scheduled-backup.yaml"
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: <cluster>-daily
+spec:
+  schedule: "0 0 2 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: <cluster>
+  method: plugin                                  # new
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io          # new
+```
+
+Apply the file and examine the result:
+
+```shell
+kubectl apply -f scheduled-backup.yaml
+kubectl get scheduledbackups.postgresql.cnpg.io $CLUSTER-daily -o yaml | grep -E 'method|pluginConfiguration' -A1
+```
+
+## Step 5: Verify
+
+Do not skip this step. A healthy Cluster status is necessary, but it is not sufficient. You must see new files in the bucket.
+
+The rolling update can change the primary. Get the primary again:
+
+```shell
+PRIMARY=$(kubectl get cluster.postgresql.cnpg.io $CLUSTER -o jsonpath='{.status.currentPrimary}')
+```
+
+### Replicas
+
+```shell
+kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres -c \
+  "SELECT application_name, state, sync_state, replay_lag FROM pg_stat_replication;"
+#  application_name |   state   | sync_state | replay_lag
+# ------------------+-----------+------------+------------
+#  pgmig-2          | streaming | async      |
+#  pgmig-3          | streaming | async      |
+```
+
+All replicas must show the state `streaming`. The value of `replay_lag` must be empty or less than one second.
+
+### Data
+
+```shell
+for pod in $(kubectl get pods -l cnpg.io/cluster=$CLUSTER -o name); do
+  echo "== $pod =="
+  kubectl exec $pod -c postgres -- psql -U postgres -d postgres -t -c "SELECT count(*) FROM backup_check;"
+done
+```
+
+All instances must return the same count.
+
+### WAL archiving through the plugin
+
+Write a row and force a WAL switch. Then read the archiver counters:
+
+```shell
+kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres \
+  -c "INSERT INTO backup_check (note) VALUES ('after-migration');" \
+  -c "SELECT pg_switch_wal();"
+sleep 10
+kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres -c \
+  "SELECT archived_count, failed_count, last_archived_wal, last_archived_time FROM pg_stat_archiver;"
+```
+
+`archived_count` must increase. `failed_count` must not increase. A small increase in the first minutes is acceptable if it stops.
+
+### Plugin sidecar log
+
+```shell
+kubectl logs $PRIMARY -c plugin-barman-cloud --tail=30
+```
+
+The log must show lines like these:
+
+```text
+{"level":"info","ts":"...","msg":"Executing barman-cloud-wal-archive","logging_pod":"pgmig-1","walName":"/var/lib/postgresql/data/pgdata/pg_wal/000000010000000000000007",...}
+{"level":"info","ts":"...","msg":"Archived WAL file","logging_pod":"pgmig-1"}
+```
+
+The log must not show `error` lines. For the meaning of error messages, see [the table on Verify backups end-to-end](./verify#4-plugin-sidecar-log).
+
+### Bucket
+
+Run `python3 s3-list.py "<bucket>" "$CLUSTER"` again and compare the output with Step 1. The WAL files continue in the same path, without a gap. Example output, with notes:
+
+```text
+Base backups:
+  pgmig/base/20261004T221041/
+WAL files: 8. Newest 5:
+  pgmig/wals/0000000100000000/000000010000000000000004
+  pgmig/wals/0000000100000000/000000010000000000000005
+  pgmig/wals/0000000100000000/000000010000000000000006   <- last WAL file of the in-tree backup
+  pgmig/wals/0000000100000000/000000010000000000000007   <- first WAL file of the plugin
+  pgmig/wals/0000000100000000/000000010000000000000008
+```
+
+### On-demand base backup
+
+Make a base backup through the plugin:
+
+```yaml title="backup.yaml"
+apiVersion: postgresql.cnpg.io/v1
+kind: Backup
+metadata:
+  name: <cluster>-plugin-backup-1
+spec:
+  cluster:
+    name: <cluster>
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+```
+
+```shell
+kubectl apply -f backup.yaml
+kubectl get backups.postgresql.cnpg.io $CLUSTER-plugin-backup-1
+# NAME                    CLUSTER   METHOD   PHASE       ERROR
+# pgmig-plugin-backup-1   pgmig     plugin   completed
+```
+
+Run the S3 script again. A new base backup appears next to the legacy base backup:
+
+```text
+Base backups:
+  pgmig/base/20261004T221041/   <- in-tree backup
+  pgmig/base/20261004T221831/   <- plugin backup
+```
+
+`kubectl get backups.postgresql.cnpg.io` shows both `Backup` resources. The legacy backup has the method `barmanObjectStore`, and the new backup has the method `plugin`.
+
+### Restore test
+
+Do the [restore test](./verify#7-restore-test). It shows that the plugin can restore the Cluster from the bucket.
+
+## If the migration stops
+
+- **The Cluster stays in `Upgrading cluster` for more than 5 minutes.** Examine the events with `kubectl describe pod <pod>`. Examine the instance manager log with `kubectl logs <pod> -c postgres --tail=100`.
+- **The phase is `Waiting for user action`.** The Cluster uses `primaryUpdateStrategy: supervised`, and the operator waits before it restarts the primary. To continue, set the strategy to `unsupervised`. After the migration, set it back if necessary:
+
+  ```shell
+  kubectl patch cluster.postgresql.cnpg.io $CLUSTER --type=merge -p '{"spec":{"primaryUpdateStrategy":"unsupervised"}}'
+  ```
+
+- **The archiver counter stops, and the sidecar log shows `InvalidAccessKeyId`.** Correct the `Secret` that `ObjectStore.spec.configuration.s3Credentials` refers to. You do not need to change the Cluster or restart pods.
+- **A `Backup` stays in the phase `started`.** Examine the sidecar log of the pod that makes the backup. By default, this pod is a replica. Usual causes are a NetworkPolicy that blocks S3, or the boto3 checksum problem (see Step 2).
+
+## Rollback
+
+To go back to the in-tree backup:
+
+1. Open the Cluster for editing:
+
+   ```shell
+   kubectl edit cluster.postgresql.cnpg.io $CLUSTER
+   ```
+
+2. Delete `spec.plugins`. Add `spec.backup.barmanObjectStore` and `spec.backup.retentionPolicy` from `cluster-before.yaml`. Save and close the editor.
+3. Open the `ScheduledBackup` with `kubectl edit` and delete `method` and `pluginConfiguration`.
+
+The operator does a rolling update again, and the deprecation warning comes back. Use the rollback only for a short time, because CloudNativePG 1.31.0 removes the in-tree backup.
+
+## After the migration
+
+Clusters with the in-tree backup often use a "system" image, for example with the tag `15.10`. The plugin works with this image. System images contain Barman Cloud for the in-tree backup, and CloudNativePG deprecates them. Plan a change to a `standard` image.
+
+If the new image has the same Debian version (for example `trixie`), the change is a normal image update. If the Debian version changes, a different C library can change the sort order of text and damage indexes. CloudNativePG does not allow this change as a normal image update. Contact k8s@cerit-sc.cz before you plan it.
+
+## What the migration does not need
+
+- No rebuild of the replicas from a base backup.
+- No empty S3 path. The plugin continues in the existing path.
+- No new credentials. The `ObjectStore` uses the `Secret` of the in-tree configuration.
+- No export and import of data. Only the backup configuration changes.

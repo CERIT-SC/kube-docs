@@ -1,0 +1,435 @@
+---
+title: Access and operations
+description: Connect to a CloudNativePG database, limit network access, use custom credentials, and configure high availability, storage, and images. The page also lists known problems.
+---
+
+The information on this page applies to all Clusters: Clusters with the barman-cloud plugin and Clusters with the legacy in-tree backup. For backups, see [Deploy a cluster with the barman-cloud plugin](./deploy).
+
+The commands use the current namespace of your kubectl context. To set the namespace, run `kubectl config set-context --current --namespace=<namespace>`.
+
+## Instances and storage
+
+A Cluster has one instance or more instances. With more instances, one instance is the primary, and the other instances are replicas. The replicas get the changes from the primary through streaming replication. If the primary fails, the operator promotes a replica to primary.
+
+Each instance has its own volume. Two storage classes are available:
+
+| Storage class | Type | Properties |
+|---|---|---|
+| `nfs-csi` | Network storage | Slow. Good for tests. |
+| `zfs-csi` | Local SSD on the node | The fastest storage. The size is a hard limit, and you cannot increase it later. The data stays on one node. |
+
+For tests, use one instance on `nfs-csi`. For production, use three instances on `zfs-csi`, with backups.
+
+### Example with one instance
+
+This example has no backup. To add backups, see [Deploy a cluster with the barman-cloud plugin](./deploy).
+
+```yaml title="minimal-cn.yaml"
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: test-cluster       # name of the Cluster, you can change it
+spec:
+  instances: 1             # one instance
+
+  imageName: ghcr.io/cloudnative-pg/postgresql:15-standard-trixie
+
+  primaryUpdateStrategy: unsupervised
+
+  # Do not create the read-only Services test-cluster-ro and test-cluster-r.
+  # Remove this block only if you need read-only connections to the replicas.
+  managed:
+    services:
+      disabledDefaultServices: ["r", "ro"]
+
+  bootstrap:
+    initdb:
+      database: mydb       # database to create, you can change it
+      owner: myowner       # user to create, you can change it
+
+  storage:
+    size: 10Gi
+    storageClass: nfs-csi  # storage class, you can change it
+```
+
+Create the Cluster:
+
+```shell
+kubectl create -f minimal-cn.yaml
+```
+
+The pod `test-cluster-1` starts in your namespace. You can also download the [manifest](/examples/ceritsc/manifests/minimal-cn.yaml).
+
+For three instances, set `instances: 3`. The [cluster manifest](/examples/ceritsc/manifests/cluster-cn.yaml) has this setting. For local storage, use the [local storage manifest](/examples/ceritsc/manifests/minimal-local-cn.yaml) and set `instances` as necessary.
+
+Each instance uses the resources in `spec.resources`. A Cluster uses `instances` × `limits` from your namespace quota. Make sure that the quota is sufficient before you add instances.
+
+## Database credentials
+
+If you do not supply your own `Secret`, the operator creates the `Secret` `<cluster>-app`. To show the connection data, run:
+
+```shell
+kubectl get secret <cluster>-app -o 'jsonpath={.data.pgpass}' | base64 -d
+```
+
+The output has the format `host:port:database:user:password`, for example:
+
+```text
+test-cluster-rw:5432:mydb:myowner:uLUmkvAMwR0lJtw5ksUVKihd5OvCrD28RFH1JTLbbzO6BhEAtnWJr1L0nWpTi3GL
+```
+
+Use the user and the password from this output to connect.
+
+### Custom credentials
+
+To use your own user name and password, create a `Secret` before you create the Cluster:
+
+```yaml title="secret.yaml"
+apiVersion: v1
+kind: Secret
+metadata:
+  name: <secret-name>
+type: kubernetes.io/basic-auth
+stringData:
+  username: <username>
+  password: <password>
+```
+
+```shell
+kubectl create -f secret.yaml
+```
+
+In the Cluster manifest, refer to the `Secret` in `bootstrap.initdb`. The `owner` must be the same as `username` in the `Secret`:
+
+```yaml
+  bootstrap:
+    initdb:
+      database: <database>
+      owner: <username>
+      secret:
+        name: <secret-name>
+```
+
+## Connections
+
+The operator creates the Service `<cluster>-rw` for read-write connections to the primary. The examples in this chapter disable the read-only Services `<cluster>-ro` and `<cluster>-r`.
+
+<Callout type="info">
+To use read-only connections to the replicas, remove the `spec.managed.services.disabledDefaultServices` block from the Cluster manifest. Read-only connections need at least two instances.
+</Callout>
+
+### From the same namespace
+
+Use the host `<cluster>-rw` for read-write connections. If you enabled the read-only Services, use `<cluster>-ro` for read-only connections. The port is `5432`.
+
+### From another namespace
+
+Use the host `<cluster>-rw.<namespace>.svc.cluster.local`. `<namespace>` is the namespace of the database. The port is `5432`. If a NetworkPolicy protects the database, add the other namespace to the policy. See [NetworkPolicy](#networkpolicy).
+
+### From outside the Kubernetes cluster
+
+Create a Service of the type `LoadBalancer`. Each `LoadBalancer` Service uses one IP address. The example gives read-write access. If you also need read-only access through a second IP address, contact k8s@cerit-sc.cz.
+
+Select the address pool in the annotation `metallb.io/address-pool`:
+
+- `privmuni`: the IP address is available only from the Masaryk University network and the MU VPN.
+- `default`: the IP address is public.
+
+```yaml title="loadbalancer.yaml"
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-cluster-lb-rw
+  annotations:
+    metallb.io/address-pool: privmuni   # "default" for a public IP address
+spec:
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: Local
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    cnpg.io/cluster: test-cluster       # name of your Cluster
+    cnpg.io/instanceRole: primary
+```
+
+If the IP address is public, limit the access. Use a [NetworkPolicy](#networkpolicy) or the [LoadBalancer firewall](../../kubernetes/expose/expose-network#loadbalancer-firewall).
+
+To get the IP address, run:
+
+```shell
+kubectl get svc test-cluster-lb-rw
+# NAME                 TYPE           CLUSTER-IP   EXTERNAL-IP   PORT(S)    AGE
+# test-cluster-lb-rw   LoadBalancer   10.43...     147.251.X.Y   5432/TCP   21h
+```
+
+Connect to the address in the `EXTERNAL-IP` column on port `5432`, for example from pgAdmin.
+
+## NetworkPolicy
+
+A NetworkPolicy allows network access to the database only from the sources that you specify. Use a NetworkPolicy for all Clusters. If the database has a public IP address, a NetworkPolicy is very important. For the general concepts, see [Network Policy](../../kubernetes/security).
+
+Always allow ingress from the namespace `cloudnativepg`. Without this access, the operator cannot monitor the instances or do a failover.
+
+### Allow only specified namespaces
+
+```yaml title="netpolicy-internal.yaml"
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cnpg-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: test-cluster   # name of your Cluster
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cloudnativepg
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: <namespace>         # namespace of the database
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: <other-namespace>   # optional
+```
+
+Replace `<namespace>` with the namespace of the database. To allow more namespaces, add one `namespaceSelector` item for each namespace. You can also download the [manifest](/examples/ceritsc/manifests/netpolicy-internal.yaml).
+
+### Allow only specified external IP addresses
+
+```yaml title="netpolicy-external.yaml"
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cnpg-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: test-cluster   # name of your Cluster
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cloudnativepg
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: <namespace>   # namespace of the database
+        - ipBlock:
+            cidr: <ip>/32
+        - ipBlock:
+            cidr: <another-ip>/32
+```
+
+Replace `<ip>` with your external IP address. Keep the `/32` suffix. To allow more addresses, add one `ipBlock` item for each address. You can also download the [manifest](/examples/ceritsc/manifests/netpolicy-external.yaml).
+
+<Callout type="warn">
+The `LoadBalancer` Service must have `externalTrafficPolicy: Local`. With `Cluster`, the node replaces the IP address of the client with its own IP address. The `ipBlock` rule then does not match the client.
+</Callout>
+
+### Limit egress
+
+To control the outgoing traffic, add egress rules. The example allows only the traffic that a Cluster needs:
+
+- DNS on port 53, to find the IP address of the S3 endpoint and other names.
+- The other instances of the same Cluster on ports 5432 and 8000. The replicas use port 5432 for streaming replication.
+- The Kubernetes API server on port 6443. The instance manager in each pod uses it.
+- The S3 endpoint on port 443, for WAL archiving, base backups, and the WAL restore on replicas. This rule applies to the plugin and to the in-tree backup.
+
+```yaml title="netpolicy-egress.yaml"
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postgres-cnpg-np
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: test-cluster   # name of your Cluster
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # PostgreSQL port for all pods in the namespace
+    - ports:
+        - port: 5432
+          protocol: TCP
+      from:
+        - podSelector: {}
+    # Instance manager port for the operator and for the other instances
+    - ports:
+        - port: 8000
+          protocol: TCP
+      from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cloudnativepg
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: cloudnative-pg
+        - podSelector:
+            matchLabels:
+              cnpg.io/cluster: test-cluster
+  egress:
+    # DNS
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    # Other instances of the same Cluster: replication and instance manager
+    - ports:
+        - port: 5432
+          protocol: TCP
+        - port: 8000
+          protocol: TCP
+      to:
+        - podSelector:
+            matchLabels:
+              cnpg.io/cluster: test-cluster
+    # Kubernetes API server
+    - ports:
+        - port: 6443
+          protocol: TCP
+      to:
+        - ipBlock:
+            cidr: 10.43.0.1/32
+        - ipBlock:
+            cidr: 10.16.62.14/32
+        - ipBlock:
+            cidr: 10.16.62.15/32
+        - ipBlock:
+            cidr: 10.16.62.16/32
+        - ipBlock:
+            cidr: 10.16.62.17/32
+        - ipBlock:
+            cidr: 10.16.62.18/32
+    # S3 endpoint for backups
+    - ports:
+        - port: 443
+          protocol: TCP
+      to:
+        - ipBlock:
+            cidr: <s3-endpoint-ip>/32
+```
+
+To find the IP addresses of the S3 endpoint, run `host s3.a.cloud.e-infra.cz`. Add one `ipBlock` for each IPv4 and IPv6 address. If the Cluster has no backup, remove the S3 rule.
+
+## High availability
+
+A Cluster with more than one instance is highly available. If the primary fails, the operator promotes a replica to primary.
+
+CloudNativePG enables replication slots for high availability by default. With these slots, the primary keeps the WAL files that a replica still needs. You do not need to set `replicationSlots.highAvailability.enabled`.
+
+Be careful with WAL files on `zfs-csi`, because the volume size is a hard limit. If a replica stops for a long time, the primary keeps the WAL files for it, and these files can fill the volume. When the volume is full, PostgreSQL stops. Do not increase `wal_keep_size` to a value near the volume size. To limit the WAL files that the slots keep, set `max_slot_wal_keep_size`. If a replica needs more WAL files than this limit, you must rebuild the replica (see [Known problems](#known-problems)).
+
+```yaml title="cluster-ha.yaml"
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: test-cluster
+spec:
+  instances: 3
+
+  imageName: ghcr.io/cloudnative-pg/postgresql:15-standard-trixie
+
+  primaryUpdateStrategy: unsupervised
+
+  # Do not create the read-only Services test-cluster-ro and test-cluster-r.
+  # Remove this block only if you need read-only connections to the replicas.
+  managed:
+    services:
+      disabledDefaultServices: ["r", "ro"]
+
+  bootstrap:
+    initdb:
+      database: dbname
+      owner: dbowner
+
+  postgresql:
+    parameters:
+      # Limit for the WAL files that the replication slots keep.
+      # Keep it much smaller than the volume.
+      max_slot_wal_keep_size: 2GB
+
+  resources:
+    requests:
+      memory: "4096Mi"
+      cpu: 1
+    limits:
+      memory: "4096Mi"
+      cpu: 1
+
+  storage:
+    size: 10Gi
+    storageClass: zfs-csi
+```
+
+For production, also add backups. See [Deploy a cluster with the barman-cloud plugin](./deploy).
+
+## Images and locales
+
+CloudNativePG provides three types of PostgreSQL images:
+
+| Type | Contents | Use |
+|---|---|---|
+| `minimal` | PostgreSQL | Works with the barman-cloud plugin. |
+| `standard` | `minimal`, some extensions, and all locales | Works with the barman-cloud plugin. |
+| `system` | `standard` and Barman Cloud | For the in-tree backup only. Deprecated. |
+
+The tags have the format `<major>.<minor>-<type>-<debian>`, for example `17.6-standard-trixie`. The tag `<major>-<type>-<debian>` always points to the newest minor version. Old tags without type and Debian version, for example `15.10`, point to system images. CloudNativePG deprecates these tags.
+
+For new Clusters, use a `standard` or a `minimal` image. The [registry](https://github.com/cloudnative-pg/postgres-containers/pkgs/container/postgresql) lists all images.
+
+### Czech collation
+
+The `standard` images contain all locales, also `cs_CZ`. To use Czech collation, use a `standard` image and set the locale in `bootstrap.initdb`:
+
+```yaml
+  bootstrap:
+    initdb:
+      database: mydb
+      owner: myowner
+      encoding: UTF8
+      localeCollate: cs_CZ.UTF-8
+      localeCType: cs_CZ.UTF-8
+```
+
+Earlier images did not contain Czech locales. For this reason, we made the images `cerit.io/cloudnative-pg/postgresql:10.23-3` and `cerit.io/cloudnative-pg/postgresql:15.0`. Do not use them for new Clusters. Current CloudNativePG versions do not support PostgreSQL 10. Version 15.0 is the first release of PostgreSQL 15 and does not have the later fixes.
+
+## Known problems
+
+### Deployment errors
+
+1. If a deployment fails, first make sure that the operator deleted the old instance. Then create the deployment again. If you create the new instance too early, the operator never creates it. You then must use a different name.
+2. If the namespace quota is too small, the operator creates only the instances that fit in the quota. Also in this case, you cannot delete the database and deploy it again with the same name.
+
+### Local storage
+
+Local storage (`zfs-csi`) stays on one node. If that node fails, or if the administrators restore the Kubernetes cluster from a backup, you can lose the local data. Use more than one instance and make regular backups.
+
+### A replica cannot join the Cluster
+
+Sometimes a replica fails and cannot join the Cluster again. To rebuild it, delete the pod and its volume with one command. First make sure that the instance is a replica. If you delete the primary, the operator starts a failover.
+
+```shell
+# Show the primary. Do not delete this instance.
+kubectl get cluster.postgresql.cnpg.io test-cluster -o jsonpath='{.status.currentPrimary}{"\n"}'
+# Delete the failed replica, for example test-cluster-2, and its volume.
+kubectl delete pod/test-cluster-2 pvc/test-cluster-2
+```
+
+The operator creates a new replica and copies the data from the primary. The new replica gets a new number, for example `test-cluster-4`.
+
+### The kubectl name of the Cluster resource
+
+Two CRDs with the kind `Cluster` exist on this Kubernetes cluster: cluster-api (`cluster.x-k8s.io`) and CloudNativePG (`postgresql.cnpg.io`). The command `kubectl get cluster <name>` uses the cluster-api CRD. It fails with `Forbidden: clusters.cluster.x-k8s.io ... cannot get resource ... in API group "cluster.x-k8s.io"`. Always use the full name, for example `kubectl get cluster.postgresql.cnpg.io <name>`. This also applies to `kubectl wait`.
+
+### psql in an instance pod
+
+When you run `psql` in an instance pod (for example through `kubectl exec`), use `-h localhost`. Then `psql` connects over TCP with a password. The local socket uses peer authentication, which works only for the operating-system user `postgres`. Other users get the error `FATAL: Peer authentication failed for user "<user>"`.
