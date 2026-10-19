@@ -122,6 +122,7 @@ Model names are case-sensitive and may include a quantization suffix.
 | **GPT-OSS-120B** | `gpt-oss-120b` | chat, tools | 128k | 32k | mxfp4 | [openai/gpt-oss-120b](https://huggingface.co/openai/gpt-oss-120b) |
 | **DeepSeek V4.1 Flash-1017** | `deepseek-v4.1-flash` | chat, tools | 1M | 64k | fp8 | [deepseek-ai/DeepSeek-V4.1-Flash-1017](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017) |
 | **GLM 5.3** | `glm-5.3` | chat, tools | 1M | 64k | fp8 | [zai-org/GLM-5.3](https://huggingface.co/zai-org/GLM-5.3) |
+| **GLM 5.3 Flash** | `glm-5.3-flash` | chat, multimodal, tools | 1M | — | nvfp4 | [nvidia/GLM-5.3-Flash-NVFP4](https://huggingface.co/nvidia/GLM-5.3-Flash-NVFP4) |
 | **Kimi K3** | `kimi-k3` | chat, multimodal, tools | 1M | 48k | mxfp4 | [moonshotai/Kimi-K3](https://huggingface.co/moonshotai/Kimi-K3) |
 | **Qwen3.8 Flash Next** | `qwen3.8-flash-next` | chat, multimodal, tools | 256k | 48k | fp8 | [Qwen/Qwen3.8-Flash-Next-FP8](https://huggingface.co/Qwen/Qwen3.8-Flash-Next-FP8) |
 | **Qwen3.8 27B** | `qwen3.8-27b` | chat, multimodal, tools | 256k | 32k | fp8 | [Qwen/Qwen3.8-27B-FP8](https://huggingface.co/Qwen/Qwen3.8-27B-FP8) |
@@ -132,6 +133,7 @@ Model names are case-sensitive and may include a quantization suffix.
 
 - **Kimi K3** — Moonshot AI's open-weight 2.8T-parameter Mixture-of-Experts (MoE) flagship model. Native multimodal with vision support, a 1M-token context window, and strong performance in long-horizon coding, reasoning, knowledge work, and agentic workflows.
 - **GLM 5.3** — 756B-parameter language model optimized for advanced reasoning, tool use, and multi-step agentic tasks.
+- **GLM 5.3 Flash** — 320B-parameter (18B active) Mixture-of-Experts multimodal model from ZAI for reasoning, coding, and agentic tasks. The NVIDIA NVFP4 build reduces weight memory by about 3.3 times compared with BF16 and keeps benchmark accuracy close to the BF16 baseline.
 - **GPT-OSS-120B** — OpenAI's 120B-parameter open-weight language model offering strong general-purpose performance across reasoning, coding, and tool use.
 - **DeepSeek V4.1 Flash-1017** — efficient reasoning model with a small activated parameter count relative to leading proprietary models. Excels at mathematics, logical reasoning, and code generation.
 - **Qwen3.8 Flash Next** — 180B (MoE) multimodal model with improved coding performance. fp8 quantization, 256k context, and a maximum output of 48k tokens.
@@ -192,6 +194,7 @@ We evaluated selected models using [Aider Polyglot Benchmark](https://aider.chat
 |DeepSeek V4.1 Flash-1017  | 88.5      | 87.2          | 72.3       | **93.9**         | 91.2         | **96.7**   |
 |Gemma 4 (instant)         | 53.8      | 51.3          | 34.0       | 44.9             | 44.1         | 46.7       |
 |GLM 5.3                   | 88.5      | 87.2          | 87.2       | **93.9**         | **100.0**    | 86.7       |
+|GLM 5.3 Flash (NVFP4)     | 92.3      | **92.3**      | 83.0       | 91.8             | 91.2         | 66.7       |
 |GPT-OSS-120B              | 50.0      | 59.0          | 40.4       | 61.2             | 70.6         | 53.3       |
 |Kimi K3 (think)           | **100**   | **92.3**      | **93.6**   | 91.8             | 97.1         | 93.3       |
 |Mistral Medium 3.5 (high) | 50.0      | 59.0          | 44.7       | 57.1             | 67.6         | 46.7       |
