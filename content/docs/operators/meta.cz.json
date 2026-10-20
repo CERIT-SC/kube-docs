@@ -1,11 +1,12 @@
 {
-  "title": "Operátory",
   "pages": [
     "operator-summary",
+    "dragonfly",
+    "logging",
     "minio",
     "mpi",
+    "opensearch",
     "postgres-cnpg",
-    "spark",
-    "logging"
+    "spark"
   ]
 }
