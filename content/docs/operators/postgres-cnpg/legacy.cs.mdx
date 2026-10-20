@@ -1,0 +1,158 @@
+---
+title: Reference zastaralé zálohy in-tree
+description: Reference zastaralé zálohy Barman Cloud in-tree (`.spec.backup.barmanObjectStore`). Používejte ji pouze pro Clustery, které jste zatím nezmigrovali na plugin barman-cloud.
+---
+
+<Callout type="warn">
+Tato stránka je určena pro Clustery, které stále používají zálohu Barman Cloud in-tree. CloudNativePG tuto zálohu označuje za zastaralou od verze 1.26 a verze 1.31.0 ji odstraňuje. Pro nové Clustery postupujte podle [Nasazení clusteru s pluginem barman-cloud](./deploy). Chcete-li přesunout existující Cluster, postupujte podle [Migrace ze zastaralé zálohy in-tree](./migrate-from-legacy).
+</Callout>
+
+K připojením, příkladům NetworkPolicy, vlastním přihlašovacím údajům a vysoké dostupnosti viz [Přístup a provoz](./operations). Tato stránka platí pro všechny Clustery.
+
+Příkazy používají aktuální namespace vašeho kubectl kontextu.
+
+## Jak funguje záloha in-tree
+
+Operátor nakonfiguruje průběžnou WAL archivaci do S3. Také vytváří fyzické základní zálohy, když je vyžádá `ScheduledBackup` nebo zdroj `Backup`. Tuto práci provádějí nástroje `barman-cloud` v kontejneru `postgres` každé instance. Proto musí image obsahovat Barman Cloud. Image typu „system“ z CloudNativePG ho obsahují.
+
+## Přihlašovací údaje k S3
+
+Získejte dvojici přístupových klíčů od svého poskytovatele S3, například [DU CESNET](https://du.cesnet.cz/en/navody/object_storage/cesnet_s3/start). Dvojice klíčů musí mít k bucketu přístup pro čtení i zápis. Dvojici klíčů vložte do `Secret`:
+
+```yaml title="secret.yaml"
+apiVersion: v1
+kind: Secret
+metadata:
+  name: aws-creds
+type: Opaque
+stringData:
+  ACCESS_KEY_ID: "<your-access-key>"
+  ACCESS_SECRET_KEY: "<your-secret-key>"
+```
+
+Můžete také použít [šablonu](/examples/ceritsc/manifests/secret-cn.yaml). V šabloně nahraďte `KEY-ID` a `SECRET-ID` skutečnými hodnotami.
+
+## Konfigurace zálohy
+
+Přidejte do manifestu Clusteru sekci `backup`. Ukazuje ji poslední sekce [šablony](/examples/ceritsc/manifests/minimal-cn-backup.yaml).
+
+```yaml
+  backup:
+    barmanObjectStore:
+      destinationPath: "s3://<bucket>"
+      endpointURL: "https://<s3-endpoint>"
+      s3Credentials:
+        accessKeyId:
+          name: aws-creds
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: aws-creds
+          key: ACCESS_SECRET_KEY
+    retentionPolicy: "30d"
+```
+
+Nahraďte `<bucket>` a `<s3-endpoint>` svými hodnotami. Hodnoty `key` jsou názvy klíčů v `Secret`. Neměňte je, pokud zároveň nezměníte názvy klíčů v `Secret`.
+
+Plugin barman-cloud používá stejnou strukturu. Při migraci zkopírujte blok `barmanObjectStore` beze změn do `ObjectStore`. Viz [Krok 2 průvodce migrací](./migrate-from-legacy#krok-2-vytvořte-objectstore).
+
+## Plánované základní zálohy
+
+```yaml title="scheduled-backup.yaml"
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: <backup-name>
+spec:
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: <cluster>
+```
+
+- `<backup-name>` je název tohoto zdroje. Musí být v namespace jedinečný.
+- `<cluster>` je `metadata.name` Clusteru.
+- Plán má šest polí: sekundy, minuty, hodiny, den v měsíci, měsíc a den v týdnu. Standardní cron má pět polí. Tento příklad spouští základní zálohu každý den o půlnoci.
+
+## boto3 a endpointy S3, které nejsou AWS
+
+<Callout type="warn">
+Některé image obsahují novější verze knihovny `boto3`. Tyto verze mohou selhat s některými endpointy S3, například DU CESNET. Kontejner `postgres` pak zaloguje tuto chybu:
+`ERROR: Error received from upload worker: An error occurred (MissingContentLength) when calling the UploadPart operation: Unknown`
+
+Chcete-li chybě předejít, přidejte tyto proměnné prostředí do `spec.env` Clusteru:
+
+```yaml
+- name: AWS_REQUEST_CHECKSUM_CALCULATION
+  value: when_required
+- name: AWS_RESPONSE_CHECKSUM_VALIDATION
+  value: when_required
+- name: AWS_NO_CHUNKED_ENCODING
+  value: "true"
+```
+
+U zálohy in-tree je `spec.env` správné místo, protože barman-cloud běží v kontejneru `postgres`. Plugin barman-cloud potřebuje tyto proměnné v `ObjectStore`.
+</Callout>
+
+## Příklad Clusteru
+
+Tento příklad obsahuje zálohu in-tree a proměnné boto3:
+
+```yaml title="cluster-legacy.yaml"
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: test-cluster       # name of the Cluster, you can change it
+spec:
+  instances: 1             # one instance
+
+  # A "system" image contains Barman Cloud, which the in-tree backup needs.
+  imageName: ghcr.io/cloudnative-pg/postgresql:15-system-trixie
+
+  primaryUpdateStrategy: unsupervised
+
+  # Do not create the read-only Services test-cluster-ro and test-cluster-r.
+  # Remove this block only if you need read-only connections to the replicas.
+  managed:
+    services:
+      disabledDefaultServices: ["r", "ro"]
+
+  bootstrap:
+    initdb:
+      database: mydb       # database to create, you can change it
+      owner: myowner       # user to create, you can change it
+
+  env:
+    - name: AWS_REQUEST_CHECKSUM_CALCULATION
+      value: when_required
+    - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+      value: when_required
+    - name: AWS_NO_CHUNKED_ENCODING
+      value: "true"
+
+  backup:
+    barmanObjectStore:
+      destinationPath: "s3://<bucket>"
+      endpointURL: "https://<s3-endpoint>"
+      s3Credentials:
+        accessKeyId:
+          name: aws-creds
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: aws-creds
+          key: ACCESS_SECRET_KEY
+    retentionPolicy: "30d"
+
+  storage:
+    size: 10Gi
+    storageClass: nfs-csi  # storage class, you can change it
+```
+
+## Chyba RBAC u zálohy in-tree
+
+U zálohy in-tree spouští archiver v kontejneru `postgres` ServiceAccount Clusteru. Tento ServiceAccount musí mít oprávnění číst `Secret`. Pokud instalace operátoru toto oprávnění nedává, archivace selže. Log kontejneru `postgres` pak ukazuje chybu podobnou této:
+
+```text
+while getting secret aws-creds: secrets "aws-creds" is forbidden ... clusterrole ... not found
+```
+
+Plugin barman-cloud spravuje vlastní pravidla přístupu a tento problém nemá. To je další důvod, proč [zmigrovat](./migrate-from-legacy).

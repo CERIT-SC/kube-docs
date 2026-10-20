@@ -1,0 +1,301 @@
+---
+title: Nasazení clusteru s pluginem barman-cloud
+description: Nasaďte nový Cluster CloudNativePG, který pro zálohy do S3 používá plugin barman-cloud. Tento postup použijte pro všechny nové databáze PostgreSQL na Kubernetes clusteru.
+---
+
+Tato stránka ukazuje, jak nasadit novou databázi PostgreSQL se zálohami do S3. Tento postup použijte pro všechna nová nasazení. Využívá tyto komponenty:
+
+- Operátor **CloudNativePG**. Jeden operátor spravuje databáze celého Kubernetes clusteru.
+- **Plugin barman-cloud** (`barman-cloud.cloudnative-pg.io`). Archivuje soubory WAL a vytváří základní zálohy. CloudNativePG označuje konfiguraci `barmanObjectStore` in-tree za zastaralou od verze 1.26 a verze 1.31.0 ji odstraňuje. Pokud ji vaše databáze používá, viz [Migrace ze zastaralé zálohy in-tree](./migrate-from-legacy).
+- Bucket kompatibilní s S3 pro zálohy. Příklady používají endpoint `s3.a.cloud.e-infra.cz`. Bucket a přihlašovací údaje dodáváte vy.
+
+V této kapitole je `Cluster` zdroj CloudNativePG. „Kubernetes cluster“ je platforma.
+
+Příkazy používají aktuální namespace vašeho kubectl kontextu. Namespace nastavíte příkazem `kubectl config set-context --current --namespace=<namespace>`.
+
+## Zdroje
+
+Nasazení má ve vašem namespace pět zdrojů:
+
+1. `Secret`: přihlašovací údaje k S3.
+2. `ObjectStore` (`barmancloud.cnpg.io/v1`): bucket, endpoint, přihlašovací údaje a politika uchovávání pro plugin.
+3. `Cluster` (`postgresql.cnpg.io/v1`): instance PostgreSQL. Jeho sekce `plugins` zapíná plugin barman-cloud.
+4. `ScheduledBackup` (`postgresql.cnpg.io/v1`) s `method: plugin`: základní zálohy podle plánu.
+5. `NetworkPolicy`: zdroje, které se mohou připojit k instancím.
+
+WAL archivace se spustí, když je Cluster v pořádku. Poté běží neustále. Základní zálohy běží podle plánu.
+
+## Krok 1: Přihlašovací údaje k S3
+
+Získejte dvojici přístupových klíčů od svého poskytovatele S3, například [DU CESNET](https://du.cesnet.cz/en/navody/object_storage/cesnet_s3/start). Dvojice klíčů musí mít k bucketu přístup pro čtení i zápis. Plugin používá tyto operace S3: `PutObject`, `GetObject`, `DeleteObject` a `ListBucket`.
+
+Dvojici klíčů vložte do `Secret` ve svém namespace:
+
+```yaml title="00-credentials.yaml"
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pg-backup
+type: Opaque
+stringData:
+  AWS_ACCESS_KEY_ID: "<your-access-key>"
+  AWS_SECRET_ACCESS_KEY: "<your-secret-key>"
+```
+
+Tento příklad používá klíče `AWS_ACCESS_KEY_ID` a `AWS_SECRET_ACCESS_KEY`. Můžete použít jiné názvy klíčů, protože `ObjectStore` se na každý klíč odkazuje jeho názvem. Pod `stringData` zapisujte hodnoty jako prostý text. Pod `data` hodnoty zakódujte v base64.
+
+Aplikujte soubor:
+
+```shell
+kubectl apply -f 00-credentials.yaml
+```
+
+Kontrola bucketu na stránce [Ověření záloh od začátku do konce](./verify) čte stejné hodnoty z tohoto `Secret`.
+
+## Krok 2: ObjectStore
+
+`ObjectStore` říká pluginu, kam zapisovat zálohy. Na `Secret` se odkazuje názvem a klíčem:
+
+```yaml title="01-objectstore.yaml"
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: pg-backup-store
+spec:
+  configuration:
+    destinationPath: "s3://<bucket>"
+    endpointURL: "https://s3.a.cloud.e-infra.cz"
+    s3Credentials:
+      accessKeyId:
+        name: pg-backup
+        key: AWS_ACCESS_KEY_ID
+      secretAccessKey:
+        name: pg-backup
+        key: AWS_SECRET_ACCESS_KEY
+  retentionPolicy: "30d"
+  # Workaround for boto3 and S3 endpoints that are not AWS (CESNET, MinIO, and others).
+  # The plugin gives these variables to its sidecar, which runs barman-cloud.
+  instanceSidecarConfiguration:
+    env:
+      - name: AWS_REQUEST_CHECKSUM_CALCULATION
+        value: when_required
+      - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+        value: when_required
+      - name: AWS_NO_CHUNKED_ENCODING
+        value: "true"
+```
+
+Aplikujte soubor:
+
+```shell
+kubectl apply -f 01-objectstore.yaml
+```
+
+- `retentionPolicy` je pole `ObjectStore`, ne `Clusteru`. Plugin ji ve výchozím nastavení aplikuje každých 30 minut.
+- Proměnné boto3 vložte do `instanceSidecarConfiguration.env`. Proměnné v `Cluster.spec.env` jdou pouze do kontejneru `postgres`, takže na zálohy nemají vliv.
+
+<Callout type="warn" title="Pro nový Cluster použijte prázdnou cestu">
+Dříve než nový Cluster archivuje první soubor WAL, plugin zkontroluje, že archiv WAL je prázdný. Archiv je složka s názvem Clusteru v `destinationPath`. Pokud tato složka už soubory WAL obsahuje, například z dřívějšího Clusteru se stejným názvem, archivace selže s chybou `Expected empty archive`. V takovém případě použijte nový bucket nebo novou cestu, například `s3://<bucket>/<folder>`. Tato kontrola se netýká existujícího Clusteru, který [migrujete ze zálohy in-tree](./migrate-from-legacy).
+</Callout>
+
+## Krok 3: Cluster
+
+```yaml title="02-cluster.yaml"
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg
+spec:
+  instances: 3
+
+  # A "standard" image works with the plugin and contains all locales.
+  # For production, use a tag with a minor version: <major>.<minor>-standard-trixie.
+  imageName: ghcr.io/cloudnative-pg/postgresql:15-standard-trixie
+
+  primaryUpdateStrategy: unsupervised
+
+  # Do not create the read-only Services pg-ro and pg-r.
+  # Remove this block only if you need read-only connections to the replicas.
+  managed:
+    services:
+      disabledDefaultServices: ["r", "ro"]
+
+  bootstrap:
+    initdb:
+      database: appdb
+      owner: appuser
+
+  storage:
+    size: 5Gi
+    storageClass: zfs-csi
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+
+  postgresql:
+    parameters:
+      max_connections: "100"
+      shared_buffers: 128MB
+
+  # WAL archiving and base backups through the plugin.
+  # Do not add .spec.backup.barmanObjectStore.
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: pg-backup-store
+```
+
+Aplikujte soubor a počkejte, až bude Cluster připraven:
+
+```shell
+kubectl apply -f 02-cluster.yaml
+kubectl wait cluster.postgresql.cnpg.io/pg --for=condition=Ready --timeout=300s
+kubectl get pods -l cnpg.io/cluster=pg
+# NAME   READY   STATUS    RESTARTS   AGE
+# pg-1   2/2     Running   0          2m
+# pg-2   2/2     Running   0          90s
+# pg-3   2/2     Running   0          30s
+```
+
+Každý pod ukazuje `READY 2/2`, protože spouští dva kontejnery: `postgres` a sidecar pluginu `plugin-barman-cloud`. Sidecar spouští `barman-cloud-wal-archive` pro každý soubor WAL.
+
+PostgreSQL uchovává každý soubor WAL na volume instance, dokud ho plugin nezarchivuje. Pokud archivace selže, soubory WAL se na volume hromadí. Na `zfs-csi` je velikost volume pevný limit. Když je volume plné, PostgreSQL se zastaví. Problémy s archivací odhalíte včas pomocí [pravidelných kontrol](./verify#pravidelné-kontroly).
+
+### Services
+
+Operátor vytvoří Services s názvem Clusteru:
+
+| Service | Ukazuje na | Použití |
+|---|---|---|
+| `pg-rw` | primární instanci | Připojení aplikací pro čtení i zápis. |
+| `pg-ro` | repliky | Dotazy a reporty pouze pro čtení. Dostupná, jen pokud odstraníte blok `disabledDefaultServices`. |
+| `pg-r` | libovolnou instanci | Obecné čtení. Dostupná, jen pokud odstraníte blok `disabledDefaultServices`. |
+
+Připojení pouze pro čtení vyžadují alespoň dvě instance.
+
+Aplikace ve stejném namespace se připojují na `pg-rw:5432`. Aplikace v jiných namespaces se připojují na `pg-rw.<namespace>.svc.cluster.local:5432`. Pro tyto aplikace přidejte jejich namespaces do NetworkPolicy v [Kroku 5](#krok-5-networkpolicy).
+
+Přihlašovací údaje aplikace jsou v `Secret` `pg-app`. Zobrazíte je příkazem:
+
+```shell
+kubectl get secret pg-app -o 'jsonpath={.data.pgpass}' | base64 -d
+# pg-rw:5432:appdb:appuser:uLUmkvAMwR0lJtw5ksUVKihd5OvCrD28...
+```
+
+Formát je `host:port:database:user:password`.
+
+## Krok 4: ScheduledBackup
+
+```yaml title="03-scheduled-backup.yaml"
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: pg-daily
+spec:
+  # Six fields: seconds, minutes, hours, day of month, month, day of week.
+  schedule: "0 0 2 * * *"   # every day at 02:00 UTC
+  immediate: true           # also make a base backup now
+  backupOwnerReference: self
+  cluster:
+    name: pg
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+```
+
+Plán má šest polí. Standardní cron má pět polí. První pole jsou sekundy.
+
+Obnova potřebuje základní zálohu. Bez `immediate: true` začne první základní záloha v první naplánovaný čas. Do té doby databázi obnovit nelze.
+
+Aplikujte soubor a zkontrolujte výsledek:
+
+```shell
+kubectl apply -f 03-scheduled-backup.yaml
+kubectl get scheduledbackups.postgresql.cnpg.io pg-daily
+kubectl get backups.postgresql.cnpg.io
+```
+
+## Krok 5: NetworkPolicy
+
+Tato politika povoluje příchozí provoz pouze z těchto zdrojů:
+
+- Pody ve vašem namespace, na port PostgreSQL 5432.
+- Operátor CloudNativePG v namespace `cloudnativepg`, na porty 5432 a 8000. Operátor používá port 8000 ke správě instancí.
+- Instance téhož Clusteru, na porty 5432 a 8000.
+- Prometheus v namespace `cattle-monitoring-system`, na port metrik 9187.
+
+```yaml title="04-networkpolicy.yaml"
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: pg-netpol
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: pg
+  policyTypes: [Ingress]
+  ingress:
+    # Applications. Add one namespaceSelector for each other namespace.
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: <namespace>
+      ports:
+        - { protocol: TCP, port: 5432 }
+    # The operator and the other instances of the Cluster
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cloudnativepg
+        - podSelector:
+            matchLabels:
+              cnpg.io/cluster: pg
+      ports:
+        - { protocol: TCP, port: 5432 }
+        - { protocol: TCP, port: 8000 }
+    # Prometheus
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cattle-monitoring-system
+      ports:
+        - { protocol: TCP, port: 9187 }
+```
+
+Nahraďte `<namespace>` svým namespace. Poté aplikujte soubor:
+
+```shell
+kubectl apply -f 04-networkpolicy.yaml
+```
+
+Další příklady, například pravidla egress, najdete v [Přístup a provoz](./operations#networkpolicy).
+
+## Smoke test
+
+Tento test zapíše řádky na primární instanci a přečte je na replice:
+
+```shell
+PRIMARY=$(kubectl get cluster.postgresql.cnpg.io pg -o jsonpath='{.status.currentPrimary}')
+REPLICA=$(kubectl get pods -l cnpg.io/cluster=pg,cnpg.io/instanceRole=replica -o jsonpath='{.items[0].metadata.name}')
+PGPASS=$(kubectl get secret pg-app -o 'jsonpath={.data.password}' | base64 -d)
+
+kubectl exec -i $PRIMARY -c postgres -- env PGPASSWORD="$PGPASS" psql -U appuser -d appdb -h localhost \
+  -c "CREATE TABLE smoke_test (x int); INSERT INTO smoke_test VALUES (1), (2), (3); SELECT count(*) FROM smoke_test;"
+sleep 3
+kubectl exec -i $REPLICA -c postgres -- env PGPASSWORD="$PGPASS" psql -U appuser -d appdb -h localhost \
+  -c "SELECT pg_is_in_recovery(); SELECT count(*) FROM smoke_test;"
+kubectl exec -i $PRIMARY -c postgres -- env PGPASSWORD="$PGPASS" psql -U appuser -d appdb -h localhost \
+  -c "DROP TABLE smoke_test;"
+```
+
+Očekávaný výsledek: primární instance vrátí 3. Replika vrátí `pg_is_in_recovery = t` a 3. Tento výsledek ukazuje, že nasazení a streamingová replikace fungují správně.
+
+## Další krok
+
+Nespoléhejte jen na stavová pole. Abyste se ujistili, že zálohy fungují, postupujte podle [Ověření záloh od začátku do konce](./verify). Tato stránka ukazuje také test obnovy.
