@@ -1,0 +1,408 @@
+---
+title: Migrace ze zastaralé zálohy in-tree na plugin barman-cloud
+description: Přesuňte existující Cluster CloudNativePG ze zastaralé konfigurace `.spec.backup.barmanObjectStore` na plugin barman-cloud. Data zůstanou na místě a zálohy pokračují ve stejné cestě v S3.
+---
+
+CloudNativePG označuje zálohu Barman Cloud in-tree za zastaralou od verze 1.26. Verze 1.31.0 ji odstraňuje. Každá změna Clusteru s konfigurací in-tree zobrazí toto varování:
+
+```text
+Warning: Native support for Barman Cloud backups and recovery is deprecated
+and will be completely removed in CloudNativePG 1.31.0. Found usage in:
+spec.backup.barmanObjectStore.
+```
+
+Tento průvodce přesune existující Cluster na plugin barman-cloud. Data zůstanou na místě a zálohy pokračují ve stejné cestě v S3. Během změny se každá instance jednou restartuje. Zatímco se primární instance restartuje, databáze nepřijímá zápisy. V ukázkovém průběhu níže to trvalo asi 20 sekund.
+
+## Proč plugin
+
+U zálohy in-tree běží barman-cloud v kontejneru `postgres`. U pluginu běží barman-cloud v samostatném sidecar kontejneru ve stejném podu. Oba kontejnery používají ServiceAccount podu. Plugin spravuje pravidla přístupu, která sidecar potřebuje ke čtení `ObjectStore` a `Secret`.
+
+Na tomto Kubernetes clusteru může záloha in-tree selhat s chybou RBAC, například `secrets "aws-creds" is forbidden ... clusterrole "fleet-content" not found`. Plugin tento problém nemá.
+
+CloudNativePG 1.31.0 konfiguraci in-tree nepřijímá. Své Clustery zmigrujte dříve, než správci operátor na tuto verzi aktualizují.
+
+## Než začnete
+
+Potřebujete:
+
+1. CRD pluginu. Ověříte je příkazem `kubectl api-resources | grep barmancloud`. Výstup musí obsahovat `objectstores` v `barmancloud.cnpg.io/v1`. Pokud je výstup prázdný, požádejte k8s@cerit-sc.cz o instalaci pluginu barman-cloud.
+2. Cluster, který používá `.spec.backup.barmanObjectStore`.
+3. `Secret` s přihlašovacími údaji k S3 z konfigurace in-tree. Nový `ObjectStore` používá stejný `Secret`.
+4. Název nového `ObjectStore`, například `<cluster>-s3`. Cluster se na `ObjectStore` odkazuje tímto názvem.
+
+Přečtěte si také tyto podmínky:
+
+- Pokud Cluster spravuje nástroj GitOps, proveďte změny z kroků 2 až 4 v Gitu. Příklady takových nástrojů jsou Fleet a Argo CD. Nástroj změny provedené pomocí kubectl vrátí zpět.
+- Pokud Cluster používá `primaryUpdateStrategy: supervised`, operátor primární instanci bez vaší akce nerestartuje. Viz [Pokud se migrace zastaví](#pokud-se-migrace-zastaví).
+
+Příkazy používají aktuální namespace vašeho kubectl kontextu. Nastavte tyto proměnné shellu:
+
+```shell
+CLUSTER="<cluster>"   # name of the Cluster
+PRIMARY=$(kubectl get cluster.postgresql.cnpg.io $CLUSTER -o jsonpath='{.status.currentPrimary}')
+```
+
+Uložte aktuální definici Clusteru. Budete ji potřebovat pro rollback:
+
+```shell
+kubectl get cluster.postgresql.cnpg.io $CLUSTER -o yaml > cluster-before.yaml
+```
+
+## Plán migrace
+
+1. Zaznamenejte aktuální stav: instance, primární instanci, čítače archiveru, replikaci a obsah bucketu.
+2. Vytvořte `ObjectStore` se stejnou konfigurací S3 a s `retentionPolicy`.
+3. Jedním patchem odstraňte z Clusteru konfiguraci in-tree a přidejte plugin. Operátor instance restartuje postupně jednu po druhé.
+4. Změňte `ScheduledBackup` na `method: plugin`.
+5. Ověřte replikaci, čítače archiveru, log sidecaru a nové soubory v bucketu.
+6. Vytvořte pomocí pluginu základní zálohu na vyžádání a proveďte test obnovy.
+
+## Krok 1: Zaznamenejte aktuální stav
+
+Pomocí těchto informací později ukážete, že migrace neztratila soubory WAL a nepoškodila repliky.
+
+```shell
+# Cluster and pods
+kubectl get cluster.postgresql.cnpg.io $CLUSTER
+kubectl get pods -l cnpg.io/cluster=$CLUSTER -o wide
+
+# Archiver counters on the primary
+kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres -c \
+  "SELECT archived_count, failed_count, last_archived_wal, last_archived_time FROM pg_stat_archiver;"
+
+# Replication status
+kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres -c \
+  "SELECT application_name, state, sync_state, replay_lag FROM pg_stat_replication;"
+
+# Marker row. Step 5 looks for it.
+kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres \
+  -c "CREATE TABLE IF NOT EXISTS backup_check (id serial PRIMARY KEY, note text, created_at timestamptz DEFAULT now());" \
+  -c "INSERT INTO backup_check (note) VALUES ('before-migration');"
+```
+
+Poté vypište obsah bucketu. Použijte skript `s3-list.py` z [Ověření záloh od začátku do konce](./verify#5-bucket). Přihlašovací údaje přečtěte ze `Secret` konfigurace in-tree, s jeho názvy klíčů. Pro `Secret` z [referenční stránky legacy](./legacy#s3-credentials) použijte:
+
+```shell
+export AWS_ACCESS_KEY_ID=$(kubectl get secret aws-creds -o jsonpath='{.data.ACCESS_KEY_ID}' | base64 -d)
+export AWS_SECRET_ACCESS_KEY=$(kubectl get secret aws-creds -o jsonpath='{.data.ACCESS_SECRET_KEY}' | base64 -d)
+python3 s3-list.py "<bucket>" "$CLUSTER"
+```
+
+Výstup ukazuje soubory zálohy in-tree:
+
+```text
+Base backups:
+  pgmig/base/20261004T221041/
+WAL files: 6. Newest 5:
+  pgmig/wals/0000000100000000/000000010000000000000002
+  pgmig/wals/0000000100000000/000000010000000000000003
+  pgmig/wals/0000000100000000/000000010000000000000004
+  pgmig/wals/0000000100000000/000000010000000000000005
+  pgmig/wals/0000000100000000/000000010000000000000006
+```
+
+## Krok 2: Vytvořte ObjectStore
+
+Sekce `configuration` v `ObjectStore` má stejná pole jako blok `barmanObjectStore` v Clusteru. Blok zkopírujte beze změn, včetně `s3Credentials` s názvem `Secret` a názvy klíčů. Poté přesuňte `retentionPolicy` z Clusteru do `ObjectStore`.
+
+```yaml title="objectstore.yaml"
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: <cluster>-s3
+spec:
+  # Copy of .spec.backup.barmanObjectStore from the Cluster
+  configuration:
+    destinationPath: "s3://<bucket>"
+    endpointURL: "https://s3.a.cloud.e-infra.cz"
+    s3Credentials:
+      accessKeyId:
+        name: aws-creds
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: aws-creds
+        key: ACCESS_SECRET_KEY
+  # From .spec.backup.retentionPolicy of the Cluster
+  retentionPolicy: "30d"
+  # Workaround for boto3 and S3 endpoints that are not AWS.
+  # The in-tree backup had these variables in Cluster.spec.env. The plugin sidecar needs them here.
+  instanceSidecarConfiguration:
+    env:
+      - name: AWS_REQUEST_CHECKSUM_CALCULATION
+        value: when_required
+      - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+        value: when_required
+      - name: AWS_NO_CHUNKED_ENCODING
+        value: "true"
+```
+
+Pokud blok `barmanObjectStore` obsahuje `serverName`, odstraňte ho z `ObjectStore`. Nastavte ho místo toho v `parameters` pluginu v kroku 3.
+
+Aplikujte soubor:
+
+```shell
+kubectl apply -f objectstore.yaml
+```
+
+`ObjectStore` má sekci status, ale ta neukazuje, zda se plugin dokáže připojit k S3. Připojení ověří krok 5.
+
+<Callout type="warn" title="Ponechte stejný destinationPath">
+Plugin kontroluje, že archiv WAL je prázdný, pouze u nového Clusteru. Existující Cluster pokračuje ve své současné cestě. Nové základní zálohy pak zůstanou vedle původních základních záloh a historie obnovy pokračuje bez mezery.
+</Callout>
+
+## Krok 3: Patchněte Cluster
+
+Jeden patch odstraní konfiguraci in-tree a přidá plugin. Dvě oddělené změny by na krátkou dobu zastavily WAL archivaci.
+
+Použijte `kubectl patch`, ne `kubectl apply`. `kubectl apply` odstraní pole jen tehdy, pokud ho nastavil dřívější `kubectl apply`. U Clusteru, který jste vytvořili pomocí `kubectl create`, `kubectl apply` ponechá `.spec.backup.barmanObjectStore`.
+
+Patch odstraní pouze `barmanObjectStore` a `retentionPolicy`. Ostatní pole pod `.spec.backup`, například `target` nebo `volumeSnapshot`, zůstanou.
+
+1. Zapište patch do souboru. Shell vloží do souboru název Clusteru.
+
+   ```shell
+   cat > plugin-patch.json <<EOF
+   [
+     {"op": "remove", "path": "/spec/backup/barmanObjectStore"},
+     {"op": "remove", "path": "/spec/backup/retentionPolicy"},
+     {"op": "add", "path": "/spec/plugins", "value": [
+       {"name": "barman-cloud.cloudnative-pg.io",
+        "isWALArchiver": true,
+        "parameters": {"barmanObjectName": "$CLUSTER-s3"}}
+     ]}
+   ]
+   EOF
+   ```
+
+   - Pokud Cluster nemá `retentionPolicy`, odstraňte tento řádek. Jinak patch selže a nic nezmění.
+   - Pokud Cluster už má sekci `plugins`, operace `add` ji nahradí. V takovém případě přidejte plugin do existujícího seznamu v patchi.
+   - Pokud jste v kroku 2 přesunuli `serverName`, přidejte do `parameters` položku `"serverName": "<name>"`.
+
+2. Zobrazte náhled výsledku. Server patch zvaliduje, ale neuloží.
+
+   ```shell
+   kubectl patch cluster.postgresql.cnpg.io $CLUSTER --type=json --patch-file=plugin-patch.json \
+     --dry-run=server -o yaml | grep -E -A6 '^  (backup|plugins):'
+   ```
+
+   Výstup musí obsahovat `plugins` s `barman-cloud.cloudnative-pg.io`. Nesmí obsahovat `barmanObjectStore`.
+
+3. Aplikujte patch:
+
+   ```shell
+   kubectl patch cluster.postgresql.cnpg.io $CLUSTER --type=json --patch-file=plugin-patch.json
+   ```
+
+   Varování o zastaralosti se nezobrazí. Operátor spustí rolling update. Nejprve restartuje repliky a primární instanci nakonec. Každý pod se jednou restartuje a poté má dva kontejnery: `postgres` a `plugin-barman-cloud`.
+
+4. Stejným způsobem upravte svůj uložený manifest. Pokud ho neupravíte, další `kubectl apply` starého souboru konfiguraci in-tree přidá znovu.
+
+5. Sledujte rolling update. Smyčka skončí, když všechny pody ukazují `2/2` a Cluster je v pořádku. Po 5 minutách skončí se zprávou.
+
+   ```shell
+   for i in $(seq 1 60); do
+     PHASE=$(kubectl get cluster.postgresql.cnpg.io $CLUSTER -o jsonpath='{.status.phase}')
+     PODS=$(kubectl get pods -l cnpg.io/cluster=$CLUSTER --no-headers)
+     echo "$(date +%T) $PHASE | $(echo "$PODS" | awk '{printf "%s(%s %s) ", $1, $2, $3}')"
+     NOT_READY=$(echo "$PODS" | awk '$2 != "2/2"' | wc -l)
+     [ "$PHASE" = "Cluster in healthy state" ] && [ "$NOT_READY" -eq 0 ] && break
+     sleep 5
+   done
+   [ "$NOT_READY" -eq 0 ] || echo "The rolling update did not finish in 5 minutes."
+   ```
+
+Příklad výstupu z Clusteru se 3 instancemi s názvem `pgmig`:
+
+```text
+00:12:32 Upgrading cluster                     | pgmig-1(1/1 Running) pgmig-2(1/1 Running) pgmig-3(1/1 Terminating)
+00:12:54 Waiting for the instances to become... | pgmig-1(1/1 Running) pgmig-2(1/1 Running) pgmig-3(1/2 Running)
+00:13:31 Waiting for the instances to become... | pgmig-1(1/1 Running) pgmig-2(0/1 Terminating) pgmig-3(2/2 Running)
+00:13:56 Waiting for the instances to become... | pgmig-1(1/1 Running) pgmig-2(1/2 Running) pgmig-3(2/2 Running)
+00:14:13 Primary instance is being restarted... | pgmig-1(0/2 Init:0/2) pgmig-2(2/2 Running) pgmig-3(2/2 Running)
+00:14:32 Cluster in healthy state               | pgmig-1(2/2 Running) pgmig-2(2/2 Running) pgmig-3(2/2 Running)
+```
+
+Změna z `1/1` na `2/2` ukazuje nový sidecar. Operátor restartoval primární instanci jako poslední. Primární instance si ponechala svou roli a nedošlo k žádnému switchoveru.
+
+## Krok 4: Změňte ScheduledBackup
+
+Tento krok proveďte ihned po kroku 3. Plánovaná záloha se starou metodou selže, protože Cluster už nemá konfiguraci in-tree. Ponechte název a plán svého stávajícího `ScheduledBackup`.
+
+```yaml title="scheduled-backup.yaml"
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: <cluster>-daily
+spec:
+  schedule: "0 0 2 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: <cluster>
+  method: plugin                                  # new
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io          # new
+```
+
+Aplikujte soubor a zkontrolujte výsledek:
+
+```shell
+kubectl apply -f scheduled-backup.yaml
+kubectl get scheduledbackups.postgresql.cnpg.io $CLUSTER-daily -o yaml | grep -E 'method|pluginConfiguration' -A1
+```
+
+## Krok 5: Ověřte
+
+Tento krok nevynechávejte. Dobrý stav Clusteru je nutný, ale nestačí. Musíte vidět nové soubory v bucketu.
+
+Rolling update může změnit primární instanci. Zjistěte primární instanci znovu:
+
+```shell
+PRIMARY=$(kubectl get cluster.postgresql.cnpg.io $CLUSTER -o jsonpath='{.status.currentPrimary}')
+```
+
+### Repliky
+
+```shell
+kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres -c \
+  "SELECT application_name, state, sync_state, replay_lag FROM pg_stat_replication;"
+#  application_name |   state   | sync_state | replay_lag
+# ------------------+-----------+------------+------------
+#  pgmig-2          | streaming | async      |
+#  pgmig-3          | streaming | async      |
+```
+
+Všechny repliky musí mít stav `streaming`. Hodnota `replay_lag` musí být prázdná nebo menší než jedna sekunda.
+
+### Data
+
+```shell
+for pod in $(kubectl get pods -l cnpg.io/cluster=$CLUSTER -o name); do
+  echo "== $pod =="
+  kubectl exec $pod -c postgres -- psql -U postgres -d postgres -t -c "SELECT count(*) FROM backup_check;"
+done
+```
+
+Všechny instance musí vrátit stejný počet.
+
+### WAL archivace přes plugin
+
+Zapište řádek a vynuťte přepnutí WAL. Poté přečtěte čítače archiveru:
+
+```shell
+kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres \
+  -c "INSERT INTO backup_check (note) VALUES ('after-migration');" \
+  -c "SELECT pg_switch_wal();"
+sleep 10
+kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres -c \
+  "SELECT archived_count, failed_count, last_archived_wal, last_archived_time FROM pg_stat_archiver;"
+```
+
+`archived_count` se musí zvýšit. `failed_count` se nesmí zvýšit. Malý nárůst během prvních minut je přijatelný, pokud se zastaví.
+
+### Log sidecaru pluginu
+
+```shell
+kubectl logs $PRIMARY -c plugin-barman-cloud --tail=30
+```
+
+Log musí obsahovat řádky podobné těmto:
+
+```text
+{"level":"info","ts":"...","msg":"Executing barman-cloud-wal-archive","logging_pod":"pgmig-1","walName":"/var/lib/postgresql/data/pgdata/pg_wal/000000010000000000000007",...}
+{"level":"info","ts":"...","msg":"Archived WAL file","logging_pod":"pgmig-1"}
+```
+
+Log nesmí obsahovat řádky `error`. Význam chybových zpráv najdete v [tabulce na stránce Ověření záloh od začátku do konce](./verify#4-plugin-sidecar-log).
+
+### Bucket
+
+Spusťte znovu `python3 s3-list.py "<bucket>" "$CLUSTER"` a porovnejte výstup s krokem 1. Soubory WAL pokračují ve stejné cestě bez mezery. Příklad výstupu s poznámkami:
+
+```text
+Base backups:
+  pgmig/base/20261004T221041/
+WAL files: 8. Newest 5:
+  pgmig/wals/0000000100000000/000000010000000000000004
+  pgmig/wals/0000000100000000/000000010000000000000005
+  pgmig/wals/0000000100000000/000000010000000000000006   <- poslední soubor WAL zálohy in-tree
+  pgmig/wals/0000000100000000/000000010000000000000007   <- první soubor WAL pluginu
+  pgmig/wals/0000000100000000/000000010000000000000008
+```
+
+### Základní záloha na vyžádání
+
+Vytvořte základní zálohu pomocí pluginu:
+
+```yaml title="backup.yaml"
+apiVersion: postgresql.cnpg.io/v1
+kind: Backup
+metadata:
+  name: <cluster>-plugin-backup-1
+spec:
+  cluster:
+    name: <cluster>
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+```
+
+```shell
+kubectl apply -f backup.yaml
+kubectl get backups.postgresql.cnpg.io $CLUSTER-plugin-backup-1
+# NAME                    CLUSTER   METHOD   PHASE       ERROR
+# pgmig-plugin-backup-1   pgmig     plugin   completed
+```
+
+Spusťte skript pro S3 znovu. Vedle původní základní zálohy se objeví nová základní záloha:
+
+```text
+Base backups:
+  pgmig/base/20261004T221041/   <- záloha in-tree
+  pgmig/base/20261004T221831/   <- záloha pluginu
+```
+
+`kubectl get backups.postgresql.cnpg.io` zobrazí oba zdroje `Backup`. Původní záloha má metodu `barmanObjectStore` a nová záloha má metodu `plugin`.
+
+### Test obnovy
+
+Proveďte [test obnovy](./verify#7-restore-test). Ukáže, že plugin dokáže obnovit Cluster z bucketu.
+
+## Pokud se migrace zastaví
+
+- **Cluster zůstává ve fázi `Upgrading cluster` déle než 5 minut.** Zkontrolujte události příkazem `kubectl describe pod <pod>`. Zkontrolujte log instance manageru příkazem `kubectl logs <pod> -c postgres --tail=100`.
+- **Fáze je `Waiting for user action`.** Cluster používá `primaryUpdateStrategy: supervised` a operátor před restartem primární instance čeká. Chcete-li pokračovat, nastavte strategii na `unsupervised`. Po migraci ji v případě potřeby nastavte zpět:
+
+  ```shell
+  kubectl patch cluster.postgresql.cnpg.io $CLUSTER --type=merge -p '{"spec":{"primaryUpdateStrategy":"unsupervised"}}'
+  ```
+
+- **Čítač archiveru se zastaví a log sidecaru ukazuje `InvalidAccessKeyId`.** Opravte `Secret`, na který odkazuje `ObjectStore.spec.configuration.s3Credentials`. Nemusíte měnit Cluster ani restartovat pody.
+- **`Backup` zůstává ve fázi `started`.** Zkontrolujte log sidecaru podu, který zálohu vytváří. Ve výchozím nastavení je tímto podem replika. Obvyklými příčinami jsou NetworkPolicy blokující S3 nebo problém s kontrolními součty boto3 (viz krok 2).
+
+## Rollback
+
+Chcete-li se vrátit k záloze in-tree:
+
+1. Otevřete Cluster k úpravám:
+
+   ```shell
+   kubectl edit cluster.postgresql.cnpg.io $CLUSTER
+   ```
+
+2. Smažte `spec.plugins`. Přidejte `spec.backup.barmanObjectStore` a `spec.backup.retentionPolicy` ze souboru `cluster-before.yaml`. Uložte a zavřete editor.
+3. Otevřete `ScheduledBackup` pomocí `kubectl edit` a smažte `method` a `pluginConfiguration`.
+
+Operátor znovu provede rolling update a varování o zastaralosti se vrátí. Rollback používejte jen krátkodobě, protože CloudNativePG 1.31.0 zálohu in-tree odstraňuje.
+
+## Po migraci
+
+Clustery se zálohou in-tree často používají image typu „system“, například s tagem `15.10`. Plugin s tímto image funguje. Image typu system obsahují Barman Cloud pro zálohu in-tree a CloudNativePG je označuje za zastaralé. Naplánujte přechod na image typu `standard`.
+
+Pokud má nový image stejnou verzi Debianu (například `trixie`), jde o běžnou aktualizaci image. Pokud se verze Debianu změní, jiná knihovna C může změnit řazení textu a poškodit indexy. CloudNativePG tuto změnu jako běžnou aktualizaci image nepovoluje. Než ji naplánujete, kontaktujte k8s@cerit-sc.cz.
+
+## Co migrace nepotřebuje
+
+- Žádné znovuvytvoření replik ze základní zálohy.
+- Žádnou prázdnou cestu v S3. Plugin pokračuje ve stávající cestě.
+- Žádné nové přihlašovací údaje. `ObjectStore` používá `Secret` z konfigurace in-tree.
+- Žádný export a import dat. Mění se pouze konfigurace záloh.
