@@ -42,6 +42,17 @@ For more details, see [AI Data privacy section](../ai-as-a-service/ai-data-priva
 | **Documentation ChatBot** | docs.e-infra.cz and other documentation sites                      | A Retrieval‑Augmented Generation (RAG) system implemented across e‑INFRA CZ documentation. Answers specific questions and acts as a problem solver based on our knowledge base (e.g., "How to run MATLAB?"). |
 | **Matrix Discussion Channel** | [Matrix](../web-apps/matrix) | Real-time chat for LLM service users to ask questions, share knowledge, and stay updated. |
 
+## Best Practices & Fair Use
+
+Because the e‑INFRA CZ AI platform is a shared, finite resource, heavy workloads directly impact queue times for other researchers. Please follow these guidelines to ensure smooth, fast, and fair access for the entire community:
+
+* **Don't waste resources:** They are finite and the more you use it, the less space there is for other users.
+Interactive usage via **Open WebUI** generates minimal load compared to automated API calls, so you do not need to worry about resource limits during normal chat sessions. However, when running automated pipelines or heavy batch jobs via the API, keep in mind that excessive consumption increases waiting times for others.
+* **Match model size to task complexity:** Avoid using large, reasoning-heavy models (such as **Kimi** or **GLM**) for simple tasks. They take significantly longer to respond without providing any quality benefit for basic prompts. For multi-step or agentic workflows, use a strong orchestrator model to plan and delegate simpler sub-tasks to lighter, faster models. This keeps heavy models free for complex workloads.
+* **Limit parallel agents:** Do not spawn a large number of concurrent agents. Concurrency is actively regulated by upper limits to protect platform stability.
+* **Configure models by role—do not chase live usage metrics:** Avoid dynamically switching models based on current utilization stats on the status page. Usage metrics are delayed, and mass model-switching based on perceived load causes traffic oscillations that degrade platform stability. Configure your models strictly according to their roles in your workflow and submit your tasks; standard queue times are typically minimal.
+* **Schedule heavy batch jobs for off-peak hours:** If you need to run large-scale or compute-intensive API jobs, consider scheduling them during nights or weekends when overall platform traffic is lighter and queues are shorter.
+
 ## Reference
 Read more details on our e‑INFRA Blog at https://blog.e-infra.cz/
 
