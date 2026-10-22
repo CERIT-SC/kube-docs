@@ -304,7 +304,7 @@ The `Middleware` with `redirectScheme` is the IngressRoute-native equivalent of 
 
 ## nginx Ingress via `nginx-traefik`
 
-The cluster runs Traefik with the **`nginx-traefik`** ingress class that emulates common nginx Ingress annotations, so you can bring most existing `networking.k8s.io/v1 Ingress` manifests unchanged.
+The cluster runs Traefik with the **`nginx-traefik`** ingress class that emulates common nginx Ingress annotations, so you can bring most existing `networking.k8s.io/v1 Ingress` manifests unchanged. To move an Ingress from the legacy `nginx` class, see [Migrating from NGINX Ingress](./migrate-nginx).
 
 <Callout title="Hard requirements for nginx-traefik Ingress" icon="⚠️">
 1. **Use `letsencrypt-gateway` as the `ClusterIssuer`** via the `cert-manager.io/cluster-issuer: letsencrypt-gateway` annotation (see [TLS and certificates](#tls-and-certificates)). You do not need to create a `Certificate` object yourself; cert-manager's ingress-shim creates one from the annotation.

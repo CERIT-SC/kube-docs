@@ -1,0 +1,247 @@
+---
+title: Migrating from NGINX Ingress
+---
+
+The legacy `nginx` Ingress class runs on the old NGINX controller. On `kuba-cluster`, it uses the legacy `kuba-pub.cerit-sc.cz` load balancer. On `kubh-cluster`, it uses the legacy `kubh-pub.cerit-sc.cz` load balancer. The current class is `nginx-traefik`. It runs on Traefik and the load balancer of your cluster (see [Load balancer addresses](../expose#load-balancer-addresses)).
+
+You can migrate an existing `Ingress` without downtime. You can keep `NGINX Ingress` if all its annotations work under `nginx-traefik`. Keep the old Ingress in place until DNS points to the new one and the records settle.
+
+<Callout title="Basic authentication does not work under nginx-traefik" icon="⚠️">
+On this cluster, the `auth-type`, `auth-secret`, and `auth-realm` annotations do not enforce basic authentication. If you migrate an Ingress that uses them, the application becomes public. See [Documented but not working on this cluster](#documented-but-not-working-on-this-cluster).
+</Callout>
+
+## Supported annotations
+
+The table shows the supported annotations that Ingresses on `kuba-cluster` and `kubh-cluster` use. All use the `nginx.ingress.kubernetes.io/` prefix.
+
+| Group | Annotations |
+|---|---|
+| Routing and redirects | `app-root`, `force-ssl-redirect`, `from-to-www-redirect`, `permanent-redirect`, `permanent-redirect-code`, `rewrite-target`, `ssl-redirect`, `temporal-redirect`, `use-regex` |
+| Backends and error pages | `backend-protocol`, `custom-http-errors`, `default-backend`, `service-upstream`, `upstream-hash-by`, `upstream-vhost` |
+| Authentication | `auth-response-headers`, `auth-signin`, `auth-url` |
+| CORS | `cors-allow-methods`, `cors-allow-origin`, `enable-cors` |
+| Rate limits and IP allow-lists | `limit-burst-multiplier`, `limit-connections`, `limit-rpm`, `limit-rps`, `whitelist-source-range` |
+| Buffering | `client-body-buffer-size`, `proxy-buffer-size`, `proxy-buffering`, `proxy-buffers-number`, `proxy-max-temp-file-size`, `proxy-request-buffering` |
+| Timeouts and protocol | `proxy-connect-timeout`, `proxy-http-version`, `proxy-read-timeout`, `proxy-send-timeout`, `proxy-ssl-verify`, `ssl-passthrough` |
+| Session affinity | `affinity`, `affinity-mode`, `session-cookie-domain`, `session-cookie-expires`, `session-cookie-max-age`, `session-cookie-name`, `session-cookie-samesite`, `session-cookie-secure` |
+| Access logs | `enable-access-log` |
+
+Traefik supports more annotations than this table shows. Examples are `canary`, `configuration-snippet`, `cors-allow-headers`, and `proxy-next-upstream`. See the [full list in the Traefik documentation](https://doc.traefik.io/traefik/v3.7/reference/routing-configuration/kubernetes/ingress-nginx/#annotations-support).
+
+Traefik also documents `auth-type`, `auth-secret`, `auth-realm`, and `proxy-body-size` as supported. They do not work on this cluster at the moment. See [Documented but not working on this cluster](#documented-but-not-working-on-this-cluster).
+
+### Behavior that differs from NGINX
+
+Some supported annotations do not behave the same as in `ingress-nginx`. Check every Ingress that uses them:
+
+- **Authentication.** Forward auth with `auth-url` copies only the URL and the response headers. With `rewrite-target`, the auth service sees the rewritten path in `X-Forwarded-Uri`. `auth-signin` adds an `rd` parameter for the post-login redirect. On a route without a `Host` rule, an attacker can use this parameter for open redirects.
+- **Protocol limits.** `affinity-mode` supports only `persistent`. `backend-protocol` rejects `FCGI` and `AUTO_HTTP`. `proxy-http-version` accepts only `1.1`.
+- **CORS.** `enable-cors` is only partially supported. `cors-allow-origin` accepts a wildcard only as `protocol://*.domain[:port]`, where `*` matches one DNS label.
+- **Redirects.** `from-to-www-redirect` does not work with wildcard hosts. If the cluster enables `ssl-redirect` or `force-ssl-redirect` globally, you cannot disable them for one route.
+- **Rate limits.** A reached limit returns `429` for all four `limit-*` annotations. NGINX returns `503`.
+- **Buffering.** Traefik calculates one buffer as `proxy-buffer-size` × `proxy-buffers-number`. NGINX buffers requests by default. Under `nginx-traefik`, the default comes from a cluster-wide setting. Set `proxy-request-buffering` to `"on"` if your application needs request buffering.
+- **Access logs.** `enable-access-log` works only if access logs are enabled in the Traefik install configuration.
+- **TLS passthrough.** `ssl-passthrough` is supported. Traefik does not decrypt the traffic, so HTTP annotations on the same Ingress cannot apply.
+- **Paths.** Traefik keeps trailing slashes in the request path. NGINX removes them unless you configure it otherwise. Check the paths of every Ingress that uses `rewrite-target`.
+- **Regex paths.** With the default provider settings, Traefik rejects the whole Ingress if a path contains regex characters and its `pathType` is `Prefix` or `Exact`. The Ingress then gets no route. Use `pathType: ImplementationSpecific` for regex paths.
+
+## Annotations that need a change
+
+Traefik silently ignores an annotation that it does not support. The route can start without the protection or the behavior that the annotation provided.
+
+### Documented but not working on this cluster
+
+{/* TODO: Retest these annotations on Traefik 3.7.13 and update this section and the callout at the top of the page. */}
+
+The cluster runs Traefik 3.7.13. Tests on Traefik 3.7.11 showed that Traefik silently ignores these annotations, although its documentation lists them as supported. Treat them as not working until a new test shows otherwise. See the tested table in [Exposing HTTP Applications](./expose-http#useful-nginx-annotation-equivalents-under-nginx-traefik).
+
+| Annotation | Effect of the migration | Replacement |
+|---|---|---|
+| `auth-type`, `auth-secret`, `auth-realm` | Traefik does not enforce basic authentication. The application becomes public. `auth-realm` applies only to basic authentication, so it has no effect either. | Use a Traefik `Middleware` with an `IngressRoute` or `HTTPRoute`. See [Authentication](./expose-http#authentication). |
+| `proxy-body-size` | The annotation does not limit uploads. | Use a Traefik `Middleware` with an `IngressRoute` or `HTTPRoute`. See [Large uploads](./expose-http#large-uploads). |
+
+### Explicitly unsupported
+
+| Annotation | Effect of the migration |
+|---|---|
+| `enable-modsecurity`, `enable-owasp-core-rules` | You lose the WAF. Traefik has no built-in equivalent. Contact the cluster administrators if your application needs a WAF. |
+| `limit-whitelist` | Addresses that were exempt from rate limits now share the limit with all other clients. |
+| `ssl-ciphers`, `ssl-prefer-server-ciphers` | Ciphers are a cluster-wide setting under `nginx-traefik`. Remove the annotations. Contact the cluster administrators if your application needs other ciphers. |
+| `session-cookie-change-on-failure` | The option is dropped. A failed pinned backend does not re-pin the cookie. |
+| `proxy-cookie-path` | Traefik does not rewrite the path in `Set-Cookie` headers from the backend. This matters when the application runs under a subpath with `rewrite-target`. Fix the cookie path in the application. |
+
+### Wrong prefix
+
+These annotations have no effect under modern `ingress-nginx` either. If you rename them, their behavior starts for the first time. For example, a renamed `ssl-redirect` starts to redirect HTTP to HTTPS. Delete them, unless you want the behavior.
+
+- `ingress.kubernetes.io/proxy-body-size`, `ingress.kubernetes.io/rewrite-target`, `ingress.kubernetes.io/ssl-redirect` — the legacy prefix. Traefik supports `rewrite-target` and `ssl-redirect` with the `nginx.ingress.kubernetes.io/` prefix. `proxy-body-size` does not work on this cluster. See [Large uploads](./expose-http#large-uploads).
+- `nginx.org/client-max-body-size` — belongs to the F5 NGINX Inc. controller. To limit uploads, see [Large uploads](./expose-http#large-uploads).
+- `nginx.org/proxy-connect-timeout`, `nginx.org/proxy-read-timeout`, `nginx.org/proxy-send-timeout` — belong to the F5 NGINX Inc. controller. If you want the timeouts, use the `nginx.ingress.kubernetes.io/proxy-*-timeout` annotations. Use plain integer seconds and remove any `s` suffix.
+
+### Not recognized
+
+Traefik ignores these annotations. Most of them did nothing under `ingress-nginx` either, so removing them changes nothing.
+
+| Group | Annotations | Action |
+|---|---|---|
+| ConfigMap keys used as annotations | `compute-full-forwarded-for`, `enable-real-ip`, `ignore_invalid_headers`, `proxy-real-ip-cidr`, `server-tokens`, `ssl-protocols`, `use-forwarded-headers`, `use-proxy-protocol`, `proxy-hide-headers`, `proxy-set-headers` | These are controller-wide settings. The cluster administrators set the equivalents in Traefik. Remove the annotations. |
+| Typos or annotations that do not exist | `proxy_connect_timeout`, `body-size`, `client-max-body-size`, `eventsource`, `proxy-cache-bypass`, `proxy-cookie-samesite`, `proxy-cookie-secure`, `proxy-intercept-errors`, `proxy-no-cache`, `proxy-revalidate`, `rate-limit`, `rate-limit-window`, `ssl-verify`, `x-content-type-options`, `x-frame-options`, `x-xss-protection` | Remove them. Use the correct annotation if one exists. |
+| Removed or borrowed from other controllers | `secure-backends`, `session-cookie-hash`, `websocket-services` | Replace `secure-backends` with `backend-protocol: HTTPS`. Remove `session-cookie-hash`. Remove `websocket-services`, because Traefik proxies WebSockets without an annotation. |
+| Real nginx annotations without Traefik support | `auth-signin-redirect-param`, `proxy-busy-buffers-size` | Make the auth service read `rd`, because Traefik always uses that parameter. `proxy-busy-buffers-size` has no equivalent. |
+
+To set security headers or request headers, use one of these options:
+
+- `nginx.ingress.kubernetes.io/custom-headers` sets response headers. It works only for the headers that the cluster administrators allow in the provider option `globalAllowedResponseHeaders`.
+- `nginx.ingress.kubernetes.io/configuration-snippet` accepts `add_header`, `more_set_headers`, `proxy_set_header`, and a few other directives. Snippets work only if the cluster administrators enable `allowSnippetAnnotations` for `nginx-traefik`.
+- An `IngressRoute` with a `Headers` middleware, or an `HTTPRoute` with header filters. See [Exposing HTTP Applications](./expose-http).
+
+{/* TODO: State whether allowSnippetAnnotations is enabled on nginx-traefik and which headers globalAllowedResponseHeaders allows. */}
+
+## Migration procedure
+
+The procedure keeps the old Ingress and the new Ingress side by side. Both serve the same hostname on different load balancers. DNS decides which one receives the traffic.
+
+If you manage the DNS record yourself, lower its TTL to 300 seconds one day before you start. The DNS change then takes effect faster. Set the TTL back after the migration.
+
+1. **Check the annotations and the paths.** List the annotations:
+
+   ```shell
+   kubectl get ingress application-ingress -n namespace -o jsonpath='{.metadata.annotations}'
+   ```
+
+   Compare them with the tables on this page. If an annotation is not on this page, check the [full list in the Traefik documentation](https://doc.traefik.io/traefik/v3.7/reference/routing-configuration/kubernetes/ingress-nginx/#annotations-support).
+
+   - If the Ingress uses an annotation from [Documented but not working on this cluster](#documented-but-not-working-on-this-cluster), do not migrate it as an Ingress.
+   - If the Ingress uses other annotations outside the supported list, see [Annotations that need a change](#annotations-that-need-a-change).
+   - Make sure that regex paths use `pathType: ImplementationSpecific`.
+
+2. **Create a second Ingress.** Keep the old object and add a copy with a new name. Change only the class, the issuer, and the object name. Keep the rules, the backends, and the TLS Secret name.
+
+   ```yaml title="ingress.yaml (old)"
+   apiVersion: networking.k8s.io/v1
+   kind: Ingress
+   metadata:
+     name: application-ingress
+     annotations:
+       kubernetes.io/ingress.class: nginx
+       cert-manager.io/cluster-issuer: letsencrypt-prod
+   spec:
+     ingressClassName: nginx
+     tls:
+       - hosts:
+           - application.example.org
+         secretName: application-tls
+     rules:
+       - host: application.example.org
+         http:
+           paths:
+             - path: /
+               pathType: Prefix
+               backend:
+                 service:
+                   name: application-svc
+                   port:
+                     number: 80
+   ```
+
+   ```yaml title="ingress-traefik.yaml (new)"
+   apiVersion: networking.k8s.io/v1
+   kind: Ingress
+   metadata:
+     name: application-ingress-traefik
+     annotations:
+       kubernetes.io/ingress.class: nginx-traefik
+       cert-manager.io/cluster-issuer: letsencrypt-gateway
+   spec:
+     ingressClassName: nginx-traefik
+     tls:
+       - hosts:
+           - application.example.org
+         secretName: application-tls
+     rules:
+       - host: application.example.org
+         http:
+           paths:
+             - path: /
+               pathType: Prefix
+               backend:
+                 service:
+                   name: application-svc
+                   port:
+                     number: 80
+   ```
+
+   - Set the class in both places. Traefik reads `spec.ingressClassName`, and cert-manager and external-dns read the `kubernetes.io/ingress.class` annotation.
+   - Use `letsencrypt-gateway` for the new Ingress. `letsencrypt-prod` does not work with `nginx-traefik`.
+   - Keep the same `secretName` as the old Ingress. Do not create a second Secret.
+
+3. **Deploy the new Ingress.**
+
+   ```shell
+   kubectl apply -f ingress-traefik.yaml -n namespace
+   ```
+
+4. **Test the route before you change DNS.** Get the IP address of the new load balancer. Then send an HTTPS request for your hostname to that address:
+
+   ```shell
+   LB_IP=$(dig +short kuba-lb.cloud.e-infra.cz | tail -n1)
+   curl -I --resolve application.example.org:443:$LB_IP https://application.example.org/
+   ```
+
+   Use the load balancer DNS name of your cluster from [Load balancer addresses](../expose#load-balancer-addresses). The `--resolve` option sends the request to the new load balancer with the correct TLS server name. The certificate check passes, because the shared TLS Secret already contains a valid certificate. Check that the response comes from your application.
+
+   A response from the application is not enough. Test each behavior that the annotations provide:
+
+   - With `auth-url`, a request without login must return `401` or a redirect to the sign-in page.
+   - With `whitelist-source-range`, a request from an address outside the range must return `403`.
+   - With `limit-rps` or `limit-rpm`, requests above the limit must return `429`.
+
+   If a behavior is missing, do not change DNS.
+
+5. **Change DNS.** Point the record for the hostname to the load balancer DNS name of your cluster. Use the table in [Load balancer addresses](../expose#load-balancer-addresses). For `kuba-cluster`, change the target from `kuba-pub.cerit-sc.cz` to `kuba-lb.cloud.e-infra.cz`. For `kubh-cluster`, change the target from `kubh-pub.cerit-sc.cz` to `kubh-lb.cerit-sc.cz`. Use a `CNAME`, because the load balancer IP address can change.
+
+   If `external-dns` creates the record from the `external-dns.alpha.kubernetes.io/hostname` annotation, keep that annotation on the new Ingress. Remove it from the old Ingress. By default, external-dns also reads the hosts in `spec.rules`. The old Ingress can then still produce a record that points to the old load balancer.
+
+   Check the record after the change:
+
+   ```shell
+   dig +short application.example.org
+   ```
+
+   The output must show the load balancer DNS name of your cluster or its IP address. If it shows the legacy load balancer, contact the cluster administrators.
+
+6. **Wait until DNS caches expire.** If you lowered the TTL one day before the change, wait at least a few hours. Otherwise wait one to two days. Check the record from several networks. Do not remove the old Ingress before this.
+
+7. **Remove the old Ingress.**
+
+   ```shell
+   kubectl delete ingress application-ingress -n namespace
+   ```
+
+   This step is required. See the warning below.
+
+8. **Check the certificate.** cert-manager now creates a new `Certificate` for the TLS Secret with the `letsencrypt-gateway` issuer:
+
+   ```shell
+   kubectl get certificate -n namespace
+   kubectl get certificate application-tls -n namespace -o jsonpath='{.spec.issuerRef.name}'
+   ```
+
+   The second command must print `letsencrypt-gateway`. Then test HTTPS:
+
+   ```shell
+   curl -vI https://application.example.org/
+   ```
+
+<Callout title="Remove the old Ingress, or the certificate is not reissued" icon="⚠️">
+The old Ingress keeps the hostname and the TLS Secret with the legacy `letsencrypt-prod` issuer. While it exists, cert-manager keeps the old `Certificate` and does not issue a new one for the `nginx-traefik` Ingress.
+
+After you delete the old Ingress, cert-manager's ingress shim creates a `Certificate` with `letsencrypt-gateway` for the new Ingress. If the old `Certificate` remains with the legacy issuer, delete it. The shim recreates it within seconds. See [Debugging: certificate not issued](./expose-http#debugging-certificate-not-issued) if the certificate stays unready.
+</Callout>
+
+## If the annotations are not supported
+
+You have two options:
+
+- **Remove or replace the annotation.** Use the tables in [Annotations that need a change](#annotations-that-need-a-change). Test the route after the change.
+- **Move to Gateway API or IngressRoute.** These APIs implement authentication, IP allow-lists, request limits, and TLS with native objects. See [Exposing HTTP Applications](./expose-http). A migration to either API uses the same steps. Keep the old Ingress, deploy the new route, change DNS, wait for DNS caches to expire, and remove the old Ingress.

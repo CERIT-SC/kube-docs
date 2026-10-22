@@ -1,6 +1,7 @@
 {
   "pages": [
     "expose-http",
+    "migrate-nginx",
     "expose-network"
   ]
 }
