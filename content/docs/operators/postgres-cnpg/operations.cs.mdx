@@ -1,0 +1,435 @@
+---
+title: Přístup a provoz
+description: Připojení k databázi CloudNativePG, omezení síťového přístupu, použití vlastních přihlašovacích údajů a konfigurace vysoké dostupnosti, úložiště a imagí. Stránka také uvádí známé problémy.
+---
+
+Informace na této stránce platí pro všechny Clustery: Clustery s pluginem barman-cloud i Clustery se zastaralou zálohou in-tree. K zálohám viz [Nasazení clusteru s pluginem barman-cloud](./deploy).
+
+Příkazy používají aktuální namespace vašeho kubectl kontextu. Namespace nastavíte příkazem `kubectl config set-context --current --namespace=<namespace>`.
+
+## Instance a úložiště
+
+Cluster má jednu nebo více instancí. Při více instancích je jedna instance primární a ostatní jsou repliky. Repliky získávají změny z primární instance pomocí streamingové replikace. Pokud primární instance selže, operátor povýší jednu z replik na primární.
+
+Každá instance má vlastní volume. K dispozici jsou dvě třídy úložiště (storage class):
+
+| Třída úložiště | Typ | Vlastnosti |
+|---|---|---|
+| `nfs-csi` | Síťové úložiště | Pomalé. Vhodné pro testy. |
+| `zfs-csi` | Lokální SSD na uzlu | Nejrychlejší úložiště. Velikost je pevný limit a později ji nelze zvětšit. Data zůstávají na jednom uzlu. |
+
+Pro testy použijte jednu instanci na `nfs-csi`. Pro produkci použijte tři instance na `zfs-csi` se zálohami.
+
+### Příklad s jednou instancí
+
+Tento příklad nemá žádnou zálohu. Zálohy přidáte podle [Nasazení clusteru s pluginem barman-cloud](./deploy).
+
+```yaml title="minimal-cn.yaml"
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: test-cluster       # name of the Cluster, you can change it
+spec:
+  instances: 1             # one instance
+
+  imageName: ghcr.io/cloudnative-pg/postgresql:15-standard-trixie
+
+  primaryUpdateStrategy: unsupervised
+
+  # Do not create the read-only Services test-cluster-ro and test-cluster-r.
+  # Remove this block only if you need read-only connections to the replicas.
+  managed:
+    services:
+      disabledDefaultServices: ["r", "ro"]
+
+  bootstrap:
+    initdb:
+      database: mydb       # database to create, you can change it
+      owner: myowner       # user to create, you can change it
+
+  storage:
+    size: 10Gi
+    storageClass: nfs-csi  # storage class, you can change it
+```
+
+Vytvořte Cluster:
+
+```shell
+kubectl create -f minimal-cn.yaml
+```
+
+Ve vašem namespace se spustí pod `test-cluster-1`. [Manifest](/examples/ceritsc/manifests/minimal-cn.yaml) si také můžete stáhnout.
+
+Pro tři instance nastavte `instances: 3`. Toto nastavení má [manifest clusteru](/examples/ceritsc/manifests/cluster-cn.yaml). Pro lokální úložiště použijte [manifest s lokálním úložištěm](/examples/ceritsc/manifests/minimal-local-cn.yaml) a nastavte `instances` podle potřeby.
+
+Každá instance využívá zdroje z `spec.resources`. Cluster spotřebuje z kvóty vašeho namespace `instances` × `limits`. Před přidáním instancí se ujistěte, že kvóta stačí.
+
+## Přihlašovací údaje k databázi
+
+Pokud nedodáte vlastní `Secret`, operátor vytvoří `Secret` `<cluster>-app`. Údaje pro připojení zobrazíte příkazem:
+
+```shell
+kubectl get secret <cluster>-app -o 'jsonpath={.data.pgpass}' | base64 -d
+```
+
+Výstup má formát `host:port:database:user:password`, například:
+
+```text
+test-cluster-rw:5432:mydb:myowner:uLUmkvAMwR0lJtw5ksUVKihd5OvCrD28RFH1JTLbbzO6BhEAtnWJr1L0nWpTi3GL
+```
+
+K připojení použijte uživatele a heslo z tohoto výstupu.
+
+### Vlastní přihlašovací údaje
+
+Chcete-li použít vlastní uživatelské jméno a heslo, vytvořte `Secret` před vytvořením Clusteru:
+
+```yaml title="secret.yaml"
+apiVersion: v1
+kind: Secret
+metadata:
+  name: <secret-name>
+type: kubernetes.io/basic-auth
+stringData:
+  username: <username>
+  password: <password>
+```
+
+```shell
+kubectl create -f secret.yaml
+```
+
+V manifestu Clusteru odkažte na `Secret` v `bootstrap.initdb`. Hodnota `owner` musí být stejná jako `username` v `Secret`:
+
+```yaml
+  bootstrap:
+    initdb:
+      database: <database>
+      owner: <username>
+      secret:
+        name: <secret-name>
+```
+
+## Připojení
+
+Operátor vytvoří Service `<cluster>-rw` pro připojení pro čtení i zápis k primární instanci. Příklady v této kapitole vypínají Services pouze pro čtení `<cluster>-ro` a `<cluster>-r`.
+
+<Callout type="info">
+Chcete-li používat připojení pouze pro čtení k replikám, odstraňte z manifestu Clusteru blok `spec.managed.services.disabledDefaultServices`. Připojení pouze pro čtení vyžadují alespoň dvě instance.
+</Callout>
+
+### Ze stejného namespace
+
+Pro připojení pro čtení i zápis použijte host `<cluster>-rw`. Pokud jste povolili Services pouze pro čtení, použijte pro připojení pouze pro čtení `<cluster>-ro`. Port je `5432`.
+
+### Z jiného namespace
+
+Použijte host `<cluster>-rw.<namespace>.svc.cluster.local`. `<namespace>` je namespace databáze. Port je `5432`. Pokud databázi chrání NetworkPolicy, přidejte do politiky druhý namespace. Viz [NetworkPolicy](#networkpolicy).
+
+### Zvenku Kubernetes clusteru
+
+Vytvořte Service typu `LoadBalancer`. Každá Service typu `LoadBalancer` spotřebuje jednu IP adresu. Příklad poskytuje přístup pro čtení i zápis. Pokud potřebujete také přístup pouze pro čtení přes druhou IP adresu, kontaktujte k8s@cerit-sc.cz.
+
+Pool adres vyberte v anotaci `metallb.io/address-pool`:
+
+- `privmuni`: IP adresa je dostupná pouze ze sítě Masarykovy univerzity a z VPN MU.
+- `default`: IP adresa je veřejná.
+
+```yaml title="loadbalancer.yaml"
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-cluster-lb-rw
+  annotations:
+    metallb.io/address-pool: privmuni   # "default" for a public IP address
+spec:
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: Local
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    cnpg.io/cluster: test-cluster       # name of your Cluster
+    cnpg.io/instanceRole: primary
+```
+
+Pokud je IP adresa veřejná, omezte přístup. Použijte [NetworkPolicy](#networkpolicy) nebo [firewall LoadBalanceru](../../kubernetes/expose/expose-network#loadbalancer-firewall).
+
+IP adresu zjistíte příkazem:
+
+```shell
+kubectl get svc test-cluster-lb-rw
+# NAME                 TYPE           CLUSTER-IP   EXTERNAL-IP   PORT(S)    AGE
+# test-cluster-lb-rw   LoadBalancer   10.43...     147.251.X.Y   5432/TCP   21h
+```
+
+Připojte se na adresu ve sloupci `EXTERNAL-IP` na portu `5432`, například z pgAdminu.
+
+## NetworkPolicy
+
+NetworkPolicy povoluje síťový přístup k databázi pouze ze zdrojů, které určíte. NetworkPolicy používejte pro všechny Clustery. Pokud má databáze veřejnou IP adresu, je NetworkPolicy velmi důležitá. K obecným konceptům viz [Network Policy](../../kubernetes/security).
+
+Vždy povolte ingress z namespace `cloudnativepg`. Bez tohoto přístupu operátor nemůže monitorovat instance ani provést failover.
+
+### Povolit pouze určené namespaces
+
+```yaml title="netpolicy-internal.yaml"
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cnpg-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: test-cluster   # name of your Cluster
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cloudnativepg
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: <namespace>         # namespace of the database
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: <other-namespace>   # optional
+```
+
+Nahraďte `<namespace>` namespace databáze. Chcete-li povolit další namespaces, přidejte pro každý namespace jednu položku `namespaceSelector`. [Manifest](/examples/ceritsc/manifests/netpolicy-internal.yaml) si také můžete stáhnout.
+
+### Povolit pouze určené externí IP adresy
+
+```yaml title="netpolicy-external.yaml"
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cnpg-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: test-cluster   # name of your Cluster
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cloudnativepg
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: <namespace>   # namespace of the database
+        - ipBlock:
+            cidr: <ip>/32
+        - ipBlock:
+            cidr: <another-ip>/32
+```
+
+Nahraďte `<ip>` svou externí IP adresou. Ponechte příponu `/32`. Chcete-li povolit další adresy, přidejte pro každou adresu jednu položku `ipBlock`. [Manifest](/examples/ceritsc/manifests/netpolicy-external.yaml) si také můžete stáhnout.
+
+<Callout type="warn">
+Service typu `LoadBalancer` musí mít `externalTrafficPolicy: Local`. U hodnoty `Cluster` uzel nahradí IP adresu klienta svou vlastní IP adresou. Pravidlo `ipBlock` pak klientovi neodpovídá.
+</Callout>
+
+### Omezení egressu
+
+Odchozí provoz řídíte pravidly egress. Příklad povoluje pouze provoz, který Cluster potřebuje:
+
+- DNS na portu 53, pro zjištění IP adresy endpointu S3 a dalších jmen.
+- Ostatní instance téhož Clusteru na portech 5432 a 8000. Repliky používají port 5432 pro streamingovou replikaci.
+- Kubernetes API server na portu 6443. Používá ho instance manager v každém podu.
+- Endpoint S3 na portu 443, pro WAL archivaci, základní zálohy a obnovu WAL na replikách. Toto pravidlo platí pro plugin i pro zálohu in-tree.
+
+```yaml title="netpolicy-egress.yaml"
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postgres-cnpg-np
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: test-cluster   # name of your Cluster
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # PostgreSQL port for all pods in the namespace
+    - ports:
+        - port: 5432
+          protocol: TCP
+      from:
+        - podSelector: {}
+    # Instance manager port for the operator and for the other instances
+    - ports:
+        - port: 8000
+          protocol: TCP
+      from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cloudnativepg
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: cloudnative-pg
+        - podSelector:
+            matchLabels:
+              cnpg.io/cluster: test-cluster
+  egress:
+    # DNS
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    # Other instances of the same Cluster: replication and instance manager
+    - ports:
+        - port: 5432
+          protocol: TCP
+        - port: 8000
+          protocol: TCP
+      to:
+        - podSelector:
+            matchLabels:
+              cnpg.io/cluster: test-cluster
+    # Kubernetes API server
+    - ports:
+        - port: 6443
+          protocol: TCP
+      to:
+        - ipBlock:
+            cidr: 10.43.0.1/32
+        - ipBlock:
+            cidr: 10.16.62.14/32
+        - ipBlock:
+            cidr: 10.16.62.15/32
+        - ipBlock:
+            cidr: 10.16.62.16/32
+        - ipBlock:
+            cidr: 10.16.62.17/32
+        - ipBlock:
+            cidr: 10.16.62.18/32
+    # S3 endpoint for backups
+    - ports:
+        - port: 443
+          protocol: TCP
+      to:
+        - ipBlock:
+            cidr: <s3-endpoint-ip>/32
+```
+
+IP adresy endpointu S3 zjistíte příkazem `host s3.a.cloud.e-infra.cz`. Přidejte jeden `ipBlock` pro každou adresu IPv4 a IPv6. Pokud Cluster nemá zálohu, pravidlo pro S3 odstraňte.
+
+## Vysoká dostupnost
+
+Cluster s více než jednou instancí je vysoce dostupný. Pokud primární instance selže, operátor povýší jednu z replik na primární.
+
+CloudNativePG ve výchozím nastavení zapíná replikační sloty pro vysokou dostupnost. Díky těmto slotům primární instance uchovává soubory WAL, které replika stále potřebuje. Nemusíte nastavovat `replicationSlots.highAvailability.enabled`.
+
+Na `zfs-csi` buďte se soubory WAL opatrní, protože velikost volume je pevný limit. Pokud replika na dlouho přestane fungovat, primární instance pro ni uchovává soubory WAL a ty mohou volume zaplnit. Když je volume plné, PostgreSQL se zastaví. Nezvyšujte `wal_keep_size` na hodnotu blízkou velikosti volume. Soubory WAL uchovávané sloty omezíte nastavením `max_slot_wal_keep_size`. Pokud replika potřebuje více souborů WAL, než tento limit dovoluje, musíte repliku znovu vytvořit (viz [Známé problémy](#známé-problémy)).
+
+```yaml title="cluster-ha.yaml"
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: test-cluster
+spec:
+  instances: 3
+
+  imageName: ghcr.io/cloudnative-pg/postgresql:15-standard-trixie
+
+  primaryUpdateStrategy: unsupervised
+
+  # Do not create the read-only Services test-cluster-ro and test-cluster-r.
+  # Remove this block only if you need read-only connections to the replicas.
+  managed:
+    services:
+      disabledDefaultServices: ["r", "ro"]
+
+  bootstrap:
+    initdb:
+      database: dbname
+      owner: dbowner
+
+  postgresql:
+    parameters:
+      # Limit for the WAL files that the replication slots keep.
+      # Keep it much smaller than the volume.
+      max_slot_wal_keep_size: 2GB
+
+  resources:
+    requests:
+      memory: "4096Mi"
+      cpu: 1
+    limits:
+      memory: "4096Mi"
+      cpu: 1
+
+  storage:
+    size: 10Gi
+    storageClass: zfs-csi
+```
+
+Pro produkci přidejte také zálohy. Viz [Nasazení clusteru s pluginem barman-cloud](./deploy).
+
+## Image a locales
+
+CloudNativePG poskytuje tři typy imagí PostgreSQL:
+
+| Typ | Obsah | Použití |
+|---|---|---|
+| `minimal` | PostgreSQL | Funguje s pluginem barman-cloud. |
+| `standard` | `minimal`, některá rozšíření a všechny locales | Funguje s pluginem barman-cloud. |
+| `system` | `standard` a Barman Cloud | Pouze pro zálohu in-tree. Zastaralé. |
+
+Tagy mají formát `<major>.<minor>-<type>-<debian>`, například `17.6-standard-trixie`. Tag `<major>-<type>-<debian>` vždy ukazuje na nejnovější minor verzi. Staré tagy bez typu a verze Debianu, například `15.10`, ukazují na image typu system. CloudNativePG tyto tagy označuje jako zastaralé.
+
+Pro nové Clustery použijte image typu `standard` nebo `minimal`. [Registr](https://github.com/cloudnative-pg/postgres-containers/pkgs/container/postgresql) uvádí všechny image.
+
+### České collation
+
+Image typu `standard` obsahují všechny locales, také `cs_CZ`. Chcete-li použít české collation, použijte image typu `standard` a nastavte locale v `bootstrap.initdb`:
+
+```yaml
+  bootstrap:
+    initdb:
+      database: mydb
+      owner: myowner
+      encoding: UTF8
+      localeCollate: cs_CZ.UTF-8
+      localeCType: cs_CZ.UTF-8
+```
+
+Dřívější image české locales neobsahovaly. Proto jsme vytvořili image `cerit.io/cloudnative-pg/postgresql:10.23-3` a `cerit.io/cloudnative-pg/postgresql:15.0`. Nepoužívejte je pro nové Clustery. Současné verze CloudNativePG nepodporují PostgreSQL 10. Verze 15.0 je první vydání PostgreSQL 15 a nemá pozdější opravy.
+
+## Známé problémy
+
+### Chyby při nasazení
+
+1. Pokud nasazení selže, nejprve se ujistěte, že operátor smazal starou instanci. Poté nasazení vytvořte znovu. Pokud novou instanci vytvoříte příliš brzy, operátor ji nikdy nevytvoří. Pak musíte použít jiný název.
+2. Pokud je kvóta namespace příliš malá, operátor vytvoří pouze instance, které se do kvóty vejdou. I v tomto případě nemůžete databázi smazat a nasadit znovu pod stejným názvem.
+
+### Lokální úložiště
+
+Lokální úložiště (`zfs-csi`) zůstává na jednom uzlu. Pokud tento uzel selže nebo pokud správci obnoví Kubernetes cluster ze zálohy, můžete o lokální data přijít. Používejte více než jednu instanci a pravidelně zálohujte.
+
+### Replika se nemůže připojit ke Clusteru
+
+Někdy replika selže a nemůže se ke Clusteru znovu připojit. Chcete-li ji znovu vytvořit, smažte pod i jeho volume jedním příkazem. Nejprve se ujistěte, že instance je replika. Pokud smažete primární instanci, operátor spustí failover.
+
+```shell
+# Show the primary. Do not delete this instance.
+kubectl get cluster.postgresql.cnpg.io test-cluster -o jsonpath='{.status.currentPrimary}{"\n"}'
+# Delete the failed replica, for example test-cluster-2, and its volume.
+kubectl delete pod/test-cluster-2 pvc/test-cluster-2
+```
+
+Operátor vytvoří novou repliku a zkopíruje data z primární instance. Nová replika dostane nové číslo, například `test-cluster-4`.
+
+### Název zdroje Cluster v kubectl
+
+Na tomto Kubernetes clusteru existují dvě CRD s kind `Cluster`: cluster-api (`cluster.x-k8s.io`) a CloudNativePG (`postgresql.cnpg.io`). Příkaz `kubectl get cluster <name>` používá CRD z cluster-api. Selže s chybou `Forbidden: clusters.cluster.x-k8s.io ... cannot get resource ... in API group "cluster.x-k8s.io"`. Vždy používejte plný název, například `kubectl get cluster.postgresql.cnpg.io <name>`. To platí i pro `kubectl wait`.
+
+### psql v podu instance
+
+Když spouštíte `psql` v podu instance (například přes `kubectl exec`), použijte `-h localhost`. Poté se `psql` připojí přes TCP s heslem. Lokální socket používá peer autentizaci, která funguje pouze pro uživatele operačního systému `postgres`. Ostatní uživatelé dostanou chybu `FATAL: Peer authentication failed for user "<user>"`.

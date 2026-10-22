@@ -2,17 +2,19 @@
 title: Certifikát
 ---
 
-Kubernetes může vydávat a spravovat vlastní důvěryhodné certifikáty pomocí protokolu ACME. Certifikáty jsou uloženy jako tajemství.
+Kubernetes dokáže vydávat a spravovat vlastní důvěryhodné certifikáty pomocí protokolu ACME. Certifikáty jsou uloženy jako secrets.
 
-To je obzvlášť důležité pro povolení TLS při vystavování ne-webových aplikací, tedy bez Ingress.
+To je obzvlášť důležité pro zapnutí TLS při zpřístupňování newebových aplikací (bez Ingressu).
 
-V současnosti jsou k dispozici čtyři vydavatelé:
-* Vydavatel `letsencrypt-prod` je pouze pro web a automaticky kontroluje web na zadaném doménovém jménu během procesu vydávání. Je automaticky používán při vystavování aplikace prostřednictvím [ingress](./expose#web-based-applications).
-* Vydavatel `letsencrypt-prod-dns` je určen pro jiné aplikace. Rozdíl je v kontrole dns. Nicméně, kontrola dns je pomalejší, protože změna dns se musí nejprve propagovat.
-* `letsencrypt-stage` je stejný jako `letsencrypt-prod`, ale používá stagingové servery vhodné pro testování.
-* `letsencrypt-stage-dns` je stejný jako `letsencrypt-prod-dns`, ale používá stagingové servery vhodné pro testování.
+V současnosti je k dispozici pět issuerů:
 
-Pro vydání certifikátu spravovaného Kubernetes lze použít následující konfiguraci.
+* Issuer `letsencrypt-gateway` je **aktuální** issuer zaměřený na web. Jeho HTTP-01 solver je napojen na Traefik gateway, takže funguje se všemi třemi podporovanými mechanismy zpřístupnění — Gateway API (`HTTPRoute`), Traefik `IngressRoute` a třídou Ingress `nginx-traefik`. Používejte jej pro vše v části [Zpřístupnění HTTP aplikací](./expose/expose-http).
+* Issuer `letsencrypt-prod` je **zastaralý** (legacy) issuer pouze pro web z doby původního nginx-ingress. Funguje jen s původní třídou Ingress `nginx` a **nebude fungovat s žádným z aktuálních mechanismů založených na Traefiku** (Gateway API, `IngressRoute`, `nginx-traefik`). Je zachován kvůli zpětné kompatibilitě se starými manifesty; v nových nasazeních jej nepoužívejte.
+* Issuer `letsencrypt-prod-dns` je určen pro newebové aplikace (TCP/UDP služby, vlastní protokoly). Používá validaci DNS-01 místo HTTP-01, která je pomalejší, protože se nejprve musí propagovat změny v DNS.
+* `letsencrypt-stage` je stejný jako `letsencrypt-prod`, ale používá testovací (staging) servery vhodné pro testování — rovněž pouze legacy.
+* `letsencrypt-stage-dns` je stejný jako `letsencrypt-prod-dns`, ale používá testovací (staging) servery vhodné pro testování.
+
+Pro vydání certifikátu spravovaného Kubernetes použijte následující konfiguraci:
 
 ```yaml title="secret.yaml"
 apiVersion: cert-manager.io/v1
@@ -31,6 +33,7 @@ spec:
   - digital signature
   - key encipherment
 ```
-Kde `metadata.name`, `spec.secretName` odkazují na název vygenerovaného certifikátu. Položky `spec.dnsNames` jsou cílové dns názvy certifikátu. Vydavatel je specifikován v `spec.issuerRef.name` a měl by být nastaven na `letsencrypt-prod-dns`.
+V této konfiguraci odkazují `metadata.name` a `spec.secretName` na název vygenerovaného certifikátu. Položky `spec.dnsNames` jsou cílové DNS názvy certifikátu. Issuer se určuje v `spec.issuerRef.name` a měl by být nastaven na `letsencrypt-prod-dns`.
 
-Konfigurace generuje tajemství, specifikované v `spec.secretName`, obsahující certifikát a pár soukromého klíče.
+Tato konfigurace vygeneruje secret (určený v `spec.secretName`) obsahující dvojici certifikátu a privátního klíče.
+

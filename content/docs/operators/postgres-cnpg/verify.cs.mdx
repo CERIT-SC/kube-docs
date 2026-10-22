@@ -1,0 +1,343 @@
+---
+title: Ověření záloh od začátku do konce
+description: Ujistěte se, že WAL archivace a základní zálohy (base backups) končí v S3 a že z nich dokážete obnovit Cluster. Stránka obsahuje dotazy, kontrolu bucketu a test obnovy.
+---
+
+Stavová pole zdrojů CloudNativePG ukazují, co operátor očekává. Bucket ukazuje, co záloha skutečně zapsala. Obnova ukazuje, že zálohu dokážete použít. Kontroly z této stránky proveďte po nasazení nového Clusteru nebo po migraci existujícího Clusteru. Viz [Nasazení clusteru s pluginem barman-cloud](./deploy) a [Migrace ze zastaralé zálohy in-tree](./migrate-from-legacy).
+
+## Než začnete
+
+Nastavte tyto proměnné shellu. Příkazy na této stránce je používají.
+
+```shell
+CLUSTER="<cluster>"   # name of the Cluster
+BUCKET="<bucket>"     # bucket from destinationPath in the ObjectStore
+PRIMARY=$(kubectl get cluster.postgresql.cnpg.io $CLUSTER -o jsonpath='{.status.currentPrimary}')
+REPLICA=$(kubectl get pods -l cnpg.io/cluster=$CLUSTER,cnpg.io/instanceRole=replica \
+  -o jsonpath='{.items[0].metadata.name}')
+```
+
+Po failoveru je primární instancí jiná instance. V takovém případě nastavte `PRIMARY` a `REPLICA` znovu.
+
+Příkazy používají aktuální namespace vašeho kubectl kontextu. Některé příkazy spouštějí `psql` jako uživatel `postgres` v databázi `postgres`. Kontejner `postgres` tomuto uživateli povoluje přístup pomocí peer autentizace na lokálním socketu.
+
+Ukázkové výstupy pocházejí z Clusteru s názvem `pg`.
+
+## 1. Cluster a pody
+
+```shell
+kubectl get cluster.postgresql.cnpg.io $CLUSTER
+kubectl get pods -l cnpg.io/cluster=$CLUSTER -o wide
+```
+
+Výstup v pořádku:
+
+```text
+NAME   AGE   INSTANCES   READY   STATUS                     PRIMARY
+pg     10m   3           3       Cluster in healthy state   pg-1
+
+NAME   READY   STATUS    RESTARTS   AGE   ...   NODE
+pg-1   2/2     Running   0          10m   ...   kub-d2
+pg-2   2/2     Running   0          10m   ...   kub-d7
+pg-3   2/2     Running   0          10m   ...   kub-d8
+```
+
+`READY 2/2` znamená, že každý pod spouští dva kontejnery: `postgres` a sidecar pluginu `plugin-barman-cloud`. Cluster se zastaralou zálohou in-tree ukazuje `1/1`.
+
+Chcete-li ověřit, že druhý kontejner je sidecar pluginu, spusťte:
+
+```shell
+kubectl get pod $PRIMARY -o jsonpath='{.spec.initContainers[*].name}{"\n"}'
+# bootstrap-controller plugin-barman-cloud
+kubectl get pod $PRIMARY -o jsonpath='{.spec.containers[*].name}{"\n"}'
+# postgres
+```
+
+Sidecar je nativní sidecar Kubernetes: init kontejner s `restartPolicy: Always`. Po startu podu běží dál.
+
+## 2. WAL archivace
+
+WAL archivace běží na primární instanci. Přečtěte čítače archiveru na primární instanci:
+
+```shell
+kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres -c \
+  "SELECT archived_count, failed_count, last_archived_wal, last_archived_time FROM pg_stat_archiver;"
+```
+
+Výstup v pořádku:
+
+```text
+ archived_count | failed_count |    last_archived_wal     |      last_archived_time
+----------------+--------------+--------------------------+-------------------------------
+             10 |            0 | 000000010000000000000008 | 2026-10-04 22:15:41.587741+00
+```
+
+Zapište značkovací řádek (marker row) a vynuťte přepnutí WAL. Test obnovy v kroku 7 tyto značkovací řádky hledá.
+
+```shell
+kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres \
+  -c "CREATE TABLE IF NOT EXISTS backup_check (id serial PRIMARY KEY, note text, created_at timestamptz DEFAULT now());" \
+  -c "INSERT INTO backup_check (note) VALUES ('before-backup');" \
+  -c "SELECT pg_switch_wal();"
+sleep 10
+```
+
+Poté spusťte dotaz na archiver znovu. Očekávané změny jsou tyto:
+
+- `archived_count` se zvýší.
+- `last_archived_wal` ukazuje novější soubor.
+- `failed_count` se nezvyšuje. Malý nárůst během prvních minut po nasazení je přijatelný, pokud se zastaví.
+
+## 3. Replikace
+
+Přečtěte stav replikace na primární instanci:
+
+```shell
+kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres -c \
+  "SELECT application_name, state, sync_state, replay_lag FROM pg_stat_replication;"
+```
+
+Výstup v pořádku obsahuje jeden řádek pro každou repliku, všechny ve stavu `streaming`:
+
+```text
+ application_name |   state   | sync_state | replay_lag
+------------------+-----------+------------+------------
+ pg-2             | streaming | async      |
+ pg-3             | streaming | async      |
+```
+
+Poté přečtěte značkovací řádky na replice:
+
+```shell
+kubectl exec $REPLICA -c postgres -- psql -U postgres -d postgres -c "SELECT count(*) FROM backup_check;"
+```
+
+Replika musí vrátit stejný počet jako primární instance. Tento výsledek ukazuje, že replikace doručuje data, a nejen že existuje spojení.
+
+## 4. Log sidecaru pluginu
+
+```shell
+kubectl logs $PRIMARY -c plugin-barman-cloud --tail=50
+```
+
+Řádky v pořádku:
+
+```text
+{"level":"info","ts":"...","msg":"Executing barman-cloud-wal-archive","logging_pod":"pg-1","walName":"/var/lib/postgresql/data/pgdata/pg_wal/000000010000000000000008",...}
+{"level":"info","ts":"...","msg":"Archived WAL file","logging_pod":"pg-1"}
+{"level":"info","ts":"...","msg":"Applying backup retention policy","logging_pod":"pg-1"}
+```
+
+Problémy a jejich příčiny:
+
+| Zpráva v logu sidecaru | Příčina a řešení |
+|---|---|
+| `An error occurred (InvalidAccessKeyId) when calling the PutObject` | Sidecar se k S3 připojí, ale přihlašovací údaje jsou špatné. Opravte `Secret`, na který odkazuje `ObjectStore.spec.configuration.s3Credentials`. |
+| `secrets "<name>" is forbidden`, nebo jiné chyby RBAC | Sidecar nemůže číst `Secret` nebo `ObjectStore`. Tento přístup spravuje plugin. Kontaktujte k8s@cerit-sc.cz. |
+| `MissingContentLength` u `UploadPart`, nebo chyba `x-amz-content-sha256` | Endpoint S3 nepřijímá kontrolní součty z boto3. Přidejte proměnné do `instanceSidecarConfiguration.env` v `ObjectStore`. Viz [Krok 2 průvodce nasazením](./deploy#step-2-objectstore). |
+| Mnoho opakování bez `Archived WAL file` mezi nimi | URL endpointu, název bucketu nebo oprávnění S3 jsou špatně. |
+
+CloudNativePG ve výchozím nastavení vytváří základní zálohy na replice. Řádky logu základní zálohy jsou v sidecaru této repliky.
+
+## 5. Bucket
+
+Předchozí kroky ukazují, že proces běží. Pouze bucket ukáže, že soubory skutečně dorazí.
+
+Skript níže vyžaduje Python 3 a boto3 (`pip install boto3`). Nejprve přečtěte přihlašovací údaje ze `Secret`, na který odkazuje `ObjectStore`. Použijte název svého `Secret` a názvy klíčů:
+
+```shell
+export AWS_ACCESS_KEY_ID=$(kubectl get secret pg-backup -o jsonpath='{.data.AWS_ACCESS_KEY_ID}' | base64 -d)
+export AWS_SECRET_ACCESS_KEY=$(kubectl get secret pg-backup -o jsonpath='{.data.AWS_SECRET_ACCESS_KEY}' | base64 -d)
+```
+
+Uložte tento skript jako `s3-list.py`. Načítá všechny objekty Clusteru, i když jich je více než 1000:
+
+```python title="s3-list.py"
+#!/usr/bin/env python3
+"""Show the base backups and the newest WAL files of a Cluster in S3.
+
+Usage: python3 s3-list.py <bucket> <path>
+<path> is the Cluster name, or <folder>/<cluster> if destinationPath has a folder.
+"""
+import os
+import re
+import sys
+
+import boto3
+
+# A WAL segment has a name of 24 hex digits, with an optional compression suffix.
+WAL_FILE = re.compile(r"^[0-9A-F]{24}(\.[a-z0-9]+)?$")
+
+bucket, path = sys.argv[1], sys.argv[2].strip("/")
+s3 = boto3.client(
+    "s3",
+    endpoint_url="https://s3.a.cloud.e-infra.cz",
+    aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+    aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+)
+
+backups, wals = set(), []
+for page in s3.get_paginator("list_objects_v2").paginate(Bucket=bucket, Prefix=f"{path}/"):
+    for obj in page.get("Contents", []):
+        parts = obj["Key"][len(path) + 1:].split("/")
+        if parts[0] == "base" and len(parts) > 2:
+            backups.add(parts[1])
+        elif parts[0] == "wals" and WAL_FILE.match(parts[-1]):
+            wals.append(obj["Key"])
+
+print("Base backups:")
+for backup in sorted(backups):
+    print(f"  {path}/base/{backup}/")
+print(f"WAL files: {len(wals)}. Newest 5:")
+for wal in sorted(wals, key=lambda key: key.rsplit("/", 1)[-1])[-5:]:
+    print(f"  {wal}")
+```
+
+Spusťte skript:
+
+```shell
+python3 s3-list.py "$BUCKET" "$CLUSTER"
+```
+
+Pokud má `destinationPath` složku, použijte jako druhý argument `"<folder>/$CLUSTER"`.
+
+Výstup v pořádku:
+
+```text
+Base backups:
+  pg/base/20261004T221041/
+WAL files: 8. Newest 5:
+  pg/wals/0000000100000000/000000010000000000000004
+  pg/wals/0000000100000000/000000010000000000000005
+  pg/wals/0000000100000000/000000010000000000000006
+  pg/wals/0000000100000000/000000010000000000000007
+  pg/wals/0000000100000000/000000010000000000000008
+```
+
+Spusťte skript před přepnutím WAL (krok 2) a po něm. Po přepnutí musí mít nejnovější soubor WAL vyšší číslo.
+
+Po migraci zůstanou původní základní zálohy vedle nových základních záloh. To je správně, protože plugin pokračuje ve stejné cestě.
+
+## 6. Základní záloha na vyžádání
+
+Tato záloha nemění plánované zálohy.
+
+```yaml title="backup.yaml"
+apiVersion: postgresql.cnpg.io/v1
+kind: Backup
+metadata:
+  name: <cluster>-manual-1
+spec:
+  cluster:
+    name: <cluster>
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+```
+
+```shell
+kubectl apply -f backup.yaml
+kubectl get backups.postgresql.cnpg.io $CLUSTER-manual-1
+# NAME          CLUSTER   METHOD   PHASE       ERROR
+# pg-manual-1   pg        plugin   completed
+```
+
+Fáze se změní ze `started` na `completed`. Poté spusťte skript pro S3 znovu. Musí se objevit nová složka `<cluster>/base/<timestamp>/`.
+
+## 7. Test obnovy
+
+Záloha je dobrá, jen pokud ji dokážete obnovit. Tento test vytvoří dočasný Cluster ze záloh v bucketu. Test zdrojový Cluster nemění.
+
+1. Zapište na primární instanci druhý značkovací řádek a vynuťte přepnutí WAL. Tento řádek je novější než základní záloha. Obnova ho získá, jen když přehraje archivované soubory WAL.
+
+   ```shell
+   kubectl exec $PRIMARY -c postgres -- psql -U postgres -d postgres \
+     -c "INSERT INTO backup_check (note) VALUES ('after-backup');" \
+     -c "SELECT pg_switch_wal();"
+   sleep 10
+   ```
+
+2. Spusťte dotaz na archiver z kroku 2. Ujistěte se, že `last_archived_wal` ukazuje novější soubor.
+
+3. Uložte tento manifest jako `restore-test.yaml`. Použijte stejný image jako zdrojový Cluster. Nastavte `serverName` na název zdrojového Clusteru. Nastavte `database` a `owner` na hodnoty zdrojového Clusteru.
+
+   ```yaml title="restore-test.yaml"
+   apiVersion: postgresql.cnpg.io/v1
+   kind: Cluster
+   metadata:
+     name: <cluster>-restore-test
+   spec:
+     instances: 1
+
+     # Use the same image as the source Cluster.
+     imageName: ghcr.io/cloudnative-pg/postgresql:15-standard-trixie
+
+     # Do not create the read-only Services.
+     # Remove this block only if you need read-only connections to the replicas.
+     managed:
+       services:
+         disabledDefaultServices: ["r", "ro"]
+
+     storage:
+       size: 5Gi              # at least the size of the source volume
+       storageClass: zfs-csi
+
+     bootstrap:
+       recovery:
+         source: origin
+         database: <db>       # database of the source Cluster
+         owner: <owner>       # owner of that database
+
+     externalClusters:
+       - name: origin
+         plugin:
+           name: barman-cloud.cloudnative-pg.io
+           parameters:
+             barmanObjectName: pg-backup-store
+             serverName: <cluster>
+
+     # No "plugins" section: the test Cluster must not archive WAL files.
+   ```
+
+4. Aplikujte manifest. Poté počkejte, až bude testovací Cluster připraven. Doba závisí na velikosti databáze.
+
+   ```shell
+   kubectl apply -f restore-test.yaml
+   kubectl wait cluster.postgresql.cnpg.io/$CLUSTER-restore-test --for=condition=Ready --timeout=1800s
+   ```
+
+5. Přečtěte značkovací řádky v obnovené databázi:
+
+   ```shell
+   kubectl exec $CLUSTER-restore-test-1 -c postgres -- psql -U postgres -d postgres -c \
+     "SELECT note, created_at FROM backup_check ORDER BY id;"
+   ```
+
+   Výsledek musí obsahovat `before-backup` a `after-backup`. Řádek `before-backup` pochází ze základní zálohy. Řádek `after-backup` pochází z archivu WAL.
+
+6. Smažte testovací Cluster. Operátor smaže také jeho volume.
+
+   ```shell
+   kubectl delete cluster.postgresql.cnpg.io $CLUSTER-restore-test
+   ```
+
+Poznámky k testu obnovy:
+
+- Testovací Cluster využívá zdroje z kvóty vašeho namespace. Ujistěte se, že kvóta má místo pro jednu další instanci.
+- Nepřidávejte do testovacího Clusteru sekci `plugins`. Pokud ji přidáte, testovací Cluster zapisuje do bucketu vlastní archiv WAL. Další test obnovy pak neprojde kontrolou prázdného archivu.
+- Pokud NetworkPolicy ve vašem namespace ve výchozím stavu zakazuje provoz, povolte stejný provoz i pro testovací Cluster. Viz [Krok 5 průvodce nasazením](./deploy#step-5-networkpolicy).
+- Chcete-li obnovit do určitého časového bodu, přidejte `recoveryTarget` pod `bootstrap.recovery`, například `recoveryTarget: { targetTime: "2026-10-04 22:15:00+00" }`.
+
+## Pravidelné kontroly
+
+Přidejte tyto hodnoty do svého monitoringu:
+
+- `barman_cloud_cloudnative_pg_io_last_failed_backup_timestamp`: nesmí se měnit.
+- `barman_cloud_cloudnative_pg_io_last_available_backup_timestamp`: musí odpovídat plánu.
+- `barman_cloud_cloudnative_pg_io_first_recoverability_point`: musí se posouvat vpřed, když politika uchovávání maže staré zálohy.
+- `cnpg_pg_stat_archiver_failed_count`: nesmí růst.
+- `cnpg_pg_stat_archiver_seconds_since_last_archival`: u databáze se zápisovou aktivitou musí zůstat nízká. Vysoká hodnota může znamenat, že se soubory WAL hromadí na volume.
+
+První tři metriky pocházejí z pluginu. Zastaralá záloha in-tree používá jiné názvy: `cnpg_collector_last_failed_backup_timestamp`, `cnpg_collector_last_available_backup_timestamp` a `cnpg_collector_first_recoverability_point`.
+
+Test obnovy také opakujte v pravidelných intervalech, například jednou za měsíc.

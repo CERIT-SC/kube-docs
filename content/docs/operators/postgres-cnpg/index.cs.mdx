@@ -1,0 +1,35 @@
+---
+title: PostgreSQL s CloudNativePG
+description: Provozujte PostgreSQL na Kubernetes clusteru pomocí operátoru CloudNativePG. Nasaďte databázi s pluginem barman-cloud, ověřte a obnovte zálohy a zmigrujte se ze zálohy in-tree.
+---
+
+[CloudNativePG](https://cloudnative-pg.io/) je operátor, který provozuje PostgreSQL v Kubernetes. Poskytujeme jeden operátor CloudNativePG pro celý Kubernetes cluster. Vy definujete zdroj `Cluster` a operátor pro něj vytvoří a spravuje instance PostgreSQL.
+
+Kompletní dokumentaci operátoru najdete na [webu CloudNativePG](https://cloudnative-pg.io/). [Quickstart](https://cloudnative-pg.io/documentation/current/quickstart/) ukazuje minimální `Cluster`.
+
+V této kapitole je `Cluster` zdroj CloudNativePG, který definuje databázový cluster PostgreSQL. „Kubernetes cluster“ je platforma, na které běží.
+
+## Stránky v této kapitole
+
+- **[Nasazení clusteru s pluginem barman-cloud](./postgres-cnpg/deploy)**: Replikovaný `Cluster`, `ObjectStore` s vašimi přihlašovacími údaji k S3, denní `ScheduledBackup` a NetworkPolicy. Tuto stránku použijte pro všechna nová nasazení.
+- **[Ověření záloh od začátku do konce](./postgres-cnpg/verify)**: Kontroly WAL archivace, obsahu bucketu a zálohy na vyžádání. Stránka obsahuje také test obnovy.
+- **[Přístup a provoz](./postgres-cnpg/operations)**: Připojení zevnitř i zvenku Kubernetes clusteru, příklady NetworkPolicy, vlastní přihlašovací údaje, vysoká dostupnost, úložiště, image a známé problémy.
+- **[Migrace ze zastaralé zálohy in-tree](./postgres-cnpg/migrate-from-legacy)**: Přesun existujícího `Clusteru` z `.spec.backup.barmanObjectStore` na plugin. Data zůstanou na místě a zálohy pokračují ve stejné cestě v S3.
+- **[Reference zastaralé zálohy in-tree](./postgres-cnpg/legacy)**: Zastaralá konfigurace záloh pro Clustery, které jste zatím nezmigrovali.
+
+## Jakou zálohu váš Cluster používá?
+
+CloudNativePG označuje zálohu Barman Cloud in-tree za zastaralou od verze 1.26. Verze 1.31.0 ji odstraňuje. Typ zálohy `Clusteru` zjistíte příkazem:
+
+```shell
+kubectl get cluster.postgresql.cnpg.io <cluster> \
+  -o jsonpath='{.spec.backup.barmanObjectStore.destinationPath}{"\n"}{.spec.plugins[*].name}{"\n"}'
+```
+
+- Pokud první řádek ukazuje cestu v S3, Cluster používá zálohu in-tree. Postupujte podle [průvodce migrací](./postgres-cnpg/migrate-from-legacy).
+- Pokud druhý řádek ukazuje `barman-cloud.cloudnative-pg.io`, Cluster používá plugin. Postupujte podle [Ověření záloh od začátku do konce](./postgres-cnpg/verify).
+- Pokud jsou oba řádky prázdné, Cluster nemá žádnou zálohu do S3. Přidejte `ObjectStore`, sekci `plugins` a `ScheduledBackup` podle [Nasazení clusteru](./postgres-cnpg/deploy).
+
+<Callout type="info">
+Na tomto Kubernetes clusteru existují dvě CRD s kind `Cluster`: cluster-api (`cluster.x-k8s.io`) a CloudNativePG (`postgresql.cnpg.io`). Krátký název `cluster` vybere CRD z cluster-api a příkaz selže s chybou oprávnění. Vždy používejte plný název `cluster.postgresql.cnpg.io`.
+</Callout>
