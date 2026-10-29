@@ -4,54 +4,72 @@ title: AIaaS Introduction
 
 ## AI for Science. Built for Researchers. Run securely in e-INFRA CZ.
 
-CERIT‑SC, a core component of e‑INFRA CZ, operates an **on‑premise AI platform** that provides researchers with secure, high‑performance, and interoperable AI tools. This platform runs on cutting‑edge NVIDIA DGX‑H100/B200/B300‑class systems, delivering robust computational power for high‑speed inference. The environment hosts open large language and generative models, accessible via the [Open WebUI interface](../ai-as-a-service/chat-ai) or standard [OpenAI‑compatible APIs](../ai-as-a-service/ai-api).
+CERIT‑SC, a core component of the national research infrastructure **e‑INFRA CZ**, operates a sovereign, **on‑premise AI-as-a-Service (AIaaS) platform** designed specifically for the scientific and academic community. Powered by cutting‑edge **NVIDIA DGX‑H100, B200, and B300‑class** systems, the platform delivers petaflop‑scale computational performance for high‑throughput, low‑latency inference.
+
+The environment hosts state‑of‑the‑art open‑weights Large Language Models (LLMs), multimodal vision‑language architectures, and embedding models. Beyond raw model inference, CERIT‑SC provides a comprehensive **scientific AI ecosystem**—spanning conversational [Open WebUI interface](../ai-as-a-service/chat-ai), programmatic [OpenAI‑compatible APIs](../ai-as-a-service/ai-api), interactive JupyterHub coding assistants, IDE integrations, Model Context Protocol (MCP) tool servers, and automated agentic workflows.
 
 <Callout type="info"> 
-**New: Matrix Community Channel** — [Matrix](../web-apps/matrix) is now available for LLM service users to share knowledge and best practices, exchange experiences, and stay up to date with service status. 
+**New: Matrix Community & Support Channel** — Join the [Matrix communication platform](../web-apps/matrix) (`matrix.cloud.e-infra.cz`) in rooms `#LLM-General` and `#LLM-Status` to share research workflows, exchange prompt engineering and API best practices, deploy interactive chat agents, and receive real‑time updates on model deployments and service status.
 </Callout>
 
-### Key Features (Inference)
+--
 
-* **Secure, on‑premise LLM & generative‑AI platform** – Our models run securely on the e‑INFRA CZ infrastructure. Queries and responses are not logged by external providers, ensuring that your research and sensitive data remain within our environment. With the exception of internet searching, nothing leaves our local infrastructure.
-* **Supports privacy‑sensitive research** – compliance with institutional and legal requirements. This makes our services ideal for handling sensitive data.
+### Data Sovereignty, Privacy & Scientific Compliance
 
-For more details, see [AI Data privacy section](../ai-as-a-service/ai-data-privacy)
+Scientific research frequently involves unpublished manuscripts, proprietary source code, patentable intellectual property, and sensitive datasets. Unlike commercial cloud providers, the CERIT‑SC AI platform guarantees complete institutional data sovereignty:
 
-### What the Platform Provides
+* **Strict On‑Premise Isolation:** All inference engines run exclusively on dedicated hardware within the e‑INFRA CZ infrastructure. Prompts, context attachments, and generated completions never leave the local environment (with the sole exception of explicit, user‑triggered external web search queries).
+* **Zero Data Mining or Model Training:** User interactions are never used to train, fine‑tune, or align global models. All system administrators operate under strict Non‑Disclosure Agreements (NDAs).
+* **Privacy‑First API Architecture:** For research workflows involving sensitive or protected datasets, querying models directly via the [OpenAI‑compatible API](../ai-as-a-service/ai-api) completely bypasses the WebUI conversational database layer, routing requests directly to the stateless inference engines.
+* **Isolated Environments for Regulated Data:** If your research involves highly sensitive data or strict regulatory compliance (e.g., clinical/health data under GDPR), contact us at `k8s@cerit-sc.cz` to discuss a dedicated, isolated deployment.
 
-| Category          | Highlights                                                                                                                                 |
-|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| **Compute**       | **NVIDIA DGX‑H100/B200/B300**. Petaflop‑class GPU performance.                  |
-| **Key Models**        | <p>  Our portfolio includes advanced models tailored for programming, image generation, code generation, tool use, and agentic workflows. Featured models include Kimi, GLM, DeepSeek, Qwen,...  For enhanced security, these models operate entirely offline without internet access [View other available models](../ai-as-a-service/chat-ai#currently-available-models) </p> <p>[Model status page](https://llm.ai.e-infra.cz/status/) </p> <p>[API token personal usage](https://llm.ai.e-infra.cz/usage)</p>|
-| **Models' Metadata**        | You can retrieve [models' metadata](../ai-as-a-service/ai-api#getting-model-metadata-via-the-api) through the /model/info endpoint. |
-| **Access**        | MUNI students and employees and MetaCentrum users                                              |
+For complete technical details on logging, retention, and storage, see the [AI Data Privacy Policy](../ai-as-a-service/ai-data-privacy).
+
+---
+
+### Platform Specifications & Model Lifecycle
+
+| Category | Highlights & Capabilities |
+| :--- | :--- |
+| **Compute Infrastructure** | **NVIDIA DGX‑H100 / B200 / B300** clusters delivering petaflop‑class GPU acceleration optimized for large‑context scientific reasoning and high‑concurrency inference. |
+| **Model Portfolio** | <p>**Generative & Reasoning Models:** Frontier open‑weights models tailored for scientific reasoning, mathematical proofs, code synthesis, and agentic orchestration (including **DeepSeek, Qwen, Kimi, GLM, Mistral, and Gemma** families). All models operate offline without external internet access by default.</p><p>**Embedding Models:** High‑dimensional vectorization models for building custom Retrieval‑Augmented Generation (RAG) pipelines, semantic search, and literature clustering.</p><p>🔗 [View Currently Available Models](../ai-as-a-service/chat-ai#currently-available-models) \| [Live Model Status](https://llm.ai.e-infra.cz/status/) \| [Personal API Token Usage](https://llm.ai.e-infra.cz/usage)</p> |
+| **Model Aliases & Reproducibility** | <p>To maximize hardware efficiency, outdated models are promptly replaced when superior versions are released. For pipeline continuity, we provide **persistent role-based aliases** (`agentic`, `coder`, `thinker`, `mini`) that always resolve to the best current model in each class.</p><p>*Note on Scientific Reproducibility:* Aliases preserve code compatibility, not exact deterministic outputs across model upgrades. Always archive raw outputs locally for publication reproducibility, or contact `k8s@cerit-sc.cz` for long‑term version requirements. Live model specifications can be queried programmatically via the [`/model/info` endpoint](../ai-as-a-service/ai-api#getting-model-metadata-via-the-api).</p> |
+| **Access & Eligibility** | Available to all **MetaCentrum** users as well as **Masaryk University (MUNI)** researchers, staff, and students via e‑INFRA CZ AAI authentication. |
+
+---
+
+### Ecosystem of AI Services (Above the LLM)
+
+CERIT‑SC provides a rich layer of integrated services and scientific tooling built on top of our core LLM inference engines:
+
+| Service | Documentation & Access | Scientific & Technical Capabilities |
+| :--- | :--- | :--- |
+| **Interactive Chat (Open WebUI)** | [WebUI Chat Guide](../ai-as-a-service/chat-ai)<br/>([chat.ai.e-infra.cz](https://chat.ai.e-infra.cz)) | <p>A feature‑rich conversational workspace supporting explicit model selection and side‑by‑side model comparisons.</p><p>• **Scientific Text & Code:** Literature summarization, LaTeX drafting, academic translation, and multi‑language code generation.</p><p>• **Multimodality & OCR:** Vision‑language analysis, scientific chart inspection, verbatim OCR text extraction from scanned documents/PDFs, and AI image generation/editing.</p><p>• **Integrated Research Tools:** Direct querying of **arXiv**, **GitHub**, and live web search, plus an in‑browser **Python Sandbox** for mathematical modeling and data analytics.</p><p>• **Document RAG:** Attach research papers, documentation, or datasets directly to your chat for grounded, citation‑backed question answering.</p> |
+| **OpenAI‑Compatible API** | [OpenAI API Docs](../ai-as-a-service/ai-api)<br/>(`https://llm.ai.e-infra.cz/v1`) | <p>Standard REST API endpoint compatible with official OpenAI SDKs (Python, R, TypeScript/JS), LangChain, and LlamaIndex.</p><p>• Integrate LLMs and embedding models directly into automated scientific pipelines, batch processing scripts, custom RAG architectures, and evaluation benchmarks.</p><p>• Bypasses WebUI storage for enhanced data privacy.</p> |
+| **AI in Jupyter Notebooks** | [JupyterHub Integration](../web-apps/jupyterhub)<br/>([hub.cloud.e-infra.cz](https://hub.cloud.e-infra.cz)) | <p>Seamless integration of local AI assistants directly into interactive **JupyterLab** and **RStudio** computational environments (up to 32 CPUs, 256 GB RAM, and dedicated GPUs).</p><p>• **Notebook Intelligence & Posit Assistant:** Contextual code completion, debugging, refactoring, and conversational assistance for **Python and R** data science workflows.</p><p>• **Claude Code Integration:** Pre‑configured environments supporting agentic coding with a strict *human‑in‑the‑loop* safety model (preventing unauthorized cell execution while keeping all code on‑premise).</p> |
+| **AI Coding Assistants (IDEs & CLI)** | [IDE & CLI Integration](../ai-as-a-service/llm-integration) | <p>Connect your local development environment to CERIT‑SC's high‑performance backend models using personal API tokens:</p><p>• **CLI Agents:** Native support for **Claude Code** and **OpenCode** (via LiteLLM) for repository‑scale refactoring and terminal workflows.</p><p>• **IDE Extensions:** Step‑by‑step integration with **VS Code** (`Continue`, `Zoo‑Code` with local codebase indexing) and **JetBrains IDEs** (`AI Assistant`).</p> |
+| **Model Context Protocol (MCP) Servers** | [MCP Servers](../ai-as-a-service/mcp)<br/>(`llm.ai.e-infra.cz/[server]/mcp`) | <p>Standardized endpoints that extend LLM capabilities with deterministic external tools, computation engines, and live data lookups:</p><p>• **Scientific & Math:** `solver` (symbolic mathematics, statistical analysis, and matrix operations) and `prolog` (Trealla Prolog logic execution).</p><p>• **Search & Development:** `ddg_search` (live web search and page parsing), package registry metadata inspectors, and UI component documentation servers (`shadcn`, `tailwind`).</p> |
+| **n8n AI Agents & Workflow Automation** | [n8n AI Agents](../ai-as-a-service/n8n-agents) | <p>Deployable, low‑code workflow automation platform (via Rancher) featuring visual **AI Agent nodes**.</p><p>• Combine local CERIT‑SC reasoning models ("Brain") with conversation memory and custom tools (calculators, webhooks, database queries, APIs) to build autonomous, multi‑step research automation pipelines.</p> |
+| **DeepSec Vulnerability Scanner** | [DeepSec Scanner](../ai-as-a-service/deepsec) | <p>An on‑premise, AI‑powered security auditing CLI tool designed for research software engineering and large‑scale codebases.</p><p>• Combines rapid regex‑based candidate detection with deep, parallelized LLM agent investigation (`claude` / `codex` backends) to identify complex security flaws without exposing proprietary source code to external clouds.</p> |
+| **DeepSite (Generative Web Prototyping)** | [DeepSite Guide](../ai-as-a-service/deepsite)<br/>([deepsite.ai.e-infra.cz](https://deepsite.ai.e-infra.cz)) | <p>An interactive "vibe‑coding" environment that generates functional web applications, interactive data visualizations, and HTML/CSS/JS interfaces from natural language descriptions—ideal for rapid prototyping of research project portals and interactive demos.</p> |
+| **Documentation RAG ChatBot** | `docs.cerit-sc.cz` & `docs.e-infra.cz` | <p>An embedded Retrieval‑Augmented Generation (RAG) assistant trained across e‑INFRA CZ and CERIT‑SC technical documentation. Provides instant troubleshooting and configuration guidance (e.g., Kubernetes deployments, Slurm/PBS jobs, or software modules).</p> |
+| **Matrix Community & Agent Platform** | [Matrix / Element](../web-apps/matrix)<br/>(`matrix.cloud.e-infra.cz`) | <p>End‑to‑end encrypted real‑time communication platform for the e‑INFRA CZ research community.</p><p>• Join `#LLM-General` for peer knowledge exchange and `#LLM-Status` for infrastructure announcements.</p><p>• Supports deploying custom interactive **AI Agents (e.g., Hermes)** directly into dedicated team rooms for collaborative research assistance.</p> |
+
+---
 
 
-### Key AI Services (Inference)
 
-| Service                   | Link                                                    | Description                                                |
-|---------------------------|---------------------------------------------------------|----------------------------------------------------------|
-| **Chat (Open‑WebUI)**     | [WebUI chat](../ai-as-a-service/chat-ai)                             | <p>A full‑featured conversational interface (similar to ChatGPT) offering advanced features and explicit language model selection.</p> <p> **Text Work**: Translations, summaries, analysis, and generation of program code.</p> <p>**Multimodality**: Image generation (including editing) and content recognition in images (e.g., extracting a serial number from a photo).</p> <p>**Tools**: Searching the internet, GitHub, arXiv, and a Python sandbox for running code in the browser and data analytics. </p> <p>**RAG (Knowledge)**: Searching within a document attached to the chat works very well.</p>                                     |
-| **OpenAI-compatible API**          | [OpenAI API](../ai-as-a-service/ai-api) | Use the OpenAI‑compatible endpoint to integrate AI into your scripts, pipelines, or services.                                            |
-| **MCP servers**              |     [MCP servers](../ai-as-a-service/mcp)             |     We provide several MCP servers that are available through the https://llm.ai.e-infra.cz API. A particular MCP server is available at https://llm.ai.e-infra.cz/[servername]/mcp.                 |
-| **AI Coding Assistants**     |     [AI Coding Assistants Integration](../ai-as-a-service/llm-integration)             |     By connecting your tools to our backend, you can leverage high‑performance models for coding tasks (ClaudeCode, OpenCode, VSCode,... support.        |
-| **DeepSite**              | [DeepSite (vibe‑coding)](../ai-as-a-service/deepsite)                | A generative tool that creates webpages and applications (HTML/CSS/JS) based on a simple text description. Excellent for design proposals, mockups, or quick web concepts. |
-| **AI in Jupyter Notebooks** | [JupyterHub integration](../web-apps/jupyterhub)                     | Integration of an AI Assistant directly into the Jupyter Lab environment Notebook Intelligence). Used for fixing code (R or Python), generating new snippets, and conversational assistance within your coding projects. |
-| **n8n platform** | [n8n Agents](../ai-as-a-service/n8n-agents)                      | n8n is an open‑source, low‑code workflow automation platform with AI Agent functionality |
-| **DeepSec vulnerability scanner** | [DeepSec](../ai-as-a-service/deepsec)                      | AI-powered vulnerability scanner designed to run in your own infrastructure. It performs on-demand security reviews of entire codebases — including large-scale repositories — by combining fast regex-based candidate detection with deep AI investigation.|
-| **Documentation ChatBot** | docs.e-infra.cz and other documentation sites                      | A Retrieval‑Augmented Generation (RAG) system implemented across e‑INFRA CZ documentation. Answers specific questions and acts as a problem solver based on our knowledge base (e.g., "How to run MATLAB?"). |
-| **Matrix Discussion Channel** | [Matrix](../web-apps/matrix) | Real-time chat for LLM service users to ask questions, share knowledge, and stay updated. |
+## Best Practices & Fair Use Policy
 
-## Best Practices & Fair Use
+Because the e‑INFRA CZ AI platform is a shared, finite computational resource, unoptimized automated workloads directly impact queue times for other researchers. Please adhere to the following operational guidelines to ensure low latency and fair access across the scientific community:
 
-Because the e‑INFRA CZ AI platform is a shared, finite resource, heavy workloads directly impact queue times for other researchers. Please follow these guidelines to ensure smooth, fast, and fair access for the entire community:
+* **Distinguish Interactive vs. Automated Load:** Interactive sessions via **Open WebUI** or **JupyterHub** generate negligible load compared to automated API scripts; researchers do not need to worry about resource limits during standard interactive work. However, when executing high‑volume batch jobs or automated evaluation pipelines via the **API**, please be mindful that excessive token consumption increases queue times for the entire community.
+* **Match Model Scale to Task Complexity:** Avoid routing simple classification, formatting, or extraction tasks to massive, reasoning‑heavy models (such as **Kimi** or **GLM**). Large reasoning models incur significantly higher latency without yielding quality improvements on basic prompts. In multi‑step or agentic architectures, use a frontier orchestrator model (`agentic` / `thinker`) to plan and delegate routine sub‑tasks to faster, lightweight models (`mini`).
+* **Constrain Parallel Agent Concurrency:** Do not spawn large numbers of simultaneous API threads or concurrent agents. Platform concurrency is actively governed by upper rate limits to protect cluster stability and prevent GPU memory exhaustion.
+* **Configure Models by Functional Role—Do Not Chase Live Metrics:** Avoid dynamically switching target models in your scripts based on utilization figures on the status page. Telemetry metrics are slightly delayed, and automated load‑chasing triggers severe traffic oscillations across GPU nodes. Bind your workflows to appropriate functional roles or model aliases and submit tasks normally; standard queue wait times are minimal.
+* **Schedule Compute‑Intensive Batch Jobs for Off‑Peak Hours:** If your research requires large‑scale dataset annotation, bulk embedding generation, or extensive benchmark runs via the API, schedule these batch workloads during nights or weekends when interactive platform traffic is lowest.
 
-* **Don't waste resources:** They are finite and the more you use it, the less space there is for other users.
-Interactive usage via **Open WebUI** generates minimal load compared to automated API calls, so you do not need to worry about resource limits during normal chat sessions. However, when running automated pipelines or heavy batch jobs via the API, keep in mind that excessive consumption increases waiting times for others.
-* **Match model size to task complexity:** Avoid using large, reasoning-heavy models (such as **Kimi** or **GLM**) for simple tasks. They take significantly longer to respond without providing any quality benefit for basic prompts. For multi-step or agentic workflows, use a strong orchestrator model to plan and delegate simpler sub-tasks to lighter, faster models. This keeps heavy models free for complex workloads.
-* **Limit parallel agents:** Do not spawn a large number of concurrent agents. Concurrency is actively regulated by upper limits to protect platform stability.
-* **Configure models by role—do not chase live usage metrics:** Avoid dynamically switching models based on current utilization stats on the status page. Usage metrics are delayed, and mass model-switching based on perceived load causes traffic oscillations that degrade platform stability. Configure your models strictly according to their roles in your workflow and submit your tasks; standard queue times are typically minimal.
-* **Schedule heavy batch jobs for off-peak hours:** If you need to run large-scale or compute-intensive API jobs, consider scheduling them during nights or weekends when overall platform traffic is lighter and queues are shorter.
+---
 
 ## Reference
 Read more details on our e‑INFRA Blog at https://blog.e-infra.cz/
