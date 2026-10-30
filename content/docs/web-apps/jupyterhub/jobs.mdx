@@ -1,0 +1,69 @@
+---
+title: Run a Background Job
+---
+
+Jupyter notebooks are ideal for interactive exploration, but if you have a script that takes days to run or requires heavy resources, **offload it as a background Kubernetes `Job`**. This keeps your interactive notebook responsive and avoids holding onto large resource allocations unnecessarily.
+
+Reasons to move computation out of your notebook:
+
+1. You would have to allocate a lot of resources for the notebook even though most of the time you don't need them.
+2. If the computation is too demanding, you might not be able to interact with the notebook environment because the allocated resources are consumed by the computation — you can't interactively analyze the data from the notebook.
+
+## Step 1: Set Up `kubectl` in Your Terminal
+
+<Callout type="info">
+We are actively working on reducing the amount of steps that must be taken. Note that `kubectl` is not pre-installed in the notebook images — install it as described below. For RStudio-based images, run these commands in the terminal.
+</Callout>
+
+```bash
+# 1. Download kubectl (if curl is missing, run: fakeroot apt-get update && fakeroot apt-get install -y curl)
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
+# 2. Install kubectl
+fakeroot install -o rstudio -m 0755 kubectl /usr/local/bin/kubectl
+
+# 3. Configure cluster environment variables
+export KUBERNETES_PORT=tcp://10.43.0.1:443 KUBERNETES_PORT_443_TCP=tcp://10.43.0.1:443 \
+       KUBERNETES_PORT_443_TCP_ADDR=10.43.0.1 KUBERNETES_PORT_443_TCP_PORT=443 \
+       KUBERNETES_PORT_443_TCP_PROTO=tcp KUBERNETES_SERVICE_HOST=10.43.0.1 \
+       KUBERNETES_SERVICE_PORT=443 KUBERNETES_SERVICE_PORT_HTTPS=443
+
+# 4. Verify connection (should list your running notebook pods)
+kubectl get pods
+```
+
+## Step 2: Find Your Storage Volume Names (PVCs)
+
+To let your background Job read your scripts and write output directly back to your notebook's folders, locate the `PersistentVolumeClaim` (PVC) names for your storage. Your notebook can mount two shareable volumes:
+
+1. The **notebook home** (`/home/jovyan` or `/home/rstudio`), realized by a PVC that can be reused and mounted to any other Notebook or Job.
+2. Your **MetaCentrum home** (mounted at `/home/meta/<username>`), which also has its own PVC.
+
+* **Find your Notebook Home PVC (`/home/jovyan` or `/home/rstudio`):**
+  ```bash
+  kubectl get pvc | awk -v volume=$(df -h | awk '$1 ~ /^147\.251\.6\.218:/ {split($1, a, "/"); print a[length(a)]}') '$3 == volume {print $1}'
+  # Example output: testuser-home-pipemaster
+  ```
+* **Find your MetaCentrum Home PVC (`/home/meta/<username>`):**
+  ```bash
+  # 1. Check which MetaCentrum storage server is mounted:
+  df -h | awk '$NF ~ /^\/home\/meta/ {match($1, /@([^:]+):/, m); print m[1]}'
+  # Example output: storage-brno2.metacentrum.cz
+
+  # 2. List your SSHFS claims and match the server name (e.g., brno2):
+  kubectl get pvc | awk '$3 ~ /-data-sshfs$/ {print $1}'
+  # Example output: testuser-brno2-claim
+  ```
+
+## Step 3: Define Your Job
+
+When creating your Kubernetes Job manifest, specify four items:
+
+1. **Image** — the Docker image containing your libraries. You should create an image that includes all necessary libraries your script requires (see [Custom Environments](./custom-environments)).
+2. **Command/Script** — built into the image, or located in one of the mounted volumes (the PVCs above), so a script you saved in `/home/jovyan` (`/home/rstudio`) or your MetaCentrum home can be run by the Job.
+3. **Resources** — the CPU and memory the Job needs.
+4. **Volume mounts** — the PVCs from Step 2. Generally it makes sense to mount both (if you use a MetaCentrum home), because data is then shared directly between MetaCentrum home, Notebook, and Job, and the Job can write its outputs where you can analyze them without copying.
+
+<Callout type="info">
+If you are not sure how to create an image for your `Job` or have any other questions, contact us at **<a href="mailto:k8s@cerit-sc.cz">k8s@cerit-sc.cz</a>**. For the general Kubernetes Job syntax, see the [Kubernetes Jobs documentation](../../kubernetes/job).
+</Callout>

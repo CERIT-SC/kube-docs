@@ -1,0 +1,50 @@
+---
+title: SSH Access
+---
+
+You can connect to your notebook environment via SSH — for example, to use VS Code Remote-SSH or PyCharm from your laptop.
+
+<Callout type="warning">
+**IPv6 Required:** SSH access works **only from IPv6-enabled networks**. If you are on an IPv4-only home network, connect via **eduVPN** first.
+</Callout>
+
+## Enabling SSH Access
+
+1. Spawn a server using the **`Minimal NB with SSH access`** image, and switch on the **`Ensure SSH access into the notebook`** toggle in the spawn form (Step 1: Environment Options).
+   ![Selecting the SSH-enabled image and toggle](/img/ceritsc/apps/jupyterhub/spawn-ssh.png)
+2. **Copy the SSH address** shown during startup — it has the form `jovyan@jupyter-<username>--<server-name>.dyn.cloud.e-infra.cz` (note the double dash between username and server name) — it will not be shown in the UI again. The address appears in the spawn progress page's **`Event log`**. *(If you lose it, run `kubectl get svc -n jupyterhub-[yourlogin]-prod-ns -o yaml | grep external-dns.alpha.kubernetes.io/hostname` inside the notebook, or reconstruct it from the pattern above)*.
+   ![Spawn progress page with the Event log showing the SSH endpoint](/img/ceritsc/apps/jupyterhub/spawn-pending-events.png)
+3. Inside the JupyterLab terminal, add your laptop's public SSH key to `/home/jovyan/.ssh/authorized_keys`:
+   ```bash
+   mkdir -p ~/.ssh
+   echo "ssh-rsa AAAA...your-public-key..." >> ~/.ssh/authorized_keys
+   ```
+
+If you don't have an SSH key-pair generated on your laptop, you can create one with `ssh-keygen -b 4096 -t rsa`. The keys will be saved in `[HOME]/.ssh/id_rsa` (private part) and `[HOME]/.ssh/id_rsa.pub` (public part). Note that `ls` does not display dotfiles — use `ls -a` to see the `.ssh` directory.
+
+4. Verify that the `sshd` daemon is running using `ps -fax` — with the SSH-enabled image and the toggle switched on, it is started automatically and should appear in the process list similar to:
+   ```bash
+     PID TTY      STAT   TIME COMMAND
+     163 pts/1    Ss     0:00 /bin/sh
+     169 pts/1    R+     0:00  \_ ps -fax
+       1 ?        Ss     0:00 dumb-init start-notebook.sh --ServerApp.default_url=/lab --ServerApp.max_body_size=16291456000
+       7 ?        Ssl    0:04 /opt/conda/bin/python3.11 /opt/conda/bin/jupyterhub-singleuser --ip=0.0.0.0 --ServerApp.default_url=/lab --ServerApp.max_body_size=16291456000
+      96 pts/0    Ss+   0:00   \_ /usr/bin/sh -l
+      25 ?        Ss     0:00 sshd: /usr/sbin/sshd [listener] 0 of 10-100 startups
+   ```
+   If you can't see the `sshd` process running (last line), start it manually with `/usr/sbin/sshd` in the JupyterLab terminal. You may get a warning about an OpenSSL version mismatch — this does not prevent `sshd` from starting; verify with `ps -fax` that the process is running and everything is functional despite the warning.
+
+5. Connect from your laptop:
+   ```bash
+   ssh jovyan@jupyter-metasupport--docs-verify.dyn.cloud.e-infra.cz
+   ```
+   (substitute your own username and server name — note the **double dash** between them).
+
+<Callout type="info">
+SSH will sometimes print a warning about a changed host key (mainly after restarting the notebook) — this is expected, accept it and continue using the SSH key.
+DO NOT IGNORE THIS WARNING WHEN ENTERING A PASSWORD.
+</Callout>
+
+## Building Your Own SSH-Enabled Image
+
+See [Custom Environments](./custom-environments#building-your-own-custom-docker-image) for the `sshd` configuration, host-key regeneration requirements, and the complete `start-notebook.sh` example.

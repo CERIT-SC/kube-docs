@@ -1,0 +1,13 @@
+{
+  "pages": [
+    "start-server",
+    "manage-servers",
+    "ai-assistants",
+    "custom-environments",
+    "ssh-access",
+    "expose-apps",
+    "jobs",
+    "idle-shutdown",
+    "troubleshooting"
+  ]
+}

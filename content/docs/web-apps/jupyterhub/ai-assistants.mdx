@@ -1,0 +1,110 @@
+---
+title: AI Assistants
+---
+
+To accelerate your research, JupyterHub ships with **built-in, on-premise Generative AI assistants**: Jupyter AI, Claude Code, and Posit Assistant.
+
+<Callout type="info">
+**100% Data Privacy for Scientists:** All AI models offered in JupyterHub run on CERIT-SC’s internal, on-premise LLM infrastructure. No code, prompts, or research datasets are ever sent to external providers (like OpenAI or Anthropic).
+</Callout>
+
+## Jupyter AI (Chat & Cell Magic in JupyterLab)
+
+**Best for:** Generating plotting code, explaining errors, writing documentation, and quick code snippets.
+
+1. Spawn a server using the **`DataScience NB`** image with the **`AI`** badge.
+2. Look for the **Jupyternaut** chat icon in the left sidebar to open an interactive chat panel.
+
+### Try It Out: Practical Examples
+
+* **Sidebar Chat:** Click the chat icon, highlight a block of messy analysis code in your notebook, and ask:
+  > *"Refactor this pandas code to be faster and add docstrings explaining the statistical transformations."*
+* **Learn from Local Files:** In the chat panel, type `/learn` followed by a path to your local documentation or `.py` scripts so the assistant can answer questions about your specific codebase.
+* **In-Cell `%%ai` Magic:** You can prompt the LLM directly inside a notebook code cell (refer to the [Jupyter AI docs](https://jupyter-ai.readthedocs.io/en/latest/) for full syntax):
+  ```python
+  # Load the AI extension in a cell, then generate a publication-ready plot:
+  %load_ext jupyter_ai_magics
+  ```
+  ```python
+  %%ai
+  Write Python code using seaborn and matplotlib to create a Raincloud plot 
+  comparing gene expression levels across 3 treatment groups from a DataFrame `df`.
+  Include ANOVA p-value annotations.
+  ```
+
+## Claude Code (Agentic AI for Complex Workflows)
+
+**Best for:** Multi-file refactoring, building end-to-end data pipelines, debugging across scripts, and exploring unfamiliar datasets.
+
+Unlike a simple chat window, **Claude Code** is an agentic assistant that can read your notebooks, inspect data schemas, and navigate your project directory.
+* **Human-in-the-Loop Safety:** Claude Code **cannot** execute notebook cells or modify critical files without your explicit approval. It will always ask for your permission before making changes.
+
+### Launching Claude Code in JupyterLab
+
+1. Start a server with the **`DataScience NB`** image with the **`AI`** badge.
+2. Open your project folder (working inside a dedicated project folder helps the agent understand your file structure).
+3. Open a terminal or the Claude interface to begin interacting with your codebase. *(See the [e-INFRA CZ Blog](https://blog.cerit.io/blog/claude-jupyter/) for more visual walkthroughs)*.
+
+![Claude Code Image Selection](/img/ceritsc/apps/jupyterhub/claude-image.png)
+![Claude Code in Action](/img/ceritsc/apps/jupyterhub/claude-example1.png)
+
+### Launching Claude Code in RStudio
+
+1. Go to [hub.cloud.e-infra.cz](https://hub.cloud.e-infra.cz). Select the **RStudio** image with the **`AI`** badge (*version 4.6.1*). Configure your required server resources and click **Start**.
+
+![RStudio launcher](/img/ceritsc/apps/jupyterhub/rstudio-click.png)
+
+2. In RStudio, create a project context: go to **File &rarr; New Project &rarr; New Directory &rarr; New Project**, name your folder inside your Home directory, and click **Create Project**.
+3. Open the **Terminal** tab inside RStudio, type `claude`, and press **Enter**:
+   ```bash
+   claude
+   ```
+4. Follow the on-screen prompts to approve permissions.
+
+![RStudio Claude Image](/img/ceritsc/apps/jupyterhub/rstudio-image.png)
+![RStudio Claude Terminal](/img/ceritsc/apps/jupyterhub/rstudio-claude2.png)
+
+### Try It Out: Example Prompts for Claude Code
+
+Once `claude` is running in your project terminal, try typing natural-language tasks:
+* **Data Cleaning Pipeline:**
+  > *"Inspect the CSV files in `./raw_data/`. Some have missing timestamps and inconsistent column names. Write a Python script `clean_data.py` to standardize them and save the output as a Parquet file."*
+* **Debugging & Optimization:**
+  > *"Read `simulation.py`. It runs out of memory when `N > 10000`. Identify the memory bottleneck and rewrite it using NumPy vectorization or chunking."*
+* **R Analysis:**
+  > *"Look at my `analysis.R` script and the dataset `clinical_trial.csv`. Add a section that fits a mixed-effects model using `lme4` and outputs a summary table."*
+
+<Callout type="warning">
+**Troubleshooting Unresponsive Claude Code:** Because the integration relies on browser storage, closing your browser or letting the session time out can cause the assistant to freeze. **Fix:** Go to the **JupyterHub Control Panel**, click **Stop** on your server, and **Start** it again.
+</Callout>
+
+## Posit Assistant in RStudio
+
+**Best for:** Native R coding assistance inside the RStudio IDE.
+
+1. Spawn a server with the **`RStudio`** image with the **`AI`** badge (*version 4.6.1*).
+   ![RStudio launcher](/img/ceritsc/apps/jupyterhub/rstudio-click.png)
+2. Once RStudio opens, click **Posit Assistant** in the top-right corner.
+   ![Posit Assistant location in RStudio](/img/ceritsc/apps/jupyterhub/rstudio.png)
+3. Click **Install Posit Assistant**, and when prompted, select **Trust Workspace**.
+   ![Install Posit Assistant interface](/img/ceritsc/apps/jupyterhub/rstudio-positassistant1.png)
+   ![Trust workspace confirmation dialog](/img/ceritsc/apps/jupyterhub/rstudio-positassistant2.png)
+4. **Select an On-Premise Model:**
+   * Click the **`...`** (three dots) icon in the bottom-left corner of the Assistant panel.
+   * Under the **OpenAI Compatible** category, select **`mini`** or **`GPT-OSS-120B`** (recommended).
+
+<center>
+<div class="w-90">
+![Selecting OpenAI Compatible category](/img/ceritsc/apps/jupyterhub/rstudio-vybermodelu1.png)
+</div>
+</center>
+
+<center>
+<div class="w-90">
+![Choosing the recommended model](/img/ceritsc/apps/jupyterhub/rstudio-vybermodelu2.png)
+</div>
+</center>
+
+## VS Code with LLM Integration
+
+To use AI assistants inside a browser-based VS Code environment, spawn a server with a VS Code image and follow our dedicated [LLM Integration Guide](/docs/ai-as-a-service/llm-integration).

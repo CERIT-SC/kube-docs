@@ -1,0 +1,30 @@
+---
+title: Server Policies
+---
+
+## Automatic Idle Shutdown Policy
+
+To promote effective computing — and to ensure fair access to expensive cluster hardware (especially GPUs) for all researchers — unused notebooks may be deleted based on resource usage. An automated script evaluates active notebooks once every 24 hours.
+
+| Server Type | Idle Threshold | Grace Period Before Deletion |
+| :--- | :--- | :--- |
+| **Notebooks with GPU** | `< 0.005` GPU utilization (CPU usage is ignored) | **2 consecutive days** of inactivity|
+| **CPU-Only Notebooks** | `< 0.1` CPU cores utilized | **4 consecutive days** of inactivity |
+
+If **at least 1 GPU** was requested, the mechanism checks GPU usage and does not care about CPU usage (GPU is a *more expensive* resource). If **no GPU** was requested, only CPU usage is checked.
+
+<Callout type="info">
+**How usage is measured:** Notebook CPU usage is measured over 24 h as the average CPU usage (in CPU seconds) over 5-minute-long segments; the final maximum is chosen from all segments. If that maximum is under **0.1**, the instance is internally marked with its first warning. GPU usage is measured the same way as the average portion of time the graphics engine was active; if the maximum is under **0.005**, the instance is marked.
+
+On the next daily run, if the maximum is still under the threshold, the counter is increased by one; when it reaches `threshold+1` (e.g., 5 for CPU, as 4 days have already passed), the instance is deleted. If usage rises above the threshold, the mark is completely removed — you apparently started using the notebook again.
+</Callout>
+
+## Low-Usage Notifications
+
+If the notebook is marked for deletion, you will receive an e-mail informing you about the situation for every warning until the instance is truly removed, and a final e-mail when it is deleted. The e-mail goes to the address configured in your MetaCentrum account as the preferred address.
+
+You are not forced to do anything about the instance if you receive an e-mail — but if the usage does not go up, it will be deleted. We recommend saving the results or copying them elsewhere if you receive a warning.
+
+## How to Keep Your Server Alive
+
+Simply running a calculation that exceeds the threshold resets your warning counter to zero automatically.

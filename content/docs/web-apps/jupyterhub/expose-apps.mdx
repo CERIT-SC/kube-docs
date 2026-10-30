@@ -1,0 +1,19 @@
+---
+title: Expose a Web App
+---
+
+If you build an interactive web app inside your notebook — such as a **Streamlit** data explorer, **Plotly Dash** app, or **Gradio** ML demo — you can expose it to a public URL using our `flare` tunnel tool.
+
+1. In your Jupyter terminal, install `flare`:
+   ```bash
+   pip install git+https://github.com/CERIT-SC/flare
+   ```
+2. Start your web application in the background (for example, a Streamlit app running on port `8501`):
+   ```bash
+   streamlit run app.py --server.port 8501 &
+   ```
+3. Expose the port using `flare`:
+   ```bash
+   flare tunnel --port 8501 --name my-lab-dashboard
+   ```
+   Your interactive app is now live at **`https://my-lab-dashboard.flare.cloud.e-infra.cz`**!

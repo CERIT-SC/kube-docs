@@ -1,0 +1,30 @@
+---
+title: Troubleshooting
+---
+
+## Common Errors
+
+You receive **HTTP 500: Internal Server Error** when accessing the URL `/user/your_name`? Most likely, this error is caused by:
+
+1. You chose a MetaCentrum home you haven't used before — the red 500 error is followed by `Error in Authenticator.pre_spawn_start`.
+2. You chose a MetaCentrum home you don't have access to — the red 500 error is followed by `Error in Authenticator.pre_spawn_start`.
+3. While spawning, `Error: ImagePullBackOff` appears.
+
+Solutions:
+
+1. **Log out and log back in.**
+2. If you still cannot access the home after logging out and back in — you are not permitted to use this particular home. Choose a different storage location where your home exists (see [Start a Server](./start-server#configure-storage)).
+3. Click the small arrow **`Event log`** for more information. Most certainly a message tagged `[Warning]` is somewhere among the entries and provides more description. It is highly possible the repo and/or image name is misspelled.
+   * Please wait for **10 minutes**. The service has a timeout of 10 minutes during which it tries to create all the necessary resources. Due to the error, the creation won't succeed, and after 10 minutes you will see red progress bars with the message `Spawn failed: pod/jupyter-[username] did not start in 600 seconds!`. At this point, it is sufficient to reload the page and click on **`Relaunch server`**.
+
+## Summary Table
+
+| Error / Symptom | Likely Cause | How to Fix It |
+| :--- | :--- | :--- |
+| **`HTTP 500: Internal Server Error`** *(followed by `Error in Authenticator.pre_spawn_start`)* | 1. You selected a MetaCentrum storage home you haven't initialized recently.<br/>2. You selected a storage home you don't have permissions for. | 1. **Log out and log back in** to refresh your credentials.<br/>2. If it still fails, spawn a new server and choose a different MetaCentrum storage location where your home directory exists. |
+| **`Error: ImagePullBackOff`** *(followed by `Spawn failed: pod/jupyter-[username] did not start in 600 seconds!`)* | You entered a custom Docker image name/tag with a typo, or the repository is private. | Expand the **`Event log`** arrow to verify the `[Warning]` message. Wait for the **10-minute timeout** to complete, reload the browser page, click **`Relaunch server`**, and correct the image name. |
+
+<Callout type="info">
+**Need Help or Have a Feature Request?**  
+Whether you want a new scientific software image added, need help configuring a background `Job`, or aren't sure which MetaCentrum storage to select, reach out to our team at **<a href="mailto:k8s@cerit-sc.cz">k8s@cerit-sc.cz</a>**.
+</Callout>
