@@ -1,0 +1,128 @@
+---
+title: Pods Log Monitoring
+description: Collect the logs of your application with the Logging Subscriber, store them in Loki and explore them in Grafana
+---
+
+Pod logs are picked up by the **Logging Operator**
+and stored in Loki. The Rancher catalog provides three applications for this:
+- **Logging Subscriber** (`logging-subscriber`) - `Flow` + `Output` pair, used by the **Logging Operator**, that monitors the Pods you select using *labels* and pushes their logs into Loki
+- **Loki** (`loki`) - Logs aggregation
+- **Grafana** (`grafana`) - Logs and metrics visualisation connected to Loki
+
+## Installation
+
+If you are not already logged in, log in to [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz), see [Rancher](../rancher/rancher) section.
+
+### 1. Install Grafana
+
+Pick **grafana** under **Apps → Charts → cerit-sc** and enter the **URL prefix** and the **admin
+password** in the form. The instance is then reachable at `https://<prefix>.<your_namespace>.dyn.cloud.e-infra.cz`.
+The other fields can stay at their defaults.
+
+The installation of Grafana itself is described in detail in [Grafana](./grafana); it does not need
+Loki to be installed first — you connect them in the last step.
+
+### 2. Install Loki
+
+1. In Rancher, go to **Apps → Charts**, filter charts to **cerit-sc** and pick **loki**.
+
+2. Ensure you have selected your namespace, name the release `loki` and click `Install`. The install form offers no options — everything is preconfigured for this platform.
+
+<Callout type="info">
+**Name the release `loki`.** The services are named after the release, so this one gets `loki` and `loki-gateway` — the addresses used in the next steps.
+</Callout>
+<Callout type="info">
+Loki is configured as a Single-Binary deployment with one replica, no multi-tenancy (`auth_enabled: false`) and no HA.
+</Callout>
+
+### 3. Install Logging Subscriber
+
+1. In Rancher, go to **Apps → Charts**, filter charts to **cerit-sc** and pick **logging-subscriber**.
+
+2. Find the *labels* of the Pods of the application you want to watch. In Rancher open **Workloads → Pods**, select one Pod
+   of your application and note its labels, or run:
+
+   ```bash
+   kubectl -n <your_namespace> get pods --show-labels
+   ```
+
+3. Select the **same namespace as the application you are watching** and fill in the form:
+
+| Field | Value |
+| --- | --- |
+| **Match Pod Labels** | labels selecting your pods, e.g. `app: my-application`. Mandatory. Check the format carefully. |
+| **Grafana Loki Endpoint** | address of the Loki from step 2, including the protocol — see the table below. Mandatory. |
+| **Flush Interval (seconds)** | how often buffered logs are pushed. Default `10`. |
+
+How to configure the **Grafana Loki Endpoint**:
+
+| Loki installed… | Endpoint |
+| --- | --- |
+| in the same namespace | `http://loki-gateway:80` |
+| in another namespace | `http://loki-gateway.<loki_namespace>.svc.cluster.local:80` |
+
+4. Click `Install` and check that the two resources appeared in the namespace:
+
+   ```bash
+   kubectl -n <your_namespace> get flow,output
+   ```
+
+<Callout type="warning">
+**One subscriber per watched application, in the application's namespace.** The `Flow` matches pods in its own namespace and refers to its `Output` locally, so a subscriber cannot watch Pods in a different namespace than the one it is installed into.
+</Callout>
+
+## Configure Grafana
+
+All 3 components should be now installed. It's time to configure Grafana to connect to Loki.
+
+### Connect Grafana to Loki
+
+1. Log in as `admin` with the password from the form, then add Loki as a data source:
+   **Connections → Data sources → Add new connection → Loki**, and set:
+
+   ```text
+   URL  http://loki-gateway:80                                     # Loki in the same namespace as Grafana
+   URL  http://loki-gateway.<loki_namespace>.svc.cluster.local:80  # Loki in another namespace
+   ```
+
+   `Custom Headers` and authentication are not needed — the Loki is configured to accepts anonymous
+   traffic inside the cluster. Finish with `Save & test`, which should report a successful connection.
+
+### Visualize the Logs in Grafana
+
+1. Open **Explore**, select the Loki data source and switch to the **Labels** browser to see which
+   labels actually arrived. Use those names in your queries — the labels you entered under
+   **Match Pod Labels** are usually among them.
+
+2. Query the logs ([LogQL](https://grafana.com/docs/loki/latest/query/)):
+
+   ```logql
+   {app="my-application"}                               # all lines of the matched Pods
+   {app="my-application"} |= "error"                    # only lines containing "error"
+   {app="my-application"} != "DEBUG"                    # skip debug lines
+   sum(count_over_time({app="my-application"} [1m]))    # lines per minute, as a graph
+   ```
+
+3. To turn a query into a panel, create a dashboard, `Add → Visualization`, pick the Loki data source
+   and paste the query (the **Builder** helps you assemble it, **Code** accepts it as written above).
+   Pick a visualisation — a log panel for raw lines, a bar/line graph for a metric query such as the
+   last one — then `Save` the dashboard.
+
+No dashboard is provisioned with the Grafana of this catalog — you can build the panels you need, or
+import one from [grafana.com/dashboards](https://grafana.com/grafana/dashboards/) that matches your
+data source.
+
+
+## Cleanup
+
+Delete the applications under **Apps → Installed Apps** in any order.
+Deleting the **logging-subscriber** removes its `Flow` and `Output`, so the logs stop immediately; deleting Loki
+removes the stored logs together with its PVC.
+
+<Callout type="warning">
+**Deleting the Loki app deletes the logs.** Export anything you want to keep before deleting the app.
+</Callout>
+<Callout type="warning">
+**Grafana stores dashboards in its own PVC and uninstallation removes that PVC** — dashboards and
+data sources you created in the UI are gone with the app. Export dashboard JSON before deleting it.
+</Callout>

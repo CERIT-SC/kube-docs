@@ -1,0 +1,127 @@
+---
+title: Monitoring logů z Podů
+description: Sbírá Logy z aplikace pomocí Logging Subscriber, uloží do Loki, dovolí práci v Grafaně
+---
+
+Logy Podů odchytává **Logging Operator** a ukládá je do Loki. V katalogu Rancheru proto najdete tři aplikace:
+- **Logging Subscriber** (`logging-subscriber`) - dvojice objektů `Flow` a `Output`, se kterou pracuje **Logging Operator**; vybere Pody podle *labelů* a posílá jejich logy do Loki
+- **Loki** (`loki`) - agregace logů
+- **Grafana** (`grafana`) - vizualizace logů a metrik napojená na Loki
+
+## Instalace
+
+Pokud ještě nejste přihlášeni, přihlaste se do [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz), viz sekce [Rancher](../rancher/rancher).
+
+### 1. Instalace Grafany
+
+V **Apps → Charts → cerit-sc** vyberte aplikaci **grafana** a ve formuláři zadejte `prefix URL` a
+`admin password`. Instance bude dostupná na `https://<prefix>.<your_namespace>.dyn.cloud.e-infra.cz`.
+Ostatní pole můžete nechat na výchozích hodnotách.
+
+Instalaci Grafany podrobně popisuje stránka [Grafana](./grafana). Grafana Loki předem nepotřebuje –
+obě aplikace propojíte až v posledním kroku.
+
+### 2. Instalace Loki
+
+1. V Rancheru přejděte na **Apps → Charts**, vyfiltrujte charty na **cerit-sc** a vyberte **loki**.
+
+2. Ujistěte se, že máte vybraný svůj namespace, pojmenujte release `loki` a klikněte na `Install`. Instalační formulář žádné volby nenabízí – vše je pro tuto platformu přednastavené.
+
+<Callout type="info">
+**Pojmenujte release `loki`.** Služby se pojmenovávají podle release, proto tato instance dostane `loki` a `loki-gateway` – to jsou adresy, které použijete v dalších krocích.
+</Callout>
+<Callout type="info">
+Loki je nakonfigurováno jako Single-Binary deployment s jednou replikou, bez multi-tenancy (`auth_enabled: false`) a bez HA.
+</Callout>
+
+### 3. Instalace Logging Subscriber
+
+1. V Rancheru přejděte na **Apps → Charts**, vyfiltrujte charty na **cerit-sc** a vyberte **logging-subscriber**.
+
+2. Najděte *labely* Podů aplikace, jejíž logy chcete sbírat. V Rancheru otevřete **Workloads → Pods**,
+   vyberte jeden Pod své aplikace a poznamenejte si jeho *labely*, nebo si je nechte vypsat:
+
+   ```bash
+   kubectl -n <your_namespace> get pods --show-labels
+   ```
+
+3. Vyberte **stejný namespace, ve kterém je aplikace, jejíž logy chcete sbírat**, a vyplňte formulář:
+
+| Pole | Hodnota |
+| --- | --- |
+| **Match Pod Labels** | *labely*, které vyberou vaše Pody, např. `app: my-application`. Povinné. Důkladně zkontrolujte formát. |
+| **Grafana Loki Endpoint** | adresa Loki z kroku 2 včetně protokolu – viz tabulka níže. Povinné. |
+| **Flush Interval (seconds)** | jak často se odesílají nashromážděné logy. Výchozí `10`. |
+
+Jak nastavit **Grafana Loki Endpoint**:
+
+| Kde je Loki nainstalováno… | Endpoint |
+| --- | --- |
+| ve stejném namespace | `http://loki-gateway:80` |
+| v jiném namespace | `http://loki-gateway.<loki_namespace>.svc.cluster.local:80` |
+
+4. Klikněte na `Install` a zkontrolujte, že se ve vašem namespace objevily oba objekty:
+
+   ```bash
+   kubectl -n <your_namespace> get flow,output
+   ```
+
+<Callout type="warning">
+**Jeden subscriber na každou sledovanou aplikaci, v jejím namespace.** `Flow` vybírá Pody ve svém vlastním namespace a na svůj `Output` odkazuje lokálně, takže subscriber nemůže sledovat Pody v jiném namespace, než ve kterém je sám nainstalován.
+</Callout>
+
+## Nastavení Grafany
+
+Měli byste mít nainstalované všechny tři komponenty. Teď Grafanu nastavte tak, aby se připojila k Loki.
+
+### Propojení Grafany s Loki
+
+1. Přihlaste se jako `admin` heslem z formuláře a přidejte Loki jako datový zdroj:
+   **Connections → Data sources → Add new connection → Loki** a nastavte:
+
+   ```text
+   URL  http://loki-gateway:80                                     # Loki in the same namespace as Grafana
+   URL  http://loki-gateway.<loki_namespace>.svc.cluster.local:80  # Loki in another namespace
+   ```
+
+   `Custom Headers` ani autentizace nejsou potřeba – Loki je nastaven na přijímání
+   anonymního provozu. Dokončete kliknutím na `Save & test`, které by mělo potvrdit úspěšné připojení.
+
+### Vizualizace logů v Grafaně
+
+1. Otevřete **Explore**, vyberte datový zdroj Loki a přepněte do prohlížeče *labelů* (**Labels**), abyste
+   viděli, které *labely* skutečně dorazily. Tyto názvy pak použijte ve dotazech – *labely* zadané do
+   **Match Pod Labels** mezi nimi obvykle najdete.
+
+2. Logy dotazujte pomocí [LogQL](https://grafana.com/docs/loki/latest/query/):
+
+   ```logql
+   {app="my-application"}                               # all lines of the matched Pods
+   {app="my-application"} |= "error"                    # only lines containing "error"
+   {app="my-application"} != "DEBUG"                    # skip debug lines
+   sum(count_over_time({app="my-application"} [1m]))    # lines per minute, as a graph
+   ```
+
+3. Chcete-li dotaz převést na panel, vytvořte dashboard, zvolte `Add → Visualization`, vyberte datový
+   zdroj Loki a dotaz vložte (pomůže vám **Builder**, záložka **Code** přijme i dotaz tak, jak je
+   napsaný výše). Vyberte vizualizaci – panel s logy pro surové řádky, spojnicový či sloupcový graf pro
+   metrikový dotaz jako ten poslední – a dashboard uložte přes `Save`.
+
+Grafana z tohoto katalogu se instaluje bez předpřipravených dashboardů – panely si můžete poskládát podle
+potřeby, nebo si z [grafana.com/dashboards](https://grafana.com/grafana/dashboards/) importujete
+dashboard, který odpovídá vašemu datovému zdroji.
+
+
+## Odstranění aplikací
+
+Aplikace smažte v **Apps → Installed Apps**, v jakémkoli pořadí.
+Smazání **logging-subscriber** odstraní jeho `Flow` a `Output`, takže se logy okamžitě přestanou sbírat; smazání
+Loki odstraní i uložené logy spolu s jeho PVC.
+
+<Callout type="warning">
+**Smazání aplikace Loki smaže i logy.** Vše, co si chcete ponechat, exportujte dřív, než aplikaci smažete.
+</Callout>
+<Callout type="warning">
+**Grafana ukládá dashboardy ve vlastním PVC a odinstalace toto PVC smaže** – dashboardy a datové zdroje,
+které vytvoříte v rozhraní, odchází spolu s aplikací. JSON dashboardů si exportujte předem.
+</Callout>

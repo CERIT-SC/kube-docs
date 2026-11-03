@@ -84,6 +84,11 @@ Visual authoring tool for AI agents and workflows. Includes built‑in API & MCP
 
 ---
 
+### logging-subscriber
+Logging Operator components (`Flow` and `Output`) that collect the logs of an application selected by pod labels and push them to a Loki endpoint. See [Pods Log Monitoring](./podslogmon).
+
+---
+
 ### matlab
 Provides a graphical MATLAB user interface.
 
@@ -120,7 +125,7 @@ Open‑source, multi‑platform data analysis and visualisation application. Run
 ---
 
 ### personal-monitoring **⚠️ Deprecated – will be removed soon**
-Creates a Grafana instance that monitors CPU and memory usage of pods in your namespace. Accessible at `pmon-[namespace].dyn.cloud.e-infra.cz`.
+Creates a Grafana instance that monitors CPU and memory usage of pods in your namespace. Accessible at `pmon-[namespace].dyn.cloud.e-infra.cz`. For logs, use the [loki](#loki), [logging-subscriber](#logging-subscriber) and [grafana](#grafana) combination described in [Pods Log Monitoring](./podslogmon).
 
 ---
 
