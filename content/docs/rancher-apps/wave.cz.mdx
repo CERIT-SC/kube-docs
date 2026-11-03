@@ -4,6 +4,10 @@ title: Wave
 
 ## Spuštění Wave
 
+**Wave** sleduje objekty typu `Deployment`, `StatefulSet` a `DaemonSet` v rámci Kubernetes a zajišťuje, aby jejich `Pody` měly vždy aktuální konfiguraci.
+
+**Wave** monitoruje objekty typu `ConfigMap` a `Secret` a pokud dojde k jejich změně, restartuje (*Rolling Update*) příslušné `Pody`.
+
 Pokud ještě nejste přihlášeni, přihlaste se do [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz), viz sekce [Rancher](../rancher/rancher).
 
 Postupujte podle následujících kroků pro spuštění nástroje Wave.

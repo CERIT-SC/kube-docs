@@ -4,6 +4,10 @@ title: Wave
 
 ## Running Wave
 
+Wave watches Deployments, StatefulSets and DaemonSets within a Kubernetes cluster and ensures that their Pods always have up to date configuration.
+
+By monitoring mounted ConfigMaps and Secrets, Wave can trigger a Rolling Update of the Deployment when the mounted configuration is changed.
+
 If you are not already logged in, log in to [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz), see [Rancher](../rancher/rancher) section.
 
 Follow the steps below to run the Wave tool.
