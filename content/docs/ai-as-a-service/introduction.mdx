@@ -1,12 +1,214 @@
 ---
 title: AIaaS Introduction
 ---
+import { Card, Cards } from 'fumadocs-ui/components/card';
 
 ## AI for Science. Built for Researchers. Run securely in e-INFRA CZ.
 
-CERIT‑SC, a core component of the national research infrastructure **e‑INFRA CZ**, operates a sovereign, **on‑premise AI-as-a-Service (AIaaS) platform** designed specifically for the scientific and academic community. Powered by cutting‑edge **NVIDIA DGX‑H100, B200, and B300‑class** systems, the platform delivers petaflop‑scale computational performance for high‑throughput, low‑latency inference.
+CERIT-SC provides AI services hosted within the national research
+infrastructure e-INFRA CZ. You can use them through a web browser,
+connect them to your research software, or integrate them into your
+coding environment.
 
-The environment hosts state‑of‑the‑art open‑weights Large Language Models (LLMs), multimodal vision‑language architectures, and embedding models. Beyond raw model inference, CERIT‑SC provides a comprehensive **scientific AI ecosystem**—spanning conversational [Open WebUI interface](../ai-as-a-service/chat-ai), programmatic [OpenAI‑compatible APIs](../ai-as-a-service/ai-api), interactive JupyterHub coding assistants, IDE integrations, Model Context Protocol (MCP) tool servers, and automated agentic workflows.
+The platform provides large language models (LLMs) for working with
+text and code, models that can process images, and embedding models
+that represent text numerically for search and document retrieval.
+Available capabilities depend on the model and the service you use.
+
+
+# Choose how to work
+
+<Cards className="pt-4 grid-cols-1 gap-4 sm:grid-cols-3">
+
+<Card title="Chat in your browser">
+
+Use Open WebUI to explore ideas, summarise documents, improve scientific
+writing, and get help with code.
+
+- Compare responses from different models.
+- Work with text and, where supported, images.
+- Follow the [Chat AI guide](./chat-ai) to get started.
+
+</Card>
+
+<Card title="Connect your research software">
+
+Use the OpenAI-compatible API to call models from scripts and applications.
+
+- Process text within research workflows.
+- Build document search with embedding models.
+- Follow the [API guide](./ai-api) for authentication and examples.
+
+</Card>
+
+<Card title="Get help with coding">
+
+Connect AI assistants to your notebooks, code editor, or terminal.
+
+- Get suggestions for writing, explaining, and debugging code.
+- Explore AI tools in [JupyterHub](../web-apps/jupyterhub).
+- Set up a [coding assistant](./llm-integration).
+
+</Card>
+
+</Cards>
+
+## Get access
+
+AI chat and API access are available to users with an active MetaCentrum
+account. Masaryk University students and staff can also use the
+university registration route described in the
+[access instructions](./chat-ai#accessing-open-webui).
+
+The university registration route provides access to AI chat and API
+services. Other platform services may require a MetaCentrum account
+or additional setup.
+
+1. **Register or check your account.**
+   Follow the [access instructions](./chat-ai#accessing-open-webui)
+   for your institution.
+
+2. **Start with a small task.**
+   Open [Chat AI](https://chat.ai.e-infra.cz), sign in through
+   e-INFRA CZ, and select a model. For example, ask it to explain
+   a short piece of code or revise a paragraph.
+
+3. **Connect your tools when needed.**
+   Follow the [API guide](./ai-api) or
+   [coding assistant guide](./llm-integration) to use the service
+   in your own working environment.
+
+Before submitting research data, read the data-handling guidance below.
+
+## Choose a model
+
+Models differ in their capabilities, response time, and resource needs.
+Start with a model suited to your task and evaluate its output on a
+small, representative sample.
+
+- **Text and code models** support tasks such as drafting, classification,
+  information extraction, and programming assistance.
+- **Multimodal models** can also process images, where supported.
+- **Embedding models** convert text into numerical representations
+  for semantic search and retrieval-augmented generation (RAG).
+  RAG supplies retrieved documents as context for a model's answer.
+
+See the [model catalogue](./chat-ai#currently-available-models)
+for capabilities and the
+[live status page](https://llm.ai.e-infra.cz/status/)
+for current availability.
+
+### Model changes and reproducibility
+
+Model versions may be upgraded or retired. A specific version is not
+guaranteed to remain available throughout a research project.
+
+Maintained [model aliases](./chat-ai#model-aliases), such as `mini`
+or `thinker`, provide names that can continue to be used when the
+underlying model changes. An alias does not preserve the model's
+behaviour or guarantee identical results.
+
+For work that contributes to a publication or other research output:
+
+- Record the resolved model identifier and available model metadata,
+  rather than only the alias.
+- Save prompts, relevant input data, generation settings, dates,
+  and outputs in accordance with your data-management requirements.
+- Validate the workflow again after a model change.
+
+The API guide explains how to
+[retrieve model metadata](./ai-api#getting-model-metadata-via-the-api).
+If your project depends on a specific model version, contact
+[k8s@cerit-sc.cz](mailto:k8s@cerit-sc.cz) before starting.
+
+## Research data and privacy
+
+Standard hosted models run within e-INFRA CZ. External search tools
+and separately arranged third-party services can involve sending
+information outside this infrastructure.
+
+Data handling also depends on how you access the service:
+
+- **Chat interface:** conversations and uploaded files are stored
+  by the service. Review the retention and deletion information
+  before uploading documents.
+- **Direct API:** the documented API route bypasses the chat interface's
+  conversation storage. This does not, by itself, establish that a
+  workflow meets your project's data-protection requirements.
+
+The chat interface is intended for general research assistance and
+is not certified for protected data. Before using sensitive,
+personal, or otherwise restricted data, contact
+[k8s@cerit-sc.cz](mailto:k8s@cerit-sc.cz) to discuss a suitable setup.
+
+Read the [AI data privacy policy](./ai-data-privacy) for details
+on external services, storage, logging, and retention.
+
+## Use AI outputs in research
+
+Treat model responses as material to evaluate. Check factual claims
+and references against original sources, test generated code,
+and verify calculations and extracted data.
+
+For document-based questions, check that the cited passage supports
+the answer. Supplying a document does not guarantee a correct response.
+
+Before applying an automated workflow to a large dataset, assess its
+quality on representative examples and define how errors will be
+identified and handled.
+
+## Share computing resources responsibly
+
+The platform serves many researchers on shared computing resources.
+Response times and availability can vary with demand.
+
+- **Choose an appropriate model.** Start with a smaller or faster model
+  for routine tasks, and use more demanding models when evaluation
+  shows a benefit.
+- **Limit concurrent requests.** Keep batch workloads controlled
+  and respect service rate limits.
+- **Use stable model selections.** Do not automatically switch models
+  in response to short-term utilisation figures on the status page.
+- **Coordinate independent benchmarks in advance.** Contact the
+  support team before running them, as required by the
+  [Chat AI guide](./chat-ai).
+- **Plan large workloads.** Schedule substantial batch processing
+  outside peak hours where possible, and discuss unusually demanding
+  workloads with the support team.
+
+You can review your API token consumption in the
+[usage dashboard](https://llm.ai.e-infra.cz/usage/).
+This dashboard does not include chat-interface usage.
+
+## Additional tools
+
+Once you are familiar with chat or API access, explore tools for
+more specialised tasks.
+
+| Task | Tool or guide |
+| --- | --- |
+| Build automated workflows that combine models and other services | [n8n AI agents](./n8n-agents) |
+| Connect AI applications to tools and data sources using Model Context Protocol (MCP) | [MCP servers](./mcp) |
+| Investigate potential vulnerabilities in research software | [DeepSec](./deepsec) |
+| Prototype web interfaces from written descriptions | [DeepSite](./deepsite) |
+| Find guidance within the documentation | Use the documentation's “Ask AI” feature |
+
+Check each guide for setup instructions, access requirements,
+and limitations.
+
+## Support and service updates
+
+Contact [k8s@cerit-sc.cz](mailto:k8s@cerit-sc.cz) for access problems,
+workflow advice, or questions about project requirements.
+
+Join the [Matrix community](../web-apps/matrix) to exchange experience
+and follow announcements:
+
+- `#LLM-General`: questions and discussion.
+- `#LLM-Status`: service and model updates.
+
+For current model availability, check the
+[status page](https://llm.ai.e-infra.cz/status/).
 
 <Callout type="info"> 
 **New: Matrix Community & Support Channel** — Join the [Matrix communication platform](../web-apps/matrix) (`matrix.cloud.e-infra.cz`) in rooms `#LLM-General` and `#LLM-Status` to share research workflows, exchange prompt engineering and API best practices, deploy interactive chat agents, and receive real‑time updates on model deployments and service status.
