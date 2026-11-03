@@ -1,5 +1,5 @@
 ---
-title: Welcome to the CERIT-SC Kubernetes Container Platform
+title: Welcome to the CERIT-SC Kubernetes Container Platform Overview
 ---
 
 import Image from 'next/image';
@@ -8,17 +8,84 @@ import Kubernetes from '@/public/img/ceritsc/menu-logos/Kubernetes-icon.svg';
 import Interactive from '@/public/img/ceritsc/menu-logos/Interactive-icon.svg';
 import AIllm from '@/public/img/ceritsc/menu-logos/AI-icon.svg';
 
-## Your Gateway to High-Performance Computing and AI
+## Computing resources for your research
 
-Welcome to the CERIT-SC documentation. We provide a state-of-the-art computational platform designed to accelerate your research. Whether you need to deploy complex workflow pipelines, run interactive data analysis, or leverage the latest AI models in a secure environment, our infrastructure is built to scale with your needs.
+CERIT-SC provides computing resources and hosted applications for research and education. Use the platform to analyse data, run computational
+workflows, deploy research software, and access artificial intelligence (AI) tools.
 
-## Why CERIT-SC?
+You can start with a browser-based application or deploy your own software using containers. A container packages an application with its software dependencies, making it easier to run a consistent computing environment.
 
-* **User-Centric Design:** Focus on your science, not the infrastructure. From pre-built applications to custom Docker containers, we support all skill levels and expertise.
+## Choose a service
 
-* **Cutting-Edge Hardware:** Access powerful x86_64 clusters, high-speed NVMe storage, and NVIDIA GPU accelerators connected via 100/200Gbps InfiniBand networks.
+### Computing resources (Kubernetes)
 
-* **Open & Flexible:** Built on open standards [Kubernetes orchestrator](https://kubernetes.io/) and utilizing [Docker](https://hub.docker.com/) container images.
+The platform provides CPU and GPU computing resources and storage.
+Consult the [hardware overview](../platform/hw) for available systems
+and the [resource quotas](../rancher/quotas) for project limits.
+
+#### Get started
+
+1. **Check eligibility and create an account.**
+   Read the [access requirements](../platform/access), including the
+   terms of use and MetaCentrum registration instructions.
+
+2. **Choose a service.**
+   Follow the relevant application guide, or start with
+   [Rancher](../rancher/rancher) to deploy containerised software.
+   Eligible users receive an individual project with default resource
+   quotas when they first sign in to Rancher.
+
+3. **Request resources for your research.**
+   If you need a shared project for your research group or a larger
+   individual quota, follow the
+   [project request instructions](../rancher/reqproj).
+
+### Run your own applications and workflows
+
+The managed Kubernetes platform lets you run containerised research
+software. Kubernetes manages how containers run on shared computing
+resources; Rancher provides a web interface for working with the platform.
+
+- Deploy applications such as MATLAB and Scipion from the
+  [Rancher application catalogue](../rancher-apps/rancher-applications).
+- Package your own software in a
+  [container image](../docker/dockerfile).
+- Manage applications through the [Rancher web interface](../rancher/rancher)
+  or the [kubectl command-line tool](../kubernetes/kubectl).
+- Automate deployments using [GitOps](../gitops/agentk), with configuration
+  maintained in a Git repository.
+
+### Browser-based applications
+
+For interactive work, start with a hosted application that runs in your
+browser without a local installation:
+
+- [JupyterHub](../web-apps/jupyterhub): Work with Jupyter notebooks for
+  interactive programming and data analysis.
+- [BinderHub](../web-apps/binderhub): Turn a Git repository into an
+  interactive computing environment.
+- [Foldify](../web-apps/foldify): Use AlphaFold through a web interface
+  to predict protein structures.
+
+See each application's documentation for access requirements and
+instructions.
+
+### AI services
+
+[AI as a Service](../ai-as-a-service/introduction) provides access to
+large language models and related tools hosted within e-INFRA CZ.
+
+- Use [Chat AI](../ai-as-a-service/chat-ai) through a browser.
+- Connect your research scripts and applications through the
+  [OpenAI-compatible API](../ai-as-a-service/ai-api).
+- Build automated workflows with
+  [n8n](../ai-as-a-service/n8n-agents).
+
+Before uploading research data, read the
+[AI data privacy policy](../ai-as-a-service/ai-data-privacy).
+The chat interface and API have different data-handling characteristics.
+Contact the support team to discuss requirements for sensitive or
+protected data.
 
 ## Services
 
@@ -26,36 +93,42 @@ Welcome to the CERIT-SC documentation. We provide a state-of-the-art computation
 
 <Card title="Kubernetes" icon={<Image src={Kubernetes} alt="Kubernetes Logo" width="220"/>}>
 
-Our flagship service offers a managed Kubernetes Container Platform powered by [Rancher](../rancher/rancher). 
+Run containerised research software and computational workflows on shared
+computing resources.
 
-* Easy Management: Use the intuitive dashboard or one-click [Rancher Apps Catalogue](../rancher-apps/rancher-applications) to deploy tools like Matlab or Scipion.
-* Advanced Capabilities: Full support for [Kubectl](../kubernetes/kubectl), custom [Docker containers](../docker/dockerfile), persistent storage, and [GitOps workflows](../gitops/agentk)
+- Deploy tools from the [application catalogue](../rancher-apps/rancher-applications).
+- Run your own [container images](../docker/dockerfile).
+- Manage applications through [Rancher](../rancher/rancher) or
+  [kubectl](../kubernetes/kubectl).
+
 </Card>
 
+<Card title="Interactive applications" icon={<Image src={Interactive} alt="Interactive Apps" width="220"/>}>
 
-<Card title="Interactive Apps" icon={<Image src={Interactive} alt="Interactive Apps" width="220"/>}>
+Use research applications in your browser without installing software locally.
 
-We host managed web applications that require no installation on your site.
+- [JupyterHub](../web-apps/jupyterhub): Analyse data in Jupyter notebooks.
+- [BinderHub](../web-apps/binderhub): Launch computing environments from Git repositories.
+- [Foldify](../web-apps/foldify): Predict protein structures with AlphaFold.
 
-* [JupyterHub](../web-apps/jupyterhub): Run Jupyter Notebooks with access to our compute resources.
-* [BinderHub](../web-apps/binderhub): Turn your Git repositories into interactive computational environments.
-* [Foldify](../web-apps/foldify): A web-based UI for AlphaFold to predict protein structures.
 </Card>
-   
+
 <Card title="AI as a Service (AIaaS)" icon={<Image src={AIllm} alt="AIaaS" width="220"/>}>
 
-Unlock the power of [Artificial Intelligence](../ai-as-a-service/introduction) with secure, on-premise access to LLMs and related tools.
+Access large language models hosted within e-INFRA CZ through a browser
+or from your research software.
 
-* Chat and RAG: Use our [Chat AI](../ai-as-a-service/chat-ai) to interact privately with large language models like GPT-OSS or Deepseek.
-* Develop: Integrate AI into your scripts via our [OpenAI-compatible API](../ai-as-a-service/chat-ai#creating-an-api-key) or build workflows with [n8n Agents](../ai-as-a-service/n8n-agents) or the [DeepSite](../ai-as-a-service/deepsite) web creator. 
+- Use the [Chat AI interface](../ai-as-a-service/chat-ai).
+- Connect scripts through the [OpenAI-compatible API](../ai-as-a-service/ai-api).
+- Review the [data privacy policy](../ai-as-a-service/ai-data-privacy)
+  before uploading research data.
 
 </Card>
+
 </Cards>
 
-## How to Access
+## Need help?
 
-[Access](../platform/access) to the CERIT-SC platform is available to the Czech academic community.
-
-* Log In: Use your existing e-INFRA CZ (MetaCentrum) identity.
-* For standard projects with basic resource limits, you can log in and start immediately.
-* For intensive resource requirements, simply request a project quota via our portal.
+See the [contact information](../platform/contacts) for support.
+When asking for advice, describe your research task, the software you
+plan to use, and your expected computing and storage requirements.
