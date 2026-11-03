@@ -15,6 +15,49 @@ workflows, deploy research software, and access artificial intelligence (AI) too
 
 You can start with a browser-based application or deploy your own software using containers. A container packages an application with its software dependencies, making it easier to run a consistent computing environment.
 
+![platform](/img/ceritsc/platform-overview.png)
+
+## Services
+
+<Cards className="pt-4 grid-cols-1 gap-4 sm:grid-cols-3">
+
+<Card title="Kubernetes" icon={<Image src={Kubernetes} alt="Kubernetes Logo" width="220"/>}>
+
+Run containerised research software and computational workflows on shared
+computing resources.
+
+- Deploy tools from the [application catalogue](../rancher-apps/rancher-applications).
+- Run your own [container images](../docker/dockerfile).
+- Manage applications through [Rancher](../rancher/rancher) or
+  [kubectl](../kubernetes/kubectl).
+
+</Card>
+
+<Card title="Interactive applications" icon={<Image src={Interactive} alt="Interactive Apps" width="220"/>}>
+
+Use research applications in your browser without installing software locally.
+
+- [JupyterHub](../web-apps/jupyterhub): Analyse data in Jupyter notebooks.
+- [BinderHub](../web-apps/binderhub): Launch computing environments from Git repositories.
+- [Foldify](../web-apps/foldify): Predict protein structures with AlphaFold.
+
+</Card>
+
+<Card title="AI as a Service (AIaaS)" icon={<Image src={AIllm} alt="AIaaS" width="220"/>}>
+
+Access large language models hosted within e-INFRA CZ through a browser
+or from your research software.
+
+- Use the [Chat AI interface](../ai-as-a-service/chat-ai).
+- Connect scripts through the [OpenAI-compatible API](../ai-as-a-service/ai-api).
+- Review the [data privacy policy](../ai-as-a-service/ai-data-privacy)
+  before uploading research data.
+
+</Card>
+
+</Cards>
+
+
 ## Choose a service
 
 ### Computing resources (Kubernetes)
@@ -87,45 +130,6 @@ The chat interface and API have different data-handling characteristics.
 Contact the support team to discuss requirements for sensitive or
 protected data.
 
-## Services
-
-<Cards className="pt-4 grid-cols-1 gap-4 sm:grid-cols-3">
-
-<Card title="Kubernetes" icon={<Image src={Kubernetes} alt="Kubernetes Logo" width="220"/>}>
-
-Run containerised research software and computational workflows on shared
-computing resources.
-
-- Deploy tools from the [application catalogue](../rancher-apps/rancher-applications).
-- Run your own [container images](../docker/dockerfile).
-- Manage applications through [Rancher](../rancher/rancher) or
-  [kubectl](../kubernetes/kubectl).
-
-</Card>
-
-<Card title="Interactive applications" icon={<Image src={Interactive} alt="Interactive Apps" width="220"/>}>
-
-Use research applications in your browser without installing software locally.
-
-- [JupyterHub](../web-apps/jupyterhub): Analyse data in Jupyter notebooks.
-- [BinderHub](../web-apps/binderhub): Launch computing environments from Git repositories.
-- [Foldify](../web-apps/foldify): Predict protein structures with AlphaFold.
-
-</Card>
-
-<Card title="AI as a Service (AIaaS)" icon={<Image src={AIllm} alt="AIaaS" width="220"/>}>
-
-Access large language models hosted within e-INFRA CZ through a browser
-or from your research software.
-
-- Use the [Chat AI interface](../ai-as-a-service/chat-ai).
-- Connect scripts through the [OpenAI-compatible API](../ai-as-a-service/ai-api).
-- Review the [data privacy policy](../ai-as-a-service/ai-data-privacy)
-  before uploading research data.
-
-</Card>
-
-</Cards>
 
 ## Need help?
 
