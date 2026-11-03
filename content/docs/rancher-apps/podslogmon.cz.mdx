@@ -95,7 +95,7 @@ Měli byste mít nainstalované všechny tři komponenty. Teď Grafanu nastavte 
 
 2. Logy dotazujte pomocí [LogQL](https://grafana.com/docs/loki/latest/query/):
 
-   ```logql
+   ```
    {app="my-application"}                               # all lines of the matched Pods
    {app="my-application"} |= "error"                    # only lines containing "error"
    {app="my-application"} != "DEBUG"                    # skip debug lines

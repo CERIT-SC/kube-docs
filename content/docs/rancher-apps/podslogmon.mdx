@@ -96,7 +96,7 @@ All 3 components should be now installed. It's time to configure Grafana to conn
 
 2. Query the logs ([LogQL](https://grafana.com/docs/loki/latest/query/)):
 
-   ```logql
+   ```
    {app="my-application"}                               # all lines of the matched Pods
    {app="my-application"} |= "error"                    # only lines containing "error"
    {app="my-application"} != "DEBUG"                    # skip debug lines
