@@ -1,0 +1,26 @@
+---
+title: Grafana
+---
+
+## Spuštění Grafany
+
+Grafana je webová aplikace pro analýzu a vizualizaci metrik a logů pomocí grafů a tabulek.
+
+Pokud ještě nejste přihlášeni, přihlaste se do [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz), viz sekce [Rancher](../rancher/rancher).
+
+Pro instalaci Grafany postupujte podle následujících kroků.
+
+### Poznámky
+
+- Během instalace Grafany pomocí Rancheru budete vyzváni k zadání základní konfigurace, jako je heslo pro `admin` uživatele, zdroje a prefix URL adresy. Prefix URL se použije do adresy, na které je Grafana vystavena, v následujícím formátu: `<prefix>.<your_namespace>.dyn.cloud.e-infra.cz`. Výchozí prefix je `grafana`, ale je možné jej změnit. Chcete-li použít více instancí ve stejném namespacu, použijte různé prefixy, abyste zabránili kolizi.
+
+- Přihlašujte se jako `admin` s heslem z instalačního formuláře.
+
+<Callout type="warning">
+**Dashboards** a **Data source**, které vytvoříte v rozhraní, se ukládají do **PVC** pro Grafanu a smazání aplikace odstraní i toto **PVC**. Před odinstalací aplikace, exportujte JSON dashboardů, o které nechcete přijít.
+</Callout>
+
+### Grafana pro prohlížení logů
+
+Grafanu lze použít ke vizualizaci logů z různých zdrojů. K tomu potřebujete vedle této aplikace ještě
+systém pro agregaci logů **Loki** a **Logging Subscriber** – popsáno v [Pods Log Monitoring](./podslogmon).

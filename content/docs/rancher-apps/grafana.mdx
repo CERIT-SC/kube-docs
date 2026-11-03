@@ -1,0 +1,27 @@
+---
+title: Grafana
+---
+
+## Running Grafana
+
+Grafana is a metrics and logs analytics and visualization web application what shows charts and tables.
+
+If you are not already logged in, log in to [rancher.cloud.e-infra.cz](https://rancher.cloud.e-infra.cz), see [Rancher](../rancher/rancher) section.
+
+Follow the steps below to run the Grafana.
+
+### Notes
+
+- During the installation of Grafana using Rancher, you will be asked to enter basic configuration such as the admin password, resources, and the URL prefix. The URL prefix will be used in the URL address to expose Grafana in the following format: `<prefix>.<your_namespace>.dyn.cloud.e-infra.cz`. The default prefix is `grafana`, but you can change it. Keep in mind that for multiple instances in your namespace, you need different prefixes to avoid collision.
+
+- You log in as `admin` with the password from the install form.
+
+<Callout type="warning">
+**Dashboards** and **Data Sources** you create in the interface live in the Grafana **PVC**, and deleting the application removes that **PVC**. Export the dashboard JSON you care about before uninstalling.
+</Callout>
+
+### Grafana for logs exploration
+
+Grafana can be used to visualize logs from various sources. To do that, you need a log aggregation
+system **Loki** and **Logging Subscriber** next to this application - described in
+[Pods Log Monitoring](./podslogmon).
