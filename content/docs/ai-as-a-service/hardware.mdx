@@ -1,0 +1,207 @@
+---
+title: Hardware
+description: GPU infrastructure supporting CERIT-SC AI-as-a-service.
+---
+
+## Computing infrastructure for research AI
+
+CERIT-SC operates GPU systems within e-INFRA CZ to support AI services
+for the research and academic community. The infrastructure includes
+NVIDIA DGX systems and hardware from the H100, B200, and B300 generations.
+
+Together, these systems provide approximately **200 PFLOPS of aggregate
+computing capacity**, according to the platform's hardware inventory.
+They support the models available through
+[Chat AI](./chat-ai), the [OpenAI-compatible API](./ai-api),
+and connected research tools.
+
+## What does 200 PFLOPS mean?
+
+A petaflop per second (PFLOPS) represents one quadrillion
+floating-point operations per second. Floating-point operations are
+numerical calculations used in tasks such as evaluating neural networks.
+
+Hardware performance figures depend on numerical precision and how
+operations are counted. They describe computing capacity under specified
+conditions, rather than the speed of an individual research task.
+
+For language models, practical performance also depends on:
+
+- The model's size and architecture.
+- The precision used to store model parameters and perform calculations.
+- The length of the input and generated response.
+- The number of requests being processed at the same time.
+- GPU memory capacity, memory bandwidth, and communication between GPUs.
+
+The aggregate capacity is shared across the platform. It is not the
+computing capacity allocated to each user or request.
+
+## Why use multi-GPU systems?
+
+Large AI models require substantial memory and computing resources.
+Some models need several GPUs to hold their parameters and process
+requests.
+
+NVIDIA DGX systems combine multiple GPUs with high-bandwidth connections.
+This allows GPUs to work together when serving models that exceed the
+capacity of a single accelerator.
+
+For researchers, this infrastructure makes it possible to use hosted
+models without purchasing GPU hardware or maintaining a model-serving
+environment.
+
+## How the hardware supports AI services
+
+The AI platform uses these resources primarily to serve models:
+processing inputs and generating outputs. This is known as *inference*.
+
+| Capability | Research applications |
+| --- | --- |
+| Language model inference | Scientific writing assistance, information extraction, classification, and coding support |
+| Multimodal inference, where supported | Working with images and documents alongside text |
+| Embedding generation | Semantic search, document retrieval, and retrieval-augmented generation (RAG) |
+| Models connected to tools | Coding assistants and automated research workflows |
+
+Available capabilities depend on the deployed model and the software
+used to access it. Consult the
+[model catalogue](./chat-ai#currently-available-models)
+for supported features.
+
+## Access through managed services
+
+For hosted AI services, you select a model rather than a particular
+GPU system. CERIT-SC manages model deployment and the underlying hardware.
+
+Choose the access method that fits your work:
+
+- **Interactive work:** use [Chat AI](./chat-ai) in your browser.
+- **Scripts and applications:** use the [OpenAI-compatible API](./ai-api).
+- **Software development:** connect a
+  [coding assistant](./llm-integration).
+
+Access to a hosted model does not allocate a dedicated GPU or provide
+direct access to the DGX systems.
+
+If you need GPU resources for your own software, consult the
+[platform hardware overview](../platform/hw) and contact
+[k8s@cerit-sc.cz](mailto:k8s@cerit-sc.cz) to discuss your requirements.
+Training, fine-tuning, or a dedicated deployment requires a separate
+discussion about suitability and available capacity.
+
+## Shared capacity and availability
+
+The infrastructure serves multiple users and applications. Response
+times depend on the selected model, request size, and current demand.
+
+A larger model is not necessarily the best choice for every task.
+Evaluate a suitable smaller model first, particularly for routine
+classification, formatting, or extraction.
+
+For automated workloads:
+
+- Limit the number of simultaneous requests.
+- Test your workflow on a small sample before processing a large dataset.
+- Coordinate independent benchmarks with the support team in advance.
+- Discuss substantial or time-critical workloads before starting them.
+
+Check the [live model status](https://llm.ai.e-infra.cz/status/)
+for current availability. Hardware maintenance and model changes can
+temporarily affect access.
+
+## Hardware and research reproducibility
+
+Hardware capacity does not guarantee that a particular model version
+will remain available. Models may be upgraded, moved, or retired as
+the service develops.
+
+For reproducible research, record the model identifier, available
+metadata, generation settings, and relevant inputs and outputs.
+A maintained model alias may point to a different version after an
+upgrade.
+
+See the [AI services introduction](./introduction) for guidance on
+model changes and reproducibility. Contact the support team if your
+project depends on a particular model version or deployment.
+
+## Data handling
+
+The hosted infrastructure operates within e-INFRA CZ. However, hardware
+location alone does not determine whether a workflow is suitable for
+sensitive or protected data.
+
+Storage, logging, external tools, and the chosen access method also
+matter. Read the [AI data privacy policy](./ai-data-privacy) and discuss
+specific requirements with the support team before submitting
+restricted data.
+
+## Discuss your computing requirements
+
+Contact [k8s@cerit-sc.cz](mailto:k8s@cerit-sc.cz) with a short description
+of your research task. Include the models or software you plan to use,
+the approximate workload, your timeline, and any data-handling
+requirements.
+
+---
+
+
+## What does this capacity mean for your research?
+
+The most useful measure of AI performance is how quickly the service
+can complete your research task. This depends on the selected model,
+the amount of input, the length of the response, and current demand.
+
+Typical workloads include:
+
+| Research task | Useful performance measure |
+| --- | --- |
+| Classifying abstracts | Abstracts processed per minute |
+| Extracting information from documents | Documents processed per hour |
+| Generating summaries | Summaries completed per hour, for a specified document length |
+| Interactive coding assistance | Time until the response starts and time until it finishes |
+| Creating embeddings for document search | Input tokens or documents processed per second |
+
+### Understanding tokens
+
+Language models process text in units called *tokens*. A token may be
+a word, part of a word, or punctuation. As a rough guide, 1,000 tokens
+correspond to about 750 words of English prose. The ratio varies for
+other languages, code, and mathematical notation.
+
+Input tokens include your instructions, documents, and conversation
+history. Output tokens include the generated response and, for some
+models, additional reasoning tokens.
+
+### Estimating processing time
+
+For a measured workload, task throughput can be expressed as:
+
+**Tasks per hour = completed tasks ÷ elapsed seconds × 3,600**
+
+For example, if a batch of 100 abstracts takes 10 minutes to process,
+the measured throughput is approximately **600 abstracts per hour**.
+
+This is an illustrative calculation, not a measurement of the
+CERIT-SC platform. It applies only to comparable tasks using the same
+model, settings, and workload conditions.
+
+Token throughput provides another useful measure:
+
+**Output tokens per second = total generated tokens ÷ elapsed seconds**
+
+For a batch, use the elapsed time from submitting the first request
+until the last request finishes. This includes input processing,
+queueing, and response generation.
+
+### Choosing a service for your workload
+
+For interactive work, response time matters more than total system
+throughput. For large batches, the number of completed tasks per hour
+is usually more useful.
+
+A faster model is useful only if its results meet your research
+requirements. Evaluate accuracy on representative examples before
+estimating the time needed for the full dataset.
+
+Contact [k8s@cerit-sc.cz](mailto:k8s@cerit-sc.cz) to discuss substantial
+workloads or arrange performance measurements. Independent benchmarks
+require prior consultation because the infrastructure is shared.
