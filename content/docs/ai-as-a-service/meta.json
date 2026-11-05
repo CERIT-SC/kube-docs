@@ -2,14 +2,15 @@
   "title": "AI as a Service (AIaaS)",
   "pages": [
     "introduction",
-    "hardware",
     "chat-ai",
     "ai-api",
+    "llm-models",
     "llm-integration",
     "deepsite",
     "n8n-agents",
     "deepsec",
     "mcp",
-    "ai-data-privacy"
+    "ai-data-privacy",
+    "hardware"
   ]
 }
