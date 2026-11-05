@@ -155,7 +155,8 @@ service configuration.
 | Qwen3.8 27B | `qwen3.8-27b` | Chat, multimodal, tools | 256k | 32k | fp8 | [Model card](https://huggingface.co/Qwen/Qwen3.8-27B-FP8) |
 | Mistral Medium 3.5 | `mistral-medium-3.5` | Chat, multimodal, tools | 256k | — | fp8 | [Model card](https://huggingface.co/mistralai/Mistral-Medium-3.5-128B) |
 | Gemma 4 | `gemma4` | Chat, multimodal, tools | 256k | 32k | bf16 | [Model card](https://huggingface.co/google/gemma-4-31B-it) |
-| Whisper Large v3 | `whisper-large-v3`  | audio, speech recognition   |    |   1.55B  |   |   [Model card](https://huggingface.co/openai/whisper-large-v3) |
+| Whisper Large v3 | `whisper-large-v3`  | audio, speech recognition   | 448   |    |   |   [Model card](https://huggingface.co/openai/whisper-large-v3) |
+| Canary v2 | `canary-v2`  | audio, speech recognition   | 1k   |     |   |   [Model card](https://huggingface.co/nvidia/canary-1b-v2) |
 
 
 
@@ -171,6 +172,8 @@ service configuration.
 - **Whisper Large v3** — OpenAI's 1.55B automatic speech recognition (ASR) and speech-translation model; supports 99+ languages with robust transcription even in noisy conditions. Available via API only.  See its
 [model card](https://huggingface.co/openai/whisper-large-v3)
 for background information. It is not a text-chat model.
+- **Canary 1B v2**: Multitask Speech Transcription and Translation Model
+Canary-v2 is a powerful 1-billion parameter model built for high-quality speech transcription and translation across 25 European languages. It excels at both automatic speech recognition (ASR) and speech translation (AST).
 
 
 #### Model aliases
