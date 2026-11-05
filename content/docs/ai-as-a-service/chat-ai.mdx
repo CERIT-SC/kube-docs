@@ -148,15 +148,16 @@ service configuration.
 | DeepSeek V4.1 Flash-1017 | `deepseek-v4.1-flash` | Chat, tools | 1M | 64k | fp8 | [Model card](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017) |
 | GLM 5.3 | `glm-5.3` | Chat, tools | 1M | 64k | fp8 | [Model card](https://huggingface.co/zai-org/GLM-5.3) |
 | GLM 5.3 Flash | `glm-5.3-flash` | Chat, multimodal, tools | 1M | — | nvfp4 | [Model card](https://huggingface.co/nvidia/GLM-5.3-Flash-NVFP4) |
-| Kimi K3 | `kimi-k3` | Chat, multimodal, tools | 1M | 48k | mxfp4 | [Model card](https://huggingface.co/moonshotai/Kimi-K3) |
+| Kimi-k3.1-pro | `kimi-k3.1-pro` | Chat, multimodal, tools | 1M | 48k | mxfp4 | [Model card](https://huggingface.co/moonshotai/Kimi-K3.1-Pro) |
 | Qwen3.8 Flash Next | `qwen3.8-flash-next` | Chat, multimodal, tools | 256k | 48k | fp8 | [Model card](https://huggingface.co/Qwen/Qwen3.8-Flash-Next-FP8) |
 | Qwen3.8 27B | `qwen3.8-27b` | Chat, multimodal, tools | 256k | 32k | fp8 | [Model card](https://huggingface.co/Qwen/Qwen3.8-27B-FP8) |
 | Mistral Medium 3.5 | `mistral-medium-3.5` | Chat, multimodal, tools | 256k | — | fp8 | [Model card](https://huggingface.co/mistralai/Mistral-Medium-3.5-128B) |
 | Gemma 4 | `gemma4` | Chat, multimodal, tools | 256k | 32k | bf16 | [Model card](https://huggingface.co/google/gemma-4-31B-it) |
+| Whisper Large v3 | `whisper-large-v3`  | audio, speech recognition   |    |   1.55B  |   |   [Model card](https://huggingface.co/openai/whisper-large-v3) |
 
 
 
-- **Kimi K3** — Moonshot AI's open-weight 2.8T-parameter Mixture-of-Experts (MoE) flagship model. Native multimodal with vision support, a 1M-token context window, and strong performance in long-horizon coding, reasoning, knowledge work, and agentic workflows.
+- **Kimi K3.1-pro** — New Moonshot AI's open-weight 2.8T-parameter Mixture-of-Experts (MoE) flagship model. Native multimodal with vision support, a 1M-token context window, and strong performance in long-horizon coding, reasoning, knowledge work, and agentic workflows.
 - **GLM 5.3** — 756B-parameter language model optimized for advanced reasoning, tool use, and multi-step agentic tasks.
 - **GLM 5.3 Flash** — 320B-parameter (18B active) Mixture-of-Experts multimodal model from ZAI for reasoning, coding, and agentic tasks. The NVIDIA NVFP4 build reduces weight memory by about 3.3 times compared with BF16 and keeps benchmark accuracy close to the BF16 baseline.
 - **GPT-OSS-120B** — OpenAI's 120B-parameter open-weight language model offering strong general-purpose performance across reasoning, coding, and tool use.
@@ -182,7 +183,7 @@ do not guarantee identical behaviour, outputs, or uninterrupted access.
 | --- | --- | --- |
 | `glm` | `glm-5.3` | Maintained GLM alias |
 | `glm-5` | `glm-5.3` | Legacy alias; use `glm` for new configurations |
-| `kimi` | `kimi-k3` | Maintained Kimi alias |
+| `kimi` | `kimi-k3.1-pro` | Maintained Kimi alias |
 | `deepseek` | `deepseek-v4.1-flash` | Reasoning disabled by default |
 | `deepseek-thinking` | `deepseek-v4.1-flash-thinking` | Reasoning enabled |
 | `thinker` | `deepseek-v4.1-flash-thinking` | Reasoning alias |
