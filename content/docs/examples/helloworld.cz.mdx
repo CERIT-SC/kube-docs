@@ -114,9 +114,9 @@ metadata:
   name: hello-kubernetes-ingress
   annotations:
     kubernetes.io/tls-acme: "true"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    cert-manager.io/cluster-issuer: "letsencrypt-gatewas"
 spec:
-  ingressClassName: nginx
+  ingressClassName: nginx-traefik
   tls:
     - hosts:
         - "test-hello.dyn.cloud.e-infra.cz"
