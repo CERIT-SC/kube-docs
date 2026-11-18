@@ -93,26 +93,15 @@ See the [model catalogue](./llm-models) for all models, their capabilities and c
 
 ### Model changes and reproducibility
 
-Model versions may be upgraded or retired. A specific version is not
-guaranteed to remain available throughout a research project.
+Models are upgraded and retired, so a specific version may not stay available for the whole length of your project. An [alias](./llm-models#model-aliases) keeps the name stable when the model behind it changes; it does not keep the behaviour or the results the same.
 
-Maintained [model aliases](./chat-ai#model-aliases), such as `mini`
-or `thinker`, provide names that can continue to be used when the
-underlying model changes. An alias does not preserve the model's
-behaviour or guarantee identical results.
+For work that feeds into a publication:
 
-For work that contributes to a publication or other research output:
-
-- Record the resolved model identifier and available model metadata,
-  rather than only the alias.
-- Save prompts, relevant input data, generation settings, dates,
-  and outputs in accordance with your data-management requirements.
+- Record the exact model identifier and its metadata, not only the alias. The API guide shows how to [retrieve model metadata](./ai-api#getting-model-metadata-via-the-api).
+- Save prompts, input data, generation settings, dates and outputs as your data-management plan requires.
 - Validate the workflow again after a model change.
 
-The API guide explains how to
-[retrieve model metadata](./ai-api#getting-model-metadata-via-the-api).
-If your project depends on a specific model version, contact
-[k8s@cerit-sc.cz](mailto:k8s@cerit-sc.cz) before starting.
+If your project depends on one specific model version, write to [k8s@cerit-sc.cz](mailto:k8s@cerit-sc.cz) before you start.
 
 ## Research data and privacy
 
