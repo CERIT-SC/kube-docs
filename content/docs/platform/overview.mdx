@@ -1,5 +1,6 @@
 ---
 title: Welcome to the CERIT-SC Kubernetes Container Platform
+description: Free container computing, browser-based research applications and AI services for Czech academic research
 ---
 
 import Image from 'next/image';
@@ -7,6 +8,12 @@ import { Card, Cards } from 'fumadocs-ui/components/card';
 import Kubernetes from '@/public/img/ceritsc/menu-logos/Kubernetes-icon.svg';
 import Interactive from '@/public/img/ceritsc/menu-logos/Interactive-icon.svg';
 import AIllm from '@/public/img/ceritsc/menu-logos/AI-icon.svg';
+import {
+  UserPlus, LogIn, Rocket,
+  NotebookPen, BrainCircuit, LayoutGrid, Container, Workflow, Terminal, Database, GitBranch, ShieldCheck,
+  Cpu, Gauge, Users,
+  LifeBuoy, MessagesSquare, Newspaper,
+} from 'lucide-react';
 
 ## Computing resources for your research
 
@@ -16,6 +23,27 @@ workflows, deploy research software, and access artificial intelligence (AI) too
 You can start with a browser-based application or deploy your own software using containers. A container packages an application with its software dependencies, making it easier to run a consistent computing environment.
 
 ![platform](/img/ceritsc/platform-overview.png)
+
+## New here? Start in three steps
+
+<Cards className="grid-cols-1 gap-4 sm:grid-cols-3">
+
+  <Card title="1. Get access" icon={<UserPlus />} href="../platform/access">
+    Check the terms of use and register for a MetaCentrum account. The same account works for every service described here.
+  </Card>
+
+  <Card title="2. Sign in to Rancher" icon={<LogIn />} href="../rancher/rancher">
+    Rancher is the web interface to the platform. Your first login creates a personal project with 20 CPUs and 40 GB of memory.
+  </Card>
+
+  <Card title="3. Deploy your first application" icon={<Rocket />} href="../examples/helloworld">
+    Follow the Hello world tutorial to run a small web server and learn the basic Kubernetes concepts on the way.
+  </Card>
+
+</Cards>
+
+You do not need Rancher for the browser applications. [JupyterHub](../web-apps/jupyterhub) and [Chat AI](../ai-as-a-service/chat-ai) work as soon as you have an account.
+
 
 ## Services
 
@@ -57,81 +85,100 @@ or from your research software.
 
 </Cards>
 
+## What do you want to do?
 
-## Choose a service
+<Cards className="grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
-### Computing resources (Kubernetes)
+  <Card title="Analyse data in notebooks" icon={<NotebookPen />} href="../web-apps/jupyterhub">
+    **JupyterHub.** Jupyter notebooks in your browser with prepared images and optional GPUs. Nothing to install.
+  </Card>
 
-The platform provides CPU and GPU computing resources and storage.
-Consult the [hardware overview](../platform/hw) for available systems
-and the [resource quotas](../rancher/quotas) for project limits.
+  <Card title="Use AI models" icon={<BrainCircuit />} href="../ai-as-a-service/introduction">
+    **AI as a Service.** Large language models hosted within e-INFRA CZ, available as a web chat or an OpenAI-compatible API.
+  </Card>
 
-#### Get started
+  <Card title="Launch a ready-made application" icon={<LayoutGrid />} href="../rancher-apps/rancher-applications">
+    **Application catalogue.** RStudio, MATLAB, Scipion, Overleaf and more. Fill in a short form and open the result in your browser.
+  </Card>
 
-1. **Check eligibility and create an account.**
-   Read the [access requirements](../platform/access), including the
-   terms of use and MetaCentrum registration instructions.
+  <Card title="Run your own software" icon={<Container />} href="../docker/dockerfile">
+    **Containers.** Package your code as a container image and run it on the shared clusters.
+  </Card>
 
-2. **Choose a service.**
-   Follow the relevant application guide, or start with
-   [Rancher](../rancher/rancher) to deploy containerised software.
-   Eligible users receive an individual project with default resource
-   quotas when they first sign in to Rancher.
+  <Card title="Run workflow pipelines" icon={<Workflow />} href="../workflows/nextflow">
+    **Workflows.** Nextflow and Argo pipelines with Kubernetes as the execution backend.
+  </Card>
 
-3. **Request resources for your research.**
-   If you need a shared project for your research group or a larger
-   individual quota, follow the
-   [project request instructions](../rancher/reqproj).
+  <Card title="Work from the command line" icon={<Terminal />} href="../kubernetes/kubectl">
+    **kubectl.** Manage jobs, storage and networking directly, or script your deployments.
+  </Card>
 
-### Run your own applications and workflows
+  <Card title="Add a database or object storage" icon={<Database />} href="../operators/operator-summary">
+    **Operators.** PostgreSQL, MinIO, OpenSearch, Spark and others, deployed with a short manifest.
+  </Card>
 
-The managed Kubernetes platform lets you run containerised research
-software. Kubernetes manages how containers run on shared computing
-resources; Rancher provides a web interface for working with the platform.
+  <Card title="Automate deployments from Git" icon={<GitBranch />} href="../gitops/agentk">
+    **GitOps.** Build container images and deploy them from a GitLab repository.
+  </Card>
 
-- Deploy applications such as MATLAB and Scipion from the
-  [Rancher application catalogue](../rancher-apps/rancher-applications).
-- Package your own software in a
-  [container image](../docker/dockerfile).
-- Manage applications through the [Rancher web interface](../rancher/rancher)
-  or the [kubectl command-line tool](../kubernetes/kubectl).
-- Automate deployments using [GitOps](../gitops/agentk), with configuration
-  maintained in a Git repository.
+  <Card title="Process sensitive data" icon={<ShieldCheck />} href="../sensitivecloud/account">
+    **SensitiveCloud.** A separate secure environment for medical and other protected data.
+  </Card>
 
-### Web-based applications
+</Cards>
 
-For interactive work, start with a hosted application that runs in your
-browser without a local installation:
+Looking for something else in the browser? See also [BinderHub](../web-apps/binderhub), which turns a Git repository into an interactive environment, and [Foldify](../web-apps/foldify) for protein structure prediction.
 
-- [JupyterHub](../web-apps/jupyterhub): Work with Jupyter notebooks for
-  interactive programming and data analysis.
-- [BinderHub](../web-apps/binderhub): Turn a Git repository into an
-  interactive computing environment.
-- [Foldify](../web-apps/foldify): Use AlphaFold through a web interface
-  to predict protein structures.
-- and more
+## Resources and limits
 
+<Cards className="grid-cols-1 gap-4 sm:grid-cols-3">
 
-### AI services
+  <Card title="Available hardware" icon={<Cpu />} href="../platform/hw">
+    The clusters, their nodes and GPU accelerators.
+  </Card>
 
-[AI as a Service](../ai-as-a-service/introduction) provides access to
-large language models and related tools hosted within e-INFRA CZ.
+  <Card title="Projects and quotas" icon={<Gauge />} href="../rancher/quotas">
+    How projects and namespaces work, and what the default limits are.
+  </Card>
 
-- Use [Chat AI](../ai-as-a-service/chat-ai) through a browser.
-- Connect your research scripts and applications through the
-  [OpenAI-compatible API](../ai-as-a-service/ai-api).
-- Build automated workflows with
-  [n8n](../ai-as-a-service/n8n-agents).
+  <Card title="Request more resources" icon={<Users />} href="../rancher/reqproj">
+    Ask for a shared project for your group or a larger quota.
+  </Card>
 
-Before uploading research data, read the
-[AI data privacy policy](../ai-as-a-service/ai-data-privacy).
-The chat interface and API have different data-handling characteristics.
-Contact the support team to discuss requirements for sensitive or
-protected data.
+</Cards>
 
+## Help and updates
 
-## Need help?
+<Cards className="grid-cols-1 gap-4 sm:grid-cols-3">
 
-See the [contact information](../platform/contacts) for support.
-When asking for advice, describe your research task, the software you
-plan to use, and your expected computing and storage requirements.
+  <Card title="Contact support" icon={<LifeBuoy />} href="../platform/contacts">
+    Write to k8s@cerit-sc.cz. Describe your research task, the software you plan to use, and the computing and storage you expect to need.
+  </Card>
+
+  <Card title="FAQ" icon={<MessagesSquare />} href="../debugging/faq">
+    Fixes for common deployment errors.
+  </Card>
+
+  <Card title="News" icon={<Newspaper />} href="../news">
+    New features, hardware and applications.
+  </Card>
+
+</Cards>
+
+<Callout type="warn" title="Working with research data in AI services?">
+  Read the [AI data privacy policy](../ai-as-a-service/ai-data-privacy) before you upload anything. The chat interface and the API handle data differently.
+</Callout>
+
+<Callout type="info" title="Publishing results computed here?">
+  Please include the [acknowledgement formula](../platform/access#acknowledgements-and-publications) in your publications. It supports the future funding of the infrastructure.
+</Callout>
+
+## About CERIT-SC
+
+[CERIT-SC](https://www.cerit-sc.cz) is operated by the Institute of Computer Science at Masaryk University. Together with CESNET and IT4Innovations it forms the national e-INFRA CZ research infrastructure. Looking for batch computing on HPC clusters instead? See the [MetaCentrum documentation](https://docs.metacentrum.cz).
+
+---
+
+## Reference
+
+Background articles about the service appear on the [e-INFRA CZ blog](https://blog.e-infra.cz/). You can also ask the "Ask AI" assistant built into this documentation.
