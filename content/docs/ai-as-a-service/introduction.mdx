@@ -1,19 +1,35 @@
 ---
-title: AIaaS Introduction
+title: AI as a Service
+description: AI for science. Built for researchers. Run securely in e-INFRA CZ.
 ---
 import { Card, Cards } from 'fumadocs-ui/components/card';
+import {
+  UserPlus, MessageSquare, Plug,
+  MessagesSquare, Code, SquareTerminal, NotebookPen, FileSearch, Bot, Cable, ShieldAlert, PanelsTopLeft,
+  LifeBuoy, Users, Activity, ChartColumn,
+} from 'lucide-react';
 
 ## AI for Science. Built for Researchers. Run securely in e-INFRA CZ.
 
-CERIT-SC provides AI services hosted within the national research
-infrastructure e-INFRA CZ. You can use them through a web browser,
-connect them to your research software, or integrate them into your
-coding environment.
+CERIT-SC hosts large language models for the Czech research and academic community, **free of charge and inside the national e-INFRA CZ infrastructure**. Use them as a chat in your browser, call them from your own scripts, or plug them into your code editor. The models work with text and code; some also read images or transcribe speech.
 
-The platform provides large language models (LLMs) for working with
-text and code, models that can process images, and embedding models
-that represent text numerically for search and document retrieval.
-Available capabilities depend on the model and the service you use.
+## New here? Start in three steps
+
+<Cards className="grid-cols-1 gap-4 sm:grid-cols-3">
+
+  <Card title="1. Get access" icon={<UserPlus />} href="./chat-ai#accessing-open-webui">
+    An active MetaCentrum account is all you need. Masaryk University students and staff can use a fast-track registration instead.
+  </Card>
+
+  <Card title="2. Try the chat" icon={<MessageSquare />} href="./chat-ai#start-your-first-conversation">
+    Open chat.ai.e-infra.cz, sign in through e-INFRA CZ and pick a model. Ask it to explain a piece of code or revise a paragraph.
+  </Card>
+
+  <Card title="3. Connect your tools" icon={<Plug />} href="./ai-api">
+    When the chat is not enough, create an API key and use the same models from scripts, notebooks or a coding assistant.
+  </Card>
+
+</Cards>
 
 
 ## Choose how to work
