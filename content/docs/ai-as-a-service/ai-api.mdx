@@ -248,3 +248,11 @@ The response is a JSON array containing metadata for each model.
     "quantization": "mxfp4"
   }
 ```
+
+## Concurrent request limit
+
+The API supports a maximum of **4 parallel (concurrent) requests** per account.
+
+If you send more requests than allowed at the same time, the extras return a `429 Too Many Requests HTTP status code`.
+
+The recommended approach is to implement a simple queue/worker pattern in your code to keep outgoing requests within the limit — this also reduces server-side congestion and gives more stable response times.
