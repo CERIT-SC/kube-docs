@@ -21,7 +21,7 @@ CERIT-SC hosts large language models for the Czech research and academic communi
     An active MetaCentrum account is all you need. Masaryk University students and staff can use a fast-track registration instead.
   </Card>
 
-  <Card title="2. Try the chat" icon={<MessageSquare />} href="./chat-ai#start-your-first-conversation">
+  <Card title="2. Try the chat" icon={<MessageSquare />} href="./chat-ai">
     Open chat.ai.e-infra.cz, sign in through e-INFRA CZ and pick a model. Ask it to explain a piece of code or revise a paragraph.
   </Card>
 
@@ -31,70 +31,50 @@ CERIT-SC hosts large language models for the Czech research and academic communi
 
 </Cards>
 
+## What do you want to do?
 
-## Choose how to work
+<Cards className="grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
-<Cards className="pt-4 grid-cols-1 gap-4 sm:grid-cols-3">
+  <Card title="Chat in your browser" icon={<MessagesSquare />} href="./chat-ai">
+    **Chat AI.** Explore ideas, summarise documents, improve scientific writing and get help with code. Compare answers from different models.
+  </Card>
 
-<Card title="Chat in your browser">
+  <Card title="Call models from your code" icon={<Code />} href="./ai-api">
+    **OpenAI-compatible API.** Process text inside research workflows using the standard client libraries.
+  </Card>
 
-Use Open WebUI to explore ideas, summarise documents, improve scientific
-writing, and get help with code.
+  <Card title="Get help with coding" icon={<SquareTerminal />} href="./llm-integration">
+    **Coding assistants.** Set up Claude Code, Codex, VS Code or a JetBrains IDE to use the hosted models.
+  </Card>
 
-- Compare responses from different models.
-- Work with text and, where supported, images.
-- Follow the [Chat AI guide](./chat-ai) to get started.
+  <Card title="Use AI in notebooks" icon={<NotebookPen />} href="../web-apps/jupyterhub/ai-assistants">
+    **JupyterHub.** Notebook images with a built-in AI assistant, with nothing to install.
+  </Card>
 
-</Card>
+  <Card title="Search your own documents" icon={<FileSearch />} href="./llm-models#embedding-models">
+    **Embedding models.** Build semantic search and retrieval-augmented generation (RAG) over your texts.
+  </Card>
 
-<Card title="Connect your research software">
+  <Card title="Automate multi-step tasks" icon={<Bot />} href="./n8n-agents">
+    **n8n AI agents.** Combine models with other services in visual workflows, without much code.
+  </Card>
 
-Use the OpenAI-compatible API to call models from scripts and applications.
+  <Card title="Connect models to tools and data" icon={<Cable />} href="./mcp">
+    **MCP servers.** Give an AI application controlled access to tools and data sources through the Model Context Protocol.
+  </Card>
 
-- Process text within research workflows.
-- Build document search with embedding models.
-- Follow the [API guide](./ai-api) for authentication and examples.
+  <Card title="Check code for vulnerabilities" icon={<ShieldAlert />} href="./deepsec">
+    **DeepSec.** Run an AI-assisted security review of your research software.
+  </Card>
 
-</Card>
-
-<Card title="Get help with coding">
-
-Connect AI assistants to your notebooks, code editor, or terminal.
-
-- Get suggestions for writing, explaining, and debugging code.
-- Explore AI tools in [JupyterHub](../web-apps/jupyterhub).
-- Set up a [coding assistant](./llm-integration).
-
-</Card>
+  <Card title="Prototype a web page" icon={<PanelsTopLeft />} href="./deepsite">
+    **DeepSite.** Describe a website in words and get working HTML, CSS and JavaScript.
+  </Card>
 
 </Cards>
 
-## Get access
 
-AI chat and API access are available to users with an active MetaCentrum
-account. Masaryk University students and staff can also use the
-university registration route described in the
-[access instructions](./chat-ai#accessing-open-webui).
 
-The university registration route provides access to AI chat and API
-services. Other platform services may require a MetaCentrum account
-or additional setup.
-
-1. **Register or check your account.**
-   Follow the [access instructions](./chat-ai#accessing-open-webui)
-   for your institution.
-
-2. **Start with a small task.**
-   Open [Chat AI](https://chat.ai.e-infra.cz), sign in through
-   e-INFRA CZ, and select a model. For example, ask it to explain
-   a short piece of code or revise a paragraph.
-
-3. **Connect your tools when needed.**
-   Follow the [API guide](./ai-api) or
-   [coding assistant guide](./llm-integration) to use the service
-   in your own working environment.
-
-Before submitting research data, read the data-handling guidance below.
 
 ## Choose a model
 
@@ -109,10 +89,7 @@ small, representative sample.
   for semantic search and retrieval-augmented generation (RAG).
   RAG supplies retrieved documents as context for a model's answer.
 
-See the [model catalogue](./chat-ai#currently-available-models)
-for capabilities and the
-[live status page](https://llm.ai.e-infra.cz/status/)
-for current availability.
+See the [model catalogue](./llm-models) for all models, their capabilities and context sizes, and the [live status page](https://llm.ai.e-infra.cz/status/) for what is running right now. The [hardware page](./hardware) describes the GPU systems behind the service.
 
 ### Model changes and reproducibility
 
@@ -163,60 +140,47 @@ on external services, storage, logging, and retention.
 
 ## Share computing resources responsibly
 
-The platform serves many researchers on shared computing resources.
-Response times and availability can vary with demand.
 
-- **Choose an appropriate model.** Start with a smaller or faster model
-  for routine tasks, and use more demanding models when evaluation
-  shows a benefit.
-- **Limit concurrent requests.** Keep batch workloads controlled
-  and respect service rate limits.
-- **Use stable model selections.** Do not automatically switch models
-  in response to short-term utilisation figures on the status page.
-- **Coordinate independent benchmarks in advance.** Contact the
-  support team before running them, as required by the
-  [Chat AI guide](./chat-ai).
-- **Plan large workloads.** Schedule substantial batch processing
-  outside peak hours where possible, and discuss unusually demanding
-  workloads with the support team.
+Many researchers share the same GPUs, so response times vary with demand.
+
+- **Pick the smallest model that does the job.** Move to a larger one only when your evaluation shows a benefit.
+- **Keep batch workloads controlled.** Limit concurrent requests and respect the rate limits.
+- **Do not switch models automatically** in response to short-term utilisation figures on the status page.
+- **Talk to us before large runs.** Schedule heavy batch processing outside peak hours, and agree independent benchmarks with the support team in advance, as the [Chat AI guide](./chat-ai#shared-resources-and-benchmarking) requires.
 
 You can review your API token consumption in the
 [usage dashboard](https://llm.ai.e-infra.cz/usage/).
 This dashboard does not include chat-interface usage.
 
-## Additional tools
-
-Once you are familiar with chat or API access, explore tools for
-more specialised tasks.
-
-| Task | Tool or guide |
-| --- | --- |
-| Build automated workflows that combine models and other services | [n8n AI agents](./n8n-agents) |
-| Connect AI applications to tools and data sources using Model Context Protocol (MCP) | [MCP servers](./mcp) |
-| Investigate potential vulnerabilities in research software | [DeepSec](./deepsec) |
-| Prototype web interfaces from written descriptions | [DeepSite](./deepsite) |
-| Find guidance within the documentation | Use the documentation's “Ask AI” feature |
-
-Check each guide for setup instructions, access requirements,
-and limitations.
 
 ## Support and service updates
 
-Contact [k8s@cerit-sc.cz](mailto:k8s@cerit-sc.cz) for access problems,
-workflow advice, or questions about project requirements.
+## Help and updates
 
-Join the [Matrix community](../web-apps/matrix) to exchange experience
-and follow announcements:
+<Cards className="grid-cols-1 gap-4 sm:grid-cols-2">
 
-- `#LLM-General`: questions and discussion.
-- `#LLM-Status`: service and model updates.
+  <Card title="Contact support" icon={<LifeBuoy />} href="mailto:k8s@cerit-sc.cz">
+    E-mail the support team about access problems, workflow advice or project requirements.
+  </Card>
 
-For current model availability, check the
-[status page](https://llm.ai.e-infra.cz/status/).
+  <Card title="Matrix community" icon={<Users />} href="../web-apps/matrix">
+    Exchange experience in `#LLM-General` and follow service and model announcements in `#LLM-Status`.
+  </Card>
+
+  <Card title="Model status" icon={<Activity />} href="https://llm.ai.e-infra.cz/status/">
+    See which models are currently available.
+  </Card>
+
+  <Card title="Your API usage" icon={<ChartColumn />} href="https://llm.ai.e-infra.cz/usage/">
+    Review your API token consumption. Usage through the chat interface is not included.
+  </Card>
+
+</Cards>
 
 
 ---
 
 ## Reference
-Read more details on our e‑INFRA Blog at https://blog.e-infra.cz/
+Background articles about the service appear on the [e-INFRA CZ blog](https://blog.e-infra.cz/). 
 
+You can also ask the "Ask AI" assistant built into this documentation.
