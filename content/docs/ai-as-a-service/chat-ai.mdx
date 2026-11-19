@@ -385,9 +385,9 @@ It does not include token consumption through the chat interface.
 A useful prompt usually contains four elements:
 
 1. **Task:** what you want the model to do.
-2. **Context:** the material and background needed for the task.
+2. **Context:** the material and background needed for the task. Include what the model cannot easily find out on its own.
 3. **Constraints:** what to preserve, exclude, or treat as uncertain.
-4. **Output:** the required format and level of detail.
+4. **Output:** what counts as done, and in what form (table, numbered list, named sections).
 
 For example:
 
@@ -405,6 +405,174 @@ you need.
 Clear instructions can improve usefulness, but they do not guarantee
 accuracy. Verify references, calculations, extracted values, and
 scientific claims against appropriate sources.
+
+### Set a role
+
+Start the prompt by assigning a role to the model and stating your own.
+A role changes which associations the model draws on, and telling it
+that you will check the result changes how carefully it works.
+
+```
+You are a reviewer of bioinformatics pipelines. I am the author of this
+pipeline and know its history; I will check every claim you make.
+```
+
+### Write criteria that can be checked
+
+Describe the shape of a correct answer, not the answer itself. Criteria
+you can verify:
+
+- every section of the paper appears exactly once, in the original order,
+- no section is summarised in more than three sentences,
+- every claim says where in the text it comes from,
+- anything the model could not determine is marked *unknown*, not filled in.
+
+Instructions such as "be thorough", "do not miss anything" or "explain
+well" cannot be checked, so they do not help.
+
+### Add constraints and stop rules
+
+If the model must not do something, say so explicitly:
+
+- *Do not modify the input. Report only.*
+- *If a file or section is missing, say so and stop.*
+- *Do not describe a part of the document you have not been given.*
+
+Constraints usually come from a previous attempt: when something goes
+wrong, turn it into a rule in the next prompt.
+
+### Leave room for uncertainty
+
+The model tries to complete the task and will fill gaps unless told
+otherwise. Give it a way out:
+
+- *If you are not sure, say so.*
+- *If you need information you do not have, ask once, then stop.*
+
+### Split large tasks into steps
+
+Asking for everything at once tends to produce an average answer.
+Break the work into stages, each narrowing what the next has to look at:
+
+1. **Inventory:** list the items (sections, files, datasets) without interpretation.
+2. **Group:** organise them by topic or type.
+3. **Read selectively:** examine in detail only what the inventory does not explain.
+4. **Collect:** assemble the result in the requested output format.
+
+### Avoid leading questions
+
+Language models tend to agree with the person asking. Do not reveal the
+answer you hope for.
+
+| Leading (likely to get "yes") | Neutral (forces the model to look) |
+|---|---|
+| Is this result significant? | Which statistical test was used, what is the reported p-value, and where is it stated? |
+| Does the method use cross-validation? | Describe how the data were split for training and evaluation. Quote the relevant passage. |
+
+You can also give explicit permission to disagree: *Point out gaps and
+anything that looks wrong.*
+
+### Start a fresh conversation for each task
+
+- **Cost and speed:** every turn re-sends the whole conversation, so long
+  conversations are disproportionately expensive.
+- **Drift:** early messages keep influencing the answer even when they
+  are no longer relevant. Quality can degrade long before the context
+  window is full.
+- **Honest testing:** a prompt that only works in a conversation that
+  has already seen the answer does not really work.
+
+If the model apologises ("I apologise, I assumed…"), treat it as a
+signal that the task, context, or constraints are unclear. Fix the
+prompt and start a new conversation rather than arguing with the
+current one.
+
+### Validate in a second conversation
+
+Give the output to a new conversation with the opposite role:
+
+```
+You are a strict reviewer. Find gaps, invented claims, and
+inconsistencies in the following summary. Do not fix them, list them.
+```
+
+Validation is a different task from producing the answer and deserves
+its own prompt.
+
+### Reuse prompts that work
+
+| If the instruction should apply… | Use… |
+|---|---|
+| once, right now | a normal message |
+| whenever you repeat the same kind of task | a saved prompt template you paste in |
+| in every conversation, whatever the task | a system prompt, if your client supports one |
+
+Keep system prompts short and general, since they are sent with every
+request. Longer templates are fine because you only use them when needed.
+
+### Before and after
+
+Before:
+
+```
+Give me a recipe for dinner.
+```
+
+After:
+
+```
+You are a cook who knows Vietnamese home cooking; I am an impatient
+amateur. Give me a light dinner recipe for two, ready in 45 minutes
+including preparation. I have shrimp, rice noodles, cabbage, garlic
+and lime; avoid peanuts and anything sweet. Output: full ingredient
+list first, marking what I do not have; then numbered steps with a
+time estimate each. If 45 minutes is not realistic, say so instead of
+squeezing the steps.
+```
+
+The request is the same, but the second version can be checked line by line.
+
+## Adjusting model settings
+
+<Callout type="info" title="Shared service">
+  The defaults are usually fine. Because the models run on shared hardware, change settings with efficiency in mind.
+</Callout>
+
+### Context size
+
+The maximum amount of text the model can consider at once, measured in tokens. It covers your prompt, the conversation history, and the response. Larger values use more GPU memory and slow down responses for everyone, so set it to what the task needs, not to the maximum.
+
+| Use case | Context size |
+|---|---|
+| Most conversations, short documents, code snippets | 8k-16k tokens |
+| A long paper or several documents together | 32k-64k tokens |
+| A whole book or large codebase in one pass | Up to the model's maximum (256k for some models), only when really needed |
+
+Paste only the relevant parts of long documents, and start a new conversation instead of continuing a long one.
+
+### Max output tokens
+
+Caps the length of the response. Lower it to avoid long, unneeded answers and runaway generation.
+
+### Temperature
+
+Controls how random the output is.
+
+| Use case | Temperature |
+|---|---|
+| Extraction, summarisation, code (consistent, repeatable results) | 0 to 0.3 |
+| Brainstorming, drafting (variety helps) | 0.7 to 1 |
+
+Temperature does not change the cost of a request, so there is no efficiency reason to raise it.
+
+### Top-p
+
+An alternative way to limit randomness. Adjust either top-p or temperature, not both.
+
+### Model choice and reasoning modes
+
+- Choose the smallest model that does the job well.
+- Enable reasoning or "thinking" modes only for problems that need them, since they generate many additional tokens.
 
 ## Shared resources and benchmarking
 
