@@ -532,6 +532,48 @@ squeezing the steps.
 
 The request is the same, but the second version can be checked line by line.
 
+## Adjusting model settings
+
+<Callout type="info" title="Shared service">
+  The defaults are usually fine. Because the models run on shared hardware, change settings with efficiency in mind.
+</Callout>
+
+### Context size
+
+The maximum amount of text the model can consider at once, measured in tokens. It covers your prompt, the conversation history, and the response. Larger values use more GPU memory and slow down responses for everyone, so set it to what the task needs, not to the maximum.
+
+| Use case | Context size |
+|---|---|
+| Most conversations, short documents, code snippets | 8k-16k tokens |
+| A long paper or several documents together | 32k-64k tokens |
+| A whole book or large codebase in one pass | Up to the model's maximum (256k for some models), only when really needed |
+
+Paste only the relevant parts of long documents, and start a new conversation instead of continuing a long one.
+
+### Max output tokens
+
+Caps the length of the response. Lower it to avoid long, unneeded answers and runaway generation.
+
+### Temperature
+
+Controls how random the output is.
+
+| Use case | Temperature |
+|---|---|
+| Extraction, summarisation, code (consistent, repeatable results) | 0 to 0.3 |
+| Brainstorming, drafting (variety helps) | 0.7 to 1 |
+
+Temperature does not change the cost of a request, so there is no efficiency reason to raise it.
+
+### Top-p
+
+An alternative way to limit randomness. Adjust either top-p or temperature, not both.
+
+### Model choice and reasoning modes
+
+- Choose the smallest model that does the job well.
+- Enable reasoning or "thinking" modes only for problems that need them, since they generate many additional tokens.
+
 ## Shared resources and benchmarking
 
 The platform is shared across the research community. Response times
