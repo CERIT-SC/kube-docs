@@ -12,6 +12,7 @@ import {
 
 CERIT-SC hosts large language models for the Czech research and academic community, **free of charge and inside the national e-INFRA CZ infrastructure**. Use them as a chat in your browser, call them from your own scripts, or plug them into your code editor. The models work with text and code; some also read images or transcribe speech.
 
+
 ## New here? Start in three steps
 
 <Cards className="grid-cols-1 gap-4 sm:grid-cols-3">
@@ -31,9 +32,10 @@ CERIT-SC hosts large language models for the Czech research and academic communi
 </Cards>
 
 
-<Callout type="info" title="Publishing results computed here?">
-  Please include the [acknowledgement formula](../platform/access#acknowledgements-and-publications) in your publications. It supports the future funding of the infrastructure.
-</Callout>
+
+<Callout type="warn" title="For research use">
+The service is intended for research, not for teaching, administrative systems or commercial use. Read the [rules of use](#rules-of-use) before you create an API key.
+ </Callout>
 
 ## What do you want to do?
 
@@ -77,7 +79,25 @@ CERIT-SC hosts large language models for the Czech research and academic communi
 
 </Cards>
 
+## Rules of use
 
+The service is part of a publicly funded research infrastructure, and its GPU capacity is limited. By using Chat AI or an API key, you agree to the following rules, in addition to the [MetaCentrum terms of use](https://www.metacentrum.cz/en/about/rules/). If you are not sure whether your use fits, write to [k8s@cerit-sc.cz](mailto:k8s@cerit-sc.cz) before you start.
+
+1. **Use the models for research.** The service is intended primarily for research. It is not intended for teaching or for running administrative systems, and commercial use is not allowed at all. Work on a student thesis counts as research.
+2. **Keep your API key to yourself.** Do not share it with anyone, including members of your own team; each person requests their own key. Keep keys out of code repositories, shared notebooks and container images. If a key leaks, regenerate it at once and let us know.
+3. **Report on your use once a year.** When you renew your account, submit a short report on what you used the API for and what results it brought, for example publications, theses, software or datasets. API access may be suspended if the report is missing.
+4. **Put general-purpose chatbots behind a login.** If you build a chatbot or another application that lets other people ask the models general questions, it must require authentication and be available only to the academic community for academic use. The API key stays in your application's back end, and you are responsible for how the application is used.
+5. **Do not benchmark the hosted models.** Benchmark results for these models are widely published. Running them again takes capacity from other researchers, and on a shared service the numbers mostly measure queueing. Testing models on a small sample of your own data to choose one for your task is fine. If evaluating language models is itself the subject of your research, agree the plan with us first.
+6. **Agree large workloads in advance.** Contact us before bulk processing of a large dataset, generating synthetic training data, or other long-running batch jobs. Do not work around the rate limits with extra accounts or keys, and do not automate the chat interface; use the API for automated work.
+7. **Follow the law and the model licences.** Each model is published under its own licence, and some licences restrict how the model or its outputs may be used. Do not use the models for anything unlawful or to attack systems you are not authorised to test.
+8. **Check the outputs.** Models make mistakes, and you are responsible for verifying results before you rely on them. Disclose the use of AI as your institution and publisher require.
+9. **Acknowledge the infrastructure.** Include the [acknowledgement formula](../platform/access#acknowledgements-and-publications) in publications that use the service. It supports the future funding of the infrastructure.
+
+Breaking these rules can lead to the suspension of the API key or the account.
+
+<Callout type="info" title="Publishing results computed here?">
+Please include the [acknowledgement formula](../platform/access#acknowledgements-and-publications) in your publications. It supports the future funding of the infrastructure.
+</Callout>
 
 
 ## Choose a model
