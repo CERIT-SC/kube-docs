@@ -1,57 +1,199 @@
 ---
-title: AIaaS Úvod
+title: AI as a Service
+description: AI pro vědu. Vytvořeno pro výzkumníky. Bezpečně provozováno v e-INFRA CZ.
 ---
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import {
+  UserPlus, MessageSquare, Plug,
+  MessagesSquare, Code, SquareTerminal, NotebookPen, FileSearch, Bot, Cable, ShieldAlert, PanelsTopLeft,
+  LifeBuoy, Users, Activity, ChartColumn,
+} from 'lucide-react';
 
-## AI pro vědu. Vytvořeno pro výzkumníky. Bezpečně provozováno v e-INFRA CZ.
 
-CERIT‑SC, klíčová součást e‑INFRA CZ, provozuje **on-premise AI platformu**, která poskytuje výzkumníkům bezpečné, vysoce výkonné a interoperabilní AI nástroje. Tato platforma běží na špičkových systémech NVIDIA DGX‑H100/B200/B300 a poskytuje robustní výpočetní výkon pro vysokorychlostní inference. Prostředí hostuje otevřené velké jazykové a generativní modely, které jsou dostupné přes [rozhraní Open WebUI](../ai-as-a-service/chat-ai) nebo standardní [rozhraní API kompatibilní s OpenAI](../ai-as-a-service/ai-api).
+CERIT-SC provozuje velké jazykové modely pro českou výzkumnou a akademickou komunitu, **zdarma a v rámci národní infrastruktury e-INFRA CZ**. Můžete je používat jako chat v prohlížeči, volat z vlastních skriptů nebo připojit do editoru kódu. Modely pracují s textem a kódem, některé umí také číst obrázky nebo přepisovat řeč.
 
-<Callout type="info"> 
-**Novinka: Matrix komunitní kanál** — [Matrix](../web-apps/matrix) je nyní k dispozici uživatelům LLM služeb pro sdílení znalostí a osvědčených postupů, výměnu zkušeností a aktuální informace o stavu služby. 
+
+## Jste tu poprvé? Začněte ve třech krocích
+
+<Cards className="grid-cols-1 gap-4 sm:grid-cols-3">
+
+  <Card title="1. Získejte přístup" icon={<UserPlus />} href="./chat-ai#přístup-k-open-webui">
+    Stačí aktivní účet MetaCentra. Studenti a zaměstnanci Masarykovy univerzity mohou místo toho využít zrychlenou registraci.
+  </Card>
+
+  <Card title="2. Vyzkoušejte chat" icon={<MessageSquare />} href="./chat-ai">
+    Otevřete chat.ai.e-infra.cz, přihlaste se přes e-INFRA CZ a vyberte model. Požádejte ho třeba o vysvětlení části kódu nebo o úpravu odstavce.
+  </Card>
+
+  <Card title="3. Připojte své nástroje" icon={<Plug />} href="./ai-api">
+    Když chat nestačí, vytvořte si API klíč a používejte stejné modely ze skriptů, notebooků nebo z asistenta pro programování.
+  </Card>
+
+</Cards>
+
+
+
+<Callout type="warn" title="Pro výzkumné účely">
+Služba je určena pro výzkum, nikoli pro výuku, administrativní systémy nebo komerční využití. Před vytvořením API klíče si přečtěte [pravidla využívání](#pravidla-využívání).
 </Callout>
 
-### Klíčové vlastnosti (Inference)
+## Co chcete dělat?
 
-* **Bezpečná, on-premise LLM a generativní AI platforma** – Naše modely běží bezpečně na infrastruktuře e‑INFRA CZ. Dotazy a odpovědi nejsou logovány externími poskytovateli, což zajišťuje, že váš výzkum a citlivá data zůstávají v našem prostředí. S výjimkou internetového vyhledávání nic neopouští naši lokální infrastrukturu.
-* **Podpora výzkumu citlivého na soukromí** – soulad s institucionálními a právními požadavky. To činí naše služby ideálními pro práci s citlivými daty.
+<Cards className="grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
-Více informací naleznete v [sekci AI Data privacy](../ai-as-a-service/ai-data-privacy)
+  <Card title="Chatujte v prohlížeči" icon={<MessagesSquare />} href="./chat-ai">
+    **Chat AI.** Rozvíjejte nápady, shrnujte dokumenty, vylepšujte odborné texty a nechte si pomoct s kódem. Porovnávejte odpovědi různých modelů.
+  </Card>
 
-### Co platforma nabízí
+  <Card title="Volejte modely z kódu" icon={<Code />} href="./ai-api">
+    **API kompatibilní s OpenAI.** Zpracovávejte text ve výzkumných workflow pomocí standardních klientských knihoven.
+  </Card>
 
-| Kategorie          | Hlavní body                                                                                                                                 |
-|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| **Výpočetní výkon**       | **NVIDIA DGX‑H100/B200/B300**. GPU výkon v řádu petaflops.                  |
-| **Klíčové modely**        | <p>  Náš portfoliový soubor zahrnuje pokročilé modely přizpůsobené pro programování, generování obrázků, generování kódu, použití nástrojů a agentické workflow. Mezi hlavní modely patří Kimi, GLM, DeepSeek, Qwen,...  Pro zvýšenou bezpečnost tyto modely pracují zcela offline bez přístupu k internetu [Zobrazit další dostupné modely](../ai-as-a-service/chat-ai#currently-available-models) </p> <p>[Stránka stavu modelů](https://llm.ai.e-infra.cz/status/) </p> <p>[Osobní statistiky API tokenů](https://llm.ai.e-infra.cz/usage)</p>|
-| **Metadata modelů**        | Metadata modelů můžete získat [přes endpoint /model/info](../ai-as-a-service/ai-api#getting-model-metadata-via-the-api). |
-| **Přístup**        | Studenti a zaměstnanci MUNI a uživatelé MetaCentrum                                              |
+  <Card title="Nechte si pomoct s programováním" icon={<SquareTerminal />} href="./llm-integration">
+    **Asistenti pro programování.** Nastavte Claude Code, Codex, VS Code nebo IDE od JetBrains tak, aby používaly hostované modely.
+  </Card>
+
+  <Card title="Používejte AI v noteboocích" icon={<NotebookPen />} href="../web-apps/jupyterhub/ai-assistants">
+    **JupyterHub.** Obrazy notebooků s vestavěným AI asistentem, bez nutnosti cokoli instalovat.
+  </Card>
+
+  <Card title="Prohledávejte vlastní dokumenty" icon={<FileSearch />} href="./llm-models#embedding-models">
+    **Embedding modely.** Vytvořte nad svými texty sémantické vyhledávání a generování rozšířené o vyhledávání (RAG).
+  </Card>
+
+  <Card title="Automatizujte vícekrokové úlohy" icon={<Bot />} href="./n8n-agents">
+    **AI agenti v n8n.** Kombinujte modely s dalšími službami ve vizuálních workflow, bez velkého programování.
+  </Card>
+
+  <Card title="Propojte modely s nástroji a daty" icon={<Cable />} href="./mcp">
+    **MCP servery.** Poskytněte AI aplikaci řízený přístup k nástrojům a zdrojům dat prostřednictvím protokolu Model Context Protocol.
+  </Card>
+
+  <Card title="Zkontrolujte kód na zranitelnosti" icon={<ShieldAlert />} href="./deepsec">
+    **DeepSec.** Spusťte bezpečnostní revizi svého výzkumného softwaru s pomocí AI.
+  </Card>
+
+  <Card title="Navrhněte webovou stránku" icon={<PanelsTopLeft />} href="./deepsite">
+    **DeepSite.** Popište web slovy a získejte funkční HTML, CSS a JavaScript.
+  </Card>
+
+</Cards>
+
+## Pravidla využívání
+
+<span id="rules-of-use" />Služba je součástí veřejně financované výzkumné infrastruktury a její kapacita GPU je omezená. Používáním Chat AI nebo API klíče souhlasíte s následujícími pravidly, a to nad rámec [podmínek využívání MetaCentra](https://docs.metacentrum.cz/en/docs/access/terms). Pokud si nejste jisti, zda vaše využití pravidlům odpovídá, napište nám ještě před zahájením práce na [k8s@cerit-sc.cz](mailto:k8s@cerit-sc.cz).
+
+1. **Používejte modely pro výzkum.** Služba je určena primárně pro výzkum. Není určena pro výuku ani pro provoz administrativních systémů a komerční využití není povoleno vůbec. Práce na studentské závěrečné práci se považuje za výzkum.
+2. **API klíč si nechte pro sebe.** Nesdílejte ho s nikým, ani s členy vlastního týmu; každý si požádá o vlastní klíč. Klíče nevkládejte do repozitářů kódu, sdílených notebooků ani obrazů kontejnerů. Pokud klíč unikne, ihned si vygenerujte nový a dejte nám vědět.
+3. **Jednou ročně podejte zprávu o využití.** Při prodlužování účtu předložte krátkou zprávu o tom, k čemu jste API využili a jaké to přineslo výsledky, například publikace, závěrečné práce, software nebo datové sady. Pokud zpráva chybí, může být přístup k API pozastaven.
+4. **Chatboty pro obecné dotazy zabezpečte přihlášením.** Pokud vytvoříte chatbota nebo jinou aplikaci, která ostatním umožňuje klást modelům obecné dotazy, musí vyžadovat autentizaci a být dostupná pouze akademické komunitě pro akademické využití. API klíč zůstává v backendu vaší aplikace a za způsob jejího používání odpovídáte vy.
+5. **Neprovádějte benchmarky hostovaných modelů.** Výsledky benchmarků těchto modelů jsou široce publikovány. Jejich opakované spouštění ubírá kapacitu ostatním výzkumníkům a na sdílené službě výsledky měří hlavně čekání ve frontě. Otestovat modely na malém vzorku vlastních dat, abyste vybrali vhodný model pro svou úlohu, je v pořádku. Pokud je samotné hodnocení jazykových modelů předmětem vašeho výzkumu, domluvte si plán nejprve s námi.
+6. **Velké úlohy domluvte předem.** Kontaktujte nás před hromadným zpracováním rozsáhlé datové sady, generováním syntetických trénovacích dat nebo jinými dlouho běžícími dávkovými úlohami. Neobcházejte limity počtu požadavků pomocí dalších účtů nebo klíčů a neautomatizujte chatovací rozhraní; pro automatizovanou práci používejte API.
+7. **Dodržujte zákony a licence modelů.** Každý model je zveřejněn pod vlastní licencí a některé licence omezují, jak lze model nebo jeho výstupy používat. Nepoužívejte modely k ničemu protiprávnímu ani k útokům na systémy, k jejichž testování nemáte oprávnění.
+8. **Kontrolujte výstupy.** Modely dělají chyby a za ověření výsledků předtím, než se na ně spolehnete, odpovídáte vy. Využití AI uveďte tak, jak to vyžaduje vaše instituce a vydavatel.
+9. **Uveďte poděkování infrastruktuře.** Do publikací, které službu využívají, zahrňte [formuli poděkování](../platform/access#poděkování-a-publikace). Podporuje to budoucí financování infrastruktury.
+
+Porušení těchto pravidel může vést k pozastavení API klíče nebo účtu.
+
+<Callout type="info" title="Publikujete výsledky získané pomocí této služby?">
+Do svých publikací prosím uveďte [formuli poděkování](../platform/access#poděkování-a-publikace). Podporuje to budoucí financování infrastruktury.
+</Callout>
 
 
-### Klíčové AI služby (Inference)
+## Výběr modelu
 
-| Služba                   | Odkaz                                                    | Popis                                                |
-|---------------------------|---------------------------------------------------------|----------------------------------------------------------|
-| **Chat (Open‑WebUI)**     | [WebUI chat](../ai-as-a-service/chat-ai)                             | <p>Plnohodnotné konverzační rozhraní (podobné ChatGPT) nabízející pokročilé funkce a explicitní výběr jazykového modelu.</p> <p> **Práce s textem**: Překlady, shrnutí, analýza a generování programového kódu.</p> <p>**Multimodalita**: Generování obrázků (včetně úprav) a rozpoznávání obsahu v obrázcích (např. extrakce sériového čísla z fotografie).</p> <p>**Nástroje**: Vyhledávání na internetu, GitHub, arXiv a Python sandbox pro spouštění kódu v prohlížeči a datovou analytiku. </p> <p>**RAG (Znalosti)**: Vyhledávání v dokumentu připojeném k chatu funguje velmi dobře.</p>                                     |
-| **OpenAI-kompatibilní API**          | [OpenAI API](../ai-as-a-service/ai-api) | Použijte OpenAI-kompatibilní endpoint pro integraci AI do svých skriptů, pipeline nebo služeb.                                            |
-| **MCP servery**              |     [MCP servery](../ai-as-a-service/mcp)             |     Poskytujeme několik MCP serverů, které jsou dostupné přes API https://llm.ai.e-infra.cz. Konkrétní MCP server je dostupný na https://llm.ai.e-infra.cz/[servername]/mcp.                 |
-| **AI asistenti pro kódování**     |     [Integrace AI Coding Assistants](../ai-as-a-service/llm-integration)             |     Připojením svých nástrojů k našemu backendu můžete využívat vysoce výkonné modely pro úkoly kódování (podpora ClaudeCode, OpenCode, VSCode,...).        |
-| **DeepSite**              | [DeepSite (vibe‑coding)](../ai-as-a-service/deepsite)                | Generativní nástroj, který na základě jednoduchého textového popisu vytváří webové stránky a aplikace (HTML/CSS/JS). Vynikající pro návrhy designu, makety nebo rychlé webové koncepty. |
-| **AI v Jupyter Noteboocích** | [JupyterHub integrace](../web-apps/jupyterhub)                     | Integrace AI asistenta přímo do prostředí Jupyter Lab (Notebook Intelligence). Používá se pro opravu kódu (R nebo Python), generování nových snippetů a konverzační asistenci ve vašich kódovacích projektech. |
-| **n8n platforma** | [n8n Agenti](../ai-as-a-service/n8n-agents)                      | n8n je open-source, low-code platforma pro automatizaci workflow s funkcionalitou AI Agentů. |
-| **DeepSec vulnerability scanner** | [DeepSec](../ai-as-a-service/deepsec)                      | AI-powered scanner zranitelností navržený pro běh ve vaší vlastní infrastruktuře. Provádí on-demand security review celých codebaseů — včetně rozsáhlých repozitářů — kombinací rychlé detekce kandidátů založené na regex a hluboké AI investigace.|
-| **Documentation ChatBot** | docs.e-infra.cz a další dokumentační weby                      | Systém Retrieval-Augmented Generation (RAG) implementovaný napříč dokumentací e‑INFRA CZ. Odpovídá na konkrétní otázky a funguje jako řešitel problémů na základě naší znalostní báze (např. "Jak spustit MATLAB?"). |
-| **Matrix diskuzní kanál** | [Matrix](../web-apps/matrix) | Real-time chat pro uživatele LLM služeb pro kladení otázek, sdílení znalostí a sledování aktualit. |
+Modely se liší schopnostmi, dobou odezvy a nároky na zdroje.
+Začněte modelem vhodným pro vaši úlohu a vyhodnoťte jeho výstupy
+na malém, reprezentativním vzorku.
 
-## Doporučené postupy a zásady férového využívání (Fair Use)
+- **Textové a programovací modely** pomáhají například s psaním textů,
+  klasifikací, extrakcí informací a programováním.
+- **Multimodální modely** umí, pokud to podporují, zpracovávat také obrázky.
+- **Embedding modely** převádějí text na číselné reprezentace
+  pro sémantické vyhledávání a generování rozšířené o vyhledávání (RAG).
+  RAG dodává modelu vyhledané dokumenty jako kontext pro jeho odpověď.
 
-Protože je AI platforma e‑INFRA CZ sdíleným a kapacitně omezeným zdrojem, výpočetně náročné úlohy přímo ovlivňují čekací doby v jednotlivých frontách pro ostatní výzkumníky. Dodržujte prosím následující pravidla, abychom společně zajistili plynulý, rychlý a spravedlivý přístup pro celou komunitu:
+Všechny modely, jejich schopnosti a velikosti kontextu najdete v [katalogu modelů](./llm-models), co právě běží, ukazuje [stránka stavu modelů](https://llm.ai.e-infra.cz/status/). [Stránka o hardwaru](./hardware) popisuje GPU systémy, na kterých služba běží.
 
-* **Neplýtvejte zdroji:** Kapacity jsou omezené a čím více jich spotřebujete, tím méně prostoru zbývá pro ostatní uživatele. Interaktivní práce přes **Open WebUI** generuje ve srovnání s automatizovanými API voláními minimální zátěž, takže si při běžném chatování nemusíte dělat starosti s limity zdrojů. Při spouštění automatizovaných pipeline nebo náročných dávkových úloh přes API však mějte na paměti, že nadměrná spotřeba prodlužuje dobu čekání ostatním.
-* **Volte velikost modelu podle složitosti úlohy:** Nepoužívejte velké modely zaměřené na hluboké uvažování (jako jsou **Kimi** nebo **GLM**) pro jednoduché úkoly. Jejich odpověď trvá výrazně déle, aniž by u základních dotazů přinesly jakékoli zvýšení kvality. U vícekrokových či agentních workflow použijte silný řídicí (orchestrační) model pro plánování a dílčí jednoduché úkoly delegujte na menší a rychlejší modely. Velké modely tak zůstanou volné pro skutečně komplexní výpočty.
-* **Omezte počet paralelních agentů:** Nespouštějte velké množství souběžných agentů. Paralelní běh je kvůli zachování stability platformy aktivně regulován horními limity.
-* **Konfigurujte modely podle jejich role – nepřepínejte je podle aktuálního vytížení:** Vyvarujte se dynamického přepínání modelů na základě aktuálních statistik vytížení na stavové stránce (status page). Metriky vytížení jsou zpožděné a hromadné přepínání modelů podle zdánlivé zátěže způsobuje výkyvy provozu, které narušují stabilitu celé platformy. Nastavte si modely pevně podle jejich role ve vašem workflow a úlohu jednoduše odešlete; běžné čekací doby ve frontě jsou zpravidla minimální.
-* **Náročné dávkové úlohy plánujte mimo špičku:** Pokud potřebujete přes API spustit rozsáhlé nebo výpočetně náročné dávkové úlohy, zvažte jejich naplánování na noc nebo víkend, kdy je celkový provoz na platformě slabší a fronty kratší.
+### Změny modelů a reprodukovatelnost
+
+Modely se aktualizují a vyřazují, takže konkrétní verze nemusí zůstat dostupná po celou dobu vašeho projektu. [Alias](./llm-models#model-aliases) zachová stejný název, i když se model za ním změní; nezachová však stejné chování ani výsledky.
+
+U práce, která povede k publikaci:
+
+- Zaznamenejte přesný identifikátor modelu a jeho metadata, nejen alias. Návod k API ukazuje, jak [získat metadata modelu](./ai-api#získávání-metadat-modelů-přes-api).
+- Ukládejte prompty, vstupní data, nastavení generování, datum zpracování a výstupy tak, jak to vyžaduje váš plán správy dat.
+- Po změně modelu workflow znovu ověřte.
+
+Pokud váš projekt závisí na jedné konkrétní verzi modelu, napište nám ještě před zahájením na [k8s@cerit-sc.cz](mailto:k8s@cerit-sc.cz).
+
+## Výzkumná data a soukromí
+
+Standardní hostované modely běží v rámci e-INFRA CZ. Externí vyhledávací
+nástroje a samostatně sjednané služby třetích stran mohou znamenat
+odeslání informací mimo tuto infrastrukturu.
+
+Nakládání s daty závisí také na tom, jak ke službě přistupujete:
+
+- **Chatovací rozhraní:** konverzace a nahrané soubory služba ukládá.
+  Před nahráním dokumentů si přečtěte informace o uchovávání
+  a mazání dat.
+- **Přímé API:** zdokumentovaná cesta přes API obchází úložiště
+  konverzací chatovacího rozhraní. To samo o sobě neznamená, že
+  workflow splňuje požadavky vašeho projektu na ochranu dat.
+
+Chatovací rozhraní je určeno pro obecnou pomoc při výzkumu a není
+certifikováno pro chráněná data. Před použitím citlivých, osobních
+nebo jinak omezených dat kontaktujte
+[k8s@cerit-sc.cz](mailto:k8s@cerit-sc.cz) a domluvte se na vhodném řešení.
+
+Podrobnosti o externích službách, ukládání, logování a uchovávání dat
+najdete v [zásadách ochrany dat v AI službách](./ai-data-privacy).
+
+
+## Sdílejte výpočetní zdroje zodpovědně
+
+
+Stejné GPU sdílí mnoho výzkumníků, takže doba odezvy se mění podle aktuální poptávky.
+
+- **Vyberte nejmenší model, který úlohu zvládne.** Na větší přejděte, jen když vaše vyhodnocení ukáže přínos.
+- **Mějte dávkové úlohy pod kontrolou.** Omezte počet souběžných požadavků a dodržujte limity.
+- **Nepřepínejte modely automaticky** podle krátkodobých údajů o vytížení na stavové stránce.
+- **Před velkými výpočty se s námi domluvte.** Náročné dávkové zpracování plánujte mimo špičku a nezávislé benchmarky předem dohodněte s podporou, jak vyžaduje [návod k Chat AI](./chat-ai#používání-ai-modelů).
+
+Spotřebu API tokenů můžete sledovat v
+[přehledu využití](https://llm.ai.e-infra.cz/usage/).
+Tento přehled nezahrnuje využití chatovacího rozhraní.
+
+
+## Podpora a novinky ve službě
+
+## Pomoc a novinky
+
+<Cards className="grid-cols-1 gap-4 sm:grid-cols-2">
+
+  <Card title="Kontaktujte podporu" icon={<LifeBuoy />} href="mailto:k8s@cerit-sc.cz">
+    Napište týmu podpory kvůli problémům s přístupem, radě k workflow nebo požadavkům vašeho projektu.
+  </Card>
+
+  <Card title="Komunita na Matrixu" icon={<Users />} href="../web-apps/matrix">
+    Sdílejte zkušenosti v kanálu `#LLM-General` a sledujte oznámení o službě a modelech v `#LLM-Status`.
+  </Card>
+
+  <Card title="Stav modelů" icon={<Activity />} href="https://llm.ai.e-infra.cz/status/">
+    Podívejte se, které modely jsou aktuálně dostupné.
+  </Card>
+
+  <Card title="Vaše využití API" icon={<ChartColumn />} href="https://llm.ai.e-infra.cz/usage/">
+    Prohlédněte si spotřebu API tokenů. Využití přes chatovací rozhraní není zahrnuto.
+  </Card>
+
+</Cards>
+
+
+---
 
 ## Reference
-Více informací najdete na našem blogu e‑INFRA na adrese https://blog.e-infra.cz/
+Články o službě najdete na [blogu e-INFRA CZ](https://blog.e-infra.cz/).
 
+Můžete se také zeptat asistenta „Ask AI“, který je součástí této dokumentace.
